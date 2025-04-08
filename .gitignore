@@ -43,3 +43,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/.cxx
+.metadata
+linux/
+windows/
+macos/
+/windows
+/macos
+/linux
