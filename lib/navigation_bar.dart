@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class IslandNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -13,32 +14,72 @@ class IslandNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: BottomNavigationBar(
-          currentIndex: selectedIndex,
-          onTap: onTap,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
-          elevation: 10,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: '홈',
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x28000000),
+              blurRadius: 12,
+              offset: Offset(0, 4),
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: '검색',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: '설정',
-            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildTabIcon('assets/icons/doc_tab.svg', 0),
+            _buildTabIcon('assets/icons/static_tab.svg', 1),
+            _buildTabIcon('assets/icons/commu_tab.svg', 2),
+            _buildTabIcon('assets/icons/info_tab.svg', 3),
           ],
         ),
       ),
     );
   }
+
+  Widget _buildTabIcon(String assetPath, int index) {
+    return GestureDetector(
+      onTap: () => onTap(index), // main.dart에 onTap 호출 (build될때 _onTap 함수를 인자로 전달받았음)
+      child: SizedBox(
+        width: 28,
+        height: 28,
+        child: SvgPicture.asset(
+        assetPath,
+        colorFilter: ColorFilter.mode(
+            selectedIndex == index ? Color(0xFF333333) : Color(0xFFAAAAAA),
+            BlendMode.srcIn, // ← 핵심 포인트!
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget _buildProfileIcon(String imageUrl, int index) {
+  //   return GestureDetector(
+  //     onTap: () => onTap(index),
+  //     child: Container(
+  //       width: 28,
+  //       height: 28,
+  //       decoration: BoxDecoration(
+  //         shape: BoxShape.circle,
+  //         image: DecorationImage(
+  //           image: NetworkImage(imageUrl),
+  //           fit: BoxFit.cover,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildDivider() {
+  //   return Container(
+  //     width: 1,
+  //     height: 24,
+  //     color: Colors.black.withOpacity(0.1),
+  //   );
+  // }
 }

@@ -16,9 +16,10 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const Center(child: Text('홈')),
-    const Center(child: Text('검색이얌!!')),
-    const Center(child: Text('설정')),
+    const Center(child: Text('기록')),
+    const Center(child: Text('통계')),
+    const Center(child: Text('커뮤니티')),
+    const Center(child: Text('회원')),
   ];
 
   void _onTap(int index) {
