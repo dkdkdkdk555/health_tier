@@ -13,9 +13,8 @@ class IslandNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
-      child: Container(
+    return Container(
+        margin: const EdgeInsets.only(left:72, right: 72, bottom:50),
         height: 64,
         decoration: BoxDecoration(
           color: Colors.white,
@@ -37,7 +36,6 @@ class IslandNavigationBar extends StatelessWidget {
             _buildProfileIcon('assets/icons/Ellipse1.png', 3),
           ],
         ),
-      ),
     );
   }
 
@@ -67,7 +65,7 @@ class IslandNavigationBar extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            // image: NetworkImage(imageUrl),
+            // image: NetworkImage(imageUrl), -> 회원이미지를 네트워크에서 가져올때 적용하자
             image: Image.asset(imageUrl).image,
             fit: BoxFit.cover,
           ),
