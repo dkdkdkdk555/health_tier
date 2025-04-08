@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.my_app"
+        applicationId = "com.example.ht"
         minSdk = flutter.minSdkVersion
         targetSdk = 34              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
