@@ -34,7 +34,7 @@ class IslandNavigationBar extends StatelessWidget {
             _buildTabIcon('assets/icons/doc_tab.svg', 0),
             _buildTabIcon('assets/icons/static_tab.svg', 1),
             _buildTabIcon('assets/icons/commu_tab.svg', 2),
-            _buildTabIcon('assets/icons/info_tab.svg', 3),
+            _buildProfileIcon('assets/icons/Ellipse1.png', 3),
           ],
         ),
       ),
@@ -50,7 +50,7 @@ class IslandNavigationBar extends StatelessWidget {
         child: SvgPicture.asset(
         assetPath,
         colorFilter: ColorFilter.mode(
-            selectedIndex == index ? Color(0xFF333333) : Color(0xFFAAAAAA),
+            selectedIndex == index ? const Color(0xFF333333) : const Color(0xFFAAAAAA),
             BlendMode.srcIn, // ← 핵심 포인트!
           ),
         ),
@@ -58,22 +58,23 @@ class IslandNavigationBar extends StatelessWidget {
     );
   }
 
-  // Widget _buildProfileIcon(String imageUrl, int index) {
-  //   return GestureDetector(
-  //     onTap: () => onTap(index),
-  //     child: Container(
-  //       width: 28,
-  //       height: 28,
-  //       decoration: BoxDecoration(
-  //         shape: BoxShape.circle,
-  //         image: DecorationImage(
-  //           image: NetworkImage(imageUrl),
-  //           fit: BoxFit.cover,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildProfileIcon(String imageUrl, int index) {
+    return GestureDetector(
+      onTap: () => onTap(index),
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            // image: NetworkImage(imageUrl),
+            image: Image.asset(imageUrl).image,
+            fit: BoxFit.cover,
+          ),
+        ),
+      ),
+    );
+  }
 
   // Widget _buildDivider() {
   //   return Container(
