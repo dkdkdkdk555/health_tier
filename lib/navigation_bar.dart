@@ -14,11 +14,12 @@ class IslandNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(left:72, right: 72, bottom:50),
-        height: 64,
+        margin: const EdgeInsets.only(left:74, right: 74, bottom:47),
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        height: 62,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           boxShadow: const [
             BoxShadow(
               color: Color(0x28000000),
@@ -31,8 +32,11 @@ class IslandNavigationBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildTabIcon('assets/icons/doc_tab.svg', 0),
+            _buildTabLine([0, 1]),
             _buildTabIcon('assets/icons/static_tab.svg', 1),
+            _buildTabLine([1, 2]),
             _buildTabIcon('assets/icons/commu_tab.svg', 2),
+            _buildTabLine([2, 3]),
             _buildProfileIcon('assets/icons/Ellipse1.png', 3),
           ],
         ),
@@ -73,6 +77,22 @@ class IslandNavigationBar extends StatelessWidget {
       ),
     );
   }
+  
+  Widget _buildTabLine(List<int> indexes) {
+  final isActive = indexes.contains(selectedIndex);
+
+  return AnimatedContainer(
+    duration: const Duration(milliseconds: 200),
+    curve: Curves.easeInOut,
+    margin: isActive ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
+    width: isActive ? 1 : 0,
+    height: isActive ? 16 : 0,
+    decoration: BoxDecoration(
+      color: isActive ? const Color.fromRGBO(0, 0, 0, 0.18) : Colors.transparent,
+    ),
+  );
+}
+
 
   // Widget _buildDivider() {
   //   return Container(
