@@ -1,11 +1,33 @@
 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="ico_community">
-<g id="Group 815969">
-<rect id="Rectangle 154843" x="6" y="6" width="16" height="16" rx="1" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-<circle id="Ellipse 498" cx="6.5" cy="6.5" r="2.5" fill="white" stroke="currentColor" stroke-width="2"/>
-<circle id="Ellipse 500" cx="6.5" cy="21.5" r="2.5" fill="white" stroke="currentColor" stroke-width="2"/>
-<circle id="Ellipse 499" cx="21.5" cy="6.5" r="2.5" fill="white" stroke="currentColor" stroke-width="2"/>
-<circle id="Ellipse 501" cx="21.5" cy="21.5" r="2.5" fill="white" stroke="currentColor" stroke-width="2"/>
-</g>
-</g>
+  <defs>
+    <mask id="circleMask">
+      <!-- 전체 배경을 흰색 (완전 불투명)으로 -->
+      <rect width="28" height="28" fill="white"/>
+      
+      <!-- 구멍으로 만들 원 4개를 검정색 (완전 투명)으로 그리기 -->
+      <circle cx="6.5" cy="6.5" r="3" fill="black"/>
+      <circle cx="6.5" cy="21.5" r="3" fill="black"/>
+      <circle cx="21.5" cy="6.5" r="3" fill="black"/>
+      <circle cx="21.5" cy="21.5" r="3" fill="black"/>
+    </mask>
+  </defs>
+
+  <!-- 마스크를 씌운 사각형 -->
+  <rect
+    x="6"
+    y="6"
+    width="16"
+    height="16"
+    rx="1"
+    stroke="currentColor"
+    stroke-width="2"
+    mask="url(#circleMask)"
+    fill="none"
+  />
+
+  <!-- 동그라미 외곽선 (stroke만 있는 가짜 원들) -->
+  <circle cx="6.5" cy="6.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="6.5" cy="21.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="21.5" cy="6.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
+  <circle cx="21.5" cy="21.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/>
 </svg>

@@ -1,9 +1,5 @@
-<svg width="20" height="22" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="&#234;&#184;&#176;&#235;&#161;&#157;">
-<path id="Rectangle 154837" d="M1 8.33349C1 7.89765 1.21077 7.48872 1.56575 7.23586L9.21811 1.78475C9.68608 1.4514 10.3139 1.4514 10.7819 1.78475L18.4342 7.23586L19.0144 6.42138L18.4342 7.23586C18.7892 7.48872 19 7.89765 19 8.33349V19.6524C19 20.3966 18.3966 21 17.6524 21H2.34764C1.60336 21 1 20.3966 1 19.6524V8.33349Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-<g id="Group 815966">
-<rect id="Rectangle 154839" x="11" y="8" width="10" height="2" rx="1" transform="rotate(90 11 8)" fill="#333333"/>
-<rect id="Rectangle 154840" x="15" y="14" width="10" height="2" rx="1" transform="rotate(-180 15 14)" fill="#333333"/>
-</g>
-</g>
+<svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 11.3335C5 10.8977 5.21077 10.4887 5.56575 10.2359L13.2181 4.78475C13.6861 4.4514 14.3139 4.4514 14.7819 4.78475L22.4342 10.2359L23.0144 9.42138L22.4342 10.2359C22.7892 10.4887 23 10.8976 23 11.3335V22.6524C23 23.3966 22.3966 24 21.6524 24H6.34764C5.60336 24 5 23.3966 5 22.6524V11.3335Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<rect x="15" y="11" width="10" height="2" rx="1" transform="rotate(90 15 11)" fill="#333333"/>
+<rect x="19" y="17" width="10" height="2" rx="1" transform="rotate(-180 19 17)" fill="#333333"/>
 </svg>

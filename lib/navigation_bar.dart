@@ -43,8 +43,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index), // main.dart에 onTap 호출 (build될때 _onTap 함수를 인자로 전달받았음)
       child: SizedBox(
-        width: 28,
-        height: 28,
+        width: 32,
+        height: 32,
         child: SvgPicture.asset(
         assetPath,
         colorFilter: ColorFilter.mode(
