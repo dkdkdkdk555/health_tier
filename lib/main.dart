@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/tab/doc/doc_body_calendar.dart';
 import 'navigation_bar.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const Center(child: Text('기록')),
+    DocBodyCalendar(),
     const Center(child: Text('통계')),
     const Center(child: Text('커뮤니티')),
     const Center(child: Text('회원')),
