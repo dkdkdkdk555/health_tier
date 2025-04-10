@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -45,17 +46,14 @@ class _DocBodyCalendarState extends State<DocBodyCalendar> {
           body: Column(
             children: [
               // AppBar 대체 영역 (flex: 14)
-              Expanded(
-                flex: 14,
-                child: DocAppBar(
+              DocAppBar(
                   selectedIndex: _selectedIndex,
                   onTap: _onTap,
-                ),
               ),
 
               // Body 영역 (flex: 49) with Offstage + TickerMode
-              Expanded(
-                flex: 49,
+              SizedBox(
+                height: 402.h,
                 child: Container(
                   color: const Color(0xFFF5F5F5),
                   child: Stack(
@@ -73,8 +71,8 @@ class _DocBodyCalendarState extends State<DocBodyCalendar> {
               ),
 
               // BottomSheet 대체 영역 (flex: 36)
-              Expanded(
-                flex: 36,
+              SizedBox(
+                height: 296.h,
                 child: Container(
                   color: Colors.grey[200],
                   child: const Center(child: Text('Bottom Sheet Area')),
