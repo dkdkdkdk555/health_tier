@@ -52,3 +52,5 @@ macos/
 /windows
 /macos
 /linux
+devtools_options.yaml
+linux/flutter/generated_plugin_registrant.cc
