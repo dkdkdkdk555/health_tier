@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/doc/doc_body_detail.dart' show DocBodyDetail;
+import 'package:table_calendar/table_calendar.dart';
 
 class DocCalendarBody extends StatefulWidget {
   const DocCalendarBody({super.key});
@@ -15,25 +17,20 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
       children: [
         Expanded(
           flex: 201,
-          child: Container(
-            color: Color(0xFFF5F5F5)
+          child: TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: DateTime.now(),
+            calendarFormat: CalendarFormat.month,
+            // headerStyle: HeaderStyle(...),
+            // daysOfWeekStyle: DaysOfWeekStyle(...),
+            // calendarBuilders: CalendarBuilders(...),
           )
+          // Container(
+          //   color: const Color(0xFFF5F5F5)
+          // )
         ),
-        Expanded(
-          flex: 148,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(47)),
-              border: Border(
-                left: BorderSide(width: 2 ,color: Color(0xFFEEEEEE)),
-                top: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
-                right: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
-                bottom: BorderSide(color: Color(0xFFEEEEEE)),
-              ),
-            ),
-          )
-        ),
+        const DocBodyDetail(),
       ],
     );
   }
