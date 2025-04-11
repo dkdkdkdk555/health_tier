@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class IslandNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -15,10 +14,9 @@ class IslandNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: EdgeInsets.only(left:71.w, right: 71.w, bottom:41.h),
-        padding: EdgeInsets.only(left: 10.w, right: 10.w),
-        height: 52.h,
-        width: 234.w,
+        margin: const EdgeInsets.only(left:74, right: 74, bottom:47),
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        height: 62,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -49,8 +47,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index), // main.dart에 onTap 호출 (build될때 _onTap 함수를 인자로 전달받았음)
       child: SizedBox(
-        width: 28.w,
-        height: 28.h,
+        width: 32,
+        height: 32,
         child: SvgPicture.asset(
         assetPath,
         colorFilter: ColorFilter.mode(
@@ -66,8 +64,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        width: 25.w,
-        height: 25.h,
+        width: 28,
+        height: 28,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
@@ -86,9 +84,9 @@ class IslandNavigationBar extends StatelessWidget {
   return AnimatedContainer(
     duration: const Duration(milliseconds: 200),
     curve: Curves.easeInOut,
-    margin: isActive ? EdgeInsets.symmetric(horizontal: 9.w) : EdgeInsets.zero,
-    width: isActive ? 1.w : 0,
-    height: isActive ? 14.h : 0,
+    margin: isActive ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
+    width: isActive ? 1 : 0,
+    height: isActive ? 16 : 0,
     decoration: BoxDecoration(
       color: isActive ? const Color.fromRGBO(0, 0, 0, 0.18) : Colors.transparent,
     ),
