@@ -1,5 +1,5 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DocAppBar extends StatelessWidget {
   final int selectedIndex;
@@ -13,33 +13,33 @@ class DocAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 114.h,
+    return Expanded(
+      flex: 57,
       child: Column(
         children: [
-          SizedBox(height: 64.h,), // 상단 여백 (64px 비율 대응)
-          SizedBox(
-            height: 33.h,
+          const Spacer(flex: 32),
+          Expanded(
+            flex: 17,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(child: Container()), // 좌측 여백 (좌우 127px 대체)
+                Expanded(flex:127, child: Container()), // 좌측 여백 (좌우 127px 대체)
                 buildTab(
                   title: '체중',
                   isSelected: selectedIndex == 0,
                   index: 0,
                 ),
-                SizedBox(width: 52.w), // 탭 간격 (54px 대신 비율 감안한 고정)
+                const Spacer(flex: 52),
                 buildTab(
                   title: '식단',
                   isSelected: selectedIndex == 1,
                   index: 1,
                 ),
-                Expanded(child: Container()), // 우측 여백
+                Expanded(flex:127, child: Container()), // 우측 여백
               ],
             ),
           ),
-          SizedBox(height: 16.h,), // 하단 여백 (16px 대응)
+          const Spacer(flex: 8)
         ],
       ),
     );
@@ -50,35 +50,41 @@ class DocAppBar extends StatelessWidget {
     required bool isSelected,
     required int index,
   }) {
-    return GestureDetector(
-      onTap: () => onTap(index),
-      behavior: HitTestBehavior.translucent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isSelected)
-            Container(
-              width: 4.w,
-              height: 4.h,
-              margin: EdgeInsets.only(bottom: 7.h),
-              decoration: const BoxDecoration(
-                color: Colors.black,
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-          SizedBox(height: 11.h),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              height: 1,
-              fontWeight: FontWeight.w700,
-              color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-              fontFamily: 'Pretendard',
-            ),
-          ),
-        ],
+    return Expanded(
+      flex: 35,
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+            children: [
+              if (isSelected)...[ // ...[] 는 조건문 안에 여러 위젯을 넣을때 사용되는 스프레드 문법 이다.
+                Expanded(
+                  flex: 8,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                const Expanded(flex: 1,child: SizedBox.expand()),
+              ]else
+                const Expanded(flex: 9,child: SizedBox.expand()),
+                Expanded(
+                  flex: 52,
+                  child: AutoSizeText(
+                    title,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                      color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+                ),
+            ],
+        ),
       ),
     );
   }
