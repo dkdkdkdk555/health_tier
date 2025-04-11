@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
+import 'package:my_app/view/tab/doc/doc_calendar_body.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-class DocBodyCalendar extends StatefulWidget {
-  const DocBodyCalendar({
+class DocMain extends StatefulWidget {
+  const DocMain({
     super.key,
   });
 
   @override
-  State<DocBodyCalendar> createState() => _DocBodyCalendarState();
+  State<DocMain> createState() => _DocMainState();
 }
 
-class _DocBodyCalendarState extends State<DocBodyCalendar> {
+class _DocMainState extends State<DocMain> {
   late int _selectedIndex;
 
   
@@ -24,7 +25,7 @@ class _DocBodyCalendarState extends State<DocBodyCalendar> {
 
 
   final List<Widget> _pages = [
-    const Center(child: Text('체중')),
+    DocCalendarBody(),
     const Center(child: Text('식단')),
   ];
 
@@ -44,15 +45,15 @@ class _DocBodyCalendarState extends State<DocBodyCalendar> {
         return Scaffold(
           body: Column(
             children: [
-              // AppBar 대체 영역 (flex: 14)
+              // AppBar
               DocAppBar(
                   selectedIndex: _selectedIndex,
                   onTap: _onTap,
               ),
 
-              // Body 영역 (flex: 49) with Offstage + TickerMode
+              // Body
               Expanded(
-                flex: 201,
+                flex: 349,
                 child: Container(
                   color: const Color(0xFFF5F5F5),
                   child: Stack(
@@ -66,15 +67,6 @@ class _DocBodyCalendarState extends State<DocBodyCalendar> {
                       );
                     }),
                   ),
-                ),
-              ),
-
-              // BottomSheet 대체 영역 (flex: 36)
-              Expanded(
-                flex: 148,
-                child: Container(
-                  color: Colors.grey[200],
-                  child: const Center(child: Text('Bottom Sheet Area')),
                 ),
               ),
             ],

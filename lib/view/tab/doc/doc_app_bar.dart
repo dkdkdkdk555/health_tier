@@ -15,32 +15,35 @@ class DocAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       flex: 57,
-      child: Column(
-        children: [
-          const Spacer(flex: 32),
-          Expanded(
-            flex: 17,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(flex:127, child: Container()), // 좌측 여백 (좌우 127px 대체)
-                buildTab(
-                  title: '체중',
-                  isSelected: selectedIndex == 0,
-                  index: 0,
-                ),
-                const Spacer(flex: 52),
-                buildTab(
-                  title: '식단',
-                  isSelected: selectedIndex == 1,
-                  index: 1,
-                ),
-                Expanded(flex:127, child: Container()), // 우측 여백
-              ],
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            const Spacer(flex: 32),
+            Expanded(
+              flex: 17,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(flex:127, child: Container()), // 좌측 여백 (좌우 127px 대체)
+                  buildTab(
+                    title: '체중',
+                    isSelected: selectedIndex == 0,
+                    index: 0,
+                  ),
+                  const Spacer(flex: 52),
+                  buildTab(
+                    title: '식단',
+                    isSelected: selectedIndex == 1,
+                    index: 1,
+                  ),
+                  Expanded(flex:127, child: Container()), // 우측 여백
+                ],
+              ),
             ),
-          ),
-          const Spacer(flex: 8)
-        ],
+            const Spacer(flex: 8)
+          ],
+        ),
       ),
     );
   }
