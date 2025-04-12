@@ -25,7 +25,7 @@ class _DocMainState extends State<DocMain> {
 
 
   final List<Widget> _pages = [
-    DocCalendarBody(),
+    const DocCalendarBody(),
     const Center(child: Text('식단')),
   ];
 
