@@ -33,13 +33,14 @@ class CustomCalendarHeader extends StatelessWidget {
                   padding: EdgeInsets.zero,
                 ),
               ),
-            const Spacer(flex:23),
+            const Spacer(flex:22),
             Expanded( // 가운데 날짜 텍스트
-              flex: 19,
+              flex: 22,
               child: AutoSizeText(
                   '$year년 $month월',
                   maxLines: 1,
                   style: const TextStyle(
+                    fontSize: 16,
                     fontFamily: 'Pretendard',
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
@@ -47,7 +48,7 @@ class CustomCalendarHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const Spacer(flex:23),
+            const Spacer(flex:22),
             Expanded( // 오른쪽 화살표
               flex: 5,
               child: IconButton(
