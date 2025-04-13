@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/doc/calendar/calendar_body.dart';
-import 'package:my_app/view/tab/doc/calendar/calendar_header.dart';
-import 'package:my_app/view/tab/doc/doc_body_detail.dart' show DocBodyDetail;
+import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
+import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
+import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
 
 class DocCalendarBody extends StatefulWidget {
   const DocCalendarBody({super.key});

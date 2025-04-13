@@ -1,6 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/doc/calendar/calendar_daysofweek.dart';
+import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CustomCalenderBody extends StatelessWidget {
@@ -30,20 +30,17 @@ class CustomCalenderBody extends StatelessWidget {
                 const Spacer(flex: 3,),
                 Expanded(
                   flex: 67,
-                  child: Container(
-                    // color: Colors.red.withOpacity(0.1),
-                    child: TableCalendar(
-                      headerVisible: false,
-                      daysOfWeekVisible: false,
-                      firstDay: DateTime.utc(2020, 1, 1),
-                      lastDay: DateTime.utc(2030, 12, 31),
-                      rowHeight: 48.25 * heightRatio,
-                      focusedDay: _focusedDay,
-                      calendarFormat: CalendarFormat.month,
-                      calendarBuilders: CalendarBuilders(
-                        defaultBuilder: defaultDayForm,
-                        outsideBuilder: (context, date, _) => defaultDayForm(context, date, _, isOutside: true),
-                      ),
+                  child: TableCalendar(
+                    headerVisible: false,
+                    daysOfWeekVisible: false,
+                    firstDay: DateTime.utc(2020, 1, 1),
+                    lastDay: DateTime.utc(2030, 12, 31),
+                    rowHeight: 48.25 * heightRatio,
+                    focusedDay: _focusedDay,
+                    calendarFormat: CalendarFormat.month,
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: defaultDayForm,
+                      outsideBuilder: (context, date, _) => defaultDayForm(context, date, _, isOutside: true),
                     ),
                   ),
                 ),
