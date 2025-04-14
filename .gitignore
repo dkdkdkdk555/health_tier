@@ -54,3 +54,8 @@ macos/
 /linux
 devtools_options.yaml
 linux/flutter/generated_plugin_registrant.cc
+/ios/build/ios/XCBuildData/PIFCache
+ios/Flutter/Debug.xcconfig
+ios/Flutter/Release.xcconfig
+macos/Flutter/Flutter-Debug.xcconfig
+macos/Flutter/Flutter-Release.xcconfig
