@@ -39,7 +39,11 @@ dependencies:
   responsive_builder: ^0.7.1
   auto_size_text: ^3.0.0
   table_calendar: ^3.2.0
-  sqflite: ^2.4.2
+
+  # DB
+  drift: ^2.26.0
+  drift_sqflite: ^2.0.1
+  path_provider: ^2.1.5
   path: ^1.9.1 #path는 파일 경로를 조작할 때 쓰는 Dart 기본 패키지. 예를 들어 join()을 써서 OS에 맞는 경로(/ 또는 \)로 DB 파일 경로를 만들어줌
 
 dev_dependencies:
@@ -52,6 +56,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
+  #DB
+  drift_dev: ^2.26.0
+  build_runner: ^2.4.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
