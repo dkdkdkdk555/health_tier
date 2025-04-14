@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/database/app_database.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'view/navigation_bar.dart';
 
 void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final db = AppDatabase();
+  await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+
   runApp(const MyApp());
 }
 
