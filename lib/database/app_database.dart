@@ -78,6 +78,17 @@ class AppDatabase extends _$AppDatabase {
       stamp: Value('TERRIBLE'),
     ));
 
+    await into(htDayBody).insert(const HtDayBodyCompanion(
+      day: Value('2025-04-02'),
+      weight: Value(101.0),
+      muscle: Value(37.0),
+      fat: Value(20.0),
+      memo: Value('매우 피곤한 상태임에도 운동 잘 수행함22'),
+      wkoutYn: Value(1),
+      drunkYn: Value(0),
+    ));
+
+
     ///////////식단
 
     await into(htDayDiet).insert(const HtDayDietCompanion(
