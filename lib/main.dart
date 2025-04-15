@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'view/navigation_bar.dart';
@@ -9,7 +10,9 @@ void main() async{
   final db = AppDatabase();
   await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
 
-  runApp(const MyApp());
+  runApp(const ProviderScope( // 상태관리 패키지 - Riverpod 설정
+    child:MyApp())
+  );
 }
 
 class MyApp extends StatefulWidget {

@@ -25,18 +25,18 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.my_app"
-    compileSdk = 34                  // ✅ 수정됨
+    compileSdk = 35                  // ✅ 수정됨
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     defaultConfig {
         applicationId = "com.example.ht"
         minSdk = flutter.minSdkVersion
-        targetSdk = 34              // ✅ 수정됨
+        targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
@@ -46,6 +46,10 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
         }
+    }
+
+    kotlinOptions {
+        jvmTarget = "21"
     }
 }
 

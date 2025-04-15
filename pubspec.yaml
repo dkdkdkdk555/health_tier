@@ -39,12 +39,16 @@ dependencies:
   responsive_builder: ^0.7.1
   auto_size_text: ^3.0.0
   table_calendar: ^3.2.0
+  intl: ^0.20.0 # 날짜 포멧 처리 용도
 
   # DB
   drift: ^2.26.0
   drift_sqflite: ^2.0.1
   path_provider: ^2.1.5
   path: ^1.9.1 #path는 파일 경로를 조작할 때 쓰는 Dart 기본 패키지. 예를 들어 join()을 써서 OS에 맞는 경로(/ 또는 \)로 DB 파일 경로를 만들어줌
+
+  # State Management
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

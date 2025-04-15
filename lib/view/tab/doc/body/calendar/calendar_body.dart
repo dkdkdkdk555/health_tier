@@ -1,9 +1,12 @@
 import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class CustomCalenderBody extends StatelessWidget {
+class CustomCalenderBody extends ConsumerWidget {
   const CustomCalenderBody({
     super.key,
     required DateTime focusedDay,
@@ -11,10 +14,14 @@ class CustomCalenderBody extends StatelessWidget {
 
   final DateTime _focusedDay;
 
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
     final screenHeight = MediaQuery.of(context).size.height;
     final heightRatio = screenHeight / 812.0;
+    final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
+
     return Expanded(
       flex: 169,
       child: Column(
