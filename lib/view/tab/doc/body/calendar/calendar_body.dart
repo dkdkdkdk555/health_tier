@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/model/doc_main_model.dart' show DocDayInfo;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -46,8 +47,8 @@ class CustomCalenderBody extends ConsumerWidget {
                     focusedDay: _focusedDay,
                     calendarFormat: CalendarFormat.month,
                     calendarBuilders: CalendarBuilders(
-                      defaultBuilder: defaultDayForm,
-                      outsideBuilder: (context, date, _) => defaultDayForm(context, date, _, isOutside: true),
+                      defaultBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
+                      outsideBuilder: outsideDayForm,
                     ),
                   ),
                 ),
@@ -60,7 +61,85 @@ class CustomCalenderBody extends ConsumerWidget {
     );
   }
 
-  Widget? defaultDayForm(context, date, _, {bool isOutside = false}) {
+  Widget buildDayCell(
+    BuildContext context,
+    DateTime date, {
+    required AsyncValue<List<DocDayInfo>> dayDocList,
+  }) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final heightRatio = screenHeight / 812.0;
+    final widthRatio = screenWidth / 375.0;
+
+    final topPadding = 2.0 * heightRatio;
+    final textBoxHeight = 17.0 * heightRatio;
+    final bottomPadding = 29.0 * heightRatio;
+
+    Color? stampColor(String? stamp) {
+      switch (stamp) {
+        case 'TERRIBLE': return const Color(0xFFFF5656);
+        case 'BAD': return const Color(0xFFFF9900);
+        case 'PERFECT': return const Color(0xFF249DFF);
+        case 'NORMAL': return const Color(0xFFFFDE23);
+        case 'GOOD': return const Color(0xFF95D33E);
+        default: return const Color(0xFFF5F5F5);
+      }
+    }
+
+    return dayDocList.when(
+      data: (list) {
+        final matched = list.firstWhere(
+          (item) => item.day == DateFormat('yyyy-MM-dd').format(date),
+          orElse: () => DocDayInfo(day: '', weight: null, totalCalorie: null),
+        );
+
+        final bgColor = stampColor(matched.stamp);
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              height: constraints.maxHeight,
+              child: Column(
+                children: [
+                  SizedBox(height: topPadding),
+                  SizedBox(
+                    height: textBoxHeight,
+                    child: Center(
+                      child: AutoSizeText(
+                        '${date.day}',
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 11.0 * heightRatio,
+                          color:Colors.black.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: bottomPadding,
+                    child: Column(
+                      children: [
+                        if (matched.weight != null)
+                          _infoBox('${matched.weight}', 'kg', widthRatio, heightRatio)
+                        else
+                            Container( width: 46 * widthRatio, height: 13 * heightRatio, margin: const EdgeInsets.only(bottom: 1)),
+                        if (matched.totalCalorie != null)
+                          _infoBox('${matched.totalCalorie!.round()}', 'kcal', widthRatio, heightRatio),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ).withBackground(bgColor);
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (e, _) => const SizedBox.shrink(),
+    );
+  } 
+
+  Widget? outsideDayForm(context, date, _) {
     final screenHeight = MediaQuery.of(context).size.height;
 
     // 기준 디바이스 height: 932 기준 비율
@@ -86,18 +165,12 @@ class CustomCalenderBody extends ConsumerWidget {
                     style: TextStyle(
                       fontFamily: 'Pretendard',
                       fontSize: 11.0 * heightRatio, // 반응형 폰트
-                      color: isOutside
-                          ? Colors.black.withValues(alpha: 0.1)
-                          : Colors.black.withValues(alpha: 0.8),
+                      color: Colors.black.withValues(alpha: 0.1)
                     ),
                   ),
                 ),
               ),
-              SizedBox(
-                height: bottomPadding,
-                child: Container(
-                  // color: Colors.blue.withOpacity(0.1),
-                ),
+              SizedBox(height: bottomPadding,child: Container(),
               ),
             ],
           ),
@@ -106,4 +179,55 @@ class CustomCalenderBody extends ConsumerWidget {
     );
   }
 
+
+  Widget _infoBox(String value, String unit, double widthRatio, double heightRatio) {
+    return Container(
+      width: 46 * widthRatio,
+      height: 13 * heightRatio,
+      margin: const EdgeInsets.only(bottom: 1),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.31), // 30% 투명도
+        borderRadius: BorderRadius.circular(3),
+      ),
+      child: Center(
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9.5 * widthRatio,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+              TextSpan(
+                text: unit,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.69), // 70% 투명도
+                  fontSize: 9.5 * widthRatio,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ],
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+}
+
+extension WidgetBackgroundExtension on Widget {
+  Widget withBackground(Color? color) {
+    if (color == null) return this;
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.rectangle,
+        borderRadius: const BorderRadius.all(Radius.circular(4))
+      ),
+      child: this,
+    );
+  }
 }
