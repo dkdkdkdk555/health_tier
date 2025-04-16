@@ -39,7 +39,7 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
                 onLeftArrow: _goToPreviousMonth,
                 onRightArrow: _goToNextMonth,
               ),
-              CustomCalenderBody(focusedDay: _focusedDay),
+              CustomCalenderBody(focusedDay: _focusedDay, onGoToNextMonth: _goToNextMonth, onGoToPreviousMonth: _goToPreviousMonth,),
             ],
           )
         ),

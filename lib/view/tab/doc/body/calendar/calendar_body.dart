@@ -12,9 +12,13 @@ class CustomCalenderBody extends ConsumerStatefulWidget{
   const CustomCalenderBody({
     super.key,
     required DateTime focusedDay,
+    required this.onGoToPreviousMonth,
+    required this.onGoToNextMonth,
   }) : ifocusedDay = focusedDay;
 
   final DateTime ifocusedDay;
+  final VoidCallback onGoToPreviousMonth;
+  final VoidCallback onGoToNextMonth;
 
   @override
   ConsumerState<CustomCalenderBody> createState() => _CustomCalenderBodyState();
@@ -36,6 +40,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
 
   @override
   Widget build(BuildContext context) {
+    _focusedDay = widget.ifocusedDay; // CustomCalendarHeader 에서 nextMonth, prevMonth 경우 업데이트
     final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
     final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
 
@@ -65,6 +70,14 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                     calendarFormat: CalendarFormat.month,
                     onDaySelected: (selectedDay, focusedDay){
                       setState((){
+                        // outside cell 선택 시 이전/다음 달로 이동
+                        if (selectedDay.month < _focusedDay.month) {
+                          // 이전 달
+                          widget.onGoToPreviousMonth();
+                        } else if (selectedDay.month > _focusedDay.month) {
+                          // 다음 달
+                          widget.onGoToNextMonth();
+                        }
                         _selectedDay = selectedDay;
                         _focusedDay = selectedDay;
                       });
