@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/providers/db_providers.dart';
 
 class DocBodyDetail extends ConsumerWidget {
   const DocBodyDetail({
@@ -12,17 +14,21 @@ class DocBodyDetail extends ConsumerWidget {
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    final searchDay = DateFormat('yyyy-MM-DD').format(focusedDay);
+    final docDtl = ref.watch(htDayDocDetail(searchDay));
     return Expanded(
       flex: 148,
       child: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFFFFFFF),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(47)),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFFFF),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
           border: Border(
-            left: BorderSide(width: 2 ,color: Color(0xFFEEEEEE)),
-            top: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
-            right: BorderSide(width: 2, color: Color(0xFFEEEEEE)),
-            bottom: BorderSide(color: Color(0xFFEEEEEE)),
+            left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+            top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+            right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+            bottom: const BorderSide(color: Color(0xFFEEEEEE)),
           ),
         ),
         child: Column(
@@ -31,8 +37,8 @@ class DocBodyDetail extends ConsumerWidget {
             Expanded(
               flex:1,
               child: Container(
-                width: 40 * ScreenRatio(context).widthRatio,
-                height: 4 * ScreenRatio(context).heightRatio,
+                width: 40 * wtio,
+                height: 4 * htio,
                 decoration: ShapeDecoration(
                   color: const Color(0xFFE6E6E6),
                   shape: RoundedRectangleBorder(
