@@ -2,25 +2,41 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/doc_main_model.dart' show DocDayInfo;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class CustomCalenderBody extends ConsumerWidget {
+class CustomCalenderBody extends ConsumerStatefulWidget{
   const CustomCalenderBody({
     super.key,
     required DateTime focusedDay,
-  }) : _focusedDay = focusedDay;
+  }) : ifocusedDay = focusedDay;
 
-  final DateTime _focusedDay;
+  final DateTime ifocusedDay;
+
+  @override
+  ConsumerState<CustomCalenderBody> createState() => _CustomCalenderBodyState();
+}
+
+class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
+
+  late DateTime _focusedDay;
+  DateTime? _selectedDay;
+  
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = widget.ifocusedDay;
+    _focusedDay = widget.ifocusedDay;
+  }
 
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
-    final screenHeight = MediaQuery.of(context).size.height;
-    final heightRatio = screenHeight / 812.0;
     final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
 
     return Expanded(
@@ -41,12 +57,21 @@ class CustomCalenderBody extends ConsumerWidget {
                   child: TableCalendar(
                     headerVisible: false,
                     daysOfWeekVisible: false,
-                    firstDay: DateTime.utc(2020, 1, 1),
-                    lastDay: DateTime.utc(2030, 12, 31),
-                    rowHeight: 48.25 * heightRatio,
+                    firstDay: DateTime.utc(2022, 1, 1),
+                    lastDay: DateTime(DateTime.now().year + 5, 12, 31),
+                    rowHeight: 48.25 * ScreenRatio(context).heightRatio,
                     focusedDay: _focusedDay,
+                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                     calendarFormat: CalendarFormat.month,
+                    onDaySelected: (selectedDay, focusedDay){
+                      setState((){
+                        _selectedDay = selectedDay;
+                        _focusedDay = selectedDay;
+                      });
+                    },
                     calendarBuilders: CalendarBuilders(
+                      todayBuilder:  (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
+                      selectedBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList, isSelected: true),
                       defaultBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
                       outsideBuilder: outsideDayForm,
                     ),
@@ -62,15 +87,16 @@ class CustomCalenderBody extends ConsumerWidget {
   }
 
   Widget buildDayCell(
-    BuildContext context,
-    DateTime date, {
-    required AsyncValue<List<DocDayInfo>> dayDocList,
-  }) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final heightRatio = screenHeight / 812.0;
-    final widthRatio = screenWidth / 375.0;
-
+      BuildContext context,
+      DateTime date, 
+      {
+        required AsyncValue<List<DocDayInfo>> dayDocList,
+        bool isSelected = false
+      }
+    ) {
+    
+    final heightRatio = ScreenRatio(context).heightRatio;
+    final widthRatio = ScreenRatio(context).widthRatio;
     final topPadding = 2.0 * heightRatio;
     final textBoxHeight = 17.0 * heightRatio;
     final bottomPadding = 29.0 * heightRatio;
@@ -104,13 +130,18 @@ class CustomCalenderBody extends ConsumerWidget {
                   SizedBox(height: topPadding),
                   SizedBox(
                     height: textBoxHeight,
-                    child: Center(
-                      child: AutoSizeText(
-                        '${date.day}',
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 11.0 * heightRatio,
-                          color:Colors.black.withValues(alpha: 0.5),
+                    child: Container(
+                        margin: EdgeInsets.only(bottom:1 * heightRatio),
+                        decoration: isSelected ? const BoxDecoration(shape: BoxShape.circle, color: Colors.white) : null,
+                        child: Center(
+                        child: AutoSizeText(
+                          '${date.day}',
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 11.0 * heightRatio,
+                            color: isSelected ? Colors.black : Colors.black.withValues(alpha: 0.5),
+                            fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal
+                          ),
                         ),
                       ),
                     ),
@@ -120,11 +151,11 @@ class CustomCalenderBody extends ConsumerWidget {
                     child: Column(
                       children: [
                         if (matched.weight != null)
-                          _infoBox('${matched.weight}', 'kg', widthRatio, heightRatio)
+                          _infoBox('${matched.weight}', 'kg')
                         else
                             Container( width: 46 * widthRatio, height: 13 * heightRatio, margin: const EdgeInsets.only(bottom: 1)),
                         if (matched.totalCalorie != null)
-                          _infoBox('${matched.totalCalorie!.round()}', 'kcal', widthRatio, heightRatio),
+                          _infoBox('${matched.totalCalorie!.round()}', 'kcal'),
                       ],
                     ),
                   ),
@@ -140,11 +171,8 @@ class CustomCalenderBody extends ConsumerWidget {
   } 
 
   Widget? outsideDayForm(context, date, _) {
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    // 기준 디바이스 height: 932 기준 비율
-    final heightRatio = screenHeight / 812.0;
-
+    final heightRatio = ScreenRatio(context).heightRatio;
     // 실제 높이 계산
     final topPadding = 2.0 * heightRatio;
     final textBoxHeight = 17.0 * heightRatio;
@@ -180,7 +208,9 @@ class CustomCalenderBody extends ConsumerWidget {
   }
 
 
-  Widget _infoBox(String value, String unit, double widthRatio, double heightRatio) {
+  Widget _infoBox(String value, String unit) {
+    final heightRatio = ScreenRatio(context).heightRatio;
+    final widthRatio = ScreenRatio(context).widthRatio;
     return Container(
       width: 46 * widthRatio,
       height: 13 * heightRatio,
