@@ -13,15 +13,23 @@ class DocCalendarBody extends StatefulWidget {
 class _DocCalendarBodyState extends State<DocCalendarBody> {
    DateTime _focusedDay = DateTime.now();
 
-  void _goToPreviousMonth() {
+  void _goToPreviousMonth({DateTime? selectedDay}) {
     setState(() {
-      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+      if(selectedDay != null){
+        _focusedDay = selectedDay;
+      } else {
+        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+      }
     });
   }
 
-  void _goToNextMonth() {
+  void _goToNextMonth({DateTime? selectedDay}) {
     setState(() {
-      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+      if(selectedDay != null){
+        _focusedDay = selectedDay;
+      } else {
+        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+      }
     });
   }
 
@@ -43,7 +51,7 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
             ],
           )
         ),
-        const DocBodyDetail(),
+        DocBodyDetail(focusedDay: _focusedDay,),
       ],
     );
   }

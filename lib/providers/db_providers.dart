@@ -9,8 +9,8 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 /*
- 1-1-1. 체중기록 페이지-캘린더뷰 목록조회
- 1-1-2. 체중기록 페이지-테이블뷰 목록조회
+ 1-1-1 & 1-1-2
+ 체중기록 페이지 <캘린더뷰 & 테이블뷰> 목록조회
 */
 final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, yearMonth) async {
   final db = ref.watch(databaseProvider);
