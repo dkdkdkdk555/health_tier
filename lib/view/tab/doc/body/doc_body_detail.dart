@@ -60,34 +60,99 @@ class DocBodyDetail extends ConsumerWidget {
               child: Row(
                 children: [
                   const Spacer(flex: 65),
-                  Column(
-                    children: [
-                      makeRow1(wtio, today, htio, detail),
-                      const Spacer(flex:9),
-                      Expanded(
-                        flex: 18,
-                        child: Row(
-                          children: [
+                  SizedBox(
+                    width: 244 * wtio,
+                    child: Column(
+                      children: [
+                        makeRow1(wtio, today, htio, detail),
+                        const Spacer(flex:9),
+                        Expanded(
+                          flex: 18,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade200
+                            ),
+                            child: const Row(
+                              children: [
+                                Expanded(
+                                  flex: 78,
+                                  child: AutoSizeText(
+                                    "72.1",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 50,
+                                      height: 0.04,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ),
+                                Spacer(flex: 4),
+                                Expanded(
+                                  flex: 35,
+                                  child: AutoSizeText(
+                                    "kg",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 50,
+                                      height: 0.04,
+                                    ),
+                                  ),
+                                ),
+                                Spacer(flex: 13),
+                                Expanded(
+                                  flex: 74,
+                                  child: AutoSizeText(
+                                    "120",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 50,
+                                      height: 0.04,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                  ),
+                                ),
+                                Spacer(flex: 4),
+                                Expanded(
+                                  flex: 35,
+                                  child: AutoSizeText(
+                                    "g",
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontFamily: 'Pretendard',
+                                      fontSize: 36,
+                                      height: 0.04,
+                                    ),
+                                  ),
+                                ),
+                                
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Spacer(flex:4),
+                        Expanded(
+                          flex: 6,
+                          child: Row(
                             
-                          ],
+                          ),
                         ),
-                      ),
-                      const Spacer(flex:4),
-                      Expanded(
-                        flex: 6,
-                        child: Row(
-                          
+                        const Spacer(flex:9),
+                        Expanded(
+                          flex: 27,
+                          child: Row(
+                            
+                          ),
                         ),
-                      ),
-                      const Spacer(flex:9),
-                      Expanded(
-                        flex: 27,
-                        child: Row(
-                          
-                        ),
-                      ),
-                    
-                    ],
+                      
+                      ],
+                    ),
                   ),
                   const Spacer(flex: 65),
                 ],
