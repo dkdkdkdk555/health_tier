@@ -24,7 +24,9 @@ class DocBodyDetail extends ConsumerWidget {
 
     final detail = docDtl.asData?.value;
     final today = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
-   
+
+    final numberGroup = AutoSizeGroup();
+
     return Expanded(
       flex: 148,
       child: Container(
@@ -55,96 +57,28 @@ class DocBodyDetail extends ConsumerWidget {
               )
             ),
             const Spacer(flex:7),
-            Expanded(
+            Flexible(
               flex:41,
+              fit: FlexFit.loose,
               child: Row(
                 children: [
-                  const Spacer(flex: 65),
-                  SizedBox(
-                    width: 244 * wtio,
+                  const SizedBox(width: 65),
+                  Flexible(
+                    fit: FlexFit.loose,
                     child: Column(
                       children: [
                         makeRow1(wtio, today, htio, detail),
                         const Spacer(flex:9),
-                        Expanded(
-                          flex: 18,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade200
-                            ),
-                            child: const Row(
-                              children: [
-                                Expanded(
-                                  flex: 78,
-                                  child: AutoSizeText(
-                                    "72.1",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 50,
-                                      height: 0.04,
-                                      fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                ),
-                                Spacer(flex: 4),
-                                Expanded(
-                                  flex: 35,
-                                  child: AutoSizeText(
-                                    "kg",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 50,
-                                      height: 0.04,
-                                    ),
-                                  ),
-                                ),
-                                Spacer(flex: 13),
-                                Expanded(
-                                  flex: 74,
-                                  child: AutoSizeText(
-                                    "120",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 50,
-                                      height: 0.04,
-                                      fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-                                ),
-                                Spacer(flex: 4),
-                                Expanded(
-                                  flex: 35,
-                                  child: AutoSizeText(
-                                    "g",
-                                    maxLines: 1,
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontFamily: 'Pretendard',
-                                      fontSize: 36,
-                                      height: 0.04,
-                                    ),
-                                  ),
-                                ),
-                                
-                              ],
-                            ),
-                          ),
-                        ),
+                        makeRow2(detail, numberGroup),
                         const Spacer(flex:4),
-                        Expanded(
+                        const Expanded(
                           flex: 6,
                           child: Row(
                             
                           ),
                         ),
                         const Spacer(flex:9),
-                        Expanded(
+                        const Expanded(
                           flex: 27,
                           child: Row(
                             
@@ -154,7 +88,7 @@ class DocBodyDetail extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const Spacer(flex: 65),
+                  const SizedBox(width: 65),
                 ],
               )
             ),
@@ -165,10 +99,100 @@ class DocBodyDetail extends ConsumerWidget {
     );
   }
 
+  Flexible makeRow2(DocDayDetail? detail, AutoSizeGroup numberGroup) {
+    return Flexible(
+      flex: 18,
+      fit: FlexFit.loose,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableHeight = constraints.maxHeight;
+          final fontSizeBig = availableHeight * 1.13; // 숫자용
+          final fontSizeSmall = availableHeight * 0.75; // 단위용
+          return Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min, // 내용 크기만큼만 차지
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(
+                  flex: 78,
+                  fit: FlexFit.loose,
+                  child: AutoSizeText(
+                    detail?.weight != null ? '${detail?.weight}' : '몸무게',
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                    group: numberGroup,
+                    style: TextStyle(
+                      fontSize: fontSizeBig,
+                      color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      height: 0.9
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Flexible(
+                  flex: 35,
+                  fit: FlexFit.loose,
+                  child: Text(
+                    "kg",
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                    style: TextStyle(
+                      fontSize: fontSizeSmall,
+                      color: const Color(0xFF999999),
+                      fontFamily: 'Pretendard',
+                      height: 1.6
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 13),
+                Flexible(
+                  flex: 74,
+                  fit: FlexFit.loose,
+                  child: AutoSizeText(
+                    detail?.totalProtein != null ? '${detail?.totalProtein}' : '단백질\n섭취량',
+                    maxLines: detail?.totalProtein != null ? 1 : 2,
+                    overflow: TextOverflow.visible,
+                    group: detail?.totalProtein != null ? numberGroup : null,
+                    style: TextStyle(
+                      fontSize: fontSizeBig,
+                      color: detail?.totalProtein != null ? Colors.black : Colors.black.withAlpha(30),
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.bold,
+                      height: 0.9
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Flexible(
+                  flex: 19,
+                  fit: FlexFit.loose,
+                  child: Text(
+                    "g",
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                    style: TextStyle(
+                      fontSize: fontSizeSmall,
+                      color: const Color(0xFF999999),
+                      fontFamily: 'Pretendard',
+                      height: 1.6
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Expanded makeRow1(double wtio, String today, double htio, DocDayDetail? detail) {
     return Expanded(
       flex: 9,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
            Flexible(
             flex: 87,
