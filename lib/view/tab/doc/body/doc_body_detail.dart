@@ -170,51 +170,66 @@ class DocBodyDetail extends ConsumerWidget {
       flex: 9,
       child: Row(
         children: [
-          SizedBox(
-            width: 87 * wtio,
+           Flexible(
+            flex: 87,
             child: AutoSizeText(
-              '$today',
+              today,
+              maxLines: 1,
+              minFontSize: 9,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
               style: const TextStyle(
                 fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w600
               ),
             ),
           ),
           boundary(wtio, htio),
           textYN(wtio, text:"운동 여부", yn:detail?.workYn),
+          const Spacer(flex:4),
           iconYN(wtio, htio, 'assets/icons/work_out.svg', detail?.workYn),
           boundary(wtio, htio),
           textYN(wtio, text:"음주 여부", yn:detail?.drunYn),
+          const Spacer(flex:4),
           iconYN(wtio, htio, 'assets/icons/drink.svg', detail?.drunYn),
         ],
       ),
     );
   }
 
-  SizedBox iconYN(double wtio, double htio, String path, int? yn) {
-    return SizedBox(
-      width: 16 * wtio,
-      height: 16 * htio,
-      child: SvgPicture.asset(
-        path,
-        colorFilter: ColorFilter.mode(
-          yn == 1 ?Color(0xFF333333) : Colors.black.withValues(alpha: 0.30000001192092896),
-          BlendMode.srcIn
+  Widget iconYN(double wtio, double htio, String path, int? yn) {
+    return FittedBox(
+      fit: BoxFit.contain,
+      child: SizedBox(
+        width: 16 * wtio,
+        height: 16 * htio,
+        child: SvgPicture.asset(
+          path,
+          colorFilter: ColorFilter.mode(
+            yn == 1
+                ? const Color(0xFF333333)
+                : Colors.black.withAlpha(77),
+            BlendMode.srcIn,
+          ),
         ),
       ),
     );
-  }
+  } 
 
-  Padding textYN(double wtio, {required String text, required int? yn}) {
-    return Padding(
-      padding: EdgeInsets.only(right: 4 * wtio),
-      child: SizedBox(
-        width: 45 * wtio,
-        child: AutoSizeText(
-          text,
-          style: TextStyle(
-            color: yn == 1 ? Color(0xFF333333) : Colors.black.withValues(alpha: 0.30000001192092896),
-            fontFamily: 'Pretendard',
-          ),
+  Flexible textYN(double wtio, {required String text, required int? yn}) {
+    return Flexible(
+      flex: 45,
+      child: AutoSizeText(
+        text,
+        maxLines: 1,
+        minFontSize: 10,
+        overflow: TextOverflow.ellipsis,
+        softWrap: false,
+        style: TextStyle(
+          color: yn == 1
+              ? const Color(0xFF333333)
+              : Colors.black.withAlpha(77),
+          fontFamily: 'Pretendard',
         ),
       ),
     );
