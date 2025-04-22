@@ -235,14 +235,14 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
         borderRadius: BorderRadius.circular(3),
       ),
       child: Center(
-        child: Text.rich(
+        child: AutoSizeText.rich(
           TextSpan(
             children: [
               TextSpan(
                 text: value,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 9.5 * widthRatio,
+                  fontSize: 10 * widthRatio,
                   fontFamily: 'Pretendard',
                 ),
               ),
@@ -250,7 +250,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                 text: unit,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.69), // 70% 투명도
-                  fontSize: 9.5 * widthRatio,
+                  fontSize: 10 * widthRatio,
                   fontFamily: 'Pretendard',
                 ),
               ),

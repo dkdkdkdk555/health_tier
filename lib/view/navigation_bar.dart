@@ -14,9 +14,9 @@ class IslandNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(left:74, right: 74, bottom:47),
-        padding: const EdgeInsets.only(left: 10, right: 10),
-        height: 62,
+        margin: const EdgeInsets.only(left:75, right: 75, bottom:42),
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        height: 52,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -47,8 +47,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index), // main.dart에 onTap 호출 (build될때 _onTap 함수를 인자로 전달받았음)
       child: SizedBox(
-        width: 32,
-        height: 32,
+        width: 28,
+        height: 28,
         child: SvgPicture.asset(
         assetPath,
         colorFilter: ColorFilter.mode(
@@ -64,8 +64,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        width: 28,
-        height: 28,
+        width: 25,
+        height: 25,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
@@ -79,26 +79,17 @@ class IslandNavigationBar extends StatelessWidget {
   }
   
   Widget _buildTabLine(List<int> indexes) {
-  final isActive = indexes.contains(selectedIndex);
+    final isActive = indexes.contains(selectedIndex);
 
-  return AnimatedContainer(
-    duration: const Duration(milliseconds: 200),
-    curve: Curves.easeInOut,
-    margin: isActive ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
-    width: isActive ? 1 : 0,
-    height: isActive ? 16 : 0,
-    decoration: BoxDecoration(
-      color: isActive ? const Color.fromRGBO(0, 0, 0, 0.18) : Colors.transparent,
-    ),
-  );
-}
-
-
-  // Widget _buildDivider() {
-  //   return Container(
-  //     width: 1,
-  //     height: 24,
-  //     color: Colors.black.withOpacity(0.1),
-  //   );
-  // }
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      margin: isActive ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
+      width: isActive ? 1 : 0,
+      height: isActive ? 16 : 0,
+      decoration: BoxDecoration(
+        color: isActive ? const Color.fromRGBO(0, 0, 0, 0.18) : Colors.transparent,
+      ),
+    );
+  }
 }

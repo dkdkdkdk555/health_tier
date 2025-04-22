@@ -60,7 +60,7 @@ class DocBodyDetail extends ConsumerWidget {
                 ),
                 const Spacer(flex:7),
                 Flexible(
-                  flex:41,
+                  flex:64,
                   fit: FlexFit.loose,
                   child: Padding(
                     padding: const EdgeInsets.only(left: 0),
@@ -85,7 +85,7 @@ class DocBodyDetail extends ConsumerWidget {
                     ),
                   )
                 ),
-                const Spacer(flex:23,),
+                // const Spacer(flex:23,),
               ],
             ),
           ),
@@ -113,7 +113,7 @@ class DocBodyDetail extends ConsumerWidget {
 
   Expanded makeRow4(DocDayDetail? detail) {
     return Expanded(
-      flex: 27,
+      flex: 66,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -152,7 +152,7 @@ class DocBodyDetail extends ConsumerWidget {
     // 텍스트 색상 결정
     final textColor = isNull ? null : ( isNegative ? const Color(0xFF0D85E7) : const Color(0xFFF04C4C) );
     // 텍스트 값 (부호 제외)
-    final textValue = isNull ? '' : '${diffWeight!.abs().toStringAsFixed(1)}kg';
+    final textValue = isNull ? '' : '${diffWeight.abs().toStringAsFixed(1)}kg';
 
     return Flexible(
       flex: 6,
@@ -207,7 +207,7 @@ class DocBodyDetail extends ConsumerWidget {
                 ),
               ),
               AutoSizeText(
-                detail?.totalCalorie != null ? '${detail?.totalCalorie}' : '0',
+                detail?.totalCalorie != null ? '${detail?.totalCalorie!.toInt()}' : '0',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.black,
