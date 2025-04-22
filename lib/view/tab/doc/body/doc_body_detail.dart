@@ -17,8 +17,6 @@ class DocBodyDetail extends ConsumerWidget {
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print('DocBodyDetail build: ${focusedDay.toIso8601String()}');
-    
     final htio = ScreenRatio(context).heightRatio;
     final wtio = ScreenRatio(context).widthRatio;
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
@@ -66,7 +64,7 @@ class DocBodyDetail extends ConsumerWidget {
                   flex:41,
                   fit: FlexFit.loose,
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 9),
+                    padding: const EdgeInsets.only(left: 0),
                     child: Row(
                       children: [
                         const SizedBox(width: 66),
@@ -122,21 +120,21 @@ class DocBodyDetail extends ConsumerWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(right: 8),
-            child: Text(
+            child: AutoSizeText(
               '메모',
               style: TextStyle(
                   color: Color(0xFFAAAAAA),
-                  fontSize: 14,
+                  fontSize: 12,
                   fontFamily: 'Pretendard',
               ),
             ),
           ),
           Expanded(
-              child: Text(
+              child: AutoSizeText(
                   detail?.memo ?? '',
                   style: const TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: 12,
                       fontFamily: 'Pretendard',
                   ),
               ),
@@ -155,16 +153,16 @@ class DocBodyDetail extends ConsumerWidget {
     // 텍스트 색상 결정
     final textColor = isNull ? null : ( isNegative ? const Color(0xFF0D85E7) : const Color(0xFFF04C4C) );
     // 텍스트 값 (부호 제외)
-    final textValue = isNull ? '' : '${diffWeight!.abs().toStringAsFixed(2)}kg';
+    final textValue = isNull ? '' : '${diffWeight!.abs().toStringAsFixed(1)}kg';
 
     return Flexible(
       flex: 6,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final availableHeight = constraints.maxHeight;
-          final fontSize = availableHeight * 1; // 단위용
+          final fontSize = availableHeight * 0.55; // 단위용
           return Row(
-            // mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 4),
@@ -263,7 +261,7 @@ class DocBodyDetail extends ConsumerWidget {
           final fontSizeBig = availableHeight * 1.13; // 숫자용
           final fontSizeSmall = availableHeight * 0.75; // 단위용
           return Row(
-            // mainAxisSize: MainAxisSize.min, // 내용 크기만큼만 차지
+            mainAxisSize: MainAxisSize.min, // 내용 크기만큼만 차지
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(
@@ -344,7 +342,7 @@ class DocBodyDetail extends ConsumerWidget {
     return Expanded(
       flex: 9,
       child: Row(
-        // mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
            Flexible(
             flex: 87,
