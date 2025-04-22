@@ -14,12 +14,13 @@ class CustomCalenderBody extends ConsumerStatefulWidget{
     required DateTime focusedDay,
     required this.onGoToPreviousMonth,
     required this.onGoToNextMonth,
+    required this.onGoToFocusedDay
   }) : ifocusedDay = focusedDay;
 
   final DateTime ifocusedDay;
-  final VoidCallback onGoToPreviousMonth;
-  final VoidCallback onGoToNextMonth;
-
+  final void Function({DateTime? selectedDay}) onGoToPreviousMonth;
+  final void Function({DateTime? selectedDay}) onGoToNextMonth;
+  final void Function({required DateTime selectedDay}) onGoToFocusedDay;
   @override
   ConsumerState<CustomCalenderBody> createState() => _CustomCalenderBodyState();
 }
@@ -73,11 +74,12 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                         // outside cell 선택 시 이전/다음 달로 이동
                         if (selectedDay.month < _focusedDay.month) {
                           // 이전 달
-                          widget.onGoToPreviousMonth();
+                          widget.onGoToPreviousMonth(selectedDay: selectedDay);
                         } else if (selectedDay.month > _focusedDay.month) {
                           // 다음 달
-                          widget.onGoToNextMonth();
+                          widget.onGoToNextMonth(selectedDay: selectedDay);
                         }
+                        widget.onGoToFocusedDay(selectedDay: selectedDay);
                         _selectedDay = selectedDay;
                         _focusedDay = selectedDay;
                       });

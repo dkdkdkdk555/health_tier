@@ -33,6 +33,12 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
     });
   }
 
+  void _goFocusedDay({required DateTime selectedDay}){
+    setState(() {
+      _focusedDay = selectedDay;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -47,7 +53,10 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
                 onLeftArrow: _goToPreviousMonth,
                 onRightArrow: _goToNextMonth,
               ),
-              CustomCalenderBody(focusedDay: _focusedDay, onGoToNextMonth: _goToNextMonth, onGoToPreviousMonth: _goToPreviousMonth,),
+              CustomCalenderBody(focusedDay: _focusedDay, 
+                onGoToNextMonth: _goToNextMonth, 
+                onGoToPreviousMonth: _goToPreviousMonth,
+                onGoToFocusedDay: _goFocusedDay,),
             ],
           )
         ),
