@@ -64,6 +64,7 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
       B.DRUNK_YN AS DRUNK_YN,
       B.WEIGHT AS WEIGHT,
       B.STAMP AS STAMP,
+      B.MEMO AS MEMO,
       IFNULL(SUM(D.CALORIE), 0) AS TOTAL_CALORIE,
       IFNULL(SUM(D.PROTEIN), 0) AS TOTAL_PROTEIN
     FROM HT_DAY_BODY B
@@ -75,4 +76,17 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
   ).getSingleOrNull();
 
   return result == null ? null : DocDayDetail.fromRow(result);
+});
+
+/*
+  1-1 체중기록 조회 페이지 직전 체중 기록 가져오기
+*/
+final getPreviousWeight = FutureProvider.family<double?, int>((ref, currentId) async {
+  final db = ref.watch(databaseProvider);
+
+  final previous = await (db.select(db.htDayBody)
+        ..where((tbl) => tbl.id.equals(currentId - 1)))
+      .getSingleOrNull();
+
+  return previous?.weight;
 });

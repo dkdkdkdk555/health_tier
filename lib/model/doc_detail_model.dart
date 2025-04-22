@@ -7,6 +7,7 @@ class DocDayDetail {
   final int? drunYn;
   final double? weight;
   final String? stamp;
+  final String? memo;
   final double? totalCalorie;
   final double? totalProtein;
 
@@ -17,6 +18,7 @@ class DocDayDetail {
     this.drunYn,
     this.weight,
     this.stamp,
+    this.memo,
     this.totalCalorie,
     this.totalProtein
   });
@@ -29,6 +31,7 @@ class DocDayDetail {
       drunYn: row.readNullable<int>('DRUNK_YN'),
       weight: row.readNullable<double>('WEIGHT'),
       stamp: row.readNullable<String>('STAMP'),
+      memo: row.readNullable<String>('MEMO'),
       totalCalorie: row.readNullable<double>('TOTAL_CALORIE'),
       totalProtein: row.readNullable<double>('TOTAL_PROTEIN'),
     );

@@ -17,12 +17,15 @@ class DocBodyDetail extends ConsumerWidget {
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print('DocBodyDetail build: ${focusedDay.toIso8601String()}');
+    
     final htio = ScreenRatio(context).heightRatio;
     final wtio = ScreenRatio(context).widthRatio;
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
     final docDtl = ref.watch(htDayDocDetail(searchDay));
-
     final detail = docDtl.asData?.value;
+    final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(detail!.id)).value : null;
+
     final today = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
     final numberGroup = AutoSizeGroup();
@@ -74,131 +77,9 @@ class DocBodyDetail extends ConsumerWidget {
                               const Spacer(flex:9),
                               makeRow2(detail, numberGroup),
                               const Spacer(flex:4),
-                              Flexible(
-                                flex: 6,
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    return Row(
-                                      // mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 4),
-                                          child: Text(
-                                            '이전 대비',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Pretendard',
-                                                height: 0.12,
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 14,
-                                          height: 14,
-                                          child: SvgPicture.asset(
-                                            'assets/icons/down.svg'
-                                          ),
-                                        ),
-                                        const Text(
-                                          '1.12kg',
-                                          textAlign: TextAlign.right,
-                                          style: TextStyle(
-                                              color: Color(0xFF0D85E7),
-                                              fontSize: 14,
-                                              fontFamily: 'Pretendard',
-                                              height: 0.12,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 4),
-                                          child: Text(
-                                            'kcal',
-                                            style: TextStyle(
-                                                color: Color(0xFFAAAAAA),
-                                                fontSize: 14,
-                                                fontFamily: 'Pretendard',
-                                                height: 0.12,
-                                            ),
-                                          ),
-                                        ),
-                                        const Text(
-                                          '11,650',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Pretendard',
-                                              height: 0.12,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          width: 12,
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.only(right: 4),
-                                          child: Text(
-                                            'BMI',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                                color: Color(0xFFAAAAAA),
-                                                fontSize: 14,
-                                                fontFamily: 'Pretendard',
-                                                height: 0.12,
-                                            ),
-                                          ),
-                                        ),
-                                        const Text(
-                                          '23.5',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14,
-                                              fontFamily: 'Pretendard',
-                                              height: 0.12,
-                                          ),
-                                        )
-                                      ],
-                                    );
-                                  }
-                                )
-                              ),
+                              makeRow3(detail, prvsWeight),
                               const Spacer(flex:9),
-                              const Expanded(
-                                flex: 27,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 8),
-                                      child: Text(
-                                        '메모',
-                                        style: TextStyle(
-                                            color: Color(0xFFAAAAAA),
-                                            fontSize: 14,
-                                            fontFamily: 'Pretendard',
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                        width: 260,
-                                        child: Text(
-                                            '단백질 섭취량을 늘려야겠다. 단백질 섭취량을 늘려야겠다. 단백질 섭취량을 늘려야겠다. 단백질 섭취량을 늘려야겠다. 단백질 섭취량을 늘려야겠다.  단백질 섭취량을 늘려야겠다. 단백질 섭취량을 늘려야겠다.',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                                fontFamily: 'Pretendard',
-                                            ),
-                                        ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            
+                              makeRow4(detail),
                             ],
                           ),
                         ),
@@ -212,19 +93,162 @@ class DocBodyDetail extends ConsumerWidget {
             ),
           ),
           // 도장(하루평가)
+          if (detail?.stamp != null)
           Positioned(
-            top: 24 * htio,
-            right: 16 * wtio,
+            top: 57 * htio,
+            right: 0 * wtio,
             child: SizedBox(
-              width: 100 * wtio,
-              height: 100 * htio,
-              child: SvgPicture.asset(
-                'assets/icons/stamp_perfect.svg',
-                fit: BoxFit.contain,
+              width: 130 * wtio,
+              height: 130 * htio,
+              child: Transform.rotate(
+                angle: -0.52,
+                child: SvgPicture.asset(
+                  'assets/icons/stamp_${detail!.stamp!.toLowerCase()}.svg',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
         ]
+      )
+    );
+  }
+
+  Expanded makeRow4(DocDayDetail? detail) {
+    return Expanded(
+      flex: 27,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: Text(
+              '메모',
+              style: TextStyle(
+                  color: Color(0xFFAAAAAA),
+                  fontSize: 14,
+                  fontFamily: 'Pretendard',
+              ),
+            ),
+          ),
+          Expanded(
+              child: Text(
+                  detail?.memo ?? '',
+                  style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontFamily: 'Pretendard',
+                  ),
+              ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Flexible makeRow3(DocDayDetail? detail, double? prvsWeight) {
+    final diffWeight = (detail?.weight != null && prvsWeight != null) ? detail!.weight! - prvsWeight : null;
+    final isNegative = diffWeight != null && diffWeight < 0;
+    final isNull = diffWeight == null;
+    // 아이콘 결정
+    final iconPath = isNull ? 'assets/icons/neutral.svg' : (isNegative ? 'assets/icons/down.svg' : 'assets/icons/up.svg');
+    // 텍스트 색상 결정
+    final textColor = isNull ? null : ( isNegative ? const Color(0xFF0D85E7) : const Color(0xFFF04C4C) );
+    // 텍스트 값 (부호 제외)
+    final textValue = isNull ? '' : '${diffWeight!.abs().toStringAsFixed(2)}kg';
+
+    return Flexible(
+      flex: 6,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableHeight = constraints.maxHeight;
+          final fontSize = availableHeight * 1; // 단위용
+          return Row(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: AutoSizeText(
+                  '이전 대비',
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: fontSize,
+                      fontFamily: 'Pretendard',
+                      height: 0.12,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: fontSize,
+                height: fontSize,
+                child: SvgPicture.asset(iconPath),
+              ),
+              AutoSizeText(
+                textValue,
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                    color: textColor,
+                    fontSize: fontSize,
+                    fontFamily: 'Pretendard',
+                    height: 0.12,
+                ),
+              ),
+              const SizedBox(
+                width: 12,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: AutoSizeText(
+                  'kcal',
+                  style: TextStyle(
+                      color: const Color(0xFFAAAAAA),
+                      fontSize: fontSize,
+                      fontFamily: 'Pretendard',
+                      height: 0.12,
+                  ),
+                ),
+              ),
+              AutoSizeText(
+                detail?.totalCalorie != null ? '${detail?.totalCalorie}' : '0',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: fontSize,
+                    fontFamily: 'Pretendard',
+                    height: 0.12,
+                ),
+              ),
+              const SizedBox(
+                width: 12,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: AutoSizeText(
+                  'BMI',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: const Color(0xFFAAAAAA),
+                      fontSize: fontSize,
+                      fontFamily: 'Pretendard',
+                      height: 0.12,
+                  ),
+                ),
+              ),
+              AutoSizeText(
+                //TODO: 동적으로 만들기
+                '23.5',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: fontSize,
+                    fontFamily: 'Pretendard',
+                    height: 0.12,
+                ),
+              )
+            ],
+          );
+        }
       )
     );
   }
