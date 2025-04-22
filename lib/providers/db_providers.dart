@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/doc_detail_model.dart' show DocDayDetail;
@@ -55,27 +56,28 @@ final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, ye
 final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) async {
   final db = ref.watch(databaseProvider);
 
-  final result = await db.customSelect(
-    '''
-    SELECT
-      B.ID AS ID,
-      B.DAY AS DAY,
-      B.WKOUT_YN AS WKOUT_YN,
-      B.DRUNK_YN AS DRUNK_YN,
-      B.WEIGHT AS WEIGHT,
-      B.STAMP AS STAMP,
-      B.MEMO AS MEMO,
-      IFNULL(SUM(D.CALORIE), 0) AS TOTAL_CALORIE,
-      IFNULL(SUM(D.PROTEIN), 0) AS TOTAL_PROTEIN
-    FROM HT_DAY_BODY B
-    LEFT JOIN HT_DAY_DIET D ON B.DAY = D.DAY
-    WHERE B.DAY = ?
-    GROUP BY B.ID, B.DAY, B.WKOUT_YN, B.DRUNK_YN, B.WEIGHT, B.STAMP
-    ''',
-    variables: [Variable.withString(day)],
-  ).getSingleOrNull();
+  final body = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.equals(day))).getSingleOrNull();
 
-  return result == null ? null : DocDayDetail.fromRow(result);
+  final diets = await (db.select(db.htDayDiet)
+    ..where((tbl) => tbl.day.equals(day))).get();
+
+  final totalCalorie = diets.fold<double>(0, (sum, e) => sum + (e.calorie ?? 0));
+  final totalProtein = diets.fold<double>(0, (sum, e) => sum + (e.protein ?? 0));
+
+  debugPrint('totalCalorie: $totalCalorie');
+
+  return DocDayDetail(
+    id: body?.id ?? -1, // htDayBody에 기록이 없을경우, -1을 리턴,
+    day: day,
+    workYn: body?.wkoutYn,
+    drunYn: body?.drunkYn,
+    weight: body?.weight,
+    stamp: body?.stamp,
+    memo: body?.memo,
+    totalCalorie: totalCalorie == 0 ? null : totalCalorie,
+    totalProtein: totalProtein == 0 ? null : totalProtein,
+  );
 });
 
 /*

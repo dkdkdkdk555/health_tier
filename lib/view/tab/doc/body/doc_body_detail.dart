@@ -23,7 +23,6 @@ class DocBodyDetail extends ConsumerWidget {
     final docDtl = ref.watch(htDayDocDetail(searchDay));
     final detail = docDtl.asData?.value;
     final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(detail!.id)).value : null;
-    // debugPrint('테스트 : : ${prvsWeight}');
     final today = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
     final numberGroup = AutoSizeGroup();
