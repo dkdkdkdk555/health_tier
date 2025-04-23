@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
 import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
+import 'package:my_app/view/tab/doc/body/doc_body_write.dart';
 
 class DocCalendarBody extends StatefulWidget {
   const DocCalendarBody({super.key});
@@ -112,15 +113,9 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(127),
       builder: (_) {
-        return FractionallySizedBox(
+        return const FractionallySizedBox(
           heightFactor: 0.92,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            ),
-            child: const Center(child: Text("Full Detail View")),
-          ),
+          child: DocBodyWrite()
         );
       },
     );
