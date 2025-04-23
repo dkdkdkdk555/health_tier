@@ -11,9 +11,11 @@ class DocBodyDetail extends ConsumerWidget {
   const DocBodyDetail({
     super.key,
     required this.focusedDay,
+    required this.bottomHeight,
   });
 
   final DateTime focusedDay;
+  final double bottomHeight;
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -83,7 +85,9 @@ class DocBodyDetail extends ConsumerWidget {
                   ),
                 )
               ),
-              // const Spacer(flex:23,),
+              SizedBox(
+                height: bottomHeight,
+              )
             ],
           ),
         ),

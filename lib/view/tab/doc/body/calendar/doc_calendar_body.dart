@@ -36,32 +36,12 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
     });
   }
 
-  void _showFullModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withAlpha(127),
-      builder: (_) {
-        return FractionallySizedBox(
-          heightFactor: 0.92,
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            ),
-            child: const Center(child: Text("Full Detail View")),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final bodyHeight = screenHeight * _bodyHeightFactor;
+    final bottomHeight = bodyHeight - (screenHeight * 0.36453202);
 
     return Stack(
       children: [
@@ -116,10 +96,33 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
                 _dragDistance = 0;
               });
             },
-            child: DocBodyDetail(focusedDay: _focusedDay),
+            child: DocBodyDetail(focusedDay: _focusedDay, bottomHeight: bottomHeight,),
           ),
         ),
       ],
+    );
+  }
+
+
+
+  void _showFullModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withAlpha(127),
+      builder: (_) {
+        return FractionallySizedBox(
+          heightFactor: 0.92,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            child: const Center(child: Text("Full Detail View")),
+          ),
+        );
+      },
     );
   }
 }
