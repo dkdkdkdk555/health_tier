@@ -41,9 +41,9 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               ),
             )
           ),
-          const Spacer(flex:5),
+          const Spacer(flex:4),
           Expanded(
-            flex: 179,
+            flex: 180,
             child: Container(
               decoration: const BoxDecoration(
                 color: Colors.white,
@@ -55,12 +55,107 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                   Expanded(
                     flex: 67,
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100]
+                      decoration: const BoxDecoration(
+                        color: Colors.white
                       ),
                       child: Column(
                         children: [
-                          
+                           const Expanded(
+                            flex: 15,
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: 
+                                Text(
+                                  '2025.03.06 (목)',
+                                  style: TextStyle(
+                                    color: Color(0xFF777777),
+                                    fontSize: 16.5,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w500
+                                  ),
+                                ),
+                            ),
+                          ),
+                          Container(
+                            height: 1,
+                            decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+                          ),
+                          const Spacer(flex: 12),
+                          const Expanded(
+                            flex: 24,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 12),
+                           const Expanded(
+                            flex: 24,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 12),
+                           const Expanded(
+                            flex: 24,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 12),
+                           const Expanded(
+                            flex: 48,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 12),
+                           const Expanded(
+                            flex: 17,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 16),
+                          Container(
+                            height: 1,
+                            decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+                          ),
+                          const Spacer(flex: 16),
+                          const Expanded( // Text
+                            flex: 9,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '당신의 하루를 평가해주세요.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Color(0xFF777777),
+                                      fontSize: 14.7,
+                                      fontFamily: 'Pretendard',
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          const Spacer(flex: 8),
+                          const Expanded(
+                            flex: 31,
+                            child: Row(
+                              
+                            ),
+                          ),
+                          const Spacer(flex: 20),
+                          Expanded(
+                            flex: 27,
+                            child: Container(
+                              color: Colors.lightBlue,
+                              child: const Row(
+                                
+                              ),
+                            ),
+                          ),
+                          const Spacer(flex: 18),
                         ],
                       ),
                     ),
