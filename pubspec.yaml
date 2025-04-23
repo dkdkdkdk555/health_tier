@@ -40,6 +40,7 @@ dependencies:
   auto_size_text: ^3.0.0
   table_calendar: ^3.2.0
   intl: ^0.20.0 # 날짜 포멧 처리 용도
+  fluttertoast: ^8.2.12
 
   # DB
   drift: ^2.26.0

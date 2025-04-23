@@ -27,87 +27,84 @@ class DocBodyDetail extends ConsumerWidget {
 
     final numberGroup = AutoSizeGroup();
 
-    return Expanded(
-      flex: 148,
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
-              border: Border(
-                left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
-                top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-                right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-                bottom: const BorderSide(color: Color(0xFFEEEEEE)),
-              ),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
+            border: Border(
+              left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+              top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+              right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+              bottom: const BorderSide(color: Color(0xFFEEEEEE)),
             ),
-            child: Column(
-              children: [
-                const Spacer(flex:2),
-                Expanded(
-                  flex:1,
-                  child: Container(
-                    width: 40 * wtio,
-                    height: 4 * htio,
-                    decoration: ShapeDecoration(
-                      color: const Color(0xFFE6E6E6),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
-                      ),
+          ),
+          child: Column(
+            children: [
+              const Spacer(flex:2),
+              Expanded(
+                flex:1,
+                child: Container(
+                  width: 40 * wtio,
+                  height: 4 * htio,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFE6E6E6),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
                     ),
-                  )
-                ),
-                const Spacer(flex:7),
-                Flexible(
-                  flex:64,
-                  fit: FlexFit.loose,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 0),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 66),
-                        Flexible(
-                          child: Column(
-                            children: [
-                              makeRow1(wtio, today, htio, detail),
-                              const Spacer(flex:9),
-                              makeRow2(detail, numberGroup),
-                              const Spacer(flex:4),
-                              makeRow3(detail, prvsWeight),
-                              const Spacer(flex:9),
-                              makeRow4(detail),
-                            ],
-                          ),
+                  ),
+                )
+              ),
+              const Spacer(flex:7),
+              Flexible(
+                flex:64,
+                fit: FlexFit.loose,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 0),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 66),
+                      Flexible(
+                        child: Column(
+                          children: [
+                            makeRow1(wtio, today, htio, detail),
+                            const Spacer(flex:9),
+                            makeRow2(detail, numberGroup),
+                            const Spacer(flex:4),
+                            makeRow3(detail, prvsWeight),
+                            const Spacer(flex:9),
+                            makeRow4(detail),
+                          ],
                         ),
-                        const SizedBox(width: 66),
-                      ],
-                    ),
-                  )
-                ),
-                // const Spacer(flex:23,),
-              ],
-            ),
+                      ),
+                      const SizedBox(width: 66),
+                    ],
+                  ),
+                )
+              ),
+              // const Spacer(flex:23,),
+            ],
           ),
-          // 도장(하루평가)
-          if (detail?.stamp != null)
-          Positioned(
-            top: 57 * htio,
-            right: 0 * wtio,
-            child: SizedBox(
-              width: 130 * wtio,
-              height: 130 * htio,
-              child: Transform.rotate(
-                angle: -0.52,
-                child: SvgPicture.asset(
-                  'assets/icons/stamp_${detail!.stamp!.toLowerCase()}.svg',
-                  fit: BoxFit.contain,
-                ),
+        ),
+        // 도장(하루평가)
+        if (detail?.stamp != null)
+        Positioned(
+          top: 57 * htio,
+          right: 0 * wtio,
+          child: SizedBox(
+            width: 130 * wtio,
+            height: 130 * htio,
+            child: Transform.rotate(
+              angle: -0.52,
+              child: SvgPicture.asset(
+                'assets/icons/stamp_${detail!.stamp!.toLowerCase()}.svg',
+                fit: BoxFit.contain,
               ),
             ),
           ),
-        ]
-      )
+        ),
+      ]
     );
   }
 

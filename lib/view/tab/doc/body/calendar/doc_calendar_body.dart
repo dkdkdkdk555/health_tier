@@ -11,58 +11,117 @@ class DocCalendarBody extends StatefulWidget {
 }
 
 class _DocCalendarBodyState extends State<DocCalendarBody> {
-   DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
+
+  double _dragDistance = 0;
+  double _bodyHeightFactor = 0.36453202; // 35% → 65%까지 확장
+  final double _minHeightFactor = 0.36453202;
+  final double _maxHeightFactor = 0.65;
 
   void _goToPreviousMonth({DateTime? selectedDay}) {
     setState(() {
-      if(selectedDay != null){
-        _focusedDay = selectedDay;
-      } else {
-        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-      }
+      _focusedDay = selectedDay ?? DateTime(_focusedDay.year, _focusedDay.month - 1);
     });
   }
 
   void _goToNextMonth({DateTime? selectedDay}) {
     setState(() {
-      if(selectedDay != null){
-        _focusedDay = selectedDay;
-      } else {
-        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-      }
+      _focusedDay = selectedDay ?? DateTime(_focusedDay.year, _focusedDay.month + 1);
     });
   }
 
-  void _goFocusedDay({required DateTime selectedDay}){
+  void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
       _focusedDay = selectedDay;
     });
   }
 
+  void _showFullModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withAlpha(127),
+      builder: (_) {
+        return FractionallySizedBox(
+          heightFactor: 0.92,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            child: const Center(child: Text("Full Detail View")),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final bodyHeight = screenHeight * _bodyHeightFactor;
+
+    return Stack(
       children: [
-        Expanded(
-          flex: 201,
-          child: Column(
-            children: [
-              CustomCalendarHeader(
-                focusedDay: _focusedDay,
-                onLeftArrow: _goToPreviousMonth,
-                onRightArrow: _goToNextMonth,
+        // 배경: Calendar 헤더 + 바디
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Expanded(
+              flex: 201,
+              child: Column(
+                children: [
+                  CustomCalendarHeader(
+                    focusedDay: _focusedDay,
+                    onLeftArrow: _goToPreviousMonth,
+                    onRightArrow: _goToNextMonth,
+                  ),
+                  CustomCalenderBody(
+                    focusedDay: _focusedDay,
+                    onGoToNextMonth: _goToNextMonth,
+                    onGoToPreviousMonth: _goToPreviousMonth,
+                    onGoToFocusedDay: _goFocusedDay,
+                  ),
+                ],
               ),
-              CustomCalenderBody(focusedDay: _focusedDay, 
-                onGoToNextMonth: _goToNextMonth, 
-                onGoToPreviousMonth: _goToPreviousMonth,
-                onGoToFocusedDay: _goFocusedDay,),
-            ],
-          )
+            ),
+            const Expanded(flex: 148, child: SizedBox.shrink()),
+          ],
         ),
-        DocBodyDetail(focusedDay: _focusedDay,),
+
+        // 위에 겹치는 DocBodyDetail (애니메이션으로 위로 확장됨)
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: bodyHeight,
+          child: GestureDetector(
+            onVerticalDragUpdate: (details) {
+              setState(() {
+                _dragDistance += details.primaryDelta!;
+                final expandedRatio = _minHeightFactor - (_dragDistance / screenHeight);
+                _bodyHeightFactor = expandedRatio.clamp(_minHeightFactor, _maxHeightFactor);
+              });
+            },
+            onVerticalDragEnd: (_) {
+              if (_bodyHeightFactor >= 0.60) {
+                _showFullModal();
+              }
+              setState(() {
+                _bodyHeightFactor = _minHeightFactor;
+                _dragDistance = 0;
+              });
+            },
+            child: DocBodyDetail(focusedDay: _focusedDay),
+          ),
+        ),
       ],
     );
   }
 }
+
 
