@@ -9,16 +9,19 @@ class DocBodyWrite extends StatefulWidget {
   State<DocBodyWrite> createState() => _DocBodyWriteState();
 }
 
+var htio = 0.0;
+var wtio = 0.0;
+
 class _DocBodyWriteState extends State<DocBodyWrite> {
   @override
   Widget build(BuildContext context) {
-    final htio = ScreenRatio(context).heightRatio;
-    final wtio = ScreenRatio(context).widthRatio;    
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;    
 
-    final TextEditingController _weightEditor = TextEditingController();
-    final TextEditingController _muscleEditor = TextEditingController();
-    final TextEditingController _bodyFatEditor = TextEditingController();
-    final TextEditingController _memoEditor = TextEditingController();
+    final TextEditingController weightEditor = TextEditingController();
+    final TextEditingController muscleEditor = TextEditingController();
+    final TextEditingController bodyFatEditor = TextEditingController();
+    final TextEditingController memoEditor = TextEditingController();
 
     final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
   
@@ -68,7 +71,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                       ),
                       child: Column(
                         children: [
-                           const Expanded(
+                          Expanded(
                             flex: 15,
                             child: Align(
                               alignment: Alignment.topLeft,
@@ -76,8 +79,8 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                                 Text(
                                   '2025.03.06 (목)',
                                   style: TextStyle(
-                                    color: Color(0xFF777777),
-                                    fontSize: 13.7,
+                                    color: const Color(0xFF777777),
+                                    fontSize: 13.7 * htio,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w500
                                   ),
@@ -86,71 +89,23 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                           ),
                           makeBorder(),
                           const Spacer(flex: 12),
-                          inputArea('체중', 'kg', _weightEditor),
+                          inputArea('체중', 'kg', weightEditor),
                           const Spacer(flex: 12),
-                          inputArea('골격근', 'kg', _muscleEditor),
+                          inputArea('골격근', 'kg', muscleEditor),
                           const Spacer(flex: 12),
-                          inputArea('체지방률', '%', _bodyFatEditor),
+                          inputArea('체지방률', '%', bodyFatEditor),
                           const Spacer(flex: 12),
-                          textArea(_memoEditor),
+                          textArea(memoEditor),
                           const Spacer(flex: 12),
                           buttonArea(),
                           const Spacer(flex: 16),
                           makeBorder(),
                           const Spacer(flex: 16),
-                          const Expanded( // Text
-                            flex: 9,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '당신의 하루를 평가해주세요.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Color(0xFF777777),
-                                      fontSize: 12,
-                                      fontFamily: 'Pretendard',
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
+                          const InfoText(flex: 9),
                           const Spacer(flex: 8),
                           setStampCollection(stampCollect),
                           const Spacer(flex: 20),
-                          Expanded(
-                            flex: 27,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: FractionallySizedBox(
-                                widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
-                                child: GestureDetector(
-                                  onTap: () {
-                                    // 버튼 클릭 로직
-                                  },
-                                  child: Container(
-                                    height: double.infinity, // 세로는 flex: 27 높이 채우기
-                                    decoration: ShapeDecoration(
-                                      color: const Color(0xFF0D85E7),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: const Center(
-                                      child: Text(
-                                        '확인',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontFamily: 'Pretendard',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          requestBtn(),
                           const Spacer(flex: 18),
                         ],
                       ),
@@ -166,6 +121,42 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
     );
   }
 
+  Expanded requestBtn() {
+    return Expanded(
+      flex: 27,
+      child: Align(
+        alignment: Alignment.center,
+        child: FractionallySizedBox(
+          widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
+          child: GestureDetector(
+            onTap: () {
+              // 버튼 클릭 로직
+            },
+            child: Container(
+              height: double.infinity, // 세로는 flex: 27 높이 채우기
+              decoration: ShapeDecoration(
+                color: const Color(0xFF0D85E7),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '확인',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16 * htio,
+                    fontFamily: 'Pretendard',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Expanded setStampCollection(List<String> stampCollect) {
     return Expanded(
       flex: 31,
@@ -173,8 +164,8 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: stampCollect.map((stampName) {
           return SizedBox(
-            width: 56.94, // 아이콘 크기 제한
-            height: 56.94,
+            width: 56.94 * wtio, // 아이콘 크기 제한
+            height: 56.94 * htio,
             child: SvgPicture.asset(
               'assets/icons/stamp_$stampName.svg',
               fit: BoxFit.contain,
@@ -197,18 +188,18 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
       flex: 17,
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 78,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 '운동/음주',
                 style: TextStyle(
-                    color: Color(0xFF333333),
-                    fontSize: 14.5,
+                    color: const Color(0xFF333333),
+                    fontSize: 14.5 * htio,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w500,
-                    height: 0.09,
+                    height: 0.09 * htio,
                 ),
               )
             )
@@ -236,26 +227,26 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
       onTap: () {
       },
       child: Container(
-          width: 89,
-          height: 34,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          width: 89 * wtio,
+          height: 34 * htio,
+          padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 8 * htio),
           decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: Color(0xFF333333)),
+          side: const BorderSide(width: 1, color: Color(0xFF333333)),
           borderRadius: BorderRadius.circular(99),
           ),
         ),
         child: Row(
           children: [
             Padding(
-              padding: EdgeInsets.only(right: 4),
+              padding: const EdgeInsets.only(right: 4),
               child: Text(
                   text,
-                  style: const TextStyle(
-                    color: Color(0xFF333333),
-                    fontSize: 11,
+                  style: TextStyle(
+                    color: const Color(0xFF333333),
+                    fontSize: 11 * htio,
                     fontFamily: 'Pretendard',
-                    height: 0.12,
+                    height: 0.12 * htio,
                 ),
               ),
             ),
@@ -279,18 +270,18 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
       flex: 48,
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             flex: 78,
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
                 '메모',
                 style: TextStyle(
-                  color: Color(0xFF333333),
-                  fontSize: 14.5,
+                  color: const Color(0xFF333333),
+                  fontSize: 14.5 * htio,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w500,
-                  height: 3
+                  height: 3 * htio
                 ),
               ),
             ),
@@ -305,11 +296,11 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               expands: true, // 남은 공간 전체 사용 -> 이거 해야 height flex:48 다 차지함
               decoration: InputDecoration(
                 hintText: '메모를 입력해주세요. (최대 100자)\n',
-                hintStyle: const TextStyle(
-                  color: Color(0xFF999999),
-                  fontSize: 13.5,
+                hintStyle: TextStyle(
+                  color: const Color(0xFF999999),
+                  fontSize: 13.5 * htio,
                   fontFamily: 'Pretendard',
-                  height: 4,
+                  height: 4 * htio,
                 ),
                 contentPadding: const EdgeInsets.all(12), // 여백 추가
                 enabledBorder: OutlineInputBorder(
@@ -334,7 +325,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
     );
   }
 
-  Widget inputArea(String text, String unit, TextEditingController _editor) {
+  Widget inputArea(String text, String unit, TextEditingController editor) {
     return Expanded(
       flex: 24,
       child: Row(
@@ -345,12 +336,12 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               alignment: Alignment.centerLeft,
               child: Text(
                   text,
-                  style: const TextStyle(
-                      color: Color(0xFF333333),
-                      fontSize: 14.5,
+                  style: TextStyle(
+                      color: const Color(0xFF333333),
+                      fontSize: 14.5 * htio,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
-                      height: 0.09,
+                      height: 0.09 * htio,
                   ),
               )
             )
@@ -358,13 +349,13 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
           Expanded(
             flex: 257,
             child: TextField(
-              controller: _editor,
+              controller: editor,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 suffixText: unit,
-                suffixStyle: const TextStyle(
-                  color: Color(0xFF999999),
-                  fontSize: 16,
+                suffixStyle: TextStyle(
+                  color: const Color(0xFF999999),
+                  fontSize: 16 * htio,
                   fontFamily: 'Pretendard',
                 ),
                 enabledBorder: OutlineInputBorder(
@@ -385,6 +376,36 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
             ),
           )
         ]
+      ),
+    );
+  }
+}
+
+class InfoText extends StatelessWidget {
+  const InfoText({
+    super.key,
+    required this.flex
+  });
+
+  final int flex;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded( // Text
+      flex: flex,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '당신의 하루를 평가해주세요.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: const Color(0xFF777777),
+                fontSize: 12 * htio,
+                fontFamily: 'Pretendard',
+            ),
+          )
+        ],
       ),
     );
   }
