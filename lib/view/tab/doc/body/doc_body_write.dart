@@ -35,6 +35,8 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
   bool wkoutYn = false;
   bool drunkYn = false;
   String selectedStamp = '';
+  int? docId;
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -52,6 +54,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     ref.read(selectHtDayDoc(searchDay).future).then((doc) {
       if (doc != null && doc.id != -1) {
         setState(() {
+          docId = doc.id;
           weightEditor.text = doc.weight.toString();
           muscleEditor.text = doc.muscle.toString();
           bodyFatEditor.text = doc.fat.toString();
@@ -176,19 +179,78 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
         child: FractionallySizedBox(
           widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
           child: GestureDetector(
-            onTap: () {
-              // 버튼 클릭 로직
-            },
-            child: Container(
-              height: double.infinity, // 세로는 flex: 27 높이 채우기
-              decoration: ShapeDecoration(
-                color: const Color(0xFF0D85E7),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+            onTap: () async {
+              setState(() => isSaving = true); // 🔄 저장 시작
+
+              final day = DateFormat('yyyy-MM-dd').format(focusedDay);
+              final weight = double.tryParse(weightEditor.text);
+              final muscle = double.tryParse(muscleEditor.text);
+              final fat = double.tryParse(bodyFatEditor.text);
+              final memo = memoEditor.text;
+
+              try {
+                if (docId == null || docId == -1) {
+                  await insertHtDayDoc(
+                    ref: ref,
+                    day: day,
+                    weight: weight,
+                    muscle: muscle,
+                    fat: fat,
+                    memo: memo,
+                    workYn: wkoutYn,
+                    drunkYn: drunkYn,
+                    stamp: selectedStamp,
+                  );
+                } else {
+                  await updateHtDayDoc(
+                    ref: ref,
+                    id: docId!,
+                    weight: weight,
+                    muscle: muscle,
+                    fat: fat,
+                    memo: memo,
+                    workYn: wkoutYn,
+                    drunkYn: drunkYn,
+                    stamp: selectedStamp,
+                  );
+                }
+
+                // ✅ 저장 성공 시 메시지
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('저장이 완료되었습니다.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('저장 중 오류 발생: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              } finally {
+                if (mounted) setState(() => isSaving = false);
+              }
+          },
+          child: Container(
+            height: double.infinity, // 세로는 flex: 27 높이 채우기
+            decoration: ShapeDecoration(
+              color: const Color(0xFF0D85E7),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(
-                child: Text(
+            ),
+            child: Center(
+              child: isSaving
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Text(
                   '확인',
                   style: TextStyle(
                     color: Colors.white,
@@ -196,8 +258,8 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                     fontFamily: 'Pretendard',
                   ),
                 ),
-              ),
             ),
+          ),
           ),
         ),
       ),
