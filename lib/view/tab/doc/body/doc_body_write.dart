@@ -193,16 +193,6 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
   Expanded setStampCollection(String stamp) {
     final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
-
-    // 선택된 색상 맵 정의
-    final Map<String, Color> selectedStampColors = {
-      'perfect': const Color(0xFF249DFF),
-      'good': const Color(0xFF95D33E),
-      'normal': const Color(0xFFFFDE23),
-      'bad': const Color(0xFFFF9900),
-      'terrible': const Color(0xFFFF5656),
-    };
-
     return Expanded(
       flex: 31,
       child: Row(
@@ -214,12 +204,10 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
             width: 56.94 * wtio,
             height: 56.94 * htio,
             child: SvgPicture.asset(
-              'assets/icons/stamp_$stampName.svg',
+              isSelected 
+                ? 'assets/icons/stamp_100_$stampName.svg' 
+                : 'assets/icons/stamp_$stampName.svg',
               fit: BoxFit.contain,
-              colorFilter: isSelected ? ColorFilter.mode( 
-                                          selectedStampColors[stampName]!,
-                                          BlendMode.srcIn,)
-                  : null, // 선택되지 않은 경우 원본 색상 유지
             ),
           );
         }).toList(),
