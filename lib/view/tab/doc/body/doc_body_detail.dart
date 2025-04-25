@@ -102,7 +102,7 @@ class DocBodyDetail extends ConsumerWidget {
             child: Transform.rotate(
               angle: -0.52,
               child: SvgPicture.asset(
-                'assets/icons/stamp_${detail!.stamp!.toLowerCase()}.svg',
+                'assets/icons/stamp_${detail!.stamp.toString()}.svg',
                 fit: BoxFit.contain,
               ),
             ),

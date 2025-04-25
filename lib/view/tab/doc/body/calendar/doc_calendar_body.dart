@@ -113,9 +113,9 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(127),
       builder: (_) {
-        return const FractionallySizedBox(
+        return FractionallySizedBox(
           heightFactor: 0.92,
-          child: DocBodyWrite()
+          child: DocBodyWrite(focusDay: _focusedDay,)
         );
       },
     );

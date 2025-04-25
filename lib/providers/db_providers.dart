@@ -65,8 +65,6 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
   final totalCalorie = diets.fold<double>(0, (sum, e) => sum + (e.calorie ?? 0));
   final totalProtein = diets.fold<double>(0, (sum, e) => sum + (e.protein ?? 0));
 
-  debugPrint('totalCalorie: $totalCalorie');
-
   return DocDayDetail(
     id: body?.id ?? -1, // htDayBody에 기록이 없을경우, -1을 리턴,
     day: day,
@@ -91,4 +89,26 @@ final getPreviousWeight = FutureProvider.family<double?, int>((ref, currentId) a
       .getSingleOrNull();
 
   return previous?.weight;
+});
+
+/*
+  1-1-3 상세조회
+*/
+final selectHtDayDoc = FutureProvider.family<DocDayDetail?, String>((ref, day) async {
+  final db = ref.watch(databaseProvider);
+
+  final doc = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.equals(day))).getSingleOrNull();
+  
+  return DocDayDetail(
+    id: doc?.id ?? -1,
+    day: day,
+    workYn: doc?.wkoutYn,
+    drunYn: doc?.drunkYn,
+    weight: doc?.weight,
+    muscle: doc?.muscle,
+    fat: doc?.fat,
+    stamp: doc?.stamp,
+    memo: doc?.memo,
+  );
 });

@@ -118,11 +118,11 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
 
     Color? stampColor(String? stamp) {
       switch (stamp) {
-        case 'TERRIBLE': return const Color(0xFFFF5656);
-        case 'BAD': return const Color(0xFFFF9900);
-        case 'PERFECT': return const Color(0xFF249DFF);
-        case 'NORMAL': return const Color(0xFFFFDE23);
-        case 'GOOD': return const Color(0xFF95D33E);
+        case 'terrible': return const Color(0xFFFF5656);
+        case 'bad': return const Color(0xFFFF9900);
+        case 'perfect': return const Color(0xFF249DFF);
+        case 'normal': return const Color(0xFFFFDE23);
+        case 'good': return const Color(0xFF95D33E);
         default: return const Color(0xFFF5F5F5);
       }
     }

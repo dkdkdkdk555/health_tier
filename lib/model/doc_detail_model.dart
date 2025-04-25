@@ -6,6 +6,8 @@ class DocDayDetail {
   final int? workYn;
   final int? drunYn;
   final double? weight;
+  final double? muscle;
+  final double? fat;
   final String? stamp;
   final String? memo;
   final double? totalCalorie;
@@ -17,6 +19,8 @@ class DocDayDetail {
     this.workYn,
     this.drunYn,
     this.weight,
+    this.muscle,
+    this.fat,
     this.stamp,
     this.memo,
     this.totalCalorie,

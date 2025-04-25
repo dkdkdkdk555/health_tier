@@ -1,29 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/providers/db_providers.dart';
 
-class DocBodyWrite extends StatefulWidget {
-  const DocBodyWrite({super.key});
+class DocBodyWrite extends ConsumerStatefulWidget {
+  const DocBodyWrite({
+    super.key,
+    required this.focusDay
+  });
+
+  final DateTime focusDay;
 
   @override
-  State<DocBodyWrite> createState() => _DocBodyWriteState();
+  ConsumerState<DocBodyWrite> createState() => _DocBodyWriteState();
 }
 
 var htio = 0.0;
 var wtio = 0.0;
 
-class _DocBodyWriteState extends State<DocBodyWrite> {
+class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
+
+  late DateTime focusedDay;
+
+    @override
+  void initState() {
+    super.initState();
+    focusedDay = widget.focusDay;
+  }
+
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;    
 
+    final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
+    final dto = ref.watch(selectHtDayDoc(searchDay));
+    final doc = dto.asData?.value;
+
+    final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
+
     final TextEditingController weightEditor = TextEditingController();
     final TextEditingController muscleEditor = TextEditingController();
     final TextEditingController bodyFatEditor = TextEditingController();
     final TextEditingController memoEditor = TextEditingController();
+    bool wrkOutYn = false;
+    bool drunkYn = false;
+    String selectedStamp = '';
 
-    final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
+    if(doc != null && doc.id != -1){
+      weightEditor.text = doc.weight.toString();
+      muscleEditor.text = doc.muscle.toString();
+      bodyFatEditor.text = doc.fat.toString();
+      memoEditor.text = doc.memo.toString();
+      drunkYn = doc.drunYn == 1 ? true : false;
+      wrkOutYn = doc.workYn == 1 ? true : false;
+      selectedStamp = doc.stamp.toString();
+    }
   
     return Container(
       decoration: BoxDecoration(
@@ -77,7 +111,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                               alignment: Alignment.topLeft,
                               child: 
                                 Text(
-                                  '2025.03.06 (목)',
+                                  displayDay,
                                   style: TextStyle(
                                     color: const Color(0xFF777777),
                                     fontSize: 13.7 * htio,
@@ -97,13 +131,13 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
                           const Spacer(flex: 12),
                           textArea(memoEditor),
                           const Spacer(flex: 12),
-                          buttonArea(),
+                          buttonArea(drunkYn: drunkYn, wkoutYn: wrkOutYn),
                           const Spacer(flex: 16),
                           makeBorder(),
                           const Spacer(flex: 16),
                           const InfoText(flex: 9),
                           const Spacer(flex: 8),
-                          setStampCollection(stampCollect),
+                          setStampCollection(selectedStamp),
                           const Spacer(flex: 20),
                           requestBtn(),
                           const Spacer(flex: 18),
@@ -157,24 +191,43 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
     );
   }
 
-  Expanded setStampCollection(List<String> stampCollect) {
+  Expanded setStampCollection(String stamp) {
+    final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
+
+    // 선택된 색상 맵 정의
+    final Map<String, Color> selectedStampColors = {
+      'perfect': const Color(0xFF249DFF),
+      'good': const Color(0xFF95D33E),
+      'normal': const Color(0xFFFFDE23),
+      'bad': const Color(0xFFFF9900),
+      'terrible': const Color(0xFFFF5656),
+    };
+
     return Expanded(
       flex: 31,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: stampCollect.map((stampName) {
+          final isSelected = stampName == stamp;
+
           return SizedBox(
-            width: 56.94 * wtio, // 아이콘 크기 제한
+            width: 56.94 * wtio,
             height: 56.94 * htio,
             child: SvgPicture.asset(
               'assets/icons/stamp_$stampName.svg',
               fit: BoxFit.contain,
+              colorFilter: isSelected ? ColorFilter.mode( 
+                                          selectedStampColors[stampName]!,
+                                          BlendMode.srcIn,)
+                  : null, // 선택되지 않은 경우 원본 색상 유지
             ),
           );
         }).toList(),
       ),
     );
   }
+
+
 
   Container makeBorder() {
     return Container(
@@ -183,7 +236,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
     );
   }
 
-  Expanded buttonArea() {
+  Expanded buttonArea({required bool drunkYn, required bool wkoutYn}) {
     return Expanded(
       flex: 17,
       child: Row(
@@ -210,9 +263,9 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  makeYnButton('운동 여부', 'assets/icons/work_out.svg'),
+                  makeYnButton('운동 여부', 'assets/icons/work_out.svg', wkoutYn),
                   const SizedBox(width: 17),
-                  makeYnButton('음주 여부', 'assets/icons/drink.svg'),
+                  makeYnButton('음주 여부', 'assets/icons/drink.svg', drunkYn),
                 ],
               ),
             )
@@ -222,7 +275,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
     );
   }
 
-  GestureDetector makeYnButton(String text, String iconPath) {
+  GestureDetector makeYnButton(String text, String iconPath, bool yn) {
     return GestureDetector(
       onTap: () {
       },
@@ -232,7 +285,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
           padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 8 * htio),
           decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-          side: const BorderSide(width: 1, color: Color(0xFF333333)),
+          side: BorderSide(width: 1, color: yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),),
           borderRadius: BorderRadius.circular(99),
           ),
         ),
@@ -243,7 +296,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               child: Text(
                   text,
                   style: TextStyle(
-                    color: const Color(0xFF333333),
+                    color: yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),
                     fontSize: 11 * htio,
                     fontFamily: 'Pretendard',
                     height: 0.12 * htio,
@@ -253,8 +306,8 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
             Expanded(
               child: SvgPicture.asset(
                 iconPath,
-                colorFilter: const ColorFilter.mode(
-                Color(0xFF333333),
+                colorFilter: ColorFilter.mode(
+                  yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),
                   BlendMode.srcIn,
                 ),
               ),
@@ -294,6 +347,11 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
               expands: true, // 남은 공간 전체 사용 -> 이거 해야 height flex:48 다 차지함
+              style: TextStyle(
+                fontSize: 12.5 * htio,
+                fontFamily: 'Pretendard',
+                height: 1.2 * htio
+              ),
               decoration: InputDecoration(
                 hintText: '메모를 입력해주세요. (최대 100자)\n',
                 hintStyle: TextStyle(
@@ -351,6 +409,7 @@ class _DocBodyWriteState extends State<DocBodyWrite> {
             child: TextField(
               controller: editor,
               keyboardType: TextInputType.number,
+              textAlign: TextAlign.right, 
               decoration: InputDecoration(
                 suffixText: unit,
                 suffixStyle: TextStyle(
