@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:flutter/services.dart';
+import 'package:my_app/extension/limit_value_formatter.dart';
 
 class DocBodyWrite extends ConsumerStatefulWidget {
   const DocBodyWrite({
@@ -24,10 +26,43 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
   late DateTime focusedDay;
 
-    @override
+  late TextEditingController weightEditor;
+  late TextEditingController muscleEditor;
+  late TextEditingController bodyFatEditor;
+  late TextEditingController memoEditor;
+
+  bool initialized = false;
+  bool wkoutYn = false;
+  bool drunkYn = false;
+  String selectedStamp = '';
+
+  @override
   void initState() {
     super.initState();
+
     focusedDay = widget.focusDay;
+
+    weightEditor = TextEditingController();
+    muscleEditor = TextEditingController();
+    bodyFatEditor = TextEditingController();
+    memoEditor = TextEditingController();
+
+    // 초기 데이터 주입
+    final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
+    ref.read(selectHtDayDoc(searchDay).future).then((doc) {
+      if (doc != null && doc.id != -1) {
+        setState(() {
+          weightEditor.text = doc.weight.toString();
+          muscleEditor.text = doc.muscle.toString();
+          bodyFatEditor.text = doc.fat.toString();
+          memoEditor.text = doc.memo ?? '';
+          drunkYn = doc.drunYn == 1;
+          wkoutYn = doc.workYn == 1;
+          selectedStamp = doc.stamp ?? '';
+          initialized = true;
+        });
+      }
+    });
   }
 
   @override
@@ -35,30 +70,8 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;    
 
-    final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
-    final dto = ref.watch(selectHtDayDoc(searchDay));
-    final doc = dto.asData?.value;
-
     final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
-    final TextEditingController weightEditor = TextEditingController();
-    final TextEditingController muscleEditor = TextEditingController();
-    final TextEditingController bodyFatEditor = TextEditingController();
-    final TextEditingController memoEditor = TextEditingController();
-    bool wrkOutYn = false;
-    bool drunkYn = false;
-    String selectedStamp = '';
-
-    if(doc != null && doc.id != -1){
-      weightEditor.text = doc.weight.toString();
-      muscleEditor.text = doc.muscle.toString();
-      bodyFatEditor.text = doc.fat.toString();
-      memoEditor.text = doc.memo.toString();
-      drunkYn = doc.drunYn == 1 ? true : false;
-      wrkOutYn = doc.workYn == 1 ? true : false;
-      selectedStamp = doc.stamp.toString();
-    }
-  
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -131,13 +144,13 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                           const Spacer(flex: 12),
                           textArea(memoEditor),
                           const Spacer(flex: 12),
-                          buttonArea(drunkYn: drunkYn, wkoutYn: wrkOutYn),
+                          buttonArea(),
                           const Spacer(flex: 16),
                           makeBorder(),
                           const Spacer(flex: 16),
                           const InfoText(flex: 9),
                           const Spacer(flex: 8),
-                          setStampCollection(selectedStamp),
+                          setStampCollection(),
                           const Spacer(flex: 20),
                           requestBtn(),
                           const Spacer(flex: 18),
@@ -191,23 +204,31 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     );
   }
 
-  Expanded setStampCollection(String stamp) {
+  Expanded setStampCollection() {
     final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
+
     return Expanded(
       flex: 31,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: stampCollect.map((stampName) {
-          final isSelected = stampName == stamp;
+          final isSelected = stampName == selectedStamp;
 
-          return SizedBox(
-            width: 56.94 * wtio,
-            height: 56.94 * htio,
-            child: SvgPicture.asset(
-              isSelected 
-                ? 'assets/icons/stamp_100_$stampName.svg' 
-                : 'assets/icons/stamp_$stampName.svg',
-              fit: BoxFit.contain,
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                selectedStamp = stampName;
+              });
+            },
+            child: SizedBox(
+              width: 56.94 * wtio,
+              height: 56.94 * htio,
+              child: SvgPicture.asset(
+                isSelected
+                    ? 'assets/icons/stamp_100_$stampName.svg'
+                    : 'assets/icons/stamp_$stampName.svg',
+                fit: BoxFit.contain,
+              ),
             ),
           );
         }).toList(),
@@ -224,7 +245,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     );
   }
 
-  Expanded buttonArea({required bool drunkYn, required bool wkoutYn}) {
+  Expanded buttonArea() {
     return Expanded(
       flex: 17,
       child: Row(
@@ -251,9 +272,17 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               alignment: Alignment.centerLeft,
               child: Row(
                 children: [
-                  makeYnButton('운동 여부', 'assets/icons/work_out.svg', wkoutYn),
+                  makeYnButton('운동 여부', 'assets/icons/work_out.svg', wkoutYn, () {
+                    setState(() {
+                      wkoutYn = !wkoutYn;
+                    });
+                  }),
                   const SizedBox(width: 17),
-                  makeYnButton('음주 여부', 'assets/icons/drink.svg', drunkYn),
+                  makeYnButton('음주 여부', 'assets/icons/drink.svg', drunkYn, () {
+                    setState(() {
+                      drunkYn = !drunkYn;
+                    });
+                  }),
                 ],
               ),
             )
@@ -263,10 +292,9 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     );
   }
 
-  GestureDetector makeYnButton(String text, String iconPath, bool yn) {
+  GestureDetector makeYnButton(String text, String iconPath, bool yn, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () {
-      },
+      onTap: onTap,
       child: Container(
           width: 89 * wtio,
           height: 34 * htio,
@@ -335,6 +363,9 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
               expands: true, // 남은 공간 전체 사용 -> 이거 해야 height flex:48 다 차지함
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(100), // 최대 100자 제한
+              ],
               style: TextStyle(
                 fontSize: 12.5 * htio,
                 fontFamily: 'Pretendard',
@@ -396,8 +427,12 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
             flex: 257,
             child: TextField(
               controller: editor,
-              keyboardType: TextInputType.number,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.right, 
+              inputFormatters: [
+                LimitValueFormatter(max: 999.9),
+                FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,})?$')),
+              ],
               decoration: InputDecoration(
                 suffixText: unit,
                 suffixStyle: TextStyle(
