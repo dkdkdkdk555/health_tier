@@ -3,17 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/model/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
+import 'package:my_app/util/saving_success_dialog.dart';
 
 class DocBodyWrite extends ConsumerStatefulWidget {
   const DocBodyWrite({
     super.key,
-    required this.focusDay
+    required this.focusDay,
+    required this.onSaved,
   });
 
   final DateTime focusDay;
+  final VoidCallback onSaved; // 입력or수정 완료시 콜백 호출
 
   @override
   ConsumerState<DocBodyWrite> createState() => _DocBodyWriteState();
@@ -31,12 +35,13 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
   late TextEditingController bodyFatEditor;
   late TextEditingController memoEditor;
 
-  bool initialized = false;
+  // bool initialized = false;
   bool wkoutYn = false;
   bool drunkYn = false;
   String selectedStamp = '';
-  int? docId;
-  bool isSaving = false;
+  late int docId;
+
+  bool _isPressed = false;
 
   @override
   void initState() {
@@ -62,8 +67,10 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
           drunkYn = doc.drunYn == 1;
           wkoutYn = doc.workYn == 1;
           selectedStamp = doc.stamp ?? '';
-          initialized = true;
+          // initialized = true;
         });
+      } else {
+        docId = -1;
       }
     });
   }
@@ -179,78 +186,91 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
         child: FractionallySizedBox(
           widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
           child: GestureDetector(
+            onTapDown: (_) {
+              setState(() {
+                _isPressed = true;
+              });
+            },
+            onTapUp: (_) {
+              setState(() {
+                _isPressed = false;
+              });
+            },
+            onTapCancel: () {
+              setState(() {
+                _isPressed = false;
+              });
+            },
             onTap: () async {
-              setState(() => isSaving = true); // 🔄 저장 시작
 
               final day = DateFormat('yyyy-MM-dd').format(focusedDay);
-              final weight = double.tryParse(weightEditor.text);
-              final muscle = double.tryParse(muscleEditor.text);
-              final fat = double.tryParse(bodyFatEditor.text);
+              final weight = double.tryParse(weightEditor.text) ?? 0;
+              final muscle = double.tryParse(muscleEditor.text) ?? 0;
+              final fat = double.tryParse(bodyFatEditor.text) ?? 0;
               final memo = memoEditor.text;
 
               try {
-                if (docId == null || docId == -1) {
+                if (docId == -1) {
                   await insertHtDayDoc(
                     ref: ref,
-                    day: day,
-                    weight: weight,
-                    muscle: muscle,
-                    fat: fat,
-                    memo: memo,
-                    workYn: wkoutYn,
-                    drunkYn: drunkYn,
-                    stamp: selectedStamp,
+                    doc: DocDayDetail(id: -1, day: day, weight: weight, muscle: muscle,
+                          fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
                   );
                 } else {
                   await updateHtDayDoc(
                     ref: ref,
-                    id: docId!,
-                    weight: weight,
-                    muscle: muscle,
-                    fat: fat,
-                    memo: memo,
-                    workYn: wkoutYn,
-                    drunkYn: drunkYn,
-                    stamp: selectedStamp,
+                    doc: DocDayDetail(id: docId, day: day, weight: weight, muscle: muscle,
+                          fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
                   );
                 }
 
-                // ✅ 저장 성공 시 메시지
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('저장이 완료되었습니다.'),
-                      duration: Duration(seconds: 2),
-                    ),
+                // 저장 성공 시 메시지
+                if (mounted) {
+                  
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) {
+                      return const SuccessAfterLoadingDialog();
+                    },
                   );
+                  
+                  widget.onSaved();
                 }
               } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('저장 중 오류 발생: $e'),
-                      backgroundColor: Colors.red,
+                if (mounted) {
+                  Navigator.of(context).pop(); // 로딩 닫기
+
+                  showDialog( // 실패 시
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error, color: Colors.red, size: 48),
+                          const SizedBox(height: 16),
+                          Text('저장 중 오류 발생/n$e'),
+                        ],
+                      ),
                     ),
                   );
                 }
-              } finally {
-                if (mounted) setState(() => isSaving = false);
-              }
+              } 
           },
-          child: Container(
+          child: AnimatedContainer(
             height: double.infinity, // 세로는 flex: 27 높이 채우기
+            duration: const Duration(milliseconds: 300), // 300ms 부드럽게 변화
+            curve: Curves.easeInOut, // 자연스러운 곡선 사용
             decoration: ShapeDecoration(
-              color: const Color(0xFF0D85E7),
+              color:  _isPressed 
+                ? const Color.fromARGB(255, 81, 172, 230) // 눌렀을 때 더 연한 색 (원래색보다 밝은 블루)
+                : const Color(0xFF0D85E7), // 기본 색
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: Center(
-              child: isSaving
-              ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-              : Text(
+              child: Text(
                   '확인',
                   style: TextStyle(
                     color: Colors.white,
@@ -363,7 +383,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
           padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 8 * htio),
           decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),),
+          side: BorderSide(width: 1, color: yn == true ? const Color(0xFF333333) : const Color(0xFFAAAAAA),),
           borderRadius: BorderRadius.circular(99),
           ),
         ),
@@ -374,7 +394,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               child: Text(
                   text,
                   style: TextStyle(
-                    color: yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),
+                    color: yn == true ? const Color(0xFF333333) : const Color(0xFFAAAAAA),
                     fontSize: 11 * htio,
                     fontFamily: 'Pretendard',
                     height: 0.12 * htio,
@@ -385,7 +405,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               child: SvgPicture.asset(
                 iconPath,
                 colorFilter: ColorFilter.mode(
-                  yn == true ? Color(0xFF333333) : Color(0xFFAAAAAA),
+                  yn == true ? const Color(0xFF333333) : const Color(0xFFAAAAAA),
                   BlendMode.srcIn,
                 ),
               ),

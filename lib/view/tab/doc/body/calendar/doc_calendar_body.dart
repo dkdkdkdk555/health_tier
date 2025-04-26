@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
 import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
 import 'package:my_app/view/tab/doc/body/doc_body_write.dart';
 
-class DocCalendarBody extends StatefulWidget {
+class DocCalendarBody extends ConsumerStatefulWidget {
   const DocCalendarBody({super.key});
 
   @override
-  State<DocCalendarBody> createState() => _DocCalendarBodyState();
+  ConsumerState<DocCalendarBody> createState() => _DocCalendarBodyState();
 }
 
-class _DocCalendarBodyState extends State<DocCalendarBody> {
+class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
   DateTime _focusedDay = DateTime.now();
 
   double _dragDistance = 0;
@@ -115,10 +118,18 @@ class _DocCalendarBodyState extends State<DocCalendarBody> {
       builder: (_) {
         return FractionallySizedBox(
           heightFactor: 0.92,
-          child: DocBodyWrite(focusDay: _focusedDay,)
+          child: DocBodyWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
         );
       },
     );
+  }
+
+  void _onDocSaved() {
+    final refreshDay = DateFormat('yyyy-MM-dd').format(_focusedDay);
+    final refreshMonth = DateFormat('yyyy-MM').format(_focusedDay);
+    ref.invalidate(htDayDocDetail(refreshDay));
+    ref.invalidate(htDayDocOfMonth(refreshMonth));
+    ref.invalidate(selectHtDayDoc(refreshDay));
   }
 }
 

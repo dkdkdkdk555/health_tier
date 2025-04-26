@@ -116,28 +116,19 @@ final selectHtDayDoc = FutureProvider.family<DocDayDetail?, String>((ref, day) a
 /*
   1-1-3 INSERT
 */ 
-Future<void> insertHtDayDoc({
-  required WidgetRef ref,
-  required String day,
-  double? weight,
-  double? muscle,
-  double? fat,
-  String? memo,
-  bool workYn = false,
-  bool drunkYn = false,
-  String? stamp,
-}) async {
+Future<void> insertHtDayDoc({required WidgetRef ref, required DocDayDetail doc}) async {
   final db = ref.read(databaseProvider);
+
   await db.into(db.htDayBody).insert(
     HtDayBodyCompanion.insert(
-      day: day,
-      weight: Value(weight),
-      muscle: Value(muscle),
-      fat: Value(fat),
-      memo: Value(memo),
-      wkoutYn: Value(workYn ? 1 : 0),
-      drunkYn: Value(drunkYn ? 1 : 0),
-      stamp: Value(stamp),
+      day: doc.day,
+      weight: Value(doc.weight),
+      muscle: Value(doc.muscle),
+      fat: Value(doc.fat),
+      memo: Value(doc.memo),
+      wkoutYn: Value(doc.workYn ?? 0),
+      drunkYn: Value(doc.drunYn ?? 0),
+      stamp: Value(doc.stamp),
     ),
   );
 }
@@ -147,25 +138,18 @@ Future<void> insertHtDayDoc({
 */ 
 Future<void> updateHtDayDoc({
   required WidgetRef ref,
-  required int id,
-  double? weight,
-  double? muscle,
-  double? fat,
-  String? memo,
-  bool workYn = false,
-  bool drunkYn = false,
-  String? stamp,
+  required DocDayDetail doc
 }) async {
   final db = ref.read(databaseProvider);
-  await (db.update(db.htDayBody)..where((tbl) => tbl.id.equals(id))).write(
+  await (db.update(db.htDayBody)..where((tbl) => tbl.id.equals(doc.id))).write(
     HtDayBodyCompanion(
-      weight: Value(weight),
-      muscle: Value(muscle),
-      fat: Value(fat),
-      memo: Value(memo),
-      wkoutYn: Value(workYn ? 1 : 0),
-      drunkYn: Value(drunkYn ? 1 : 0),
-      stamp: Value(stamp),
+      weight: Value(doc.weight),
+      muscle: Value(doc.muscle),
+      fat: Value(doc.fat),
+      memo: Value(doc.memo),
+      wkoutYn: Value(doc.workYn ?? 0),
+      drunkYn: Value(doc.drunYn ??0),
+      stamp: Value(doc.stamp),
     ),
   );
 }
