@@ -66,7 +66,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                     firstDay: DateTime.utc(2022, 1, 1),
                     lastDay: DateTime(DateTime.now().year + 5, 12, 31),
                     rowHeight: 48.25 * ScreenRatio(context).heightRatio,
-                    focusedDay: _focusedDay,
+                    focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
                     selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                     calendarFormat: CalendarFormat.month,
                     onDaySelected: (selectedDay, focusedDay){

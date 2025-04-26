@@ -23,6 +23,22 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
   final double _maxHeightFactor = 0.65;
 
   void _goToPreviousMonth({DateTime? selectedDay}) {
+    if(selectedDay == null && _focusedDay.isBefore(DateTime.utc(2022, 1, 1))){
+      showDialog(
+        context: context,
+        builder: (_) => const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error, color: Colors.amber, size: 48),
+              SizedBox(height: 16),
+              Text('2022년 1월 1일 부터\n조회 가능합니다.'),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
     setState(() {
       _focusedDay = selectedDay ?? DateTime(_focusedDay.year, _focusedDay.month - 1);
     });

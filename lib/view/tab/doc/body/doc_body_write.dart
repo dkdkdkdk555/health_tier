@@ -210,7 +210,6 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               final memo = memoEditor.text;
 
               if(weight == 0 && muscle == 0 && fat == 0 && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) return;
-              
 
               try {
                 if (docId == -1) {
@@ -229,7 +228,6 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
                 // 저장 성공 시 메시지
                 if (mounted) {
-                  
                   showDialog(
                     context: context,
                     barrierDismissible: false,
@@ -237,7 +235,6 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                       return const SuccessAfterLoadingDialog();
                     },
                   );
-                  
                   widget.onSaved();
                 }
               } catch (e) {
