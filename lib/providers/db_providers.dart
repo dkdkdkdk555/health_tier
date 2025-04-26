@@ -84,11 +84,15 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
 */
 final getPreviousWeight = FutureProvider.family<double?, DateTime>((ref, currDay) async {
   final db = ref.watch(databaseProvider);
-  final searchDay = DateFormat('yyyy-MM-dd').format(DateTime(currDay.year, currDay.month, currDay.day -1));
+  final searchDay = DateFormat('yyyy-MM-dd').format(currDay);
 
   final previous = await (db.select(db.htDayBody)
-        ..where((tbl) => tbl.day.equals(searchDay)))
-      .getSingleOrNull();
+        ..where((tbl) => tbl.day.isSmallerThanValue(searchDay)) // 현재 날짜보다 작은 애들 중
+        ..where((tbl) => tbl.weight.isNotNull())
+        ..where((tbl) => tbl.weight.isNotValue(0))
+        ..orderBy([(t) => OrderingTerm.desc(t.day)]) // 최신순으로 정렬하고
+        ..limit(1) // 가장 최근 하나만 가져오기
+    ).getSingleOrNull();
 
   return previous?.weight;
 });
