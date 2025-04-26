@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/doc_detail_model.dart' show DocDayDetail;
 import 'package:my_app/model/doc_main_model.dart';
@@ -81,11 +82,12 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
 /*
   1-1 체중기록 조회 페이지 직전 체중 기록 가져오기
 */
-final getPreviousWeight = FutureProvider.family<double?, int>((ref, currentId) async {
+final getPreviousWeight = FutureProvider.family<double?, DateTime>((ref, currDay) async {
   final db = ref.watch(databaseProvider);
+  final searchDay = DateFormat('yyyy-MM-dd').format(DateTime(currDay.year, currDay.month, currDay.day -1));
 
   final previous = await (db.select(db.htDayBody)
-        ..where((tbl) => tbl.id.equals(currentId - 1)))
+        ..where((tbl) => tbl.day.equals(searchDay)))
       .getSingleOrNull();
 
   return previous?.weight;

@@ -60,9 +60,9 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
       if (doc != null && doc.id != -1) {
         setState(() {
           docId = doc.id;
-          weightEditor.text = doc.weight.toString();
-          muscleEditor.text = doc.muscle.toString();
-          bodyFatEditor.text = doc.fat.toString();
+          weightEditor.text = doc.weight?.toString() ?? '';
+          muscleEditor.text = doc.muscle?.toString() ?? '';
+          bodyFatEditor.text = doc.fat?.toString() ?? '';
           memoEditor.text = doc.memo ?? '';
           drunkYn = doc.drunYn == 1;
           wkoutYn = doc.workYn == 1;
@@ -204,10 +204,13 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
             onTap: () async {
 
               final day = DateFormat('yyyy-MM-dd').format(focusedDay);
-              final weight = double.tryParse(weightEditor.text) ?? 0;
-              final muscle = double.tryParse(muscleEditor.text) ?? 0;
-              final fat = double.tryParse(bodyFatEditor.text) ?? 0;
+              final weight = double.tryParse(weightEditor.text);
+              final muscle = double.tryParse(muscleEditor.text);
+              final fat = double.tryParse(bodyFatEditor.text);
               final memo = memoEditor.text;
+
+              if(weight == 0 && muscle == 0 && fat == 0 && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) return;
+              
 
               try {
                 if (docId == -1) {
@@ -243,13 +246,13 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
                   showDialog( // 실패 시
                     context: context,
-                    builder: (_) => AlertDialog(
+                    builder: (_) => const AlertDialog(
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error, color: Colors.red, size: 48),
-                          const SizedBox(height: 16),
-                          Text('저장 중 오류 발생/n$e'),
+                          Icon(Icons.error, color: Colors.red, size: 48),
+                          SizedBox(height: 16),
+                          Text('저장 중 오류 발생/n'),
                         ],
                       ),
                     ),

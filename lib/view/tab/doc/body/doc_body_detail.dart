@@ -24,7 +24,7 @@ class DocBodyDetail extends ConsumerWidget {
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
     final docDtl = ref.watch(htDayDocDetail(searchDay));
     final detail = docDtl.asData?.value;
-    final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(detail!.id)).value : null;
+    final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(focusedDay)).value : null;
     final today = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
     final numberGroup = AutoSizeGroup();
@@ -92,7 +92,7 @@ class DocBodyDetail extends ConsumerWidget {
           ),
         ),
         // 도장(하루평가)
-        if (detail?.stamp != null)
+        if (detail?.stamp != null && detail?.stamp != '')
         Positioned(
           top: 57 * htio,
           right: 0 * wtio,
