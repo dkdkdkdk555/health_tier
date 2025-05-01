@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class DocCalendarDiet extends StatefulWidget {
   const DocCalendarDiet({
@@ -18,6 +19,9 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
 
+  late double heightRatio;
+  late double widthRatio;
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +30,15 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    heightRatio = ScreenRatio(context).heightRatio;
+    widthRatio = ScreenRatio(context).widthRatio;
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Expanded(
       flex:128,
       child: Container(
@@ -35,20 +47,20 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
         ),
         child: Column(
           children: [
-            const Expanded(
+            Expanded(
               flex: 16,
               child: Padding(
-                padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 4),
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 4),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     '2025년 5월',
                     style: TextStyle(
-                      color: Color(0xFF333333),
-                      fontSize: 16,
+                      color: const Color(0xFF333333),
+                      fontSize: 16 * heightRatio,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w700,
-                      height: 1.50,
+                      height: 1.50 * heightRatio,
                     ),
                   ),
                 ),
@@ -57,13 +69,13 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
             Expanded(
               flex: 33,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                padding: EdgeInsets.symmetric(vertical: 15 * widthRatio, horizontal: 20 * heightRatio),
                 child: TableCalendar(
                   headerVisible: false,
                   daysOfWeekVisible: false,
                   firstDay: DateTime.utc(2022, 1, 1),
                   lastDay: DateTime(DateTime.now().year + 5, 12, 31),
-                  rowHeight: 69,
+                  rowHeight: 69 * heightRatio,
                   focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
                   selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   calendarFormat: CalendarFormat.week,
@@ -89,13 +101,13 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
               ),
             ),
             Container(
-                width: 335,
-                height: 1,
+                width: 335 * widthRatio,
+                height: 1 * heightRatio,
                 decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
             ),
             Expanded(
               flex: 36,
-              child: Padding(padding: const EdgeInsets.all(20),
+              child: Padding(padding: EdgeInsets.symmetric(horizontal: 20 * heightRatio, vertical: 20 * widthRatio),
                 child: Column(
                   children: [
                     makeTotal('assets/icons/kcal.svg', '총 섭취 칼로리', '11,650 kcal'),
@@ -118,22 +130,22 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
       child: Row(
         children: [
           SizedBox(
-            width: 20,
-            height: 20,
+            width: 20 * widthRatio,
+            height: 20 * heightRatio,
             child: SvgPicture.asset(
               path,
             )
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 8),
+            padding: EdgeInsets.only(left: 8 * widthRatio),
             child: Text(
               text,
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black,
-                fontSize: 16,
+                fontSize: 16 * heightRatio,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w500,
-                height: 1.50,
+                height: 1.50 * heightRatio,
               ),
             ),
           ),
@@ -143,12 +155,12 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
               child: Text(
                 numunit,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.black,
-                  fontSize: 16,
+                  fontSize: 16 * heightRatio,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w500,
-                  height: 1.50,
+                  height: 1.50 * heightRatio,
                 ),
               ),
             ),
@@ -162,8 +174,8 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
     final dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
 
     return Container(
-      width: 41,
-      height: 69,
+      width: 41 * widthRatio,
+      height: 69 * heightRatio,
       decoration: isSelected
           ? BoxDecoration(
               color: const Color(0xFF0D86E7),
@@ -173,34 +185,34 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 8), // 상단 여백
+          SizedBox(height: 8 * heightRatio), // 상단 여백
           SizedBox(
-            height: 24,
+            height: 24 * heightRatio,
             child: Text(
               day.day == 1 ? '${day.month}/${day.day}' : '${day.day}',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isSelected ? Colors.white : const Color(0xFF333333),
-                fontSize: 16,
+                fontSize: 16 * heightRatio,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          const SizedBox(height: 8), // 날짜-요일 사이 여백
+          SizedBox(height: 8 * heightRatio), // 날짜-요일 사이 여백
           SizedBox(
-            height: 21,
+            height: 21 * heightRatio,
             child: Text(
               dayOfWeek,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 14 * heightRatio,
                 fontFamily: 'Pretendard',
                 color: isSelected ? Colors.white : Colors.black.withValues(alpha: 102),
               ),
             ),
           ),
-          const SizedBox(height: 8), // 하단 여백
+          SizedBox(height: 8 * heightRatio), // 하단 여백
         ],
       ),
     );
