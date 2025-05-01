@@ -63,6 +63,7 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
                   daysOfWeekVisible: false,
                   firstDay: DateTime.utc(2022, 1, 1),
                   lastDay: DateTime(DateTime.now().year + 5, 12, 31),
+                  rowHeight: 69,
                   focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
                   selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   calendarFormat: CalendarFormat.week,
@@ -79,15 +80,10 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
                     });
                   },
                   calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, day, focusedDay) {
-                      return _buildDayCell(day, false);
-                    },
-                    todayBuilder: (context, day, focusedDay) {
-                      return _buildDayCell(day, false);
-                    },
-                    selectedBuilder: (context, day, focusedDay) {
-                      return _buildDayCell(day, true);
-                    },
+                    defaultBuilder: (context, day, focusedDay) => _buildDayCell(day, false),
+                    todayBuilder: (context, day, focusedDay) => _buildDayCell(day, false),
+                    selectedBuilder: (context, day, focusedDay) => _buildDayCell(day, true),
+                    outsideBuilder: (context, day, focusedDay) => _buildDayCell(day, false),
                   ),
                 )
               ),
@@ -163,39 +159,52 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
   }
 
   Widget _buildDayCell(DateTime day, bool isSelected) {
-    final textColor = isSelected ? Colors.white : const Color(0xFF333333);
     final dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          '${day.day}',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          decoration: isSelected
-              ? BoxDecoration(
-                  color: const Color(0xFF2F80ED),
-                  borderRadius: BorderRadius.circular(8),
-                )
-              : null,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          child: Text(
-            dayOfWeek,
-            style: TextStyle(
-              fontSize: 12,
-              color: textColor,
+    return Container(
+      width: 41,
+      height: 69,
+      decoration: isSelected
+          ? BoxDecoration(
+              color: const Color(0xFF0D86E7),
+              borderRadius: BorderRadius.circular(4),
+            )
+          : null,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 8), // 상단 여백
+          SizedBox(
+            height: 24,
+            child: Text(
+              day.day == 1 ? '${day.month}/${day.day}' : '${day.day}',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF333333),
+                fontSize: 16,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 8), // 날짜-요일 사이 여백
+          SizedBox(
+            height: 21,
+            child: Text(
+              dayOfWeek,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'Pretendard',
+                color: isSelected ? Colors.white : Colors.black.withValues(alpha: 102),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8), // 하단 여백
+        ],
+      ),
     );
   }
+
 
 }
