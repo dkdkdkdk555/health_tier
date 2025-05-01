@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
 import 'package:my_app/view/tab/doc/body/calendar/doc_calendar_body.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
@@ -26,7 +27,7 @@ class _DocMainState extends State<DocMain> {
 
   final List<Widget> _pages = [
     const DocCalendarBody(),
-    const Center(child: Text('식단')),
+    const DocDietMain(),
   ];
 
 
