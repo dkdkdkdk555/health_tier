@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class DocCalendarDiet extends StatefulWidget {
-  const DocCalendarDiet({super.key});
+  const DocCalendarDiet({
+    super.key,
+    required DateTime focusedDay,
+  }): ifocusedDay = focusedDay;
+
+  final DateTime ifocusedDay;
 
   @override
   State<DocCalendarDiet> createState() => _DocCalendarDietState();
 }
 
 class _DocCalendarDietState extends State<DocCalendarDiet> {
+  late DateTime _focusedDay;
+  DateTime? _selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = widget.ifocusedDay;
+    _focusedDay = widget.ifocusedDay;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -38,10 +54,42 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
                 ),
               ),
             ),
-            const Expanded(
+            Expanded(
               flex: 33,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20)
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                child: TableCalendar(
+                  headerVisible: false,
+                  daysOfWeekVisible: false,
+                  firstDay: DateTime.utc(2022, 1, 1),
+                  lastDay: DateTime(DateTime.now().year + 5, 12, 31),
+                  focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                  calendarFormat: CalendarFormat.week,
+                  availableCalendarFormats: const {CalendarFormat.week: ''},
+                  onDaySelected: (selectedDay, focusedDay) {
+                    setState(() {
+                      _selectedDay = selectedDay;
+                      _focusedDay = focusedDay;
+                    });
+                  },
+                  onPageChanged: (focusedDay) {
+                    setState(() {
+                      _focusedDay = focusedDay;
+                    });
+                  },
+                  calendarBuilders: CalendarBuilders(
+                    defaultBuilder: (context, day, focusedDay) {
+                      return _buildDayCell(day, false);
+                    },
+                    todayBuilder: (context, day, focusedDay) {
+                      return _buildDayCell(day, false);
+                    },
+                    selectedBuilder: (context, day, focusedDay) {
+                      return _buildDayCell(day, true);
+                    },
+                  ),
+                )
               ),
             ),
             Container(
@@ -113,4 +161,41 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
       ),
     );
   }
+
+  Widget _buildDayCell(DateTime day, bool isSelected) {
+    final textColor = isSelected ? Colors.white : const Color(0xFF333333);
+    final dayOfWeek = ['일', '월', '화', '수', '목', '금', '토'][day.weekday % 7];
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          '${day.day}',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          decoration: isSelected
+              ? BoxDecoration(
+                  color: const Color(0xFF2F80ED),
+                  borderRadius: BorderRadius.circular(8),
+                )
+              : null,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          child: Text(
+            dayOfWeek,
+            style: TextStyle(
+              fontSize: 12,
+              color: textColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
 }

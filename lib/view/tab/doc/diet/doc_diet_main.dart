@@ -28,12 +28,12 @@ class _DocDietMainStateState extends ConsumerState<DocDietMain> {
 
     return Stack(
       children: [
-        const Column(
+        Column(
           children: [
-            Spacer(flex: 4,),
-            DocCalendarDiet(),
-            Spacer(flex: 10,),
-            Expanded(flex: 207, child: SizedBox.shrink())
+            const Spacer(flex: 4,),
+            DocCalendarDiet(focusedDay: _focusedDay,),
+            const Spacer(flex: 10,),
+            const Expanded(flex: 207, child: SizedBox.shrink())
           ],
         ),
 
