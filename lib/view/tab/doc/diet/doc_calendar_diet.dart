@@ -50,7 +50,7 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
             Expanded(
               flex: 16,
               child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 4),
+                padding: EdgeInsets.only(left: 20 * widthRatio, right: 20 * widthRatio, top: 20 * heightRatio, bottom: 4 * heightRatio),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
