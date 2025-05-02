@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 
-class DocCalendarDiet extends StatefulWidget {
+class DocCalendarDiet extends ConsumerStatefulWidget {
   const DocCalendarDiet({
     super.key,
     required DateTime focusedDay,
+    required this.onGoToFocusedDay
   }): ifocusedDay = focusedDay;
 
   final DateTime ifocusedDay;
+  final void Function({required DateTime selectedDay}) onGoToFocusedDay;
 
   @override
-  State<DocCalendarDiet> createState() => _DocCalendarDietState();
+  ConsumerState<DocCalendarDiet> createState() => _DocCalendarDietState();
 }
 
-class _DocCalendarDietState extends State<DocCalendarDiet> {
+class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
 
@@ -38,6 +41,8 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
 
   @override
   Widget build(BuildContext context) {
+    int year = _focusedDay.year;
+    int month = _focusedDay.month;
 
     return Expanded(
       flex:128,
@@ -54,7 +59,7 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '2025년 5월',
+                    '$year년 $month월',
                     style: TextStyle(
                       color: const Color(0xFF333333),
                       fontSize: 16 * heightRatio,
@@ -82,6 +87,7 @@ class _DocCalendarDietState extends State<DocCalendarDiet> {
                   availableCalendarFormats: const {CalendarFormat.week: ''},
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
+                      widget.onGoToFocusedDay(selectedDay: selectedDay);
                       _selectedDay = selectedDay;
                       _focusedDay = focusedDay;
                     });

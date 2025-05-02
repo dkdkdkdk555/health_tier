@@ -8,9 +8,4 @@ class HtDayDiet extends Table {
   TextColumn get diet => text().nullable()();
   RealColumn get calorie => real().nullable()();
   RealColumn get protein => real().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {day, title},
-  ];
 }

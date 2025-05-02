@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/doc_detail_model.dart' show DocDayDetail;
+import 'package:my_app/model/doc_diet_model.dart';
 import 'package:my_app/model/doc_main_model.dart';
 
 /// 1. AppDatabase 인스턴스를 제공하는 Provider
@@ -159,3 +160,30 @@ Future<void> updateHtDayDoc({
     ),
   );
 }
+
+
+/*
+  1-2-1 식단 기록 페이지 상세조회
+*/
+final selectDietDocList = FutureProvider.family<List<DayDietModel>, String>((ref, day) async {
+  final db = ref.watch(databaseProvider);
+
+  final rows = await db.customSelect(
+    '''
+    SELECT 
+      ID, DAY, TITLE, DIET, CALORIE, PROTEIN
+    FROM 
+      HT_DAY_DIET
+    WHERE DAY = ?
+    ORDER BY ID ASC
+    ''',
+    variables: [Variable.withString(day)],
+    readsFrom: {db.htDayDiet},
+  ).get();
+
+  debugPrint('@@@ : $rows');
+
+  return rows.map(DayDietModel.fromRow).toList();
+});
+
+

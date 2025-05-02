@@ -11,12 +11,18 @@ class DocDietMain extends ConsumerStatefulWidget {
 }
 
 class _DocDietMainStateState extends ConsumerState<DocDietMain> {
-  final DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
   
   double _dragDistance = 0;
   double _bodyHeightFactor = 0.5099; // 35% → 65%까지 확장
   final double _minHeightFactor = 0.5099;
   final double _maxHeightFactor = 0.75;
+
+  void _goFocusedDay({required DateTime selectedDay}) {
+    setState(() {
+      _focusedDay = selectedDay;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,7 @@ class _DocDietMainStateState extends ConsumerState<DocDietMain> {
         Column(
           children: [
             const Spacer(flex: 4,),
-            DocCalendarDiet(focusedDay: _focusedDay,),
+            DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, ),
             const Spacer(flex: 10,),
             const Expanded(flex: 207, child: SizedBox.shrink())
           ],
