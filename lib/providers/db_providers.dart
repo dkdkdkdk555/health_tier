@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/doc_detail_model.dart' show DocDayDetail;
 import 'package:my_app/model/doc_diet_model.dart';
+import 'package:my_app/model/doc_diet_total.dart';
 import 'package:my_app/model/doc_main_model.dart';
 
 /// 1. AppDatabase 인스턴스를 제공하는 Provider
@@ -186,4 +187,27 @@ final selectDietDocList = FutureProvider.family<List<DayDietModel>, String>((ref
   return rows.map(DayDietModel.fromRow).toList();
 });
 
+/*
+  1-2-1 식단 기록 페이지 칼로리&단백질 총합
+*/
+final selectDayDietTotal = FutureProvider.family<DayDietTotal?, String>((ref, day) async {
+  final db = ref.watch(databaseProvider);
 
+  final rows = await db.customSelect(
+    '''
+    SELECT 
+      DAY AS day,
+      SUM(CALORIE) AS totalcalorie,
+      SUM(PROTEIN) AS totalprotein
+    FROM HT_DAY_DIET
+    WHERE DAY = ?
+    GROUP BY DAY
+    ''',
+    variables: [Variable.withString(day)],
+    readsFrom: {db.htDayDiet},
+  ).get();
+
+  if (rows.isEmpty) return null;
+
+  return DayDietTotal.fromRow(rows.first);
+});
