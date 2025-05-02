@@ -18,4 +18,17 @@ class DayDietTotal {
       totalProtein: row.readNullable<double>('totalprotein'),
     );
   }
+  String get formattedTotalCalorie {
+    if (totalCalorie == null) return '';
+    return totalCalorie!.truncateToDouble() == totalCalorie
+        ? totalCalorie!.toInt().toString()
+        : totalCalorie!.toString();
+  }
+
+  String get formattedTotalProtein {
+    if (totalProtein == null) return '';
+    return totalProtein!.truncateToDouble() == totalProtein
+        ? totalProtein!.toInt().toString()
+        : totalProtein!.toString();
+  }
 }

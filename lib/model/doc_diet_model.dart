@@ -17,14 +17,24 @@ class DayDietModel {
     this.protein,
   });
 
-   factory DayDietModel.fromRow(QueryRow row) {
-      return DayDietModel(
-        id: row.readNullable<int>('id') ?? 0, // ← 여기 'id' (소문자!)
-        day: row.read<String>('day'),
-        title: row.read<String>('title'),
-        diet: row.readNullable<String>('diet'),
-        calorie: row.readNullable<double>('calorie'),
-        protein: row.readNullable<double>('protein'),
-      );
-    }
+  factory DayDietModel.fromRow(QueryRow row) {
+    return DayDietModel(
+      id: row.readNullable<int>('id') ?? 0, // ← 여기 'id' (소문자!)
+      day: row.read<String>('day'),
+      title: row.read<String>('title'),
+      diet: row.readNullable<String>('diet'),
+      calorie: row.readNullable<double>('calorie'),
+      protein: row.readNullable<double>('protein'),
+    );
+  }
+
+  String get formattedCalorie {
+    if (calorie == null) return '';
+    return calorie!.truncateToDouble() == calorie ? calorie!.toInt().toString() : calorie!.toString();
+  }
+
+  String get formattedProtein {
+    if (protein == null) return '';
+    return protein!.truncateToDouble() == protein ? protein!.toInt().toString() : protein!.toString();
+  }
 }

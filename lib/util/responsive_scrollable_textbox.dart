@@ -26,7 +26,7 @@ class ScrollableTextBox extends StatelessWidget {
       style: TextStyle(
         fontSize: lineFontSize * heightRatio,
         fontFamily: 'Pretendard',
-        fontWeight: FontWeight.w500,
+        fontWeight: fontWeight,
       ),
     );
 
@@ -64,7 +64,7 @@ class ScrollableTextBox extends StatelessWidget {
             style: TextStyle(
               fontSize: boxFontSize * heightRatio,
               fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w500,
+              fontWeight: fontWeight,
             ),
           ),
         ),

@@ -6,6 +6,7 @@ import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/responsive_scrollable_textbox.dart';
+import 'package:my_app/util/up_arrow.dart';
 
 class DocDietDetail extends ConsumerWidget {
   DocDietDetail({
@@ -63,7 +64,36 @@ class DocDietDetail extends ConsumerWidget {
                       flex: 65,
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 20 * widthRatio,),
-                        child: makeDietList(dietListAsync),
+                        child: dietListAsync.when(
+                          data: (dietList) {
+                            if (dietList.isEmpty) {
+                              return Align(
+                                alignment: Alignment.topCenter,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const UpArrowIndicator(),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '위로 끌어올려서\n식단을 입력하세요',
+                                      style: TextStyle(
+                                        fontSize: 21 * heightRatio,
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Pretendard',
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return makeDietList(dietListAsync);
+                            }
+                          },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, st) => Center(child: Text('불러오기 실패: $e')),
+                        ),
                       ),
                     ),
                   ],
@@ -83,6 +113,7 @@ class DocDietDetail extends ConsumerWidget {
     return dietListAsync.when(
       data: (dietList) { 
         return ListView.separated(
+          padding: const EdgeInsets.all(0),
           scrollDirection: Axis.vertical,
           itemCount: dietList.length,
           itemBuilder: (context, index) {
@@ -114,7 +145,8 @@ class DocDietDetail extends ConsumerWidget {
                       text: diet.diet ?? '',
                       lineFontSize: 16,
                       boxFontSize: 13,
-                      fontWeight: FontWeight.w500,
+                      lineStand: 3,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const Spacer(flex: 8),
@@ -125,7 +157,7 @@ class DocDietDetail extends ConsumerWidget {
                         Align(
                           alignment: Alignment.centerRight,
                           child: AutoSizeText(
-                            diet.calorie != null ? '${diet.calorie} kcal' : '-',
+                            diet.calorie != null ? '${diet.formattedCalorie} kcal' : '-',
                             maxLines: 1,
                             textAlign: TextAlign.right,
                             style: TextStyle(
@@ -139,7 +171,7 @@ class DocDietDetail extends ConsumerWidget {
                         Align(
                           alignment: Alignment.centerRight,
                           child: AutoSizeText(
-                            diet.protein != null ? '${diet.protein} g' : '-',
+                            diet.protein != null ? '${diet.formattedProtein}g' : '-',
                             maxLines: 1,
                             textAlign: TextAlign.right,
                             style: TextStyle(

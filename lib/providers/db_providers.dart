@@ -182,8 +182,6 @@ final selectDietDocList = FutureProvider.family<List<DayDietModel>, String>((ref
     readsFrom: {db.htDayDiet},
   ).get();
 
-  debugPrint('@@@ : $rows');
-
   return rows.map(DayDietModel.fromRow).toList();
 });
 

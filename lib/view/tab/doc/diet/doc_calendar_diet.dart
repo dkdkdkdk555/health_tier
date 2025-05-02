@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 
@@ -43,6 +45,8 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
   Widget build(BuildContext context) {
     int year = _focusedDay.year;
     int month = _focusedDay.month;
+
+    final totalInfo = ref.watch(selectDayDietTotal(DateFormat('yyyy-MM-dd').format(_focusedDay))).asData?.value;
 
     return Expanded(
       flex:128,
@@ -116,9 +120,9 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
               child: Padding(padding: EdgeInsets.symmetric(horizontal: 20 * heightRatio, vertical: 20 * widthRatio),
                 child: Column(
                   children: [
-                    makeTotal('assets/icons/kcal.svg', '총 섭취 칼로리', '11,650 kcal'),
+                    makeTotal('assets/icons/kcal.svg', '총 섭취 칼로리', totalInfo?.totalCalorie == null ? '-' : '${totalInfo?.formattedTotalCalorie} kcal'),
                     const Spacer(flex: 5,),
-                    makeTotal('assets/icons/protein.svg', '총 섭취 단백질', '120g'),
+                    makeTotal('assets/icons/protein.svg', '총 섭취 단백질', totalInfo?.totalProtein == null ? '-' : '${totalInfo?.formattedTotalProtein}g'),
                   ],
                 ),
               ),
