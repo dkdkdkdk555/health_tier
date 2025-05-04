@@ -62,14 +62,26 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                 padding: EdgeInsets.only(left: 20 * widthRatio, right: 20 * widthRatio, top: 20 * heightRatio, bottom: 4 * heightRatio),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    '$year년 $month월',
-                    style: TextStyle(
-                      color: const Color(0xFF333333),
-                      fontSize: 16 * heightRatio,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      height: 1.50 * heightRatio,
+                  child: GestureDetector(
+                    onTap: () async {
+                      final picked = await showMonthPicker(context, _focusedDay);
+                      if (picked != null) {
+                        setState(() {
+                          _focusedDay = picked;
+                          _selectedDay = picked;
+                        });
+                        widget.onGoToFocusedDay(selectedDay: picked);
+                      }
+                    },
+                    child: Text(
+                      '$year년 $month월',
+                      style: TextStyle(
+                        color: const Color(0xFF333333),
+                        fontSize: 16 * heightRatio,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.50 * heightRatio,
+                      ),
                     ),
                   ),
                 ),
@@ -225,6 +237,53 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
           SizedBox(height: 8 * heightRatio), // 하단 여백
         ],
       ),
+    );
+  }
+
+  Future<DateTime?> showMonthPicker(BuildContext context, DateTime initialDate) {
+    return showDialog<DateTime>(
+      context: context,
+      builder: (context) {
+        DateTime selectedDate = initialDate;
+
+        return Dialog(
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 400 * heightRatio,
+                      width: 350 * widthRatio,
+                      child: TableCalendar(
+                        locale: 'ko_KR',
+                        firstDay: DateTime(2022, 1, 1),
+                        lastDay: DateTime(DateTime.now().year + 5, 12, 31),
+                        focusedDay: selectedDate,
+                        selectedDayPredicate: (day) => isSameDay(day, selectedDate),
+                        onDaySelected: (day, _) {
+                          Navigator.of(context).pop(day); // ← day로 수정하는 게 맞음
+                        },
+                        onPageChanged: (day) => setState(() => selectedDate = day),
+                        calendarFormat: CalendarFormat.month,
+                        availableCalendarFormats: const {
+                          CalendarFormat.month: '', // ← 드롭다운 제거
+                        },
+                        headerStyle: const HeaderStyle(
+                          titleCentered: true, // ← 년월 가운데 정렬
+                          formatButtonVisible: false, // ← format 드롭다운 숨기기
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
