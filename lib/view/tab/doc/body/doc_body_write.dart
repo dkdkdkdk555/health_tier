@@ -49,6 +49,10 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
     focusedDay = widget.focusDay;
 
+    /* 초기데이터 주입을 위해서 editorController를 여기서 초기화해주는 이유 :
+        build 메서드는 setState 시 마다 다시 호출되니까, 입력했을때 setState 호출할 일 생기면
+        입력했던거 다 초기화돼서 ㅋ
+    */
     weightEditor = TextEditingController();
     muscleEditor = TextEditingController();
     bodyFatEditor = TextEditingController();
@@ -122,50 +126,45 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                   const Spacer(flex:4),
                   Expanded(
                     flex: 67,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white
-                      ),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 15,
-                            child: Align(
-                              alignment: Alignment.topLeft,
-                              child: 
-                                Text(
-                                  displayDay,
-                                  style: TextStyle(
-                                    color: const Color(0xFF777777),
-                                    fontSize: 13.7 * htio,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w500
-                                  ),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 15,
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: 
+                              Text(
+                                displayDay,
+                                style: TextStyle(
+                                  color: const Color(0xFF777777),
+                                  fontSize: 13.7 * htio,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500
                                 ),
-                            ),
+                              ),
                           ),
-                          makeBorder(),
-                          const Spacer(flex: 12),
-                          inputArea('체중', 'kg', weightEditor),
-                          const Spacer(flex: 12),
-                          inputArea('골격근', 'kg', muscleEditor),
-                          const Spacer(flex: 12),
-                          inputArea('체지방률', '%', bodyFatEditor),
-                          const Spacer(flex: 12),
-                          textArea(memoEditor),
-                          const Spacer(flex: 12),
-                          buttonArea(),
-                          const Spacer(flex: 16),
-                          makeBorder(),
-                          const Spacer(flex: 16),
-                          const InfoText(flex: 9),
-                          const Spacer(flex: 8),
-                          setStampCollection(),
-                          const Spacer(flex: 20),
-                          requestBtn(),
-                          const Spacer(flex: 18),
-                        ],
-                      ),
+                        ),
+                        makeBorder(),
+                        const Spacer(flex: 12),
+                        inputArea('체중', 'kg', weightEditor),
+                        const Spacer(flex: 12),
+                        inputArea('골격근', 'kg', muscleEditor),
+                        const Spacer(flex: 12),
+                        inputArea('체지방률', '%', bodyFatEditor),
+                        const Spacer(flex: 12),
+                        textArea(memoEditor),
+                        const Spacer(flex: 12),
+                        buttonArea(),
+                        const Spacer(flex: 16),
+                        makeBorder(),
+                        const Spacer(flex: 16),
+                        const InfoText(flex: 9),
+                        const Spacer(flex: 8),
+                        setStampCollection(),
+                        const Spacer(flex: 20),
+                        requestBtn(),
+                        const Spacer(flex: 18),
+                      ],
                     ),
                   ),
                   const Spacer(flex:4),

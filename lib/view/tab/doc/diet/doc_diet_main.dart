@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
+import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
   const DocDietMain({super.key});
@@ -60,7 +61,7 @@ class _DocDietMainStateState extends ConsumerState<DocDietMain> {
             },
             onVerticalDragEnd: (_) {
               if (_bodyHeightFactor >= 0.70) {
-                // _showFullModal();
+                _showFullModal();
               }
               setState(() {
                 _bodyHeightFactor = _minHeightFactor;
@@ -74,18 +75,26 @@ class _DocDietMainStateState extends ConsumerState<DocDietMain> {
     );
   }
 
-  // void _showFullModal() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     isScrollControlled: true,
-  //     backgroundColor: Colors.transparent,
-  //     barrierColor: Colors.black.withAlpha(127),
-  //     builder: (_) {
-  //       return FractionallySizedBox(
-  //         heightFactor: 0.92,
-  //         child: DocBodyWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
-  //       );
-  //     },
-  //   );
-  // }
+  void _showFullModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withAlpha(127),
+      builder: (_) {
+        return FractionallySizedBox(
+          heightFactor: 0.92,
+          child: DocDietWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
+        );
+      },
+    );
+  }
+
+  void _onDocSaved() {
+    // final refreshDay = DateFormat('yyyy-MM-dd').format(_focusedDay);
+    // final refreshMonth = DateFormat('yyyy-MM').format(_focusedDay);
+    // ref.invalidate(htDayDocDetail(refreshDay));
+    // ref.invalidate(htDayDocOfMonth(refreshMonth));
+    // ref.invalidate(selectHtDayDoc(refreshDay));
+  }
 }

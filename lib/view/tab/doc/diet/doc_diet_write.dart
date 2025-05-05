@@ -1,0 +1,294 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/model/diet_input_data.dart' show DietInputData;
+
+
+class DocDietWrite extends ConsumerStatefulWidget {
+  const DocDietWrite({
+    super.key,
+    required this.focusDay,
+    required this.onSaved,
+  });
+  final DateTime focusDay;
+  final VoidCallback onSaved; // 입력or수정 완료시 콜백 호출
+
+  @override
+  ConsumerState<DocDietWrite> createState() => _DocDietWriteState();
+}
+
+var htio = 0.0;
+var wtio = 0.0;
+
+
+class _DocDietWriteState extends ConsumerState<DocDietWrite> {
+  late DateTime focusedDay;
+
+  bool _isPressed = false;
+
+  List<DietInputData> inputList = [DietInputData()];
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    focusedDay = widget.focusDay;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;    
+
+    final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
+        border: Border(
+          left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+          top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+          right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+          bottom: const BorderSide(color: Color(0xFFEEEEEE)),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Spacer(flex:2),
+          Expanded(
+            flex:1,
+            child: Container(
+              width: 40 * wtio,
+              height: 4 * htio,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFE6E6E6),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(100),
+                ),
+              ),
+            )
+          ),
+          const Spacer(flex:4),
+          Expanded(
+            flex: 180,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+              ),
+              child: Row(
+                children: [
+                  const Spacer(flex:4),
+                  Expanded(
+                    flex: 67,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex: 15,
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: 
+                              Text(
+                                displayDay,
+                                style: TextStyle(
+                                  color: const Color(0xFF777777),
+                                  fontSize: 13.7 * htio,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500
+                                ),
+                              ),
+                          ),
+                        ),
+                        makeBorder(),//여기 밑으로 flex 342
+                        Expanded(
+                          flex: 297,
+                          child: SingleChildScrollView(
+                            child: Column(
+                            children: [
+                              ...List.generate(inputList.length, (index) {
+                                final input = inputList[index];
+                                return Column(
+                                  children: [
+                                    // 식사유형
+                                    TextField(
+                                      decoration: getInputDecoration('식사 유형'),
+                                      onChanged: (value) => input.mealType = value,
+                                    ),
+                                    SizedBox(height: 8 * htio),
+
+                                    // 식단내용 + 칼로리/단백질
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // 식단내용
+                                        Expanded(
+                                          flex: 3,
+                                          child: SizedBox(
+                                            height: 100,
+                                            child: TextField(
+                                              expands: true,
+                                              maxLines: null,
+                                              decoration: getInputDecoration('식단 내용'),
+                                              onChanged: (value) => input.dietText = value,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+
+                                        // 칼로리 + 단백질
+                                        Expanded(
+                                          flex: 1,
+                                          child: Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 48,
+                                                child: TextField(
+                                                  decoration: getInputDecoration('칼로리'),
+                                                  keyboardType: TextInputType.number,
+                                                  onChanged: (value) => input.calorie = value,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              SizedBox(
+                                                height: 48,
+                                                child: TextField(
+                                                  decoration: getInputDecoration('단백질'),
+                                                  keyboardType: TextInputType.number,
+                                                  onChanged: (value) => input.protein = value,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    const SizedBox(height: 12),
+                                    makeBorder(),
+                                    const SizedBox(height: 16),
+                                  ],
+                                );
+                              }),
+
+                              // 하단 고정 추가 버튼
+                              Align(
+                                alignment: Alignment.center,
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      inputList.add(DietInputData());
+                                    });
+                                  },
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  label: const Text('식단 추가'),
+                                ),
+                              ),
+                            ],
+                            ),
+                          ),
+                        ),
+                        requestBtn(),
+                        const Spacer(flex: 18),
+                      ]
+                    )
+                  ),
+                  const Spacer(flex:4),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  InputDecoration getInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        fontFamily: 'Pretendard',
+        color: Color(0xFFAAAAAA),
+      ),
+      filled: true,
+      fillColor: const Color(0xFFF9F9F9),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Color(0xFF0D85E7), width: 1.5),
+      ),
+    );
+  }
+
+
+  Expanded requestBtn() {
+    return Expanded(
+      flex: 27,
+      child: Align(
+        alignment: Alignment.center,
+        child: FractionallySizedBox(
+          widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
+          child: GestureDetector(
+            onTapDown: (_) {
+              setState(() {
+                _isPressed = true;
+              });
+            },
+            onTapUp: (_) {
+              setState(() {
+                _isPressed = false;
+              });
+            },
+            onTapCancel: () {
+              setState(() {
+                _isPressed = false;
+              });
+            },
+            child: AnimatedContainer(
+              height: double.infinity, // 세로는 flex: 27 높이 채우기
+              duration: const Duration(milliseconds: 300), // 300ms 부드럽게 변화
+              curve: Curves.easeInOut, // 자연스러운 곡선 사용
+              decoration: ShapeDecoration(
+                color:  _isPressed 
+                  ? const Color.fromARGB(255, 81, 172, 230) // 눌렀을 때 더 연한 색 (원래색보다 밝은 블루)
+                  : const Color(0xFF0D85E7), // 기본 색
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                    '확인',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16 * htio,
+                      fontFamily: 'Pretendard',
+                    ),
+                  ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container makeBorder() {
+    return Container(
+      height: 1,
+      decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+    );
+  }
+}
