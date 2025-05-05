@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
@@ -117,7 +118,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                       decoration: getInputDecoration('식사 유형'),
                                       onChanged: (value) => input.mealType = value,
                                     ),
-                                    SizedBox(height: 8 * htio),
+                                    SizedBox(height: 6 * htio),
 
                                     // 식단내용 + 칼로리/단백질
                                     Row(
@@ -125,22 +126,33 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                       children: [
                                         // 식단내용
                                         Expanded(
-                                          flex: 3,
+                                          flex: 7,
                                           child: SizedBox(
-                                            height: 100,
+                                            height: 100*htio,
                                             child: TextField(
+                                              textAlignVertical: TextAlignVertical.top,
                                               expands: true,
                                               maxLines: null,
-                                              decoration: getInputDecoration('식단 내용'),
+                                              keyboardType: TextInputType.multiline,
+                                              textInputAction: TextInputAction.newline,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(150), // 최대 100자 제한
+                                              ],
+                                              style: TextStyle(
+                                                fontSize: 12.5 * htio,
+                                                fontFamily: 'Pretendard',
+                                                height: 1.2 * htio
+                                              ),
+                                              decoration: getInputDecoration('식단을 입력해주세요.\n(최대 150자)'),
                                               onChanged: (value) => input.dietText = value,
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
+                                        const SizedBox(width: 8),
 
                                         // 칼로리 + 단백질
                                         Expanded(
-                                          flex: 1,
+                                          flex: 3,
                                           child: Column(
                                             children: [
                                               SizedBox(
@@ -151,7 +163,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                   onChanged: (value) => input.calorie = value,
                                                 ),
                                               ),
-                                              const SizedBox(height: 8),
+                                              const SizedBox(height: 6),
                                               SizedBox(
                                                 height: 48,
                                                 child: TextField(
@@ -208,27 +220,35 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   InputDecoration getInputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(
-        fontSize: 14,
+      hintStyle: TextStyle(
+        fontSize: 14 * htio,
         fontWeight: FontWeight.w400,
         fontFamily: 'Pretendard',
-        color: Color(0xFFAAAAAA),
+        color: const Color(0xFF999999),
       ),
-      filled: true,
-      fillColor: const Color(0xFFF9F9F9),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
-      ),
+      contentPadding: const EdgeInsets.all(12), // 여백 추가
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xFFDDDDDD),
+          width: 1,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xFF0D85E7), width: 1.5),
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: const Color(0xFF0D86E7),
+          width: 1.5 * wtio,
+        ),
       ),
+      suffixText: hint == '칼로리' ? 'kcal' : (hint == '단백질' ? 'g' : ''),
+      suffixStyle: hint == '칼로리' || hint == '단백질' 
+                ? TextStyle(
+                  color: const Color(0xFF999999),
+                  fontSize: 14 * htio,
+                  fontFamily: 'Pretendard',
+                ) 
+                : null,
     );
   }
 
