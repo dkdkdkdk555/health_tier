@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
@@ -209,3 +208,25 @@ final selectDayDietTotal = FutureProvider.family<DayDietTotal?, String>((ref, da
 
   return DayDietTotal.fromRow(rows.first);
 });
+
+/*
+  1-2-2 식단 기록 입력&수정 화면 조회
+*/
+final selectDietDayDoc = FutureProvider.family<List<DayDietModel>, String>((ref, day) async {
+  final db = ref.watch(databaseProvider);
+
+  final result = await (db.select(db.htDayDiet)
+    ..where((tbl) => tbl.day.equals(day))
+    ..orderBy([(tbl) => OrderingTerm(expression: tbl.id)])) // id 오름차순 정렬
+    .get();
+
+  return result.map((row) => DayDietModel(
+    id: row.id,
+    day: row.day,
+    title: row.title,
+    diet: row.diet,
+    calorie: row.calorie,
+    protein: row.protein,
+  )).toList();
+});
+

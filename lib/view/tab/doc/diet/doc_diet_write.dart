@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/diet_input_data.dart' show DietInputData;
+import 'package:my_app/providers/db_providers.dart';
 
 
 class DocDietWrite extends ConsumerStatefulWidget {
@@ -29,7 +30,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
 
   bool _isPressed = false;
 
-  List<DietInputData> inputList = [DietInputData()];
+  List<DietInputData> inputList = [DietInputData.def()];
 
 
   @override
@@ -37,6 +38,22 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     super.initState();
 
     focusedDay = widget.focusDay;
+
+    final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
+    ref.read(selectDietDayDoc(searchDay).future).then((dietList) {
+      if (inputList.length == 1 && inputList.first.isEmpty && dietList.isNotEmpty) {
+        setState(() {
+          inputList = dietList.map((e) {
+            final dto = DietInputData.def();
+            dto.mealType.text = e.title ?? '';
+            dto.dietText.text = e.diet ?? '';
+            dto.calorie.text = e.calorie?.toString() ?? '';
+            dto.protein.text = e.protein?.toString() ?? '';
+            return dto;
+          }).toList();
+        });
+      }
+    });
   }
 
   @override
@@ -116,11 +133,12 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                   children: [
                                     // 식사유형
                                     TextField(
+                                      controller: input.mealType,
                                       inputFormatters: [
                                         LengthLimitingTextInputFormatter(12), // 최대 100자 제한
                                       ],
                                       decoration: getInputDecoration('식사 유형'),
-                                      onChanged: (value) => input.mealType = value,
+                                      onChanged: (value) => input.mealType.text = value,
                                     ),
                                     SizedBox(height: 6 * htio),
 
@@ -134,6 +152,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           child: SizedBox(
                                             height: 100*htio,
                                             child: TextField(
+                                              controller: input.dietText,
                                               textAlignVertical: TextAlignVertical.top,
                                               expands: true,
                                               maxLines: null,
@@ -143,12 +162,12 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                 LengthLimitingTextInputFormatter(150), // 최대 100자 제한
                                               ],
                                               style: TextStyle(
-                                                fontSize: 12.5 * htio,
+                                                fontSize: 13.5 * htio,
                                                 fontFamily: 'Pretendard',
                                                 height: 1.2 * htio
                                               ),
                                               decoration: getInputDecoration('식단을 입력해주세요.\n(최대 150자)'),
-                                              onChanged: (value) => input.dietText = value,
+                                              onChanged: (value) => input.dietText.text = value,
                                             ),
                                           ),
                                         ),
@@ -162,26 +181,28 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                               SizedBox(
                                                 height: 48,
                                                 child: TextField(
+                                                  controller: input.calorie,
                                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                                   decoration: getInputDecoration('칼로리'),
                                                   inputFormatters: [
                                                     LimitValueFormatter(max: 9999.9),
                                                     FilteringTextInputFormatter.allow(RegExp(r'^(\d{0,4})(\.\d?)?$')),
                                                   ],
-                                                  onChanged: (value) => input.calorie = value,
+                                                  onChanged: (value) => input.calorie.text = value,
                                                 ),
                                               ),
                                               const SizedBox(height: 6),
                                               SizedBox(
                                                 height: 48,
                                                 child: TextField(
+                                                  controller: input.protein,
                                                   decoration: getInputDecoration('단백질'),
                                                   inputFormatters: [
                                                     LimitValueFormatter(max: 999.9),
                                                     FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,})?$')),
                                                   ],
                                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                                  onChanged: (value) => input.protein = value,
+                                                  onChanged: (value) => input.protein.text = value,
                                                 ),
                                               ),
                                             ],
@@ -203,7 +224,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                 child: TextButton.icon(
                                   onPressed: () {
                                     setState(() {
-                                      inputList.add(DietInputData());
+                                      inputList.add(DietInputData.def());
                                     });
                                   },
                                   icon: const Icon(Icons.add_circle_outline),

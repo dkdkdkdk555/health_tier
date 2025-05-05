@@ -1,13 +1,25 @@
-class DietInputData {
-  String mealType;
-  String dietText;
-  String calorie;
-  String protein;
+import 'package:flutter/material.dart';
 
-  DietInputData({
-    this.mealType = '',
-    this.dietText = '',
-    this.calorie = '',
-    this.protein = '',
-  });
+class DietInputData {
+  TextEditingController mealType = TextEditingController();
+  TextEditingController dietText = TextEditingController();
+  TextEditingController calorie = TextEditingController();
+  TextEditingController protein = TextEditingController();
+
+  DietInputData(
+    {
+      required this.mealType,
+      required this.dietText,
+      required this.calorie,
+      required this.protein,
+    }
+  );
+
+  DietInputData.def();
+
+  bool get isEmpty =>
+      (mealType.text == '') &&
+      (dietText.text == '') &&
+      (calorie.text == '') &&
+      (protein.text == '');
 }

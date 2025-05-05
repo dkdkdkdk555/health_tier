@@ -127,7 +127,7 @@ class DocDietDetail extends ConsumerWidget {
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: AutoSizeText(
-                        diet.title,
+                        diet.title ?? '',
                         maxLines: 3,
                         style: TextStyle(
                           color: const Color(0xFFAAAAAA),

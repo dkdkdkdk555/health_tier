@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 class DayDietModel {
   final int id;
   final String day;
-  final String title;
+  final String? title;
   final String? diet;
   final double? calorie;
   final double? protein;
