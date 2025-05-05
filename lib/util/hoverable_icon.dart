@@ -30,6 +30,11 @@ class _HoverableIconState extends State<HoverableIcon> {
       onTapUp: (details) => setState(() {
         _hovering = false;
       }),
+      onTapCancel: () {
+        setState(() {
+          _hovering = false;
+        });
+      },
       onTap: widget.onTap,
       child: Icon(
         widget.icon,

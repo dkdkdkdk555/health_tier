@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DietInputData {
+  int id;
   TextEditingController mealType = TextEditingController();
   TextEditingController dietText = TextEditingController();
   TextEditingController calorie = TextEditingController();
@@ -8,6 +9,7 @@ class DietInputData {
 
   DietInputData(
     {
+      required this.id,
       required this.mealType,
       required this.dietText,
       required this.calorie,
@@ -15,7 +17,7 @@ class DietInputData {
     }
   );
 
-  DietInputData.def();
+  DietInputData.def():id=-1;
 
   bool get isEmpty =>
       (mealType.text == '') &&

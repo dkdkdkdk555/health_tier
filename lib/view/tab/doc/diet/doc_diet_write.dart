@@ -46,6 +46,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         setState(() {
           inputList = dietList.map((e) {
             final dto = DietInputData.def();
+            dto.id = e.id;
             dto.mealType.text = e.title ?? '';
             dto.dietText.text = e.diet ?? '';
             dto.calorie.text = e.formattedCalorie;
@@ -146,18 +147,27 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                             onChanged: (value) => input.mealType.text = value,
                                           ),
                                         ),
-                                        const Expanded(
+                                        Expanded(
                                           flex: 1,
                                           child: HoverableIcon(
                                             icon: Icons.remove_circle_outline,
                                             originColor: Colors.grey,
                                             changedColor: Colors.red,
+                                            onTap: () async {
+                                              final deleteId = input.id; // DayDietModel의 id
+                                              if (deleteId != -1) {
+                                                await deleteHtDietDoc(ref: ref, id: deleteId);
+                                              }
+                                              setState(() {
+                                                inputList.removeAt(index);
+                                              });
+                                            },
                                           ),
                                         ),
                                       ],
                                     ),
                                     SizedBox(height: 6 * htio),
-
+                                
                                     // 식단내용 + 칼로리/단백질
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,7 +198,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           ),
                                         ),
                                         const SizedBox(width: 7),
-
+                                
                                         // 칼로리 + 단백질
                                         Expanded(
                                           flex: 4,
@@ -226,7 +236,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                         ),
                                       ],
                                     ),
-
+                                
                                     const SizedBox(height: 12),
                                     makeBorder(),
                                     const SizedBox(height: 16),
