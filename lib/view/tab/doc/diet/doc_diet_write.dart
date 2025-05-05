@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show LengthLimitingTextInputFormatter;
+import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/diet_input_data.dart' show DietInputData;
 
@@ -115,6 +116,9 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                   children: [
                                     // 식사유형
                                     TextField(
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(12), // 최대 100자 제한
+                                      ],
                                       decoration: getInputDecoration('식사 유형'),
                                       onChanged: (value) => input.mealType = value,
                                     ),
@@ -126,7 +130,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                       children: [
                                         // 식단내용
                                         Expanded(
-                                          flex: 7,
+                                          flex: 8,
                                           child: SizedBox(
                                             height: 100*htio,
                                             child: TextField(
@@ -148,18 +152,22 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
+                                        const SizedBox(width: 7),
 
                                         // 칼로리 + 단백질
                                         Expanded(
-                                          flex: 3,
+                                          flex: 4,
                                           child: Column(
                                             children: [
                                               SizedBox(
                                                 height: 48,
                                                 child: TextField(
+                                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                                   decoration: getInputDecoration('칼로리'),
-                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: [
+                                                    LimitValueFormatter(max: 9999.9),
+                                                    FilteringTextInputFormatter.allow(RegExp(r'^(\d{0,4})(\.\d?)?$')),
+                                                  ],
                                                   onChanged: (value) => input.calorie = value,
                                                 ),
                                               ),
@@ -168,7 +176,11 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                 height: 48,
                                                 child: TextField(
                                                   decoration: getInputDecoration('단백질'),
-                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: [
+                                                    LimitValueFormatter(max: 999.9),
+                                                    FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,})?$')),
+                                                  ],
+                                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                                   onChanged: (value) => input.protein = value,
                                                 ),
                                               ),
