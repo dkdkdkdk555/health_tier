@@ -47,8 +47,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
             final dto = DietInputData.def();
             dto.mealType.text = e.title ?? '';
             dto.dietText.text = e.diet ?? '';
-            dto.calorie.text = e.calorie?.toString() ?? '';
-            dto.protein.text = e.protein?.toString() ?? '';
+            dto.calorie.text = e.formattedCalorie;
+            dto.protein.text = e.formattedProtein;
             return dto;
           }).toList();
         });

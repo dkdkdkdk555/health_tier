@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
-import 'package:my_app/model/doc_detail_model.dart' show DocDayDetail;
+import 'package:my_app/model/doc_detail_model.dart';
 import 'package:my_app/model/doc_diet_model.dart';
 import 'package:my_app/model/doc_diet_total.dart';
 import 'package:my_app/model/doc_main_model.dart';
@@ -230,3 +230,55 @@ final selectDietDayDoc = FutureProvider.family<List<DayDietModel>, String>((ref,
   )).toList();
 });
 
+/*
+  1-2-2 INSERT
+*/ 
+Future<void> insertHtDietDoc({
+  required WidgetRef ref,
+  required List<DayDietModel> list,
+}) async {
+  final db = ref.read(databaseProvider);
+
+  for (final item in list) {
+    await db.into(db.htDayDiet).insert(
+      HtDayDietCompanion.insert(
+        day: item.day,
+        title: item.title ?? '',
+        diet: Value(item.diet),
+        calorie: Value(item.calorie),
+        protein: Value(item.protein),
+      ),
+    );
+  }
+}
+
+/*
+  1-2-2 UPDATE
+*/ 
+Future<void> updateHtDietDoc({
+  required WidgetRef ref,
+  required List<DayDietModel> list,
+}) async {
+  final db = ref.read(databaseProvider);
+
+  for (final item in list) {
+    if (item.id == -1) continue; // ID 없는 경우 스킵
+
+    await (db.update(db.htDayDiet)..where((tbl) => tbl.id.equals(item.id))).write(
+      HtDayDietCompanion(
+        title: Value(item.title ?? ''),
+        diet: Value(item.diet),
+        calorie: Value(item.calorie),
+        protein: Value(item.protein),
+      ),
+    );
+  }
+}
+
+/*
+  1-2-2 DELETE
+*/
+Future<void> deleteHtDietDoc({required WidgetRef ref, required int id,}) async {
+  final db = ref.read(databaseProvider);
+  await (db.delete(db.htDayDiet)..where((tbl) => tbl.id.equals(id))).go();
+}
