@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/diet_input_data.dart' show DietInputData;
+import 'package:my_app/model/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/hoverable_icon.dart';
+import 'package:my_app/util/saving_success_dialog.dart';
 
 
 class DocDietWrite extends ConsumerStatefulWidget {
@@ -144,7 +146,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                               LengthLimitingTextInputFormatter(12), // 최대 100자 제한
                                             ],
                                             decoration: getInputDecoration('식사 유형'),
-                                            onChanged: (value) => input.mealType.text = value,
+                                            onChanged: (value) {
+                                              input.mealType.text = value;
+                                              input.isUpdate = true;
+                                            }
                                           ),
                                         ),
                                         Expanded(
@@ -161,6 +166,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                               setState(() {
                                                 inputList.removeAt(index);
                                               });
+
+                                              widget.onSaved();
                                             },
                                           ),
                                         ),
@@ -193,7 +200,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                 height: 1.2 * htio
                                               ),
                                               decoration: getInputDecoration('식단을 입력해주세요.\n(최대 150자)'),
-                                              onChanged: (value) => input.dietText.text = value,
+                                              onChanged: (value) {
+                                                input.dietText.text = value;
+                                                input.isUpdate = true;
+                                              }
                                             ),
                                           ),
                                         ),
@@ -214,7 +224,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                     LimitValueFormatter(max: 9999.9),
                                                     FilteringTextInputFormatter.allow(RegExp(r'^(\d{0,4})(\.\d?)?$')),
                                                   ],
-                                                  onChanged: (value) => input.calorie.text = value,
+                                                  onChanged: (value) {
+                                                    input.calorie.text = value;
+                                                    input.isUpdate = true;
+                                                  }
                                                 ),
                                               ),
                                               const SizedBox(height: 6),
@@ -228,7 +241,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                     FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,})?$')),
                                                   ],
                                                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                                  onChanged: (value) => input.protein.text = value,
+                                                  onChanged: (value) {
+                                                    input.protein.text = value;
+                                                    input.isUpdate = true;
+                                                  }
                                                 ),
                                               ),
                                             ],
@@ -236,7 +252,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                         ),
                                       ],
                                     ),
-                                
                                     const SizedBox(height: 12),
                                     makeBorder(),
                                     const SizedBox(height: 16),
@@ -334,6 +349,82 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
               setState(() {
                 _isPressed = false;
               });
+            },
+            onTap: () async {
+              final String day = DateFormat('yyyy-MM-dd').format(focusedDay);
+
+              final insertList = <DayDietModel>[];
+              final updateList = <DayDietModel>[];
+
+              try {
+
+                for (final input in inputList) {
+                  debugPrint('엠티::: ${input.isEmpty}');
+                  debugPrint('수정여부::: ${input.isUpdate}');
+                  if(input.isEmpty) {
+                    
+                    continue;
+                  }
+                  final title = input.mealType.text;
+                  final diet = input.dietText.text;
+                  final calorie = double.tryParse(input.calorie.text);
+                  final protein = double.tryParse(input.protein.text);
+
+                  final model = DayDietModel(
+                    id: input.id,
+                    day: day,
+                    title: title,
+                    diet: diet,
+                    calorie: calorie,
+                    protein: protein,
+                  );
+
+                  if (input.id != -1) {
+                    if(input.isUpdate) updateList.add(model);
+                  } else {
+                    insertList.add(model);
+                  }
+                }
+
+                if (insertList.isNotEmpty) {
+                  await insertHtDietDoc(ref: ref, list: insertList);
+                }
+
+                if (updateList.isNotEmpty) {
+                  await updateHtDietDoc(ref: ref, list: updateList);
+                }
+
+                // 저장 성공 시 메시지
+                if (mounted) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) {
+                      return const SuccessAfterLoadingDialog();
+                    },
+                  );
+                  widget.onSaved();
+                }
+
+              } catch(e) {
+                if (mounted) {
+                  Navigator.of(context).pop(); // 로딩 닫기
+
+                  showDialog( // 실패 시
+                    context: context,
+                    builder: (_) => const AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.error, color: Colors.red, size: 48),
+                          SizedBox(height: 16),
+                          Text('저장 중 오류 발생/n'),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              }
             },
             child: AnimatedContainer(
               height: double.infinity, // 세로는 flex: 27 높이 채우기

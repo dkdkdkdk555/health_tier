@@ -6,6 +6,7 @@ class DietInputData {
   TextEditingController dietText = TextEditingController();
   TextEditingController calorie = TextEditingController();
   TextEditingController protein = TextEditingController();
+  bool isUpdate = false;
 
   DietInputData(
     {

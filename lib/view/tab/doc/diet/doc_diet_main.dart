@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
@@ -8,10 +10,10 @@ class DocDietMain extends ConsumerStatefulWidget {
   const DocDietMain({super.key});
 
   @override
-  ConsumerState<DocDietMain> createState() => _DocDietMainStateState();
+  ConsumerState<DocDietMain> createState() => _DocDietMainState();
 }
 
-class _DocDietMainStateState extends ConsumerState<DocDietMain> {
+class _DocDietMainState extends ConsumerState<DocDietMain> {
   DateTime _focusedDay = DateTime.now();
   
   double _dragDistance = 0;
@@ -91,10 +93,12 @@ class _DocDietMainStateState extends ConsumerState<DocDietMain> {
   }
 
   void _onDocSaved() {
-    // final refreshDay = DateFormat('yyyy-MM-dd').format(_focusedDay);
-    // final refreshMonth = DateFormat('yyyy-MM').format(_focusedDay);
-    // ref.invalidate(htDayDocDetail(refreshDay));
-    // ref.invalidate(htDayDocOfMonth(refreshMonth));
-    // ref.invalidate(selectHtDayDoc(refreshDay));
+    final refreshDay = DateFormat('yyyy-MM-dd').format(_focusedDay);
+    final refreshMonth = DateFormat('yyyy-MM').format(_focusedDay);
+    ref.invalidate(selectDietDocList(refreshDay));
+    ref.invalidate(selectDayDietTotal(refreshDay));
+    ref.invalidate(selectDietDayDoc(refreshDay));
+    ref.invalidate(htDayDocDetail(refreshDay));
+    ref.invalidate(htDayDocOfMonth(refreshMonth));
   }
 }

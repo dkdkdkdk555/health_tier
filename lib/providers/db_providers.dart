@@ -64,31 +64,38 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
   final diets = await (db.select(db.htDayDiet)
     ..where((tbl) => tbl.day.equals(day))).get();
 
-  final totalCalorie = diets.fold<double>(0, (sum, e) => sum + (e.calorie ?? 0));
-  final totalProtein = diets.fold<double>(0, (sum, e) => sum + (e.protein ?? 0));
+  double truncateToOneDecimal(double value) {
+    return (value * 10).truncateToDouble() / 10;
+  }
+
+  final totalCal = diets.fold<double>(0, (sum, e) => sum + (e.calorie ?? 0));
+  final totalPro = diets.fold<double>(0, (sum, e) => sum + (e.protein ?? 0));
+
+  final totalCalorie = totalCal == 0 ? null : truncateToOneDecimal(totalCal);
+  final totalProtein = totalPro == 0 ? null : truncateToOneDecimal(totalPro);
 
   return DocDayDetail(
-    id: body?.id ?? -1, // htDayBody에 기록이 없을경우, -1을 리턴,
+    id: body?.id ?? -1,
     day: day,
     workYn: body?.wkoutYn,
     drunYn: body?.drunkYn,
     weight: body?.weight,
     stamp: body?.stamp,
     memo: body?.memo,
-    totalCalorie: totalCalorie == 0 ? null : totalCalorie,
-    totalProtein: totalProtein == 0 ? null : totalProtein,
+    totalCalorie: totalCalorie,
+    totalProtein: totalProtein,
   );
 });
+
 
 /*
   1-1 체중기록 조회 페이지 직전 체중 기록 가져오기
 */
-final getPreviousWeight = FutureProvider.family<double?, DateTime>((ref, currDay) async {
+final getPreviousWeight = FutureProvider.family<double?, String>((ref, currDay) async {
   final db = ref.watch(databaseProvider);
-  final searchDay = DateFormat('yyyy-MM-dd').format(currDay);
 
   final previous = await (db.select(db.htDayBody)
-        ..where((tbl) => tbl.day.isSmallerThanValue(searchDay)) // 현재 날짜보다 작은 애들 중
+        ..where((tbl) => tbl.day.isSmallerThanValue(currDay)) // 현재 날짜보다 작은 애들 중
         ..where((tbl) => tbl.weight.isNotNull())
         ..where((tbl) => tbl.weight.isNotValue(0))
         ..orderBy([(t) => OrderingTerm.desc(t.day)]) // 최신순으로 정렬하고

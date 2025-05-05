@@ -24,7 +24,7 @@ class DocBodyDetail extends ConsumerWidget {
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
     final docDtl = ref.watch(htDayDocDetail(searchDay));
     final detail = docDtl.asData?.value;
-    final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(focusedDay)).value : null;
+    final prvsWeight = detail?.id != null ? ref.watch(getPreviousWeight(searchDay)).value : null;
     final today = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
     final numberGroup = AutoSizeGroup();
