@@ -6,6 +6,7 @@ import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueForm
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/diet_input_data.dart' show DietInputData;
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/hoverable_icon.dart';
 
 
 class DocDietWrite extends ConsumerStatefulWidget {
@@ -132,13 +133,28 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                 return Column(
                                   children: [
                                     // 식사유형
-                                    TextField(
-                                      controller: input.mealType,
-                                      inputFormatters: [
-                                        LengthLimitingTextInputFormatter(12), // 최대 100자 제한
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 4,
+                                          child: TextField(
+                                            controller: input.mealType,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(12), // 최대 100자 제한
+                                            ],
+                                            decoration: getInputDecoration('식사 유형'),
+                                            onChanged: (value) => input.mealType.text = value,
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: HoverableIcon(
+                                            icon: Icons.remove_circle_outline,
+                                            originColor: Colors.grey,
+                                            changedColor: Colors.red,
+                                          ),
+                                        ),
                                       ],
-                                      decoration: getInputDecoration('식사 유형'),
-                                      onChanged: (value) => input.mealType.text = value,
                                     ),
                                     SizedBox(height: 6 * htio),
 
