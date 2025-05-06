@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -160,8 +161,9 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
           ),
           Padding(
             padding: EdgeInsets.only(left: 8 * widthRatio),
-            child: Text(
+            child: AutoSizeText(
               text,
+              minFontSize: 16,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 16 * heightRatio,
@@ -174,7 +176,8 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
           Expanded(
             child: Align(
               alignment: Alignment.centerRight,
-              child: Text(
+              child: AutoSizeText(
+                minFontSize: 16,
                 numunit,
                 textAlign: TextAlign.right,
                 style: TextStyle(
