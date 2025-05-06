@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class StcAppBar extends StatefulWidget {
   final int selectedIndex;
@@ -14,6 +15,9 @@ class StcAppBar extends StatefulWidget {
   @override
   State<StcAppBar> createState() => _StcAppBarState();
 }
+
+var htio = 0.0;
+var wtio = 0.0;
 
 class _StcAppBarState extends State<StcAppBar> {
   final List<String> tabs = ['체중', '골격근량', '체지방률', '하루평가'];
@@ -42,7 +46,7 @@ class _StcAppBarState extends State<StcAppBar> {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final position = renderBox.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
-      final left = position.dx - 20; // 패딩 보정
+      final left = position.dx - (20 * wtio); // 패딩 보정
       final width = renderBox.size.width;
 
       setState(() {
@@ -54,14 +58,17 @@ class _StcAppBarState extends State<StcAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;    
+
     return Expanded(
       flex: 77,
       child: Padding(
-        padding: const EdgeInsets.only(left: 20),
+        padding: EdgeInsets.only(left: 20 * wtio),
         child: Column(
           children: [
             const Spacer(flex: 22),
-            const Expanded(
+            Expanded(
               flex: 41,
               child: Align(
                 alignment: Alignment.centerLeft,
@@ -69,10 +76,10 @@ class _StcAppBarState extends State<StcAppBar> {
                   '통계',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: 20 * htio,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w700,
-                    height: 1.50,
+                    height: 1.50 * htio,
                   ),
                 ),
               ),
@@ -88,8 +95,8 @@ class _StcAppBarState extends State<StcAppBar> {
                       // 회색 하단 선
                       Positioned.fill(
                         child: Container(
-                          margin: const EdgeInsets.only(top: 26),
-                          height: 2,
+                          margin: EdgeInsets.only(top: 26 * htio),
+                          height: 2 * htio,
                           color: const Color(0xFFEEEEEE),
                         ),
                       ),
@@ -100,7 +107,7 @@ class _StcAppBarState extends State<StcAppBar> {
                         children: List.generate(tabs.length, (index) {
                           final isSelected = index == selectedIndex;
                           return Padding(
-                            padding: const EdgeInsets.only(right: 20),
+                            padding: EdgeInsets.only(right: 20 * wtio),
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -117,10 +124,10 @@ class _StcAppBarState extends State<StcAppBar> {
                                   tabs[index],
                                   style: TextStyle(
                                     color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-                                    fontSize: 16,
+                                    fontSize: 16 * htio,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w700,
-                                    height: 1.50,
+                                    height: 1.50 * htio,
                                   ),
                                 ),
                               ),
@@ -142,17 +149,17 @@ class _StcAppBarState extends State<StcAppBar> {
   Widget _buildUnderline() {
   final underline = Container(
     width: underlineWidth,
-    height: 2,
+    height: 2 * htio,
     color: Colors.black,
   );
 
   return _isFirstBuild
-      ? Positioned(left: underlineLeft, top: 26, child: underline)
+      ? Positioned(left: underlineLeft, top: 26 * htio, child: underline)
       : AnimatedPositioned(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
           left: underlineLeft,
-          top: 26,
+          top: 26 * htio,
           child: underline,
         );
 }
