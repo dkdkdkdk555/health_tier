@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
+import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
 
@@ -30,7 +31,7 @@ class _MyAppState extends State<MyApp> {
 
   final List<Widget> _pages = [
       const DocMain(), 
-      const Center(child: Text('통계')),
+      const StcMain(),
       const Center(child: Text('커뮤니티')),
       const Center(child: Text('회원')),
   ];
