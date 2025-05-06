@@ -1,6 +1,5 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/doc_detail_model.dart';
 import 'package:my_app/model/doc_diet_model.dart';
@@ -289,3 +288,64 @@ Future<void> deleteHtDietDoc({required WidgetRef ref, required int id,}) async {
   final db = ref.read(databaseProvider);
   await (db.delete(db.htDayDiet)..where((tbl) => tbl.id.equals(id))).go();
 }
+
+/*
+  2-1-1 체중 그래프
+*/
+final selectWeightList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+  final db = ref.watch(databaseProvider);
+  final startDay = params['startDay']!;
+  final endDay = params['endDay']!;
+
+  final result = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
+    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+
+  return result.map((e) => e.weight ?? 0).toList();
+});
+
+/*
+  2-1-1 골격근량 그래프
+*/
+final selectMuscleList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+  final db = ref.watch(databaseProvider);
+  final startDay = params['startDay']!;
+  final endDay = params['endDay']!;
+
+  final result = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
+    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+
+  return result.map((e) => e.muscle ?? 0).toList();
+});
+
+/*
+  2-1-1 체지방량 그래프
+*/
+final selectFatList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+  final db = ref.watch(databaseProvider);
+  final startDay = params['startDay']!;
+  final endDay = params['endDay']!;
+
+  final result = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
+    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+
+  return result.map((e) => e.fat ?? 0).toList();
+});
+
+
+/*
+  2-1-1 하루평가 그래프
+*/
+final selectStampList = FutureProvider.family<List<String>, Map<String, String>>((ref, params) async {
+  final db = ref.watch(databaseProvider);
+  final startDay = params['startDay']!;
+  final endDay = params['endDay']!;
+
+  final result = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
+    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+
+  return result.map((e) => e.stamp ?? '').toList();
+});

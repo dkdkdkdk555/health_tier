@@ -50,6 +50,8 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.6.1
+  # 그래프그리기
+  fl_chart: ^0.71.0
 
 dev_dependencies:
   flutter_test:
