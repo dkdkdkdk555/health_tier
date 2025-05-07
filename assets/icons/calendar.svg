@@ -1,0 +1,30 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="16" height="16" fill="#F5F5F5"/>
+<g id="&#237;&#134;&#181;&#234;&#179;&#132;" clip-path="url(#clip0_0_1)">
+<rect width="375" height="812" transform="translate(-94 -178)" fill="white"/>
+<g id="&#235;&#130;&#160;&#236;&#167;&#156;">
+<g id="Group 1216117418">
+<g id="Frame 1216117378">
+<g id="Frame 1216117376">
+<g id="ico_24_line_small-calendar_grey_222222">
+<g id="calendar">
+<path id="Vector" d="M3.33301 3.16663L12.667 3.16663C13.127 3.1668 13.4998 3.53965 13.5 3.99963L13.5 12.6666C13.5 13.1268 13.1271 13.4995 12.667 13.4996L3.33301 13.4996C2.87292 13.4995 2.5 13.1268 2.5 12.6666L2.5 3.99963C2.50018 3.53965 2.87303 3.1668 3.33301 3.16663Z" stroke="black"/>
+<path id="Line" d="M2.66663 6.66663L13.3333 6.66663" stroke="black" stroke-linecap="round"/>
+<path id="Line_2" d="M10.6667 2V4.66667" stroke="black" stroke-linecap="round"/>
+<path id="Line_3" d="M5.33333 2L5.33333 4.66667" stroke="black" stroke-linecap="round"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<g id="Frame 1216117391">
+<rect x="-73.5" y="-8.5" width="206" height="32" rx="7.5" stroke="#DDDDDD"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect width="375" height="812" fill="white" transform="translate(-94 -178)"/>
+</clipPath>
+</defs>
+</svg>

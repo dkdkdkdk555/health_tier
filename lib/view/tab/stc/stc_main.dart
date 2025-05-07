@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
+import 'package:my_app/util/date_picker.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -33,10 +35,17 @@ class _StcMainState extends State<StcMain> {
   }
 
   final weights = [68.2, 68.0, 67.8, 67.9, 68.1];
-  final days = ['05.01', '05.02', '05.03', '05.04', '05.05'];
+  final days = ['2025.05.01', '2025.05.02', '2025.05.03', '2025.05.04', '2025.05.05'];
 
-  int? focusedIndex;
-  bool showTooltip = false;
+  int? focusedIndex; // weights 데이터 순번
+  bool showTooltip = false; //말풍선 보여주는지 여부
+
+  // String startDate = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 7)),);
+  // String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  DateTime startDate = DateTime.now().subtract(const Duration(days: 7));
+  DateTime endDate = DateTime.now();
+
+  List<bool> whichButtonPush = [true, false, false, false];
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +70,6 @@ class _StcMainState extends State<StcMain> {
       (i) => double.parse((minY + interval * i).toStringAsFixed(1)),
     );
 
-    // debugPrint("$_selectedIndex");
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         if(sizingInformation.isMobile){
@@ -76,26 +84,7 @@ class _StcMainState extends State<StcMain> {
                     padding: const EdgeInsets.symmetric(horizontal:20),
                     child: Column(
                       children: [
-                        Expanded(
-                          flex: 24,
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Container(
-                                width: 207 * wtio,
-                                height: 33 * htio,
-                                padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 12 * htio),
-                                decoration: ShapeDecoration(
-                                    shape: RoundedRectangleBorder(
-                                        side: BorderSide(
-                                            width: 1 * wtio,
-                                            color: const Color(0xFFDDDDDD),
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                    ),
-                                ),
-                            ),
-                          )
-                        ),
+                        periodSearchForm(context),
                         Expanded(
                           flex: 305,
                           child: Column(
@@ -126,7 +115,7 @@ class _StcMainState extends State<StcMain> {
                                                 y.toStringAsFixed(1),
                                                 textAlign: TextAlign.right,
                                                 style: TextStyle(
-                                                  color: Color(0xFFAAAAAA),
+                                                  color: const Color(0xFFAAAAAA),
                                                   fontSize: 11 * htio,
                                                   fontFamily: 'Pretendard',
                                                   fontWeight: FontWeight.w400,
@@ -134,7 +123,7 @@ class _StcMainState extends State<StcMain> {
                                               ),
                                             ),
                                           );
-                                        }).toList(),
+                                        }),
                                         // 그래프
                                         Padding(
                                           padding: EdgeInsets.only(left: 27 * wtio,), // 좌측 수치 영역 확보
@@ -230,6 +219,86 @@ class _StcMainState extends State<StcMain> {
     );
   }
 
+  Expanded periodSearchForm(BuildContext context) {
+    return Expanded(
+      flex: 24,
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: Container(
+            width: 226 * wtio,
+            height: 33 * htio,
+            // padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 12 * htio),
+            decoration: ShapeDecoration(
+                shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                        width: 1 * wtio,
+                        color: const Color(0xFFDDDDDD),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                ),
+            ),
+            child: SizedBox(
+              height: 16 * htio,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // 시작일
+                  datePicker(context, pickedDay: startDate, isStart: true),
+                  SizedBox(width: 8 * wtio),
+                  waveText(),
+                  SizedBox(width: 8 * wtio),
+                  // 종료일
+                  datePicker(context, pickedDay: endDate, isStart: false)
+                ],
+              ),
+            ),
+        ),
+      )
+    );
+  }
+
+  Flexible datePicker(BuildContext context, {required DateTime pickedDay, required bool isStart}) {
+    return Flexible(
+      child: GestureDetector(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              DateFormat('yyyy.MM.dd').format(pickedDay),
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 14 * wtio,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w400,
+                height: 1.5 * htio,
+                letterSpacing: -0.28 * wtio,
+              ),
+            ),
+            SizedBox(width: 4 * wtio),
+            SvgPicture.asset(
+              'assets/icons/calendar.svg',
+              width: 16 * wtio,
+              height: 16 * htio,
+            ),
+          ],
+        ),
+        onTap: () async{
+          final picked = await showDayPicker(context, pickedDay);
+          if (picked != null) {
+            //TODO: startDate가 endDate보다 미래면 경고창 띄우며 검색시도하지 않기
+            setState(() {
+              if(isStart) {
+                startDate = picked;
+              } else {
+                endDate = picked;
+              }
+            });
+          }
+        },
+      ),
+    );
+  }
+
   Positioned makeDetailBallon(
      double chartWidth,
      double chartHeight,
@@ -241,12 +310,12 @@ class _StcMainState extends State<StcMain> {
     final chartInnerWidth = chartWidth - chartPaddingLeft;
 
     final x = (chartInnerWidth / (weights.length - 1)) * focusedIndex! + chartPaddingLeft;
-    final balloonLeft = x - 94 / 2;
+    final balloonLeft = x - (94 * wtio) / 2;
 
     final weightY = weights[focusedIndex!];
     final relativeY = (maxY - weightY) / (maxY - minY);
     final y = relativeY * chartHeight;
-    final balloonTop = y - 80; // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
+    final balloonTop = y - (120*htio); // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
 
 
     if (showTooltip && focusedIndex != null) {
@@ -259,10 +328,10 @@ class _StcMainState extends State<StcMain> {
           children: [
             // 선
             Positioned(
-              top: 64 - 58,
+              top: 6 * htio,
               child: SvgPicture.asset(
                 'assets/widgets/verticalLine.svg',
-                width: 1,
+                width: 1 * wtio,
                 fit: BoxFit.contain,
               ),
             ),
@@ -274,46 +343,46 @@ class _StcMainState extends State<StcMain> {
               children: [
                 SvgPicture.asset(
                   'assets/widgets/message_ballon.svg',
-                  width: 94,
-                  height: 64,
+                  width: 94 * wtio,
+                  height: 64 * htio,
                   fit: BoxFit.contain,
                 ),
-                const Column(
+                Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '2025.02.06',
+                      days[focusedIndex!],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontSize: 11,
+                        color: const Color(0xFFAAAAAA),
+                        fontSize: 11 * htio,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.50,
+                        height: 1.50 * htio,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 4 * htio),
                     Text.rich(
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: '72.8 ',
+                            text: '${weights[focusedIndex!].toStringAsFixed(1)} ',
                             style: TextStyle(
-                              color: Color(0xFF333333),
-                              fontSize: 18,
+                              color: const Color(0xFF333333),
+                              fontSize: 18 * htio,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w700,
-                              height: 1.50,
+                              height: 1.50 * htio,
                             ),
                           ),
                           TextSpan(
                             text: 'kg',
                             style: TextStyle(
-                              color: Color(0xFF777777),
-                              fontSize: 18,
+                              color: const Color(0xFF777777),
+                              fontSize: 18 * htio,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w500,
-                              height: 1.50,
+                              height: 1.50 *  htio,
                             ),
                           ),
                         ],
@@ -336,12 +405,13 @@ class _StcMainState extends State<StcMain> {
     return Expanded(
       flex: 23,
       child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 3 * wtio),
         decoration: ShapeDecoration(
             color: Colors.white,
             shape: RoundedRectangleBorder(
-                side: const BorderSide(
-                    width: 1,
-                    color: Color(0xFFEEEEEE),
+                side: BorderSide(
+                    width: 1 * wtio,
+                    color: const Color(0xFFEEEEEE),
                 ),
                 borderRadius: BorderRadius.circular(8),
             ),
@@ -352,47 +422,80 @@ class _StcMainState extends State<StcMain> {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 4 * htio,
             children: [
-                periods('7일'),
-                periods('1개월'),
-                periods('3개월'),
-                periods('1년'),
+                periods('7일', whichButtonPush[0]),
+                periods('1개월', whichButtonPush[1]),
+                periods('3개월', whichButtonPush[2]),
+                periods('1년', whichButtonPush[3]),
             ],
         ),
       ),
     );
   }
 
-  Expanded periods(String text) {
+  Expanded periods(String text, bool isChoose) {
     return Expanded(
       flex: 1,
-      child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
-          decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 10 * htio,
-              children: [
-                  SizedBox(
-                      width: 58 * wtio,
-                      child: Text(
-                          text,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 15 * htio,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w600,
-                              height: 1.20 * htio,
-                          ),
-                      ),
-                  ),
-              ],
-          ),
+      child: GestureDetector(
+        child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
+            decoration: ShapeDecoration(
+                color: isChoose ? const Color(0xFF0D85E7) : Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            ),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 10 * htio,
+                children: [
+                    SizedBox(
+                        width: 58 * wtio,
+                        child: Text(
+                            text,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: isChoose ? Colors.white : Colors.black,
+                                fontSize: 15 * htio,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w600,
+                                height: 1.20 * htio,
+                            ),
+                        ),
+                    ),
+                ],
+            ),
+        ),
+        onTap: () {
+          setState(() {
+            for (int i = 0; i < whichButtonPush.length; i++) {
+              whichButtonPush[i] = false;
+            }
+            switch (text) {
+              case '7일':
+                whichButtonPush[0] = true;
+              case '1개월':
+                whichButtonPush[1] = true;
+              case '3개월':
+                whichButtonPush[2] = true;
+              case '1년': 
+                whichButtonPush[3] = true;
+            }
+           },);
+        },
+      ),
+    );
+  }
+
+  Text waveText() {
+    return Text(
+      '~',
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 14 * wtio,
+        fontFamily: 'Pretendard',
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        letterSpacing: -0.28 * wtio,
       ),
     );
   }
