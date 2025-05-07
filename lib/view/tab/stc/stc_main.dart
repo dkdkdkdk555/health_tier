@@ -1,8 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class StcMain extends StatefulWidget {
   const StcMain({super.key});
@@ -10,6 +12,9 @@ class StcMain extends StatefulWidget {
   @override
   State<StcMain> createState() => _StcMainState();
 }
+
+var htio = 0.0;
+var wtio = 0.0;
 
 class _StcMainState extends State<StcMain> {
   late int _selectedIndex;
@@ -31,9 +36,30 @@ class _StcMainState extends State<StcMain> {
   final days = ['05.01', '05.02', '05.03', '05.04', '05.05'];
 
 
-
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;    
+
+    const decVal = 0.4;
+
+    final rawMin = weights.reduce((a, b) => a < b ? a : b);
+    final rawMax = weights.reduce((a, b) => a > b ? a : b);
+
+    // 최소/최대값
+    final minY = rawMin - decVal;
+    final maxY = rawMax + decVal;
+    const int lineCount = 5;
+
+    // Y 눈금 간격 계산
+    final double interval = (maxY - minY) / (lineCount - 1);
+    final List<double> yDoubles = List.generate(
+      lineCount,
+      (i) => double.parse((minY + interval * i).toStringAsFixed(1)),
+    );
+
+    yDoubles.forEach((e) => debugPrint('e : $e'));
+
     // debugPrint("$_selectedIndex");
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
@@ -54,14 +80,14 @@ class _StcMainState extends State<StcMain> {
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
-                                width: 207,
-                                height: 33,
-                                padding: const EdgeInsets.all(12),
+                                width: 207 * wtio,
+                                height: 33 * htio,
+                                padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 12 * htio),
                                 decoration: ShapeDecoration(
                                     shape: RoundedRectangleBorder(
-                                        side: const BorderSide(
-                                            width: 1,
-                                            color: Color(0xFFDDDDDD),
+                                        side: BorderSide(
+                                            width: 1 * wtio,
+                                            color: const Color(0xFFDDDDDD),
                                         ),
                                         borderRadius: BorderRadius.circular(8),
                                     ),
@@ -76,89 +102,174 @@ class _StcMainState extends State<StcMain> {
                               const Spacer(flex: 34),
                               Expanded(
                                 flex: 124,
-                                child: LineChart(
-                                  LineChartData(
-                                    gridData: FlGridData( // 눈금선
-                                      drawHorizontalLine: true, drawVerticalLine: false,
-                                      horizontalInterval: 0.5,
-                                      getDrawingHorizontalLine: (value) => const FlLine(
-                                        color: Color(0xFFEEEEEE),
-                                        strokeWidth: 1.6,
-                                      ),
-                                    ), 
-                                    titlesData: FlTitlesData(
-                                      leftTitles: AxisTitles( // 왼쪽에 표시될 수치
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          reservedSize: 40,
-                                          interval: 0.5,
-                                          getTitlesWidget: (value, meta) {
-                                            return Text(value.toString());
-                                          },
-                                        ),
-                                      ),
-                                      bottomTitles: AxisTitles( // 밑에 표시될 수치
-                                        sideTitles: SideTitles(
-                                          showTitles: false,
-                                          interval: 1,
-                                          getTitlesWidget: (value, meta) {
-                                            int index = value.toInt();
-                                            if (index < 0 || index >= days.length) return const SizedBox.shrink();
-                                            return Text(days[index], style: const TextStyle(fontSize: 10));
-                                          },
-                                        ),
-                                      ),
-                                      // 오른쪽, 상단 수치는 표시안함
-                                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                    ),
-                                    borderData: FlBorderData(show: false), // 테두리
-                                    minX: 0,
-                                    maxX: (weights.length - 1).toDouble(),
-                                    minY: weights.reduce((a, b) => a < b ? a : b) - 0.5,
-                                    maxY: weights.reduce((a, b) => a > b ? a : b) + 0.5,
-                                    lineBarsData: [
-                                      LineChartBarData(
-                                        isCurved: true,
-                                        color: const Color(0xFF0D86E7),
-                                        barWidth: 3,
-                                        dotData: const FlDotData(show: false),
-                                        belowBarData: BarAreaData(show: false), // 그래프 밑 영역의 넓이 표시여부
-                                        spots: List.generate(weights.length, (index) {
-                                          return FlSpot(index.toDouble(), weights[index]);
-                                        }),
-                                      ),
-                                    ],
-                                    lineTouchData: LineTouchData(
-                                      enabled: true,
-                                      touchTooltipData: LineTouchTooltipData(
-                                        tooltipRoundedRadius: 8,
-                                        tooltipMargin: 12,
-                                        tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                        tooltipBorder: BorderSide.none,
-                                        getTooltipColor: (spot) => Colors.black.withAlpha(204),
-                                        getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                                          return touchedSpots.map((spot) {
-                                            return LineTooltipItem(
-                                              '${days[spot.x.toInt()]}\n${weights[spot.x.toInt()]} kg', // 텍스트 표시
-                                              const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final chartHeight = constraints.maxHeight;
+                                    return Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        // 수직 좌표 수치
+                                        // y좌표 수치 텍스트 (수동 배치)
+                                        ...yDoubles.map((y) {
+                                          final relativeY = (maxY - y) / (maxY - minY);
+                                          final top = relativeY * chartHeight;
+                                    
+                                          return Positioned(
+                                            top: top - (8*htio), // 텍스트 중앙 정렬 보정
+                                            left: -18 * wtio,
+                                            child: SizedBox(
+                                              width: 40*wtio,
+                                              child: Text(
+                                                y.toStringAsFixed(1),
+                                                textAlign: TextAlign.right,
+                                                style: TextStyle(
+                                                  color: Color(0xFFAAAAAA),
+                                                  fontSize: 11 * htio,
+                                                  fontFamily: 'Pretendard',
+                                                  fontWeight: FontWeight.w400,
+                                                ),
                                               ),
-                                            );
-                                          }).toList();
-                                        },
-                                      ),
-                                    ),
-                                  ),
+                                            ),
+                                          );
+                                        }).toList(),
+
+                                        Positioned(
+                                          top: 50,
+                                          left: 120,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                'assets/widgets/message_ballon.svg', // 말풍선, 배너 등 원하는 SVG 파일
+                                                width: 94,
+                                                height: 64,
+                                                fit: BoxFit.contain,
+                                              ),
+                                              Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: const [
+                                                  Text(
+                                                    '2025.02.06',
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: const Color(0xFFAAAAAA),
+                                                      fontSize: 11,
+                                                      fontFamily: 'Pretendard',
+                                                      fontWeight: FontWeight.w400,
+                                                      height: 1.50,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text.rich(
+                                                    TextSpan(
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '72.8 ',
+                                                          style: TextStyle(
+                                                            color: const Color(0xFF333333),
+                                                            fontSize: 18,
+                                                            fontFamily: 'Pretendard',
+                                                            fontWeight: FontWeight.w700,
+                                                            height: 1.50,
+                                                          ),
+                                                        ),
+                                                        TextSpan(
+                                                          text: 'kg',
+                                                          style: TextStyle(
+                                                            color: const Color(0xFF777777),
+                                                            fontSize: 18,
+                                                            fontFamily: 'Pretendard',
+                                                            fontWeight: FontWeight.w500,
+                                                            height: 1.50,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                              SvgPicture.asset(
+                                                'assets/widgets/verticalLine.svg', // 말풍선, 배너 등 원하는 SVG 파일
+                                                width: 1,
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        // 그래프
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 27 * wtio,), // 좌측 수치 영역 확보
+                                          child: LineChart(
+                                            LineChartData(
+                                              minY: minY,
+                                              maxY: maxY,
+                                              gridData: const FlGridData(
+                                                drawHorizontalLine: false,
+                                                drawVerticalLine: false,
+                                              ),
+                                              titlesData: const FlTitlesData(
+                                                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                              ),
+                                              borderData: FlBorderData(show: false),
+                                              lineBarsData: [
+                                                LineChartBarData(
+                                                  isCurved: true,
+                                                  color: const Color(0xFF0D86E7),
+                                                  barWidth: 2.15 * htio,
+                                                  dotData: const FlDotData(show: false),
+                                                  belowBarData: BarAreaData(show: false),
+                                                  spots: List.generate(weights.length, (index) {
+                                                    return FlSpot(index.toDouble(), weights[index]);
+                                                  }),
+                                                ),
+                                              ],
+                                              extraLinesData: ExtraLinesData(
+                                                extraLinesOnTop: false,
+                                                horizontalLines: yDoubles.map((y) {
+                                                  return HorizontalLine(
+                                                    y: y,
+                                                    color: const Color(0xFFEEEEEE),
+                                                    strokeWidth: 1.6 * wtio,
+                                                  );
+                                                }).toList(),
+                                              ),
+                                              lineTouchData: LineTouchData(
+                                                enabled: true,
+                                                handleBuiltInTouches: false, // 기본 터치 툴팁은 끄고,
+                                                touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
+                                                  if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
+                                                    final spot = response?.lineBarSpots?.first;
+                                                    if (spot != null) {
+                                                      final index = spot.x.toInt();
+                                                      if (index >= 0 && index < weights.length) {
+                                                        final day = days[index];
+                                                        final weight = weights[index];
+                                                        debugPrint('👉 $day - $weight kg 선택됨');
+
+                                                        // TODO: 여기서 커스텀 UI 표시 로직 실행 (예: setState로 상태 업데이트)
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
-                              const Spacer(flex:15),
+                              const Spacer(flex: 18),
                               periodButtons(),
-                              const Spacer(flex: 109,)
+                              const Spacer(flex: 109),
                             ],
-                          )
+                          ),
                         ),
                       ],
                     ),
@@ -179,7 +290,6 @@ class _StcMainState extends State<StcMain> {
     return Expanded(
       flex: 23,
       child: Container(
-        // padding: const EdgeInsets.all(4),
         decoration: ShapeDecoration(
             color: Colors.white,
             shape: RoundedRectangleBorder(
@@ -194,126 +304,52 @@ class _StcMainState extends State<StcMain> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 4,
+            spacing: 4 * htio,
             children: [
-                Container(
-                    width: 78,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                    ),
-                    child: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 10,
-                        children: [
-                            SizedBox(
-                                width: 58,
-                                child: Text(
-                                    '7일',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontFamily: 'Pretendard',
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.20,
-                                    ),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-                Container(
-                    width: 79,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                    ),
-                    child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 10,
-                        children: [
-                            Text(
-                                '1개월',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 15,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.20,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-                Container(
-                    width: 79,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                        color: const Color(0xFF0D85E7),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                    ),
-                    child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 10,
-                        children: [
-                            Text(
-                                '3개월',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.20,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-                Container(
-                    width: 79,
-                    padding: const EdgeInsets.all(10),
-                    decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                    ),
-                    child: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        spacing: 10,
-                        children: [
-                            SizedBox(
-                                width: 59,
-                                child: Text(
-                                    '1년',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 15,
-                                        fontFamily: 'Pretendard',
-                                        fontWeight: FontWeight.w600,
-                                        height: 1.20,
-                                    ),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
+                periods('7일'),
+                periods('1개월'),
+                periods('3개월'),
+                periods('1년'),
             ],
         ),
       ),
     );
   }
+
+  Expanded periods(String text) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
+          decoration: ShapeDecoration(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          ),
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 10 * htio,
+              children: [
+                  SizedBox(
+                      width: 58 * wtio,
+                      child: Text(
+                          text,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 15 * htio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.20 * htio,
+                          ),
+                      ),
+                  ),
+              ],
+          ),
+      ),
+    );
+  }
+
 }
 
