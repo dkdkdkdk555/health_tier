@@ -21,6 +21,7 @@ var htio = 0.0;
 var wtio = 0.0;
 
 class _StcMainState extends ConsumerState<StcMain> {
+  // 어느 하위 탭인지
   late int _selectedIndex;
 
   @override
@@ -32,7 +33,7 @@ class _StcMainState extends ConsumerState<StcMain> {
   void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
-      cachedStcTabIndex = index; // 캐시된 값 불러오기
+      cachedStcTabIndex = index; // 캐싱
     });
   }
 
@@ -72,7 +73,7 @@ class _StcMainState extends ConsumerState<StcMain> {
                         child: Column(
                           children: [
                             const Spacer(flex: 34),
-                            StcGraphLine(dayRange: param),
+                            StcGraphLine(dayRange: param, tabIndex: _selectedIndex,),
                             const Spacer(flex: 18),
                             periodButtons(),
                             const Spacer(flex: 109),
@@ -204,13 +205,16 @@ class _StcMainState extends ConsumerState<StcMain> {
   }
 
   Expanded periods(String text, bool isChoose) {
+    var selectedColor = _selectedIndex == 0 ? const Color(0xFF0D86E7)
+                              : _selectedIndex == 1 ? const Color(0xFF95D33E) 
+                              : const Color(0xFFFFDE23);
     return Expanded(
       flex: 1,
       child: GestureDetector(
         child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
             decoration: ShapeDecoration(
-                color: isChoose ? const Color(0xFF0D85E7) : Colors.white,
+                color: isChoose ? selectedColor : Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             child: Column(
