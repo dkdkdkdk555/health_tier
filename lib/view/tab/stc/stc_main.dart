@@ -7,6 +7,7 @@ import 'package:my_app/util/date_picker.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
 import 'package:my_app/view/tab/stc/stc_graph_line.dart';
+import 'package:my_app/view/tab/stc/stc_graph_pie.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 
@@ -73,7 +74,9 @@ class _StcMainState extends ConsumerState<StcMain> {
                         child: Column(
                           children: [
                             const Spacer(flex: 34),
-                            StcGraphLine(dayRange: param, tabIndex: _selectedIndex,),
+                            _selectedIndex != 3 
+                              ? StcGraphLine(dayRange: param, tabIndex: _selectedIndex,) 
+                              : StcStampPieChart(dayRange: param,),
                             const Spacer(flex: 18),
                             periodButtons(),
                             const Spacer(flex: 109),
@@ -206,8 +209,9 @@ class _StcMainState extends ConsumerState<StcMain> {
 
   Expanded periods(String text, bool isChoose) {
     var selectedColor = _selectedIndex == 0 ? const Color(0xFF0D86E7)
-                              : _selectedIndex == 1 ? const Color(0xFF95D33E) 
-                              : const Color(0xFFFFDE23);
+                        : _selectedIndex == 1 ? const Color(0xFF95D33E) 
+                        : _selectedIndex == 2 ? const Color(0xFFFFDE23)
+                        : const Color(0xFF000000);
     return Expanded(
       flex: 1,
       child: GestureDetector(
