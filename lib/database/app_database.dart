@@ -23,72 +23,380 @@ class AppDatabase extends _$AppDatabase {
     final existing = await select(htDayDiet).get();
     if (existing.isNotEmpty) return; // 이미 데이터 있으면 생략
 
-    ///////////식단
+    
+    await into(htDayBody).insert(const HtDayBodyCompanion(
+      day: Value('2024-05-01'),
+      weight: Value(90.0),
+      muscle: Value(45.0),
+      fat: Value(13.2),
+      stamp: Value('perfect'),
+    ));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-03'), weight: Value(81.1), muscle: Value(49.8), fat: Value(12.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-04'), weight: Value(91.5), muscle: Value(50.5), fat: Value(15.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-05'), weight: Value(98.3), muscle: Value(47.7), fat: Value(8.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-06'), weight: Value(98.7), muscle: Value(53.8), fat: Value(5.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-07'), weight: Value(84.9), muscle: Value(38.7), fat: Value(7.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-08'), weight: Value(90.4), muscle: Value(38.9), fat: Value(11.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-09'), weight: Value(91.2), muscle: Value(39.6), fat: Value(8.4), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-10'), weight: Value(85.9), muscle: Value(35.4), fat: Value(11.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-11'), weight: Value(89.7), muscle: Value(41.9), fat: Value(12.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-12'), weight: Value(92.5), muscle: Value(37.5), fat: Value(22.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-13'), weight: Value(81.8), muscle: Value(49.3), fat: Value(4.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-14'), weight: Value(87.1), muscle: Value(54.3), fat: Value(18.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-15'), weight: Value(83.8), muscle: Value(47.1), fat: Value(4.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-16'), weight: Value(90.8), muscle: Value(50.0), fat: Value(9.1), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-17'), weight: Value(88.2), muscle: Value(43.2), fat: Value(16.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-18'), weight: Value(88.3), muscle: Value(52.8), fat: Value(10.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-19'), weight: Value(91.5), muscle: Value(51.0), fat: Value(12.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-20'), weight: Value(82.6), muscle: Value(42.4), fat: Value(11.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-21'), weight: Value(97.4), muscle: Value(50.2), fat: Value(10.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-22'), weight: Value(100.0), muscle: Value(39.6), fat: Value(8.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-23'), weight: Value(97.0), muscle: Value(39.2), fat: Value(19.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-24'), weight: Value(82.5), muscle: Value(48.4), fat: Value(22.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-25'), weight: Value(80.6), muscle: Value(44.5), fat: Value(22.8), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-26'), weight: Value(91.5), muscle: Value(44.2), fat: Value(13.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-27'), weight: Value(92.0), muscle: Value(42.6), fat: Value(17.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-28'), weight: Value(97.5), muscle: Value(54.0), fat: Value(21.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-29'), weight: Value(86.1), muscle: Value(37.7), fat: Value(16.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-30'), weight: Value(89.1), muscle: Value(40.2), fat: Value(9.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-05-31'), weight: Value(86.7), muscle: Value(43.0), fat: Value(13.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-01'), weight: Value(86.2), muscle: Value(39.6), fat: Value(9.1), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-02'), weight: Value(98.8), muscle: Value(35.4), fat: Value(17.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-03'), weight: Value(81.3), muscle: Value(43.0), fat: Value(13.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-04'), weight: Value(84.2), muscle: Value(36.4), fat: Value(23.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-05'), weight: Value(84.3), muscle: Value(47.5), fat: Value(5.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-06'), weight: Value(83.9), muscle: Value(37.0), fat: Value(21.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-07'), weight: Value(94.6), muscle: Value(36.2), fat: Value(3.9), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-08'), weight: Value(93.4), muscle: Value(54.9), fat: Value(20.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-09'), weight: Value(86.5), muscle: Value(43.6), fat: Value(20.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-10'), weight: Value(87.5), muscle: Value(52.7), fat: Value(9.1), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-11'), weight: Value(97.4), muscle: Value(43.4), fat: Value(22.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-12'), weight: Value(84.4), muscle: Value(48.7), fat: Value(6.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-13'), weight: Value(81.0), muscle: Value(42.8), fat: Value(5.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-14'), weight: Value(85.7), muscle: Value(40.5), fat: Value(3.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-15'), weight: Value(84.6), muscle: Value(53.0), fat: Value(23.1), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-16'), weight: Value(85.1), muscle: Value(41.4), fat: Value(16.0), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-17'), weight: Value(90.8), muscle: Value(53.1), fat: Value(19.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-18'), weight: Value(98.7), muscle: Value(47.3), fat: Value(16.8), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-19'), weight: Value(85.7), muscle: Value(51.8), fat: Value(10.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-20'), weight: Value(80.7), muscle: Value(39.0), fat: Value(20.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-21'), weight: Value(83.3), muscle: Value(49.8), fat: Value(21.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-22'), weight: Value(94.3), muscle: Value(51.3), fat: Value(17.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-23'), weight: Value(99.1), muscle: Value(51.4), fat: Value(7.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-24'), weight: Value(83.7), muscle: Value(44.6), fat: Value(13.6), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-25'), weight: Value(80.2), muscle: Value(50.7), fat: Value(15.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-26'), weight: Value(86.7), muscle: Value(36.3), fat: Value(21.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-27'), weight: Value(97.3), muscle: Value(42.3), fat: Value(14.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-28'), weight: Value(82.2), muscle: Value(50.4), fat: Value(7.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-29'), weight: Value(86.9), muscle: Value(42.1), fat: Value(13.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-06-30'), weight: Value(95.9), muscle: Value(43.6), fat: Value(21.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-01'), weight: Value(82.5), muscle: Value(42.8), fat: Value(9.3), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-02'), weight: Value(95.0), muscle: Value(45.7), fat: Value(11.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-03'), weight: Value(84.8), muscle: Value(40.7), fat: Value(16.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-04'), weight: Value(91.7), muscle: Value(42.6), fat: Value(17.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-05'), weight: Value(86.2), muscle: Value(49.6), fat: Value(19.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-06'), weight: Value(98.5), muscle: Value(51.5), fat: Value(3.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-07'), weight: Value(91.5), muscle: Value(40.7), fat: Value(12.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-08'), weight: Value(90.7), muscle: Value(49.2), fat: Value(13.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-09'), weight: Value(92.1), muscle: Value(38.9), fat: Value(10.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-10'), weight: Value(87.8), muscle: Value(37.8), fat: Value(20.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-11'), weight: Value(91.6), muscle: Value(38.4), fat: Value(10.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-12'), weight: Value(82.5), muscle: Value(54.7), fat: Value(14.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-13'), weight: Value(89.6), muscle: Value(52.8), fat: Value(22.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-14'), weight: Value(94.6), muscle: Value(37.0), fat: Value(13.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-15'), weight: Value(94.4), muscle: Value(54.5), fat: Value(23.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-16'), weight: Value(83.9), muscle: Value(46.4), fat: Value(6.4), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-17'), weight: Value(99.6), muscle: Value(52.3), fat: Value(6.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-18'), weight: Value(82.8), muscle: Value(52.2), fat: Value(15.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-19'), weight: Value(93.0), muscle: Value(36.8), fat: Value(17.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-20'), weight: Value(97.1), muscle: Value(42.6), fat: Value(18.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-21'), weight: Value(92.9), muscle: Value(44.8), fat: Value(20.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-22'), weight: Value(89.1), muscle: Value(39.8), fat: Value(20.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-23'), weight: Value(94.5), muscle: Value(52.6), fat: Value(22.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-24'), weight: Value(94.2), muscle: Value(50.3), fat: Value(13.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-25'), weight: Value(97.3), muscle: Value(44.5), fat: Value(15.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-26'), weight: Value(92.5), muscle: Value(46.1), fat: Value(4.3), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-27'), weight: Value(93.2), muscle: Value(41.7), fat: Value(7.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-28'), weight: Value(98.2), muscle: Value(50.5), fat: Value(19.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-29'), weight: Value(83.2), muscle: Value(50.4), fat: Value(21.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-30'), weight: Value(87.7), muscle: Value(53.8), fat: Value(17.6), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-07-31'), weight: Value(86.3), muscle: Value(54.4), fat: Value(21.7), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-01'), weight: Value(95.0), muscle: Value(54.5), fat: Value(17.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-02'), weight: Value(94.1), muscle: Value(46.8), fat: Value(20.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-03'), weight: Value(84.1), muscle: Value(41.5), fat: Value(11.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-04'), weight: Value(88.4), muscle: Value(41.4), fat: Value(4.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-05'), weight: Value(85.9), muscle: Value(44.8), fat: Value(7.1), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-06'), weight: Value(81.8), muscle: Value(36.6), fat: Value(10.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-07'), weight: Value(82.4), muscle: Value(47.5), fat: Value(12.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-08'), weight: Value(85.7), muscle: Value(43.1), fat: Value(19.3), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-09'), weight: Value(99.9), muscle: Value(47.0), fat: Value(5.9), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-10'), weight: Value(81.7), muscle: Value(54.9), fat: Value(23.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-11'), weight: Value(98.9), muscle: Value(39.4), fat: Value(22.9), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-12'), weight: Value(89.6), muscle: Value(43.9), fat: Value(16.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-13'), weight: Value(82.6), muscle: Value(48.5), fat: Value(10.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-14'), weight: Value(81.3), muscle: Value(52.4), fat: Value(14.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-15'), weight: Value(92.0), muscle: Value(37.0), fat: Value(13.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-16'), weight: Value(88.0), muscle: Value(52.2), fat: Value(17.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-17'), weight: Value(82.3), muscle: Value(37.6), fat: Value(19.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-18'), weight: Value(86.2), muscle: Value(48.0), fat: Value(11.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-19'), weight: Value(98.6), muscle: Value(38.6), fat: Value(14.5), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-20'), weight: Value(83.7), muscle: Value(38.8), fat: Value(21.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-21'), weight: Value(86.8), muscle: Value(39.9), fat: Value(22.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-22'), weight: Value(82.9), muscle: Value(44.7), fat: Value(9.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-23'), weight: Value(87.0), muscle: Value(49.7), fat: Value(11.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-24'), weight: Value(92.3), muscle: Value(43.0), fat: Value(22.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-25'), weight: Value(80.4), muscle: Value(45.7), fat: Value(10.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-26'), weight: Value(92.4), muscle: Value(48.8), fat: Value(18.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-27'), weight: Value(86.8), muscle: Value(51.5), fat: Value(21.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-28'), weight: Value(97.5), muscle: Value(35.1), fat: Value(18.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-29'), weight: Value(83.5), muscle: Value(48.0), fat: Value(22.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-30'), weight: Value(98.7), muscle: Value(52.0), fat: Value(21.5), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-08-31'), weight: Value(85.9), muscle: Value(43.5), fat: Value(7.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-01'), weight: Value(90.9), muscle: Value(35.2), fat: Value(21.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-02'), weight: Value(98.3), muscle: Value(40.9), fat: Value(12.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-03'), weight: Value(85.7), muscle: Value(43.9), fat: Value(10.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-04'), weight: Value(85.5), muscle: Value(37.9), fat: Value(18.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-05'), weight: Value(92.6), muscle: Value(43.2), fat: Value(14.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-06'), weight: Value(97.4), muscle: Value(40.9), fat: Value(19.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-07'), weight: Value(89.1), muscle: Value(48.6), fat: Value(19.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-08'), weight: Value(96.0), muscle: Value(54.5), fat: Value(4.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-09'), weight: Value(88.8), muscle: Value(53.1), fat: Value(8.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-10'), weight: Value(83.8), muscle: Value(52.9), fat: Value(21.6), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-11'), weight: Value(97.1), muscle: Value(36.3), fat: Value(13.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-12'), weight: Value(81.1), muscle: Value(45.1), fat: Value(7.7), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-13'), weight: Value(93.6), muscle: Value(48.0), fat: Value(19.7), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-14'), weight: Value(84.8), muscle: Value(50.6), fat: Value(8.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-15'), weight: Value(93.1), muscle: Value(41.4), fat: Value(10.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-16'), weight: Value(93.1), muscle: Value(35.9), fat: Value(17.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-17'), weight: Value(92.5), muscle: Value(38.5), fat: Value(15.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-18'), weight: Value(97.4), muscle: Value(45.8), fat: Value(20.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-19'), weight: Value(82.0), muscle: Value(43.4), fat: Value(4.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-20'), weight: Value(85.5), muscle: Value(37.0), fat: Value(20.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-21'), weight: Value(99.9), muscle: Value(37.3), fat: Value(11.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-22'), weight: Value(98.8), muscle: Value(38.7), fat: Value(22.0), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-23'), weight: Value(82.4), muscle: Value(46.2), fat: Value(12.8), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-24'), weight: Value(87.9), muscle: Value(50.3), fat: Value(22.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-25'), weight: Value(84.6), muscle: Value(54.1), fat: Value(16.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-26'), weight: Value(84.4), muscle: Value(38.7), fat: Value(16.1), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-27'), weight: Value(83.8), muscle: Value(50.0), fat: Value(14.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-28'), weight: Value(96.8), muscle: Value(42.2), fat: Value(6.1), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-29'), weight: Value(84.3), muscle: Value(36.0), fat: Value(4.3), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-09-30'), weight: Value(93.1), muscle: Value(36.5), fat: Value(20.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-01'), weight: Value(89.6), muscle: Value(40.9), fat: Value(21.9), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-02'), weight: Value(91.4), muscle: Value(42.5), fat: Value(7.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-03'), weight: Value(84.5), muscle: Value(35.6), fat: Value(21.8), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-04'), weight: Value(88.2), muscle: Value(43.4), fat: Value(20.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-05'), weight: Value(93.0), muscle: Value(46.4), fat: Value(9.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-06'), weight: Value(84.7), muscle: Value(48.3), fat: Value(5.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-07'), weight: Value(93.6), muscle: Value(54.1), fat: Value(7.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-08'), weight: Value(85.4), muscle: Value(44.7), fat: Value(22.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-09'), weight: Value(98.9), muscle: Value(51.7), fat: Value(6.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-10'), weight: Value(84.3), muscle: Value(36.2), fat: Value(15.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-11'), weight: Value(98.3), muscle: Value(49.5), fat: Value(20.9), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-12'), weight: Value(84.3), muscle: Value(36.9), fat: Value(9.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-13'), weight: Value(80.0), muscle: Value(47.7), fat: Value(3.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-14'), weight: Value(83.4), muscle: Value(44.6), fat: Value(4.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-15'), weight: Value(84.6), muscle: Value(52.3), fat: Value(12.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-16'), weight: Value(92.5), muscle: Value(44.8), fat: Value(17.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-17'), weight: Value(90.4), muscle: Value(48.5), fat: Value(21.6), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-18'), weight: Value(94.5), muscle: Value(44.0), fat: Value(12.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-19'), weight: Value(93.2), muscle: Value(42.7), fat: Value(19.6), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-20'), weight: Value(92.6), muscle: Value(50.8), fat: Value(13.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-21'), weight: Value(95.5), muscle: Value(52.4), fat: Value(10.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-22'), weight: Value(88.4), muscle: Value(46.5), fat: Value(15.6), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-23'), weight: Value(93.0), muscle: Value(35.4), fat: Value(12.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-24'), weight: Value(93.9), muscle: Value(48.8), fat: Value(14.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-25'), weight: Value(95.2), muscle: Value(35.1), fat: Value(20.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-26'), weight: Value(83.9), muscle: Value(50.0), fat: Value(13.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-27'), weight: Value(88.9), muscle: Value(46.0), fat: Value(22.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-28'), weight: Value(92.0), muscle: Value(42.0), fat: Value(6.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-29'), weight: Value(82.7), muscle: Value(35.3), fat: Value(7.6), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-30'), weight: Value(85.0), muscle: Value(48.3), fat: Value(8.6), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-10-31'), weight: Value(92.0), muscle: Value(37.6), fat: Value(5.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-01'), weight: Value(99.5), muscle: Value(39.8), fat: Value(4.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-02'), weight: Value(97.3), muscle: Value(46.0), fat: Value(18.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-03'), weight: Value(97.2), muscle: Value(38.2), fat: Value(14.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-04'), weight: Value(82.0), muscle: Value(37.0), fat: Value(14.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-05'), weight: Value(80.2), muscle: Value(45.2), fat: Value(5.6), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-06'), weight: Value(95.2), muscle: Value(49.0), fat: Value(10.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-07'), weight: Value(81.7), muscle: Value(41.1), fat: Value(19.7), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-08'), weight: Value(80.9), muscle: Value(50.4), fat: Value(10.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-09'), weight: Value(99.0), muscle: Value(54.4), fat: Value(3.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-10'), weight: Value(90.0), muscle: Value(36.5), fat: Value(5.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-11'), weight: Value(96.9), muscle: Value(46.3), fat: Value(15.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-12'), weight: Value(88.6), muscle: Value(44.4), fat: Value(14.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-13'), weight: Value(92.9), muscle: Value(46.7), fat: Value(21.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-14'), weight: Value(87.3), muscle: Value(42.5), fat: Value(4.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-15'), weight: Value(95.8), muscle: Value(41.7), fat: Value(19.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-16'), weight: Value(96.5), muscle: Value(44.4), fat: Value(3.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-17'), weight: Value(91.0), muscle: Value(41.2), fat: Value(4.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-18'), weight: Value(83.0), muscle: Value(50.6), fat: Value(4.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-19'), weight: Value(80.6), muscle: Value(50.6), fat: Value(12.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-20'), weight: Value(92.7), muscle: Value(35.1), fat: Value(4.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-21'), weight: Value(98.0), muscle: Value(40.3), fat: Value(15.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-22'), weight: Value(85.5), muscle: Value(52.7), fat: Value(8.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-23'), weight: Value(80.2), muscle: Value(44.3), fat: Value(11.1), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-24'), weight: Value(96.9), muscle: Value(46.6), fat: Value(16.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-25'), weight: Value(91.6), muscle: Value(43.3), fat: Value(10.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-26'), weight: Value(89.1), muscle: Value(37.4), fat: Value(9.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-27'), weight: Value(88.3), muscle: Value(43.0), fat: Value(14.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-28'), weight: Value(96.4), muscle: Value(38.4), fat: Value(5.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-29'), weight: Value(80.1), muscle: Value(42.1), fat: Value(5.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-11-30'), weight: Value(90.4), muscle: Value(53.7), fat: Value(9.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-01'), weight: Value(89.2), muscle: Value(52.0), fat: Value(4.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-02'), weight: Value(88.4), muscle: Value(54.2), fat: Value(5.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-03'), weight: Value(82.8), muscle: Value(40.1), fat: Value(18.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-04'), weight: Value(82.3), muscle: Value(44.6), fat: Value(12.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-05'), weight: Value(98.8), muscle: Value(39.2), fat: Value(20.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-06'), weight: Value(85.5), muscle: Value(36.3), fat: Value(5.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-07'), weight: Value(95.0), muscle: Value(40.1), fat: Value(18.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-08'), weight: Value(85.0), muscle: Value(54.7), fat: Value(16.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-09'), weight: Value(87.4), muscle: Value(54.3), fat: Value(15.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-10'), weight: Value(83.5), muscle: Value(44.0), fat: Value(4.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-11'), weight: Value(85.0), muscle: Value(38.2), fat: Value(12.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-12'), weight: Value(82.7), muscle: Value(47.9), fat: Value(9.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-13'), weight: Value(98.6), muscle: Value(40.8), fat: Value(7.0), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-14'), weight: Value(90.2), muscle: Value(51.7), fat: Value(6.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-15'), weight: Value(99.2), muscle: Value(48.9), fat: Value(16.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-16'), weight: Value(86.0), muscle: Value(47.2), fat: Value(22.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-17'), weight: Value(82.3), muscle: Value(35.9), fat: Value(16.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-18'), weight: Value(83.7), muscle: Value(38.4), fat: Value(10.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-19'), weight: Value(99.4), muscle: Value(47.6), fat: Value(20.7), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-20'), weight: Value(86.7), muscle: Value(49.9), fat: Value(22.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-21'), weight: Value(88.1), muscle: Value(49.1), fat: Value(17.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-22'), weight: Value(88.3), muscle: Value(37.3), fat: Value(14.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-23'), weight: Value(99.8), muscle: Value(45.1), fat: Value(6.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-24'), weight: Value(98.2), muscle: Value(54.7), fat: Value(18.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-25'), weight: Value(92.4), muscle: Value(38.3), fat: Value(4.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-26'), weight: Value(89.0), muscle: Value(43.5), fat: Value(13.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-27'), weight: Value(90.5), muscle: Value(43.1), fat: Value(5.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-28'), weight: Value(87.9), muscle: Value(38.2), fat: Value(4.6), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-29'), weight: Value(81.3), muscle: Value(54.9), fat: Value(11.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-30'), weight: Value(97.7), muscle: Value(53.7), fat: Value(10.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2024-12-31'), weight: Value(83.8), muscle: Value(47.7), fat: Value(9.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-01'), weight: Value(87.3), muscle: Value(54.4), fat: Value(20.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-02'), weight: Value(81.1), muscle: Value(37.6), fat: Value(6.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-03'), weight: Value(81.2), muscle: Value(36.2), fat: Value(17.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-04'), weight: Value(97.1), muscle: Value(43.4), fat: Value(19.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-05'), weight: Value(97.3), muscle: Value(36.7), fat: Value(17.4), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-06'), weight: Value(89.9), muscle: Value(54.1), fat: Value(13.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-07'), weight: Value(97.6), muscle: Value(49.0), fat: Value(13.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-08'), weight: Value(97.5), muscle: Value(46.5), fat: Value(6.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-09'), weight: Value(95.3), muscle: Value(54.4), fat: Value(4.7), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-10'), weight: Value(93.6), muscle: Value(42.7), fat: Value(9.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-11'), weight: Value(89.7), muscle: Value(45.4), fat: Value(7.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-12'), weight: Value(90.0), muscle: Value(47.9), fat: Value(12.8), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-13'), weight: Value(82.4), muscle: Value(53.0), fat: Value(11.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-14'), weight: Value(83.2), muscle: Value(37.6), fat: Value(11.0), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-15'), weight: Value(94.4), muscle: Value(37.3), fat: Value(22.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-16'), weight: Value(82.5), muscle: Value(50.6), fat: Value(7.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-17'), weight: Value(81.9), muscle: Value(52.8), fat: Value(10.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-18'), weight: Value(90.6), muscle: Value(51.9), fat: Value(3.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-19'), weight: Value(86.4), muscle: Value(54.5), fat: Value(4.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-20'), weight: Value(80.8), muscle: Value(45.3), fat: Value(21.7), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-21'), weight: Value(80.2), muscle: Value(50.5), fat: Value(15.6), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-22'), weight: Value(94.7), muscle: Value(40.8), fat: Value(12.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-23'), weight: Value(95.4), muscle: Value(51.7), fat: Value(20.4), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-24'), weight: Value(95.3), muscle: Value(37.2), fat: Value(21.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-25'), weight: Value(84.3), muscle: Value(40.0), fat: Value(16.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-26'), weight: Value(95.7), muscle: Value(49.6), fat: Value(9.3), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-27'), weight: Value(94.9), muscle: Value(45.2), fat: Value(9.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-28'), weight: Value(98.4), muscle: Value(54.2), fat: Value(13.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-29'), weight: Value(84.2), muscle: Value(54.3), fat: Value(4.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-30'), weight: Value(97.2), muscle: Value(46.1), fat: Value(20.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-01-31'), weight: Value(98.9), muscle: Value(52.7), fat: Value(9.0), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-01'), weight: Value(91.8), muscle: Value(53.1), fat: Value(15.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-02'), weight: Value(83.3), muscle: Value(50.2), fat: Value(7.7), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-03'), weight: Value(87.9), muscle: Value(45.1), fat: Value(12.8), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-04'), weight: Value(91.7), muscle: Value(36.7), fat: Value(21.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-05'), weight: Value(92.4), muscle: Value(39.7), fat: Value(4.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-06'), weight: Value(92.6), muscle: Value(47.1), fat: Value(20.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-07'), weight: Value(81.1), muscle: Value(52.8), fat: Value(15.6), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-08'), weight: Value(96.9), muscle: Value(42.8), fat: Value(13.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-09'), weight: Value(81.4), muscle: Value(50.9), fat: Value(9.0), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-10'), weight: Value(92.3), muscle: Value(39.0), fat: Value(18.6), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-11'), weight: Value(95.1), muscle: Value(40.4), fat: Value(5.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-12'), weight: Value(90.6), muscle: Value(43.1), fat: Value(20.4), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-13'), weight: Value(97.4), muscle: Value(51.9), fat: Value(17.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-14'), weight: Value(97.2), muscle: Value(50.3), fat: Value(3.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-15'), weight: Value(85.3), muscle: Value(43.9), fat: Value(8.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-16'), weight: Value(93.7), muscle: Value(46.5), fat: Value(21.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-17'), weight: Value(87.8), muscle: Value(53.2), fat: Value(21.0), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-18'), weight: Value(95.1), muscle: Value(47.0), fat: Value(7.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-19'), weight: Value(86.2), muscle: Value(53.1), fat: Value(5.0), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-20'), weight: Value(93.2), muscle: Value(52.2), fat: Value(20.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-21'), weight: Value(86.1), muscle: Value(44.9), fat: Value(5.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-22'), weight: Value(90.0), muscle: Value(35.4), fat: Value(8.7), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-23'), weight: Value(94.9), muscle: Value(40.4), fat: Value(6.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-24'), weight: Value(85.8), muscle: Value(48.5), fat: Value(15.4), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-25'), weight: Value(80.8), muscle: Value(44.5), fat: Value(6.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-26'), weight: Value(98.1), muscle: Value(53.1), fat: Value(15.1), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-27'), weight: Value(81.2), muscle: Value(48.5), fat: Value(6.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-02-28'), weight: Value(95.2), muscle: Value(52.1), fat: Value(13.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-01'), weight: Value(80.2), muscle: Value(44.7), fat: Value(23.1), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-02'), weight: Value(90.7), muscle: Value(47.5), fat: Value(6.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-03'), weight: Value(92.6), muscle: Value(45.1), fat: Value(11.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-04'), weight: Value(86.7), muscle: Value(53.0), fat: Value(14.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-05'), weight: Value(80.8), muscle: Value(39.8), fat: Value(7.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-06'), weight: Value(81.9), muscle: Value(49.4), fat: Value(15.5), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-07'), weight: Value(89.3), muscle: Value(52.5), fat: Value(21.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-08'), weight: Value(89.5), muscle: Value(50.7), fat: Value(20.2), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-09'), weight: Value(94.5), muscle: Value(45.1), fat: Value(21.2), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-10'), weight: Value(99.8), muscle: Value(45.5), fat: Value(4.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-11'), weight: Value(92.9), muscle: Value(51.4), fat: Value(7.3), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-12'), weight: Value(98.1), muscle: Value(42.8), fat: Value(20.9), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-13'), weight: Value(85.1), muscle: Value(47.0), fat: Value(5.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-14'), weight: Value(86.0), muscle: Value(49.4), fat: Value(23.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-15'), weight: Value(88.5), muscle: Value(43.3), fat: Value(7.4), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-16'), weight: Value(81.3), muscle: Value(47.8), fat: Value(21.2), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-17'), weight: Value(91.4), muscle: Value(50.1), fat: Value(5.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-18'), weight: Value(81.0), muscle: Value(35.1), fat: Value(22.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-19'), weight: Value(94.8), muscle: Value(44.6), fat: Value(13.6), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-20'), weight: Value(90.8), muscle: Value(37.5), fat: Value(12.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-21'), weight: Value(92.4), muscle: Value(46.8), fat: Value(9.1), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-22'), weight: Value(94.5), muscle: Value(47.1), fat: Value(22.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-23'), weight: Value(98.3), muscle: Value(38.5), fat: Value(21.8), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-24'), weight: Value(97.2), muscle: Value(44.8), fat: Value(14.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-25'), weight: Value(88.8), muscle: Value(40.3), fat: Value(14.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-26'), weight: Value(91.5), muscle: Value(52.0), fat: Value(12.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-27'), weight: Value(99.5), muscle: Value(45.2), fat: Value(7.2), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-28'), weight: Value(91.2), muscle: Value(40.1), fat: Value(8.8), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-29'), weight: Value(86.7), muscle: Value(46.5), fat: Value(19.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-30'), weight: Value(82.5), muscle: Value(42.9), fat: Value(12.8), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-03-31'), weight: Value(90.6), muscle: Value(43.1), fat: Value(11.4), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-01'), weight: Value(85.8), muscle: Value(47.6), fat: Value(12.6), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-02'), weight: Value(84.7), muscle: Value(47.1), fat: Value(3.5), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-03'), weight: Value(99.5), muscle: Value(45.4), fat: Value(18.1), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-04'), weight: Value(87.5), muscle: Value(52.3), fat: Value(7.5), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-05'), weight: Value(82.1), muscle: Value(48.7), fat: Value(8.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-06'), weight: Value(88.7), muscle: Value(37.7), fat: Value(13.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-07'), weight: Value(80.8), muscle: Value(43.7), fat: Value(15.9), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-08'), weight: Value(91.3), muscle: Value(36.0), fat: Value(12.5), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-09'), weight: Value(91.2), muscle: Value(48.1), fat: Value(18.0), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-10'), weight: Value(91.5), muscle: Value(40.9), fat: Value(21.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-11'), weight: Value(85.6), muscle: Value(51.4), fat: Value(12.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-12'), weight: Value(97.6), muscle: Value(40.7), fat: Value(8.7), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-13'), weight: Value(90.1), muscle: Value(40.6), fat: Value(16.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-14'), weight: Value(80.2), muscle: Value(41.4), fat: Value(16.0), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-15'), weight: Value(84.4), muscle: Value(51.5), fat: Value(10.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-16'), weight: Value(85.4), muscle: Value(49.4), fat: Value(11.3), stamp: Value('normal')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-17'), weight: Value(81.4), muscle: Value(51.8), fat: Value(19.9), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-18'), weight: Value(95.2), muscle: Value(46.4), fat: Value(8.6), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-19'), weight: Value(85.8), muscle: Value(41.7), fat: Value(4.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-20'), weight: Value(95.0), muscle: Value(53.1), fat: Value(14.2), stamp: Value('good')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-21'), weight: Value(93.8), muscle: Value(35.9), fat: Value(17.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-22'), weight: Value(98.9), muscle: Value(38.5), fat: Value(10.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-23'), weight: Value(82.0), muscle: Value(55.0), fat: Value(15.3), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-24'), weight: Value(91.0), muscle: Value(46.7), fat: Value(21.0), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-25'), weight: Value(84.4), muscle: Value(37.9), fat: Value(19.3), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-26'), weight: Value(92.7), muscle: Value(36.2), fat: Value(4.8), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-27'), weight: Value(97.1), muscle: Value(39.7), fat: Value(14.9), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-28'), weight: Value(94.4), muscle: Value(45.4), fat: Value(17.1), stamp: Value('perfect')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-29'), weight: Value(82.7), muscle: Value(52.6), fat: Value(3.5), stamp: Value('bad')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-04-30'), weight: Value(80.0), muscle: Value(44.4), fat: Value(3.8), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-05-01'), weight: Value(90.5), muscle: Value(47.0), fat: Value(15.4), stamp: Value('terrible')));
+    await into(htDayBody).insert(const HtDayBodyCompanion(day: Value('2025-05-02'), weight: Value(81.6), muscle: Value(45.0), fat: Value(10.1), stamp: Value('normal')));
 
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-02'),
-      title: Value('아침'),
-      calorie: Value(201.0),
-      protein: Value(21.0),
-      diet: Value('군계란 3개')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-02'),
-      title: Value('점심'),
-      calorie: Value(520.0),
-      protein: Value(37.0),
-      diet: Value('닭가슴채소볶음+밥190g\n군계란1개')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-02'),
-      title: Value('간식'),
-      calorie: Value(651.0),
-      protein: Value(52.5),
-      diet: Value('닭가슴채소볶음+밥200g\n닭가슴살 스테이크\n군계란1개')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-02'),
-      title: Value('저녁삭사'),
-      calorie: Value(977.0),
-      protein: Value(62),
-      diet: Value('- 간장계란닭가슴밥(밥300g/계란4/닭가슴1/참기름1큰술)')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-02'),
-      title: Value('친구약속'),
-      calorie: Value(917.0),
-      protein: Value(42),
-      diet: Value('육회비빔밥, 녹두전, 청국장조금')
-    ));
-
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-03'),
-      title: Value('외식'),
-      calorie: Value(241.8),
-      protein: Value(39.8),
-      diet: Value('닭가슴살, 닭가슴스테이크')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-03'),
-      title: Value('점심'),
-      calorie: Value(495.0),
-      protein: Value(37.0),
-      diet: Value('- 민트초콜릿 50kcal\n- 그릭요거트 125kcal/11g\n- 닭가슴살 110kcal/24g\n바나나2개 : 210kcal/2g')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-03'),
-      title: Value('저녁'),
-      calorie: Value(735.0),
-      protein: Value(87),
-      diet: Value('- 바나나1개 : 105kcal/1g\n- 프로틴그래놀라 시리얼(70g)\n: 248kcal/35g\n- 아몬드브리즈\n- 닭가슴살 110kcal/24g\n- 그릭요거트 125kcal/11g\n닭가슴스테이크 : 117kcal/15g')
-    ));
-    await into(htDayDiet).insert(const HtDayDietCompanion(
-      day: Value('2025-05-03'),
-      title: Value('저녁'),
-      calorie: Value(441.0),
-      protein: Value(61),
-      diet: Value('- 서브웨이 폴드포크 바비큐\n: 327kcal/24.8g\n닭가슴살 : 114kcal/23g')
-    ));
   }
 }
 
