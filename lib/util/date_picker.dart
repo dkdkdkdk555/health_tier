@@ -24,6 +24,8 @@ Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate, ) {
                       width: 350 * widthRatio,
                       child: TableCalendar(
                         locale: 'ko_KR',
+                        rowHeight: 50 * heightRatio,
+                        daysOfWeekHeight: 20 * heightRatio,
                         firstDay: DateTime(2022, 1, 1),
                         lastDay: DateTime(DateTime.now().year + 5, 12, 31),
                         focusedDay: selectedDate,
