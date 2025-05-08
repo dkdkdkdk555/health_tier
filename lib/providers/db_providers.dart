@@ -1,10 +1,15 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/database/app_database.dart';
-import 'package:my_app/model/doc_detail_model.dart';
-import 'package:my_app/model/doc_diet_model.dart';
-import 'package:my_app/model/doc_diet_total.dart';
-import 'package:my_app/model/doc_main_model.dart';
+import 'package:my_app/model/body/doc_detail_model.dart';
+import 'package:my_app/model/diet/doc_diet_model.dart';
+import 'package:my_app/model/diet/doc_diet_total.dart';
+import 'package:my_app/model/body/doc_main_model.dart';
+import 'package:my_app/model/stc/day_range_param.dart';
+import 'package:my_app/model/stc/stc_fat_model.dart';
+import 'package:my_app/model/stc/stc_muscle_model.dart';
+import 'package:my_app/model/stc/stc_stamp_model.dart';
+import 'package:my_app/model/stc/stc_weight_model.dart';
 
 /// 1. AppDatabase 인스턴스를 제공하는 Provider
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -292,60 +297,97 @@ Future<void> deleteHtDietDoc({required WidgetRef ref, required int id,}) async {
 /*
   2-1-1 체중 그래프
 */
-final selectWeightList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+final selectWeightList = FutureProvider.family<List<WeightModel>, DayRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
-  final startDay = params['startDay']!;
-  final endDay = params['endDay']!;
 
-  final result = await (db.select(db.htDayBody)
-    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
-    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+  final result = await db.customSelect(
+    '''
+    SELECT ID, DAY, WEIGHT
+    FROM HT_DAY_BODY
+    WHERE DAY BETWEEN ? AND ?
+      AND DAY IS NOT NULL
+      AND WEIGHT IS NOT NULL
+      AND WEIGHT > 0
+    ORDER BY DAY;
+    ''',
+    variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
+  ).get();
 
-  return result.map((e) => e.weight ?? 0).toList();
+  return result.map((e) => WeightModel(
+    day: e.readNullable<String>('day') ?? '',
+    weight: e.readNullable<double>('weight') ?? 0,
+  )).toList();
 });
 
 /*
   2-1-1 골격근량 그래프
 */
-final selectMuscleList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+final selectMuscleList = FutureProvider.family<List<MuscleModel>, DayRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
-  final startDay = params['startDay']!;
-  final endDay = params['endDay']!;
 
-  final result = await (db.select(db.htDayBody)
-    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
-    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+  final result = await db.customSelect(
+    '''
+    SELECT ID, DAY, MUSCLE
+    FROM HT_DAY_BODY
+    WHERE DAY BETWEEN ? AND ?
+      AND MUSCLE IS NOT NULL
+      AND MUSCLE > 0
+    ORDER BY DAY;
+    ''',
+    variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
+  ).get();
 
-  return result.map((e) => e.muscle ?? 0).toList();
+  return result.map((e) => MuscleModel(
+    day: e.read<String>('day'),
+    muscle: e.readNullable<double>('muscle') ?? 0,
+  )).toList();
 });
 
 /*
   2-1-1 체지방량 그래프
 */
-final selectFatList = FutureProvider.family<List<double>, Map<String, String>>((ref, params) async {
+final selectFatList = FutureProvider.family<List<FatModel>, DayRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
-  final startDay = params['startDay']!;
-  final endDay = params['endDay']!;
 
-  final result = await (db.select(db.htDayBody)
-    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
-    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+  final result = await db.customSelect(
+    '''
+    SELECT ID, DAY, FAT
+    FROM HT_DAY_BODY
+    WHERE DAY BETWEEN ? AND ?
+      AND FAT IS NOT NULL
+      AND FAT > 0
+    ORDER BY DAY;
+    ''',
+    variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
+  ).get();
 
-  return result.map((e) => e.fat ?? 0).toList();
+  return result.map((e) => FatModel(
+    day: e.read<String>('day'),
+    fat: e.readNullable<double>('fat') ?? 0,
+  )).toList();
 });
 
 
 /*
   2-1-1 하루평가 그래프
 */
-final selectStampList = FutureProvider.family<List<String>, Map<String, String>>((ref, params) async {
+final selectStampList = FutureProvider.family<List<StampModel>, DayRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
-  final startDay = params['startDay']!;
-  final endDay = params['endDay']!;
 
-  final result = await (db.select(db.htDayBody)
-    ..where((tbl) => tbl.day.isBetweenValues(startDay, endDay))
-    ..orderBy([(tbl) => OrderingTerm(expression: tbl.day)])).get();
+  final result = await db.customSelect(
+    '''
+    SELECT ID, DAY, STAMP
+    FROM HT_DAY_BODY
+    WHERE DAY BETWEEN ? AND ?
+      AND STAMP IS NOT NULL
+      AND STAMP != ''
+    ORDER BY DAY; 
+    ''',
+    variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
+  ).get();
 
-  return result.map((e) => e.stamp ?? '').toList();
+  return result.map((e) => StampModel(
+    day: e.read<String>('day'),
+    stamp: e.read<String>('stamp'),
+  )).toList();
 });

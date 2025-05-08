@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/model/doc_detail_model.dart';
+import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';

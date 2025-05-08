@@ -20,7 +20,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// 앱 시작 시 호출할 초기 데이터 삽입 함수
   Future<void> insertTestDataIfNeeded() async {
-    final existing = await select(htDayDiet).get();
+    final existing = await select(htDayBody).get();
     if (existing.isNotEmpty) return; // 이미 데이터 있으면 생략
 
     

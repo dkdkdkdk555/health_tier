@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/model/doc_main_model.dart' show DocDayInfo;
+import 'package:my_app/model/body/doc_main_model.dart' show DocDayInfo;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';

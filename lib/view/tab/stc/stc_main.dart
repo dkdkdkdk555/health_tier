@@ -1,24 +1,27 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/model/stc/day_range_param.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/date_picker.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 
-class StcMain extends StatefulWidget {
+class StcMain extends ConsumerStatefulWidget {
   const StcMain({super.key});
 
   @override
-  State<StcMain> createState() => _StcMainState();
+  ConsumerState<StcMain> createState() => _StcMainState();
 }
 
 var htio = 0.0;
 var wtio = 0.0;
 
-class _StcMainState extends State<StcMain> {
+class _StcMainState extends ConsumerState<StcMain> {
   late int _selectedIndex;
 
   @override
@@ -34,190 +37,192 @@ class _StcMainState extends State<StcMain> {
     });
   }
 
-  final weights = [68.2, 68.0, 67.8, 67.9, 68.1];
-  final days = ['2025.05.01', '2025.05.02', '2025.05.03', '2025.05.04', '2025.05.05'];
-
   int? focusedIndex; // weights 데이터 순번
   bool showTooltip = false; //말풍선 보여주는지 여부
 
-  // String startDate = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 7)),);
-  // String endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   DateTime startDate = DateTime.now().subtract(const Duration(days: 7));
   DateTime endDate = DateTime.now();
 
-  List<bool> whichButtonPush = [true, false, false, false];
+  List<bool> whichButtonPush = [true, false, false, false]; // 기간조회버튼 4가지의 
 
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
-    wtio = ScreenRatio(context).widthRatio;    
+    wtio = ScreenRatio(context).widthRatio;
 
-    const decVal = 0.4;
-
-    final rawMin = weights.reduce((a, b) => a < b ? a : b);
-    final rawMax = weights.reduce((a, b) => a > b ? a : b);
-
-    // 최소/최대값
-    final minY = rawMin - decVal;
-    final maxY = rawMax + decVal;
-    // 총 수평선 갯수
-    const int lineCount = 5;
-
-    // Y 눈금 간격 계산
-    final double interval = (maxY - minY) / (lineCount - 1);
-    final List<double> yDoubles = List.generate(
-      lineCount,
-      (i) => double.parse((minY + interval * i).toStringAsFixed(1)),
+    final param = DayRange(
+      DateFormat('yyyy-MM-dd').format(startDate),
+      DateFormat('yyyy-MM-dd').format(endDate),
     );
+
+    final stcList = ref.watch(selectWeightList(param));
 
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
-        if(sizingInformation.isMobile){
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: Column(
-              children: [
-                StcAppBar(selectedIndex:_selectedIndex, onTap: _onTap,),
-                Expanded(
-                  flex: 329,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal:20),
-                    child: Column(
-                      children: [
-                        periodSearchForm(context),
-                        Expanded(
-                          flex: 305,
-                          child: Column(
-                            children: [
-                              const Spacer(flex: 34),
-                              Expanded(
-                                flex: 124,
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final chartHeight = constraints.maxHeight;
-                                    final chartWidth = constraints.maxWidth;
+        if (!sizingInformation.isMobile) return const Scaffold();
 
-                                    return Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        // 수직 좌표 수치
-                                        // y좌표 수치 텍스트 (수동 배치)
-                                        ...yDoubles.map((y) {
-                                          final relativeY = (maxY - y) / (maxY - minY);
-                                          final top = relativeY * chartHeight;
-                                    
-                                          return Positioned(
-                                            top: top - (8*htio), // 텍스트 중앙 정렬 보정
-                                            left: -18 * wtio,
-                                            child: SizedBox(
-                                              width: 40*wtio,
-                                              child: Text(
-                                                y.toStringAsFixed(1),
-                                                textAlign: TextAlign.right,
-                                                style: TextStyle(
-                                                  color: const Color(0xFFAAAAAA),
-                                                  fontSize: 11 * htio,
-                                                  fontFamily: 'Pretendard',
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                        // 그래프
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 27 * wtio,), // 좌측 수치 영역 확보
-                                          child: LineChart(
-                                            LineChartData(
-                                              minY: minY,
-                                              maxY: maxY,
-                                              gridData: const FlGridData(
-                                                drawHorizontalLine: false,
-                                                drawVerticalLine: false,
-                                              ),
-                                              titlesData: const FlTitlesData(
-                                                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                                bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                              ),
-                                              borderData: FlBorderData(show: false),
-                                              lineBarsData: [
-                                                LineChartBarData(
-                                                  isCurved: true,
-                                                  color: const Color(0xFF0D86E7),
-                                                  barWidth: 2.15 * htio,
-                                                  dotData: FlDotData(
-                                                    show: true,
-                                                    checkToShowDot: (spot, barData) {
-                                                      return showTooltip && focusedIndex != null && spot.x.toInt() == focusedIndex;
-                                                    },
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            children: [
+              StcAppBar(selectedIndex: _selectedIndex, onTap: _onTap),
+              Expanded(
+                flex: 329,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      periodSearchForm(context),
+                      Expanded(
+                        flex: 305,
+                        child: Column(
+                          children: [
+                            const Spacer(flex: 34),
+                            Expanded(
+                              flex: 124,
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final chartHeight = constraints.maxHeight;
+                                  final chartWidth = constraints.maxWidth;
+
+                                  return stcList.when(
+                                    loading: () => const Center(child: CircularProgressIndicator()),
+                                    error: (err, stack) => Center(child: Text('에러 발생: $err')),
+                                    data: (list) {
+                                      if (list.isEmpty) {
+                                        return const Center(child: Text('데이터가 없습니다'));
+                                      }
+
+                                      final values = list.map((e) => e.weight).toList();
+                                      final days = list.map((e) => e.day).toList();
+
+                                      const decVal = 0.4;
+                                      final rawMin = values.reduce((a, b) => a < b ? a : b);
+                                      final rawMax = values.reduce((a, b) => a > b ? a : b);
+                                      final minY = rawMin - decVal;
+                                      final maxY = rawMax + decVal;
+
+                                      const lineCount = 5;
+                                      final interval = (maxY - minY) / (lineCount - 1);
+                                      final yDoubles = List.generate(
+                                        lineCount,
+                                        (i) => double.parse((minY + interval * i).toStringAsFixed(1)),
+                                      );
+
+                                      return Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          ...yDoubles.map((y) {
+                                            final relativeY = (maxY - y) / (maxY - minY);
+                                            final top = relativeY * chartHeight;
+                                            return Positioned(
+                                              top: top - (8 * htio),
+                                              left: -18 * wtio,
+                                              child: SizedBox(
+                                                width: 40 * wtio,
+                                                child: Text(
+                                                  y.toStringAsFixed(1),
+                                                  textAlign: TextAlign.right,
+                                                  style: TextStyle(
+                                                    color: const Color(0xFFAAAAAA),
+                                                    fontSize: 11 * htio,
+                                                    fontFamily: 'Pretendard',
+                                                    fontWeight: FontWeight.w400,
                                                   ),
-                                                  belowBarData: BarAreaData(show: false),
-                                                  spots: List.generate(weights.length, (index) {
-                                                    return FlSpot(index.toDouble(), weights[index]);
-                                                  }),
                                                 ),
-                                              ],
-                                              extraLinesData: ExtraLinesData(
-                                                extraLinesOnTop: false,
-                                                horizontalLines: yDoubles.map((y) {
-                                                  return HorizontalLine(
-                                                    y: y,
-                                                    color: const Color(0xFFEEEEEE),
-                                                    strokeWidth: 1.6 * wtio,
-                                                  );
-                                                }).toList(),
                                               ),
-                                              lineTouchData: LineTouchData(
-                                                enabled: true,
-                                                handleBuiltInTouches: false, // 기본 터치 툴팁은 끄고,
-                                                touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-                                                  if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
-                                                    final spot = response?.lineBarSpots?.first;
-                                                    if (spot != null) {
+                                            );
+                                          }),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 27 * wtio),
+                                            child: LineChart(
+                                              LineChartData(
+                                                minY: minY,
+                                                maxY: maxY,
+                                                gridData: const FlGridData(drawHorizontalLine: false, drawVerticalLine: false),
+                                                titlesData: const FlTitlesData(
+                                                  leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                                                ),
+                                                borderData: FlBorderData(show: false),
+                                                lineBarsData: [
+                                                  LineChartBarData(
+                                                    isCurved: false,
+                                                    color: const Color(0xFF0D86E7),
+                                                    barWidth: 2.15 * htio,
+                                                    dotData: FlDotData(
+                                                      show: true,
+                                                      checkToShowDot: (spot, barData) =>
+                                                          showTooltip && focusedIndex != null && spot.x.toInt() == focusedIndex,
+                                                    ),
+                                                    belowBarData: BarAreaData(show: false),
+                                                    spots: List.generate(
+                                                      values.length,
+                                                      (index) => FlSpot(index.toDouble(), values[index]),
+                                                    ),
+                                                  ),
+                                                ],
+                                                extraLinesData: ExtraLinesData(
+                                                  extraLinesOnTop: false,
+                                                  horizontalLines: yDoubles
+                                                      .map((y) => HorizontalLine(
+                                                            y: y,
+                                                            color: const Color(0xFFEEEEEE),
+                                                            strokeWidth: 1.6 * wtio,
+                                                          ))
+                                                      .toList(),
+                                                ),
+                                                lineTouchData: LineTouchData(
+                                                  enabled: true,
+                                                  handleBuiltInTouches: false,
+                                                  touchCallback: (event, response) {
+                                                    if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
+                                                      final spot = response?.lineBarSpots?.first;
+                                                      if (spot != null) {
+                                                        setState(() {
+                                                          focusedIndex = spot.x.toInt();
+                                                          showTooltip = true;
+                                                        });
+                                                      }
+                                                    } else if (event is FlLongPressEnd || event is FlPanEndEvent) {
                                                       setState(() {
-                                                        focusedIndex = spot.x.toInt();
-                                                        showTooltip = true;
+                                                        showTooltip = false;
                                                       });
                                                     }
-                                                  } else if (event is FlLongPressEnd || event is FlPanEndEvent) {
-                                                    setState(() {
-                                                      showTooltip = false;
-                                                    });
-                                                  }
-                                                }
+                                                  },
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        if (showTooltip && focusedIndex != null)
-                                         makeDetailBallon(chartWidth, chartHeight, minY, maxY)
-                                      ],
-                                    );
-                                  },
-                                ),
+                                          if (showTooltip && focusedIndex != null)
+                                            makeDetailBallon(chartWidth, chartHeight, minY, maxY, values, days),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
                               ),
-                              const Spacer(flex: 18),
-                              periodButtons(),
-                              const Spacer(flex: 109),
-                            ],
-                          ),
+                            ),
+                            const Spacer(flex: 18),
+                            periodButtons(),
+                            const Spacer(flex: 109),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          );
-        } else {
-          return const Scaffold(
-          );
-        }
+              ),
+            ],
+          ),
+        );
       },
     );
   }
+
+
 
   Expanded periodSearchForm(BuildContext context) {
     return Expanded(
@@ -304,15 +309,21 @@ class _StcMainState extends State<StcMain> {
      double chartHeight,
      double minY,
      double maxY,
+     List<double> values,
+     List<String> days
   ){
+
+    if (focusedIndex == null || focusedIndex! >= values.length || focusedIndex! >= days.length) {
+      return const Positioned(child: SizedBox.shrink());
+    }
 
     final chartPaddingLeft = 27 * wtio;
     final chartInnerWidth = chartWidth - chartPaddingLeft;
 
-    final x = (chartInnerWidth / (weights.length - 1)) * focusedIndex! + chartPaddingLeft;
+    final x = (chartInnerWidth / (values.length - 1)) * focusedIndex! + chartPaddingLeft;
     final balloonLeft = x - (94 * wtio) / 2;
 
-    final weightY = weights[focusedIndex!];
+    final weightY = values[focusedIndex!];
     final relativeY = (maxY - weightY) / (maxY - minY);
     final y = relativeY * chartHeight;
     final balloonTop = y - (120*htio); // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
@@ -366,7 +377,7 @@ class _StcMainState extends State<StcMain> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: '${weights[focusedIndex!].toStringAsFixed(1)} ',
+                            text: '${values[focusedIndex!].toStringAsFixed(1)} ',
                             style: TextStyle(
                               color: const Color(0xFF333333),
                               fontSize: 18 * htio,
@@ -473,18 +484,45 @@ class _StcMainState extends State<StcMain> {
             switch (text) {
               case '7일':
                 whichButtonPush[0] = true;
+                startDate = endDate.subtract(const Duration(days: 7));
+                break;
+
               case '1개월':
                 whichButtonPush[1] = true;
+                startDate = DateTime(
+                  endDate.month == 1 ? endDate.year - 1 : endDate.year,
+                  endDate.month == 1 ? 12 : endDate.month - 1,
+                  _safeDay(endDate),
+                );
+                break;
+
               case '3개월':
                 whichButtonPush[2] = true;
-              case '1년': 
+                startDate = DateTime(
+                  endDate.month <= 3 ? endDate.year - 1 : endDate.year,
+                  endDate.month <= 3 ? endDate.month + 9 : endDate.month - 3,
+                  _safeDay(endDate),
+                );
+                break;
+
+              case '1년':
                 whichButtonPush[3] = true;
+                startDate = DateTime(endDate.year - 1, endDate.month, _safeDay(endDate));
+                break;
             }
            },);
         },
       ),
     );
   }
+
+  int _safeDay(DateTime baseDate) {
+    final year = baseDate.year;
+    final month = baseDate.month;
+    final lastDayOfPrevMonth = DateTime(year, month, 0).day;
+    return baseDate.day > lastDayOfPrevMonth ? lastDayOfPrevMonth : baseDate.day;
+  }
+
 
   Text waveText() {
     return Text(

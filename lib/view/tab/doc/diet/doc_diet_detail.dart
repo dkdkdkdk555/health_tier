@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/model/doc_diet_model.dart';
+import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/responsive_scrollable_textbox.dart';
 import 'package:my_app/util/up_arrow.dart';

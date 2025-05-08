@@ -43,8 +43,8 @@ dependencies:
   fluttertoast: ^8.2.12
 
   # DB
-  drift: ^2.26.0
-  drift_sqflite: ^2.0.1
+  drift: ^2.26.0 # ORM(쿼리 DSL, 모델 매핑 등) 기능 담당
+  drift_sqflite: ^2.0.1 # db커넥션 담당
   path_provider: ^2.1.5
   path: ^1.9.1 #path는 파일 경로를 조작할 때 쓰는 Dart 기본 패키지. 예를 들어 join()을 써서 OS에 맞는 경로(/ 또는 \)로 DB 파일 경로를 만들어줌
 

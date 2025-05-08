@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/model/doc_detail_model.dart';
+import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 
 class DocBodyDetail extends ConsumerWidget {
