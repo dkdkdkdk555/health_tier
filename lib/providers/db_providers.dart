@@ -314,11 +314,36 @@ final selectWeightList = FutureProvider.family<List<WeightModel>, DayRange>((ref
     variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
   ).get();
 
-  return result.map((e) => WeightModel(
+  final fullList = result.map((e) => WeightModel(
     day: e.readNullable<String>('day') ?? '',
     weight: e.readNullable<double>('weight') ?? 0,
   )).toList();
+
+  final length = fullList.length;
+
+  if (length <= 60) {
+    return fullList; // 모든 데이터 반환
+  }
+
+  // 간격 계산
+  int step;
+  if (length > 360) {
+    step = 7; // 일주일에 1번
+  } else {
+    // 91 ~ 360 사이: 2 ~ 7 사이의 가중 간격 (선형 보간)
+    final t = (length - 60) / (360 - 60); // 0.0 ~ 1.0
+    step = (2 + (5 * t)).round(); // 2 ~ 7 사이
+  }
+
+  // 간격 기반 필터링
+  final filtered = <WeightModel>[];
+  for (int i = 0; i < fullList.length; i += step) {
+    filtered.add(fullList[i]);
+  }
+
+  return filtered;
 });
+
 
 /*
   2-1-1 골격근량 그래프
@@ -338,10 +363,30 @@ final selectMuscleList = FutureProvider.family<List<MuscleModel>, DayRange>((ref
     variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
   ).get();
 
-  return result.map((e) => MuscleModel(
+  final fullList = result.map((e) => MuscleModel(
     day: e.read<String>('day'),
     muscle: e.readNullable<double>('muscle') ?? 0,
   )).toList();
+
+  final length = fullList.length;
+
+  if (length <= 60) {
+    return fullList; // 모든 데이터 반환
+  }
+
+  // 간격 계산
+  int step;
+  if (length > 360) {
+    step = 7; // 일주일에 1번
+  } else {
+    // 91 ~ 360 사이: 2 ~ 7 사이의 가중 간격 (선형 보간)
+    final t = (length - 60) / (360 - 60); // 0.0 ~ 1.0
+    step = (2 + (5 * t)).round(); // 2 ~ 7 사이
+  }
+
+  return [
+    for (int i = 0; i < fullList.length; i += step) fullList[i]
+  ];
 });
 
 /*
@@ -362,12 +407,31 @@ final selectFatList = FutureProvider.family<List<FatModel>, DayRange>((ref, rang
     variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
   ).get();
 
-  return result.map((e) => FatModel(
+  final fullList = result.map((e) => FatModel(
     day: e.read<String>('day'),
     fat: e.readNullable<double>('fat') ?? 0,
   )).toList();
-});
 
+  final length = fullList.length;
+
+  if (length <= 60) {
+    return fullList; // 모든 데이터 반환
+  }
+
+  // 간격 계산
+  int step;
+  if (length > 360) {
+    step = 7; // 일주일에 1번
+  } else {
+    // 91 ~ 360 사이: 2 ~ 7 사이의 가중 간격 (선형 보간)
+    final t = (length - 60) / (360 - 60); // 0.0 ~ 1.0
+    step = (2 + (5 * t)).round(); // 2 ~ 7 사이
+  }
+
+  return [
+    for (int i = 0; i < fullList.length; i += step) fullList[i]
+  ];
+});
 
 /*
   2-1-1 하루평가 그래프
