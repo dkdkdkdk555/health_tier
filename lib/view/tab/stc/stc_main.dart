@@ -160,19 +160,39 @@ class _StcMainState extends ConsumerState<StcMain> {
             ),
           ],
         ),
-        onTap: () async{
+        onTap: () async {
           final picked = await showDayPicker(context, pickedDay);
           if (picked != null) {
-            //TODO: startDate가 endDate보다 미래면 경고창 띄우며 검색시도하지 않기
+            final newStart = isStart ? picked : startDate;
+            final newEnd = isStart ? endDate : picked;
+            final diff = newEnd.difference(newStart).inDays;
+
+            if (diff > 365) {
+              showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: const Text('기간 제한'),
+                  content: const Text('조회 기간은 최대 1년까지 선택할 수 있습니다.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('확인'),
+                    ),
+                  ],
+                ),
+              );
+              return; // 선택 무시
+            }
+
             setState(() {
-              if(isStart) {
+              if (isStart) {
                 startDate = picked;
               } else {
                 endDate = picked;
               }
             });
           }
-        },
+        }
       ),
     );
   }
