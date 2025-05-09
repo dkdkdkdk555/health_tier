@@ -10,13 +10,14 @@ class StcStampPieChart extends ConsumerWidget {
   const StcStampPieChart({super.key, required this.dayRange});
 
   Color? stampColor(String? stamp) {
+    debugPrint('스탬프: $stamp');
     switch (stamp) {
       case 'terrible': return const Color(0xFFFF5656);
       case 'bad': return const Color(0xFFFF9900);
       case 'perfect': return const Color(0xFF249DFF);
       case 'normal': return const Color(0xFFFFDE23);
       case 'good': return const Color(0xFF95D33E);
-      default: return const Color(0xFFF5F5F5);
+      default: return Colors.grey.shade400;
     }
   }
 
@@ -79,7 +80,7 @@ class StcStampPieChart extends ConsumerWidget {
                       children: [
                         Container(width: 14, height: 14, color: stampColor(stamp)),
                         const SizedBox(width: 6),
-                        Text(stamp, style: const TextStyle(fontSize: 14)),
+                        Text(stamp == '' ? 'none' : stamp, style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   );

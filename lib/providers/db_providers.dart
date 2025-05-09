@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/model/diet/doc_diet_model.dart';
@@ -374,20 +375,35 @@ final selectFatList = FutureProvider.family<List<FatModel>, DayRange>((ref, rang
 final selectStampList = FutureProvider.family<List<StampModel>, DayRange>((ref, range) async {
   final db = ref.watch(databaseProvider);
 
+  // 1. 날짜 리스트 생성
+  final start = DateTime.parse(range.startDay);
+  final end = DateTime.parse(range.endDay);
+  final allDays = List.generate(end.difference(start).inDays + 1,
+      (i) => DateFormat('yyyy-MM-dd').format(start.add(Duration(days: i))));
+
+  // 2. DB에서 해당 날짜 범위의 평가 데이터 가져오기
   final result = await db.customSelect(
     '''
-    SELECT ID, DAY, STAMP
+    SELECT DAY, STAMP
     FROM HT_DAY_BODY
     WHERE DAY BETWEEN ? AND ?
       AND STAMP IS NOT NULL
       AND STAMP != ''
-    ORDER BY DAY; 
+    ORDER BY DAY;
     ''',
     variables: [Variable.withString(range.startDay), Variable.withString(range.endDay)],
   ).get();
 
-  return result.map((e) => StampModel(
-    day: e.read<String>('day'),
-    stamp: e.read<String>('stamp'),
-  )).toList();
+  // 3. Map으로 변환하여 빠른 조회
+  final stampMap = {
+    for (var row in result)
+      row.read<String>('day'): row.read<String>('stamp'),
+  };
+
+  // 4. 모든 날짜를 포함한 결과로 변환
+  final fullList = allDays.map((day) {
+    return StampModel(day: day, stamp: stampMap[day] ?? '');
+  }).toList();
+
+  return fullList;
 });
