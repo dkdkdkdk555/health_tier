@@ -190,12 +190,23 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
     final chartInnerWidth = chartWidth - chartPaddingLeft;
 
     final x = (chartInnerWidth / (values.length - 1)) * focusedIndex! + chartPaddingLeft;
-    final balloonLeft = x - (94 * wtio) / 2;
-
     final weightY = values[focusedIndex!];
     final relativeY = (maxY - weightY) / (maxY - minY);
     final y = relativeY * chartHeight;
     final balloonTop = y - (120*htio); // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
+
+    final balloonWidth = 94.0 * wtio;
+    double balloonLeft = x - (balloonWidth) / 2;
+
+    String balloonAsset = 'assets/widgets/message_balloon.svg';
+
+    if (balloonLeft < -10 *wtio) {
+      balloonLeft = 15 * wtio;
+      balloonAsset = 'assets/widgets/message_balloon_left.svg';
+    } else if ((balloonLeft + balloonWidth)-(40*wtio) > chartWidth) {
+      balloonLeft = (chartWidth - balloonWidth) + (10 *wtio);
+      balloonAsset = 'assets/widgets/message_balloon_right.svg';
+    }
 
 
     if (showTooltip && focusedIndex != null) {
@@ -209,6 +220,16 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
             // 선
             Positioned(
               top: 6 * htio,
+              left: () {
+                switch (balloonAsset) {
+                  case 'assets/widgets/message_balloon_left.svg':
+                    return 10 * wtio;
+                  case 'assets/widgets/message_balloon_right.svg':
+                    return balloonWidth - 10 * wtio;
+                  default:
+                    return balloonWidth / 2;
+                }
+              }(),
               child: SvgPicture.asset(
                 'assets/widgets/verticalLine.svg',
                 width: 1 * wtio,
@@ -222,7 +243,7 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
               clipBehavior: Clip.none,
               children: [
                 SvgPicture.asset(
-                  'assets/widgets/message_ballon.svg',
+                  balloonAsset,
                   width: 94 * wtio,
                   height: 64 * htio,
                   fit: BoxFit.contain,
