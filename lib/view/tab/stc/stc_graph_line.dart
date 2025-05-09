@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/model/stc/chart_common_model.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
-import 'package:my_app/model/stc/stc_weight_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 
 class StcGraphLine extends ConsumerStatefulWidget {

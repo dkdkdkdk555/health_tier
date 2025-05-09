@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class StcStampPieChart extends ConsumerWidget {
   final DayRange dayRange;
@@ -23,6 +24,9 @@ class StcStampPieChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var htio = ScreenRatio(context).heightRatio;
+    var wtio = ScreenRatio(context).widthRatio;    
+
     final stampList = ref.watch(selectStampList(dayRange));
 
     return Expanded(
@@ -41,52 +45,77 @@ class StcStampPieChart extends ConsumerWidget {
           final total = list.length;
           final keys = countMap.keys.toList();
       
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 도넛 차트
-              SizedBox(
-                width: 180,
-                height: 180,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                    sections: List.generate(countMap.length, (i) {
-                      final stamp = keys[i];
-                      final value = countMap[stamp]!;
-                      final percent = (value / total * 100).round();
-                      return PieChartSectionData(
-                        color: stampColor(stamp),
-                        value: value.toDouble(),
-                        title: '$percent%',
-                        titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
-                        radius: 60,
-                      );
-                    }),
+          return Container(
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 255, 247, 222)
+            ),
+            child: Row(
+              children: [
+                // 도넛 차트 영역
+                Expanded(
+                  flex: 10, // 전체 10 중 6 비율
+                  child: AspectRatio(
+                    aspectRatio: 1, // 정사각형 유지
+                    child: Padding(
+                      padding: EdgeInsets.all(12 * wtio),
+                      child: PieChart(
+                        PieChartData(
+                          sectionsSpace: 2 * htio,
+                          centerSpaceRadius: 40 * htio,
+                          sections: List.generate(countMap.length, (i) {
+                            final stamp = keys[i];
+                            final value = countMap[stamp]!;
+                            final percent = (value / total * 100).round();
+                            return PieChartSectionData(
+                              color: stampColor(stamp),
+                              value: value.toDouble(),
+                              title: '$percent%',
+                              titleStyle: TextStyle(
+                                fontSize: 14 * htio,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                              radius: 60 * htio,
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              // 범례
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(countMap.length, (i) {
-                  final stamp = keys[i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        Container(width: 14, height: 14, color: stampColor(stamp)),
-                        const SizedBox(width: 6),
-                        Text(stamp == '' ? 'none' : stamp, style: const TextStyle(fontSize: 14)),
-                      ],
+                // 범례 영역
+                Expanded(
+                  flex: 4, // 전체 10 중 4 비율
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12 * wtio),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(countMap.length, (i) {
+                        final stamp = keys[i];
+                        return Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4 * htio),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 14 * wtio,
+                                height: 14 * htio,
+                                color: stampColor(stamp),
+                              ),
+                              SizedBox(width: 6 * wtio),
+                              Text(
+                                stamp.isEmpty ? 'none' : stamp,
+                                style: TextStyle(fontSize: 14 * htio),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ),
-                  );
-                }),
-              ),
-            ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

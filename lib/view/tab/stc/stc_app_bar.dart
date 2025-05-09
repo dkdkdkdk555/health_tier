@@ -46,7 +46,7 @@ class _StcAppBarState extends State<StcAppBar> {
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final position = renderBox.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
-      final left = position.dx - (20 * wtio); // 패딩 보정
+      final left = position.dx; // 패딩 보정
       final width = renderBox.size.width;
 
       setState(() {
@@ -63,13 +63,13 @@ class _StcAppBarState extends State<StcAppBar> {
 
     return Expanded(
       flex: 77,
-      child: Padding(
-        padding: EdgeInsets.only(left: 20 * wtio),
-        child: Column(
-          children: [
-            const Spacer(flex: 22),
-            Expanded(
-              flex: 41,
+      child: Column(
+        children: [
+          const Spacer(flex: 22),
+          Expanded(
+            flex: 41,
+            child: Padding(
+              padding: EdgeInsets.only(left: 20 * wtio),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -84,26 +84,29 @@ class _StcAppBarState extends State<StcAppBar> {
                 ),
               ),
             ),
-            Expanded(
-              flex: 14,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SizedBox(
-                  height: 28,
-                  child: Stack(
-                    children: [
-                      // 회색 하단 선
-                      Positioned.fill(
-                        child: Container(
-                          margin: EdgeInsets.only(top: 26 * htio),
-                          height: 2 * htio,
-                          color: const Color(0xFFEEEEEE),
-                        ),
+          ),
+          Expanded(
+            flex: 14,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                height: 28,
+                child: Stack(
+                  children: [
+                    // 회색 하단 선
+                    Positioned.fill(
+                      child: Container(
+                        margin: EdgeInsets.only(top: 26 * htio),
+                        height: 2 * htio,
+                        color: const Color(0xFFEEEEEE),
                       ),
-                      // 검은 밑줄
-                      _buildUnderline(),
-                      // 텍스트 탭들
-                      Row(
+                    ),
+                    // 검은 밑줄
+                    _buildUnderline(),
+                    // 텍스트 탭들
+                    Padding(
+                      padding: EdgeInsets.only(left: 20 * wtio),
+                      child: Row(
                         children: List.generate(tabs.length, (index) {
                           final isSelected = index == selectedIndex;
                           return Padding(
@@ -135,13 +138,13 @@ class _StcAppBarState extends State<StcAppBar> {
                           );
                         }),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

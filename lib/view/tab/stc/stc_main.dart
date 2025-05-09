@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -140,7 +141,7 @@ class _StcMainState extends ConsumerState<StcMain> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
+            AutoSizeText(
               DateFormat('yyyy.MM.dd').format(pickedDay),
               style: TextStyle(
                 color: Colors.black,
