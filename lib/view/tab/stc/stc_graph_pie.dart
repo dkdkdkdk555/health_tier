@@ -11,7 +11,6 @@ class StcStampPieChart extends ConsumerWidget {
   const StcStampPieChart({super.key, required this.dayRange});
 
   Color? stampColor(String? stamp) {
-    debugPrint('스탬프: $stamp');
     switch (stamp) {
       case 'terrible': return const Color(0xFFFF5656);
       case 'bad': return const Color(0xFFFF9900);

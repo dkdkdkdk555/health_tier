@@ -54,6 +54,8 @@ class _StcMainState extends ConsumerState<StcMain> {
       DateFormat('yyyy-MM-dd').format(endDate),
     );
 
+    cachedDayRange = param;
+
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         if (!sizingInformation.isMobile) return const Scaffold();

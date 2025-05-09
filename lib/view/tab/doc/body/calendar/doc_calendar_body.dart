@@ -6,6 +6,7 @@ import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
 import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
 import 'package:my_app/view/tab/doc/body/doc_body_write.dart';
+import 'package:my_app/extension/stc_invalidate_collect.dart';
 
 class DocCalendarBody extends ConsumerStatefulWidget {
   const DocCalendarBody({super.key});
@@ -147,6 +148,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
     ref.invalidate(htDayDocOfMonth(refreshMonth));
     ref.invalidate(selectHtDayDoc(refreshDay));
     ref.invalidate(getPreviousWeight(refreshDay));
+    StcInvalidator().stcInvalidate(ref);
   }
 }
 
