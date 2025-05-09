@@ -15,6 +15,8 @@ DayRange cachedDayRange = DayRange(
       DateFormat('yyyy-MM-dd').format(endDate),
     );
 
+int cachedStcBtnPushed = 0;
+
 /*
 T #FF5656
 B #FF9900

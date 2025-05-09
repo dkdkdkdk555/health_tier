@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 @immutable
 class DayRange {
@@ -16,4 +17,12 @@ class DayRange {
 
   @override
   int get hashCode => startDay.hashCode ^ endDay.hashCode;
+
+  DateTime getStartDay(){
+    return DateFormat('yyyy-MM-dd').parse(startDay);
+  }
+
+  DateTime getEndDay(){
+    return DateFormat('yyyy-MM-dd').parse(endDay);
+  }
 }

@@ -39,22 +39,26 @@ class _StcMainState extends ConsumerState<StcMain> {
     });
   }
 
-  DateTime startDate = DateTime.now().subtract(const Duration(days: 7));
-  DateTime endDate = DateTime.now();
 
   List<bool> whichButtonPush = [true, false, false, false]; // 기간조회버튼 4가지의 
+
+  void _onDateRangeChanged(DateTime newStart, DateTime newEnd) {
+    cachedDayRange = DayRange(
+      DateFormat('yyyy-MM-dd').format(newStart),
+      DateFormat('yyyy-MM-dd').format(newEnd),
+    );
+  }
+
+  void _onBtnPushedChanged(int num){
+    cachedStcBtnPushed = num;
+  }
 
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;
 
-    final param = DayRange(
-      DateFormat('yyyy-MM-dd').format(startDate),
-      DateFormat('yyyy-MM-dd').format(endDate),
-    );
-
-    cachedDayRange = param;
+    final param = cachedDayRange;
 
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
@@ -123,12 +127,12 @@ class _StcMainState extends ConsumerState<StcMain> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // 시작일
-                  datePicker(context, pickedDay: startDate, isStart: true),
+                  datePicker(context, pickedDay: cachedDayRange.getStartDay(), isStart: true),
                   SizedBox(width: 8 * wtio),
                   waveText(),
                   SizedBox(width: 8 * wtio),
                   // 종료일
-                  datePicker(context, pickedDay: endDate, isStart: false)
+                  datePicker(context, pickedDay: cachedDayRange.getEndDay(), isStart: false)
                 ],
               ),
             ),
@@ -192,6 +196,7 @@ class _StcMainState extends ConsumerState<StcMain> {
               } else {
                 endDate = picked;
               }
+              _onDateRangeChanged(startDate, endDate);
             });
           }
         }
@@ -220,21 +225,28 @@ class _StcMainState extends ConsumerState<StcMain> {
             crossAxisAlignment: CrossAxisAlignment.center,
             spacing: 4 * htio,
             children: [
-                periods('7일', whichButtonPush[0]),
-                periods('1개월', whichButtonPush[1]),
-                periods('3개월', whichButtonPush[2]),
-                periods('1년', whichButtonPush[3]),
+                periods('7일', whichButtonPush[0], 0),
+                periods('1개월', whichButtonPush[1], 1),
+                periods('3개월', whichButtonPush[2], 2),
+                periods('1년', whichButtonPush[3], 3),
             ],
         ),
       ),
     );
   }
 
-  Expanded periods(String text, bool isChoose) {
+  Expanded periods(String text, bool isChoose, int index) {
     var selectedColor = _selectedIndex == 0 ? const Color(0xFF0D86E7)
                         : _selectedIndex == 1 ? const Color(0xFF95D33E) 
                         : _selectedIndex == 2 ? const Color(0xFFFFDE23)
                         : const Color(0xFF000000);
+
+    if(cachedStcBtnPushed == index) {
+      isChoose = true;
+    } else {
+      isChoose = false;
+    }
+
     return Expanded(
       flex: 1,
       child: GestureDetector(
@@ -276,6 +288,7 @@ class _StcMainState extends ConsumerState<StcMain> {
               case '7일':
                 whichButtonPush[0] = true;
                 startDate = endDate.subtract(const Duration(days: 7));
+                _onBtnPushedChanged(0);
                 break;
 
               case '1개월':
@@ -285,6 +298,7 @@ class _StcMainState extends ConsumerState<StcMain> {
                   endDate.month == 1 ? 12 : endDate.month - 1,
                   _safeDay(endDate),
                 );
+                _onBtnPushedChanged(1);
                 break;
 
               case '3개월':
@@ -294,13 +308,16 @@ class _StcMainState extends ConsumerState<StcMain> {
                   endDate.month <= 3 ? endDate.month + 9 : endDate.month - 3,
                   _safeDay(endDate),
                 );
+                _onBtnPushedChanged(2);
                 break;
 
               case '1년':
                 whichButtonPush[3] = true;
                 startDate = DateTime(endDate.year - 1, endDate.month, _safeDay(endDate));
+                _onBtnPushedChanged(3);
                 break;
             }
+            _onDateRangeChanged(startDate, endDate);
            },);
         },
       ),
