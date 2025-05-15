@@ -62,8 +62,6 @@ class _StcMainState extends ConsumerState<StcMain> {
 
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
-        if (!sizingInformation.isMobile) return const Scaffold();
-
         return Scaffold(
           backgroundColor: Colors.white,
           body: Column(
