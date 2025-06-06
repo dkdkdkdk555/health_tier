@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
+import 'package:my_app/view/tab/cmu/cmu_app_bar_delegate.dart';
 
 class CmuMain extends StatefulWidget {
   const CmuMain({super.key});
@@ -27,6 +28,43 @@ class _CmuMainState extends State<CmuMain> {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return CustomScrollView( 
+      slivers: [
+        SliverPersistentHeader(
+          pinned: false,
+          delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap)
+        ),
+        SliverGrid(
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200.0,
+            mainAxisSpacing: 10.0,
+            crossAxisSpacing: 10.0,
+            childAspectRatio: 4.0,
+          ),
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return Container(
+                alignment: Alignment.center,
+                color: Colors.teal[100 * (index % 9)],
+                child: Text('Grid Item $index'),
+              );
+            },
+            childCount: 20,
+          ),
+        ),
+        SliverFixedExtentList(
+          itemExtent: 50.0,
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              return Container(
+                alignment: Alignment.center,
+                color: Colors.lightBlue[100 * (index % 9)],
+                child: Text('List Item $index'),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
