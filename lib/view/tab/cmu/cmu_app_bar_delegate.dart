@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/cmu/cmu_app_bar.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class CmuAppBarDelegate extends SliverPersistentHeaderDelegate {
   final int selectedIndex;
@@ -9,9 +10,12 @@ class CmuAppBarDelegate extends SliverPersistentHeaderDelegate {
     required this.selectedIndex,
     required this.onTap,
   });
+  
+  var htio = 0.0;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    htio = ScreenRatio(context).heightRatio;
     return CmuAppBar(
       selectedIndex: selectedIndex,
       onTap: onTap,
@@ -19,7 +23,7 @@ class CmuAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 154; // CmuAppBar 높이에 맞게 조정 (예: 100)
+  double get maxExtent => 154 * htio; // CmuAppBar 높이에 맞게 조정 (예: 100)
   @override
   double get minExtent => 0; // 스크롤되면 완전히 사라짐
 
