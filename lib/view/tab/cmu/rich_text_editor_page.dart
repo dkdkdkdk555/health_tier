@@ -92,7 +92,7 @@ class _RichTextEditorPageState extends State<RichTextEditorPage> {
               }
 
               // 2. 이미지 서버 업로드 (multipart/form-data)
-              final uri = Uri.parse('http://192.168.0.43:8080/cmu/feed/images/upload-multiple');
+              final uri = Uri.parse('http://192.168.0.26:8080/cud/cmu/feed/images/upload-multiple');
               final request = http.MultipartRequest('POST', uri);
 
               for (final filePath in fileImagePaths) {
@@ -144,7 +144,7 @@ class _RichTextEditorPageState extends State<RichTextEditorPage> {
 
               // 5. 게시글 등록 요청
               final feedPostResponse = await http.post(
-                Uri.parse('http://192.168.0.43:8080/cmu/feed'),
+                Uri.parse('http://192.168.0.26:8080/cud/cmu/feed'),
                 headers: {'Content-Type': 'application/json'},
                 body: jsonEncode({
                   'title': '임시 제목',

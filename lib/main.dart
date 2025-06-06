@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/database/app_database.dart';
+import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/cmu/rich_text_editor_page.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
@@ -34,7 +35,7 @@ class _MyAppState extends State<MyApp> {
   final List<Widget> _pages = [
       const DocMain(), 
       const StcMain(),
-      const RichTextEditorPage(),
+      const CmuMain(),
       const Center(child: Text('회원')),
   ];
 
