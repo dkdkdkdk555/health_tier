@@ -14,9 +14,7 @@ class IslandNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.only(left:75, right: 75, bottom:42),
         padding: const EdgeInsets.only(left: 8, right: 8),
-        height: 52,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
