@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_app/database/app_database.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
-import 'package:my_app/view/tab/cmu/rich_text_editor_page.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'view/navigation_bar.dart';
@@ -14,8 +12,9 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko');
 
-  final db = AppDatabase();
-  await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+  // 테스트 데이터 삽입 시만 사용
+  // final db = AppDatabase();
+  // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
 
   runApp(const ProviderScope( // 상태관리 패키지 - Riverpod 설정
     child:MyApp())
@@ -36,8 +35,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   late AnimationController _fabController;
   late Animation<Offset> _fabSlide;
-  late Animation<double> _fabFade;
-
+  late Animation<double> _fabOpacity;
+  
   final List<Widget> _pages = [
       const DocMain(), 
       const StcMain(),
@@ -50,7 +49,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     super.initState();
     _fabController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 350),
     );
 
     _fabSlide = Tween<Offset>(
@@ -61,12 +60,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       curve: Curves.easeOut,
     ));
 
-    _fabFade = Tween<double>(
+    _fabOpacity = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fabController,
-      curve: Curves.easeOut,
+    ).animate(
+      CurvedAnimation(
+        parent: _fabController, 
+        curve: Curves.easeIn
     ));
   }
 
@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     super.dispose();
   }
     
-    void _onTap(int index) {
+  void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
       if(index == 2) {
@@ -99,8 +99,50 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         bottomNavigationBar: Stack(
           alignment: Alignment.center,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 400),
+            // cmu 작성 버튼
+            if(_selectedIndex == 2)
+            Positioned(
+              height: 52,
+              right: 38,
+              bottom: 42, // == IslandNavigationBar
+              child: SlideTransition(
+                position: _fabSlide,
+                child: (_selectedIndex == 2)
+                    ? FloatingActionButton(
+                        onPressed: () {},
+                        backgroundColor: const Color(0xFF0D85E7),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SvgPicture.asset('assets/widgets/create_feed.svg'),
+                      )
+                    : const SizedBox.shrink(), // 빈 위젯로 대체
+              ),
+            )
+            else
+            Positioned(
+              height: 52,
+              right: 38,
+              bottom: 42,
+              child: SlideTransition(
+                position: _fabSlide,
+                child: (_selectedIndex != 2)
+                    ? FadeTransition(
+                      opacity: _fabOpacity,
+                      child: FloatingActionButton(
+                          onPressed: () {},
+                          backgroundColor: const Color(0xFF0D85E7),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: SvgPicture.asset('assets/widgets/create_feed.svg'),
+                        ),
+                    )
+                    : const SizedBox.shrink(), // 빈 위젯로 대체
+              ),
+            ),
+            AnimatedContainer( 
+              duration: const Duration(milliseconds: 350),
               margin: EdgeInsets.only(left: islandLeftMargin, right: 75, bottom: 42),
               height: 52,
               width: 234,
@@ -110,29 +152,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 onTap: _onTap,
               ),
             ),
-            // cmu 작성 버튼
-            if(_selectedIndex == 2)
-              Positioned(
-                height: 52,
-                right: 38,
-                bottom: 42, // == IslandNavigationBar
-                child: SlideTransition(
-                  position: _fabSlide,
-                  child: FadeTransition(
-                    opacity: _fabFade,
-                    child: (_selectedIndex == 2)
-                        ? FloatingActionButton(
-                            onPressed: () {},
-                            backgroundColor: const Color(0xFF0D85E7),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: SvgPicture.asset('assets/widgets/create_feed.svg'),
-                          )
-                        : const SizedBox.shrink(),
-                  ), // 빈 위젯로 대체
-                ),
-              )
           ],
         )
       ),
