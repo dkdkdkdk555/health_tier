@@ -66,8 +66,8 @@ class _CmuAppBarState extends State<CmuAppBar> {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;    
 
-    return Expanded(
-      flex: 77,
+    return SizedBox(
+      height : 154 * htio,
       child: Column(
         children: [
           const Spacer(flex:22),

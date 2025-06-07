@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/cmu_app_bar_delegate.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class CmuMain extends StatefulWidget {
   const CmuMain({super.key});
@@ -8,6 +9,8 @@ class CmuMain extends StatefulWidget {
   @override
   State<CmuMain> createState() => _CmuMainState();
 }
+
+ var htio = 0.0;
 
 class _CmuMainState extends State<CmuMain> {
   // 어느 하위 탭인지
@@ -28,43 +31,48 @@ class _CmuMainState extends State<CmuMain> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView( 
-      slivers: [
-        SliverPersistentHeader(
-          pinned: false,
-          delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap)
-        ),
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 200.0,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-            childAspectRatio: 4.0,
+    htio = ScreenRatio(context).heightRatio;
+
+    return Container(
+      color: Colors.white,
+      child: CustomScrollView( 
+        slivers: [
+          SliverPersistentHeader(
+            pinned: false,
+            delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap, htio: htio)
           ),
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              return Container(
-                alignment: Alignment.center,
-                color: Colors.teal[100 * (index % 9)],
-                child: Text('Grid Item $index'),
-              );
-            },
-            childCount: 20,
+          SliverGrid(
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200.0,
+              mainAxisSpacing: 10.0,
+              crossAxisSpacing: 10.0,
+              childAspectRatio: 4.0,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.teal[100 * (index % 9)],
+                  child: Text('Grid Item $index'),
+                );
+              },
+              childCount: 20,
+            ),
           ),
-        ),
-        SliverFixedExtentList(
-          itemExtent: 50.0,
-          delegate: SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              return Container(
-                alignment: Alignment.center,
-                color: Colors.lightBlue[100 * (index % 9)],
-                child: Text('List Item $index'),
-              );
-            },
+          SliverFixedExtentList(
+            itemExtent: 50.0,
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return Container(
+                  alignment: Alignment.center,
+                  color: Colors.lightBlue[100 * (index % 9)],
+                  child: Text('List Item $index'),
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
