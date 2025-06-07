@@ -12,9 +12,11 @@ import 'package:my_app/model/stc/stc_muscle_model.dart';
 import 'package:my_app/model/stc/stc_stamp_model.dart';
 import 'package:my_app/model/stc/stc_weight_model.dart';
 
+AppDatabase? _dbInstance;
+
 /// 1. AppDatabase 인스턴스를 제공하는 Provider
 final databaseProvider = Provider<AppDatabase>((ref) {
-  return AppDatabase();
+  return _dbInstance ??= AppDatabase();
 });
 
 /*
