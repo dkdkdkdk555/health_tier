@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/cmu/cmu_category_top_bar.dart';
+import 'package:my_app/view/tab/cmu/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/cmu_app_bar_delegate.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
@@ -40,6 +42,10 @@ class _CmuMainState extends State<CmuMain> {
           SliverPersistentHeader(
             pinned: false,
             delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap, htio: htio)
+          ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: CategoryTopBarDelegate(htio: htio,)
           ),
           SliverGrid(
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
