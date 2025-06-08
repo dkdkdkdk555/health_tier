@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/model/cmu/category_model.dart';
+import 'package:my_app/model/result.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
 
 class CategoryTopBar extends ConsumerStatefulWidget {
@@ -19,38 +21,177 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(getFeedCategories);
 
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
+      decoration: const BoxDecoration(
+        color: Colors.green
+      ),
+      child: Row(
+        children: [
+          const BestFeed(),
+          borderLine(),
+          makeCategoryList(categoriesAsync),
+          const SpreadBtn()
+        ],
+      ),
+    );
+  }
+
+  Widget makeCategoryList(AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
-        return SizedBox(
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: categories.count,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final category = categories.data[index];
-              return GestureDetector(
-                onTap: () {
-                  // TODO: 카테고리 선택 처리
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    category.name,
-                    style: const TextStyle(fontSize: 14),
-                  ),
-                ),
-              );
-            },
+        final modifiedCategories = [
+          Category(id: 0, name: '전체'), // 원하는 첫 번째 항목 추가
+          ...categories.data,
+        ];
+        return Expanded(
+          child: SizedBox(
+            height: 34,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: modifiedCategories.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 4,),
+              itemBuilder: (context, index) {
+                final category = modifiedCategories[index];
+                return GestureDetector(
+                  onTap: () {
+                    // TODO: 카테고리 선택 처리
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                              side: const BorderSide(
+                                  width: 1,
+                                  color: Color(0xFFDDDDDD),
+                              ),
+                              borderRadius: BorderRadius.circular(99),
+                          ),
+                      ),
+                      child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10,
+                          children: [
+                              Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  spacing: 4,
+                                  children: [
+                                      Text(
+                                          category.name,
+                                          style: const TextStyle(
+                                              color: Color(0xFF333333),
+                                              fontSize: 12,
+                                              fontFamily: 'Pretendard',
+                                              fontWeight: FontWeight.w400,
+                                              height: 1.50,
+                                          ),
+                                      ),
+                                  ],
+                              ),
+                          ],
+                      ),
+                  )
+                );
+              },
+            ),
           ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => const Center(child: Text('오류: \$err')),
+    );
+  }
+
+  Align borderLine() {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          width: 1,
+          height: 24,
+          decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+      ),
+    );
+  }
+}
+
+class SpreadBtn extends StatelessWidget {
+  const SpreadBtn({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 32,
+      margin: const EdgeInsets.only(left: 8),
+      child: SvgPicture.asset(
+        'assets/widgets/category_spread_btn.svg'
+      )
+    );
+  }
+}
+
+
+class BestFeed extends StatelessWidget {
+  const BestFeed({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                  side: const BorderSide(
+                      width: 1,
+                      color: Color(0xFFDDDDDD),
+                  ),
+                  borderRadius: BorderRadius.circular(99),
+              ),
+          ),
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 2,
+                      children: [
+                          SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: SvgPicture.asset(
+                              'assets/icons/best.svg'
+                            )
+                          ),
+                          const Text(
+                              '지금 뜨는',
+                              style: TextStyle(
+                                  color: Color(0xFF333333),
+                                  fontSize: 12,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.50,
+                              ),
+                          ),
+                      ],
+                  ),
+              ],
+          ),
+      ),
     );
   }
 }

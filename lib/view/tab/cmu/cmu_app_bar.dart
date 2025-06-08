@@ -66,89 +66,93 @@ class _CmuAppBarState extends State<CmuAppBar> {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;    
 
-    return SizedBox(
-      height : 154 * htio,
-      child: Column(
-        children: [
-          const Spacer(flex:22),
-          Expanded(
-            flex: 41,
-            child: Padding(
-              padding: EdgeInsets.only(left: 20 * wtio),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '커뮤니티',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20 * htio,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    height: 1.50 * htio,
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.amber
+      ),
+      child: SizedBox(
+        height : 110 * htio,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 41,
+              child: Padding(
+                padding: EdgeInsets.only(left: 20 * wtio),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '커뮤니티',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20 * htio,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w700,
+                      height: 1.50 * htio,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 14,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: SizedBox(
-                height: 28,
-                child: Stack(
-                  children: [
-                    // 회색 하단 선
-                    Positioned.fill(
-                      child: Container(
-                        margin: EdgeInsets.only(top:26 * htio),
-                        height: 2 * htio,
-                        color: const Color(0xFFEEEEEE),
+            Expanded(
+              flex: 14,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SizedBox(
+                  height: 28,
+                  child: Stack(
+                    children: [
+                      // 회색 하단 선
+                      Positioned.fill(
+                        child: Container(
+                          margin: EdgeInsets.only(top:26 * htio),
+                          height: 2 * htio,
+                          color: const Color(0xFFEEEEEE),
+                        ),
                       ),
-                    ),
-                    _buildUnderline(),
-                    Padding(
-                      padding: EdgeInsets.only(left: 20 * wtio),
-                      child: Row(
-                        children: List.generate(tabs.length, (index) {
-                          final isSelected = index == selectedIndex;
-                          return Padding(
-                            padding: EdgeInsets.only(right: 20 * wtio),
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedIndex = index;
-                                  widget.onTap(selectedIndex);
-                                });
-                                WidgetsBinding.instance.addPostFrameCallback((_){
-                                  _updateUnderline();
-                                });
-                              },
-                              child: Container(
-                                // 2. GlobalKey를 Container 위젯에 부여 => Container(=Text)의 위치/렌더링 정보에 접근할 수 있음
-                                key: _tabKeys[index],
-                                child: Text(
-                                  tabs[index],
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-                                    fontSize: 16 * htio,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w700,
-                                    height: 1.50 * htio,
+                      _buildUnderline(),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20 * wtio),
+                        child: Row(
+                          children: List.generate(tabs.length, (index) {
+                            final isSelected = index == selectedIndex;
+                            return Padding(
+                              padding: EdgeInsets.only(right: 20 * wtio),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedIndex = index;
+                                    widget.onTap(selectedIndex);
+                                  });
+                                  WidgetsBinding.instance.addPostFrameCallback((_){
+                                    _updateUnderline();
+                                  });
+                                },
+                                child: Container(
+                                  // 2. GlobalKey를 Container 위젯에 부여 => Container(=Text)의 위치/렌더링 정보에 접근할 수 있음
+                                  key: _tabKeys[index],
+                                  child: Text(
+                                    tabs[index],
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
+                                      fontSize: 16 * htio,
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w700,
+                                      height: 1.50 * htio,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                      ),
-                    )
-                  ],
+                            );
+                          }),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:my_app/view/tab/cmu/cmu_category_top_bar.dart';
 import 'package:my_app/view/tab/cmu/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
@@ -17,11 +18,35 @@ class CmuMain extends StatefulWidget {
 class _CmuMainState extends State<CmuMain> {
   // 어느 하위 탭인지
   late int _selectedIndex;
+  // 스크롤 상태관리
+  // late ScrollController _scrollController;
+  // bool _scrolledDown = false;
+  // bool _cmuAppBarIsPinned = false;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
+    // _scrollController = ScrollController();
+    // _scrollController.addListener(() {
+    //   if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    //     // 아래로 스크롤 시작
+    //     if (!_scrolledDown) {
+    //       setState(() {
+    //         _scrolledDown = true;
+    //         _cmuAppBarIsPinned = false;
+    //       });
+    //     }
+    //   } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+    //     // 위로 스크롤 시작
+    //     if (_scrolledDown) {
+    //       setState(() {
+    //         _scrolledDown = false;
+    //         _cmuAppBarIsPinned = true;
+    //       });
+    //     }
+    //   }
+    // });
   }
 
   void _onTap(int index) {
@@ -39,6 +64,14 @@ class _CmuMainState extends State<CmuMain> {
       color: Colors.white,
       child: CustomScrollView( 
         slivers: [
+          SliverAppBar(
+            pinned: true,
+            primary: false,
+            toolbarHeight: 44,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(color: Colors.white),
+            )
+          ),
           SliverPersistentHeader(
             pinned: false,
             delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap, htio: htio)

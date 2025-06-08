@@ -12,8 +12,9 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
   
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return CategoryTopBar(
-      htio: htio
+    return SizedBox(
+      height: maxExtent, // 정확히 delegate가 요구하는 높이만큼만 차지하도록
+      child: CategoryTopBar(htio: htio),
     );
   }
 
@@ -24,6 +25,6 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant CategoryTopBarDelegate oldDelegate) {
-    return true;
+    return oldDelegate.htio != htio;
   }
 }
