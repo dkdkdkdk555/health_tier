@@ -23,7 +23,7 @@ class CmuAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 154 * htio; // CmuAppBar 높이에 맞게 조정 (예: 100)
+  double get maxExtent => 110 * htio; // CmuAppBar 높이에 맞게 조정 (예: 100)
   @override
   double get minExtent => 0; // 스크롤되면 완전히 사라짐
 

@@ -24,7 +24,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
       decoration: const BoxDecoration(
-        color: Colors.green
+        color: Colors.white
       ),
       child: Row(
         children: [
