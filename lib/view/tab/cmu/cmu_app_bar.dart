@@ -66,7 +66,10 @@ class _CmuAppBarState extends State<CmuAppBar> {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;    
 
-    return SizedBox(
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white
+      ),
       height : 110 * htio,
       child: Column(
         children: [

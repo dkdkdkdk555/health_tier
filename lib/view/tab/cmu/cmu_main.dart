@@ -19,34 +19,31 @@ class _CmuMainState extends State<CmuMain> {
   // 어느 하위 탭인지
   late int _selectedIndex;
   // 스크롤 상태관리
-  // late ScrollController _scrollController;
-  // bool _scrolledDown = false;
-  // bool _cmuAppBarIsPinned = false;
+  late ScrollController _scrollController;
+  bool _scrolledDown = false;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
-    // _scrollController = ScrollController();
-    // _scrollController.addListener(() {
-    //   if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
-    //     // 아래로 스크롤 시작
-    //     if (!_scrolledDown) {
-    //       setState(() {
-    //         _scrolledDown = true;
-    //         _cmuAppBarIsPinned = false;
-    //       });
-    //     }
-    //   } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
-    //     // 위로 스크롤 시작
-    //     if (_scrolledDown) {
-    //       setState(() {
-    //         _scrolledDown = false;
-    //         _cmuAppBarIsPinned = true;
-    //       });
-    //     }
-    //   }
-    // });
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+        // 아래로 스크롤 시작
+        if (!_scrolledDown) {
+          setState(() {
+            _scrolledDown = true;
+          });
+        }
+      } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+        // 위로 스크롤 시작
+        if (_scrolledDown) {
+          setState(() {
+            _scrolledDown = false;
+          });
+        }
+      }
+    });
   }
 
   void _onTap(int index) {
@@ -63,6 +60,7 @@ class _CmuMainState extends State<CmuMain> {
     return Container(
       color: Colors.white,
       child: CustomScrollView( 
+        controller: _scrollController,
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -73,8 +71,13 @@ class _CmuMainState extends State<CmuMain> {
             )
           ),
           SliverPersistentHeader(
-            pinned: false,
-            delegate: CmuAppBarDelegate(selectedIndex: _selectedIndex, onTap: _onTap, htio: htio)
+            pinned: !_scrolledDown,
+            delegate: CmuAppBarDelegate(
+              selectedIndex: _selectedIndex, 
+              onTap: _onTap, 
+              htio: htio,
+              isVisible: !_scrolledDown
+            )
           ),
           SliverPersistentHeader(
             pinned: true,
