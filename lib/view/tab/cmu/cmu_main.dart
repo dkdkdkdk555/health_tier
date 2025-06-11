@@ -21,6 +21,14 @@ class _CmuMainState extends State<CmuMain> {
   // 스크롤 상태관리
   late ScrollController _scrollController;
   bool _scrolledDown = false;
+  // 카테고리바 펼쳐짐 여부
+  bool isSpread = false;
+
+  void toggleSpread() {
+    setState(() {
+      isSpread = !isSpread;
+    });
+  }
 
   @override
   void initState() {
@@ -81,7 +89,11 @@ class _CmuMainState extends State<CmuMain> {
           ),
           SliverPersistentHeader(
             pinned: true,
-            delegate: CategoryTopBarDelegate(htio: htio,)
+            delegate: CategoryTopBarDelegate(
+              htio: htio,
+              isSpread: isSpread,
+              onToggleSpread : toggleSpread,
+            )
           ),
           SliverGrid(
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
