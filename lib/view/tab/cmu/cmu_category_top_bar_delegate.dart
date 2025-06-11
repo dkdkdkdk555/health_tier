@@ -16,16 +16,21 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
   
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox(
-      height: maxExtent, // 정확히 delegate가 요구하는 높이만큼만 차지하도록
-      child: CategoryTopBar(
-        htio: htio, 
-        isSpread: isSpread,
-        onToggleSpread: onToggleSpread
+    return Container(
+      color: Colors.white,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: Alignment.topCenter,
+        child: CategoryTopBar(
+          isSpread: isSpread,
+          onToggleSpread: onToggleSpread,
+          htio: htio,
+        ),
       ),
     );
   }
-
+  
   @override
   double get maxExtent => isSpread ? 108 * htio : 58 * htio; // CmuAppBar 높이에 맞게 조정 (예: 100)
   @override

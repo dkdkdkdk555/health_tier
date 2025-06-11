@@ -21,38 +21,33 @@ class CategoryTopBar extends ConsumerStatefulWidget {
   ConsumerState<CategoryTopBar> createState() => _CategoryTopBarState();
 }
 
-class _CategoryTopBarState extends ConsumerState<CategoryTopBar> with TickerProviderStateMixin{
+class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
 
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(getFeedCategories);
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      alignment: Alignment.topCenter,
-      child: Container(
-        padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
-        decoration: const BoxDecoration(
-          color: Colors.white
-        ),
-        child: Row(
-          children: [
-            if(!widget.isSpread) ...[
-              const BestFeed(),
-              borderLine(),
-              makeCategoryList(categoriesAsync)
-            ]else...[
-              buildCategoryWrap(categoriesAsync)
-            ]
-            ,spreadBtn()
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
+      decoration: const BoxDecoration(
+        color: Colors.white
+      ),
+      child: Row(
+        children: [
+          if(!widget.isSpread) ...[
+            const BestFeed(),
+            borderLine(),
+            buildCategoryCollapsed(categoriesAsync)
+          ]else...[
+            buildCategoryExpanded(categoriesAsync)
+          ]
+          ,spreadBtn()
+        ],
       ),
     );
   }
 
-  Widget buildCategoryWrap(AsyncValue<Result<List<Category>>> categoriesAsync) {
+  Widget buildCategoryExpanded(AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
         final modifiedCategories = [
@@ -90,7 +85,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> with TickerProv
 
 
 
-  Widget makeCategoryList(AsyncValue<Result<List<Category>>> categoriesAsync) {
+  Widget buildCategoryCollapsed(AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
         final modifiedCategories = [
@@ -180,7 +175,13 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> with TickerProv
 
   Widget spreadBtn(){
     return GestureDetector(
-      onTap: widget.onToggleSpread,
+      onTap: () async {
+        if (widget.isSpread) {
+          // 먼저 내부 애니메이션이 자연스럽게 줄어들도록 대기
+          await Future.delayed(const Duration(milliseconds: 300));
+        }
+        widget.onToggleSpread(); // isSpread 상태 변경
+      },
       child: Align(
         alignment: Alignment.topCenter,
         child: Container(
