@@ -17,6 +17,8 @@ class CategoryTopBar extends ConsumerStatefulWidget {
 }
 
 class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
+  bool isSpread = false;
+
   @override
   Widget build(BuildContext context) {
     final categoriesAsync = ref.watch(getFeedCategories);
@@ -31,7 +33,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           const BestFeed(),
           borderLine(),
           makeCategoryList(categoriesAsync),
-          const SpreadBtn()
+          spreadBtn()
         ],
       ),
     );
@@ -57,45 +59,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
                   onTap: () {
                     // TODO: 카테고리 선택 처리
                   },
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                  width: 1,
-                                  color: Color(0xFFDDDDDD),
-                              ),
-                              borderRadius: BorderRadius.circular(99),
-                          ),
-                      ),
-                      child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 10,
-                          children: [
-                              Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  spacing: 4,
-                                  children: [
-                                      Text(
-                                          category.name,
-                                          style: const TextStyle(
-                                              color: Color(0xFF333333),
-                                              fontSize: 12,
-                                              fontFamily: 'Pretendard',
-                                              fontWeight: FontWeight.w400,
-                                              height: 1.50,
-                                          ),
-                                      ),
-                                  ],
-                              ),
-                          ],
-                      ),
-                  )
+                  child: makeCategory(category)
                 );
               },
             ),
@@ -104,6 +68,49 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => const Center(child: Text('오류: \$err')),
+    );
+  }
+
+
+  Container makeCategory(Category category) {
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: ShapeDecoration(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+                side: const BorderSide(
+                    width: 1,
+                    color: Color(0xFFDDDDDD),
+                ),
+                borderRadius: BorderRadius.circular(99),
+            ),
+        ),
+        child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+                Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 4,
+                    children: [
+                        Text(
+                            category.name,
+                            style: const TextStyle(
+                                color: Color(0xFF333333),
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                height: 1.50,
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        ),
     );
   }
 
@@ -118,22 +125,22 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       ),
     );
   }
-}
 
-class SpreadBtn extends StatelessWidget {
-  const SpreadBtn({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 32,
-      height: 32,
-      margin: const EdgeInsets.only(left: 8),
-      child: SvgPicture.asset(
-        'assets/widgets/category_spread_btn.svg'
-      )
+  Widget spreadBtn(){
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isSpread = !isSpread;
+        });
+      },
+      child: Container(
+        width: 32,
+        height: 32,
+        margin: const EdgeInsets.only(left: 8),
+        child: SvgPicture.asset(
+          isSpread ? 'assets/widgets/category_fold_btn.svg' : 'assets/widgets/category_spread_btn.svg',
+        )
+      ),
     );
   }
 }
