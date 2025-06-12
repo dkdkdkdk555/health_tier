@@ -79,6 +79,7 @@ class _CmuMainState extends State<CmuMain> {
       child: CustomScrollView( 
         controller: _scrollController,
         slivers: [
+          // 상단바 접혔을때 생기는 여백
           SliverAppBar(
             pinned: true,
             primary: false,
@@ -87,6 +88,7 @@ class _CmuMainState extends State<CmuMain> {
               decoration: const BoxDecoration(color: Colors.white),
             )
           ),
+          // 상단바
           SliverPersistentHeader(
             pinned: !_scrolledDown,
             delegate: CmuAppBarDelegate(
@@ -96,6 +98,7 @@ class _CmuMainState extends State<CmuMain> {
               isVisible: !_scrolledDown
             )
           ),
+          // 카테고리바
           SliverPersistentHeader(
             pinned: true,
             delegate: CategoryTopBarDelegate(
