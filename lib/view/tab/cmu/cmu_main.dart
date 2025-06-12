@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:my_app/view/tab/cmu/cmu_category_top_bar.dart';
 import 'package:my_app/view/tab/cmu/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/cmu_app_bar_delegate.dart';
@@ -64,6 +63,16 @@ class _CmuMainState extends State<CmuMain> {
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
+    // final response = ref.watch(
+    //   getFeedList(
+    //     FeedQueryParams(
+    //       // category: '운동',
+    //       // hotYn: 'Y',
+    //       // cursorId: 123,
+    //       // limit: 10,
+    //     ),
+    //   ),
+    // );
 
     return Container(
       color: Colors.white,
