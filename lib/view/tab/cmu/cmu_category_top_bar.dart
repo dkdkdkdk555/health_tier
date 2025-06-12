@@ -176,7 +176,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   Widget spreadBtn(){
     return GestureDetector(
       onTap: () async {
-        if (widget.isSpread) {
+        if (!widget.isSpread) {
           // 먼저 내부 애니메이션이 자연스럽게 줄어들도록 대기
           await Future.delayed(const Duration(milliseconds: 300));
         }
