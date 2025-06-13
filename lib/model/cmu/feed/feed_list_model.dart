@@ -3,11 +3,15 @@ class FeedPreviewDto {
   final String category;
   final int categoryId;
   final String title;
-  final String ctntPreview;
+  final String? ctntPreview;
+  final String? imgPreview;
   final int replyCnt;
   final int likeCnt;
   final int views;
-  final DateTime createDttm;
+  final String viewDttm;
+  final String nickName;
+  final String? userImgPath;
+  final String? tier;
 
   FeedPreviewDto({
     required this.id,
@@ -15,10 +19,14 @@ class FeedPreviewDto {
     required this.categoryId,
     required this.title,
     required this.ctntPreview,
+    required this.imgPreview,
     required this.replyCnt,
     required this.likeCnt,
     required this.views,
-    required this.createDttm,
+    required this.viewDttm,
+    required this.nickName,
+    required this.userImgPath,
+    required this.tier
   });
 
   factory FeedPreviewDto.fromJson(Map<String, dynamic> json) {
@@ -27,11 +35,15 @@ class FeedPreviewDto {
       category: json['category'] as String,
       categoryId: json['category_id'] as int,
       title: json['title'] as String,
-      ctntPreview: json['ctntPreview'] as String,
+      ctntPreview: json['ctntPreview'] as String?,
+      imgPreview: json['imgPreview'] as String?,
       replyCnt: json['replyCnt'] ?? 0,
       likeCnt: json['likeCnt'] ?? 0,
       views: json['views'] ?? 0,
-      createDttm: DateTime.parse(json['createDttm']),
+      viewDttm: json['viewDttm'] as String,
+      nickName: json['nickName'] as String,
+      userImgPath: json['userImgPath'] as String?,
+      tier: json['tier'] as String?,
     );
   }
 }

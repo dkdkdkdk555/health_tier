@@ -1,4 +1,6 @@
 
+import 'dart:ffi';
+
 class FeedQueryParams {
   final String? category;
   final String? hotYn;

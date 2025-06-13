@@ -1,9 +1,12 @@
+import 'dart:ffi';
+
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
+import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 
 class FeedService {
   final Dio dio;
@@ -19,7 +22,7 @@ class FeedService {
     );
   }
 
-  Future<ScrollResponse<FeedPreviewDto>> getFeedList({
+  Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams, {
       String? category,
       String? hotYn,
       int? cursorId,

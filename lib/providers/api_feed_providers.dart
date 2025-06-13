@@ -28,9 +28,11 @@ final getFeedCategories = FutureProvider<Result<List<Category>>>((ref) async {
 final getFeedList = FutureProvider.family<ScrollResponse<FeedPreviewDto>, FeedQueryParams>((ref, params) async {
   final service = ref.watch(feedService);
   return service.getFeedList(
-    category: params.category,
-    hotYn: params.hotYn,
-    cursorId: params.cursorId,
-    limit: params.limit,
+    FeedQueryParams(
+      category: params.category,
+      hotYn: params.hotYn,
+      cursorId: params.cursorId,
+      limit: params.limit,
+    )
   );
 });

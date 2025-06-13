@@ -1,8 +1,7 @@
-import 'dart:ffi';
 
 class ScrollResponse<T> {
   final List<T> feeds;
-  final Long lastCursorId;
+  final int lastCursorId;
   final bool hasNext;
 
   ScrollResponse({required this.feeds, required this.lastCursorId, required this.hasNext});
