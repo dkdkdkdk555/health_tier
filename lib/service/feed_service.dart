@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
@@ -23,7 +21,7 @@ class FeedService {
   }
 
   Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams, {
-      String? category,
+      int? categoryId,
       String? hotYn,
       int? cursorId,
       int limit = 10,
@@ -31,7 +29,7 @@ class FeedService {
     final response = await dio.get(
       FeedAPI.getFeeds,
       queryParameters: {
-        if (category != null) 'category': category,
+        if (categoryId != null) 'categoryId': categoryId,
         if (hotYn != null) 'hotYn': hotYn,
         if (cursorId != null) 'cursorId': cursorId,
         'limit': limit,

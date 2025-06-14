@@ -1,7 +1,7 @@
 
 class ScrollResponse<T> {
   final List<T> feeds;
-  final int lastCursorId;
+  final int? lastCursorId;
   final bool hasNext;
 
   ScrollResponse({required this.feeds, required this.lastCursorId, required this.hasNext});
