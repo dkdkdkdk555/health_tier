@@ -20,19 +20,14 @@ class FeedService {
     );
   }
 
-  Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams, {
-      int? categoryId,
-      String? hotYn,
-      int? cursorId,
-      int limit = 10,
-  }) async {
+  Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams) async {
     final response = await dio.get(
       FeedAPI.getFeeds,
       queryParameters: {
-        if (categoryId != null) 'categoryId': categoryId,
-        if (hotYn != null) 'hotYn': hotYn,
-        if (cursorId != null) 'cursorId': cursorId,
-        'limit': limit,
+        if (feedQueryParams.categoryId != null) 'categoryId': feedQueryParams.categoryId,
+        if (feedQueryParams.hotYn != null) 'hotYn': feedQueryParams.hotYn,
+        if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
+        'limit': feedQueryParams.limit,
       },
     );
 
@@ -41,5 +36,6 @@ class FeedService {
       (json) => FeedPreviewDto.fromJson(json),
     );
   }
+
 
 }

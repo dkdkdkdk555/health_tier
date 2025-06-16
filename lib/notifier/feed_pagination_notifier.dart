@@ -5,28 +5,20 @@ import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/service/feed_service.dart';
 
-class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>>{
+class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>> {
   final FeedService _service;
-  
+  final FeedQueryParams _params;
+
   bool _isFetching = false;
   bool _hasNext = true;
-  late FeedQueryParams _params;
   List<FeedPreviewDto> _feeds = [];
 
-  FeedPaginationNotifier(this._service, FeedQueryParams params) : super(const AsyncLoading()) {
-    _params = FeedQueryParams(
-      categoryId: params.categoryId,
-      hotYn:  params.hotYn,
-      cursorId: params.cursorId,
-      limit: params.limit
-    );
+  FeedPaginationNotifier(this._service, this._params) : super(const AsyncLoading()) {
+    _fetchInitial(); // 생성 시 자동 실행
   }
 
-  Future<void> fetchInitial() async {
+  Future<void> _fetchInitial() async {
     state = const AsyncLoading();
-
-    // 최초 요청 시 cursorId는 null
-    _params.cursorId = null;
 
     try {
       final response = await _service.getFeedList(_params);
@@ -39,20 +31,22 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
   }
 
   Future<void> fetchNext() async {
-    if(_isFetching || !_hasNext) return;
+    if (_isFetching || !_hasNext) return;
     _isFetching = true;
-    
-    debugPrint('커서 : ${_params.cursorId}');
 
-    try{
-      final response = await _service.getFeedList(_params);
+    try {
+      final response = await _service.getFeedList(_params.copyWith(cursorId: _params.cursorId));
       _feeds.addAll(response.feeds);
       _params.cursorId = response.lastCursorId;
       _hasNext = response.hasNext;
-      state = AsyncData(ScrollResponse(feeds: _feeds, lastCursorId: _params.cursorId, hasNext: _hasNext));
+      state = AsyncData(ScrollResponse(
+        feeds: _feeds,
+        lastCursorId: _params.cursorId,
+        hasNext: _hasNext,
+      ));
     } finally {
       _isFetching = false;
     }
   }
-
 }
+

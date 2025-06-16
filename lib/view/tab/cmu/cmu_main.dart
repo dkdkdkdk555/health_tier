@@ -27,12 +27,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   // 카테고리바 펼쳐짐 여부
   bool isSpread = false;
   // 피드목록 조회조건
-  FeedQueryParams params = FeedQueryParams(
-    categoryId: null,
-    hotYn: 'N',
-    cursorId: null,
-    limit: 10,
-  );
+  late final FeedQueryParams _feedParams;
   
 
   void toggleSpread() {
@@ -45,6 +40,13 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   void initState() {
     super.initState();
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
+    _feedParams = FeedQueryParams(
+      categoryId: null,
+      hotYn: 'N',
+      cursorId: null,
+      limit: 10,
+    );
+
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       // f1 : 스크롤 방향 감지
@@ -67,7 +69,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
       // f2 : 무한스크롤 감지
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
         // 거의 바닥 근처까지 스크롤됐을 때 다음 페이지 로드
-        ref.read(feedPaginationProvider(params).notifier).fetchNext();
+        ref.read(feedPaginationProvider(_feedParams).notifier).fetchNext();
       }
     });
   }
@@ -89,12 +91,12 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     
-    final scrollResponse = ref.watch(feedPaginationProvider(params)); // 이때 fetchInitial 이 내부적으로 최초 실행됨
+    final scrollResponse = ref.watch(feedPaginationProvider(_feedParams));
 
     return scrollResponse.when(
       data : (scrollData) {
         final feeds = scrollData.feeds;
-        params.cursorId = scrollData.lastCursorId;
+        _feedParams.cursorId = scrollData.lastCursorId;
 
         return Container(
           color: Colors.white,
