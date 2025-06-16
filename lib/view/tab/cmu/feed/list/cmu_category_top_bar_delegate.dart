@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/cmu/cmu_category_top_bar.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar.dart';
 
 class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
   final double htio;

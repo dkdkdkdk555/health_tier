@@ -4,9 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
-import 'package:my_app/view/tab/cmu/cmu_category_top_bar_delegate.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
-import 'package:my_app/view/tab/cmu/cmu_app_bar_delegate.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_app_bar_delegate.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class CmuMain extends ConsumerStatefulWidget {
@@ -40,6 +41,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   void initState() {
     super.initState();
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
+    // 검색조건
     _feedParams = FeedQueryParams(
       categoryId: null,
       hotYn: 'N',
@@ -144,20 +146,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
                           )
                         : const SizedBox.shrink();
                     }
-                    return SizedBox(
-                      height: 100,
-
-                      child: Row(
-                        children: [
-                          Text(
-                            feeds[index].title
-                          ),
-                          Text(
-                            '${feeds[index].id}'
-                          )
-                        ]
-                      ),
-                    );
+                    return CmuFeedItem(feed: feeds[index],);
                   },
                   childCount: feeds.length + 1,
                 ),
