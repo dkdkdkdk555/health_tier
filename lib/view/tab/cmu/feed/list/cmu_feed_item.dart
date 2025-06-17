@@ -34,6 +34,7 @@ class CmuFeedItem extends StatelessWidget {
               ),
             ),
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if(feed.imgPreview == null)... {
                   title(),
@@ -133,7 +134,7 @@ class CmuFeedItem extends StatelessWidget {
       decoration: ShapeDecoration(
           image: DecorationImage(
               image: NetworkImage('${feed.imgPreview}'),
-              fit: BoxFit.fill,
+              fit: BoxFit.cover,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
@@ -148,6 +149,7 @@ class CmuFeedItem extends StatelessWidget {
         height: 44,
         child: Text(
           '${feed.ctntPreview}',
+          textAlign: TextAlign.left,
           style: const TextStyle(
             color: Color(0xFF777777),
               overflow: TextOverflow.ellipsis,
@@ -168,11 +170,15 @@ class CmuFeedItem extends StatelessWidget {
       ),
       child: Text(
         feed.title,
+        textAlign: TextAlign.left,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(
+          color: Colors.black,
           fontSize: 16,
-          overflow: TextOverflow.ellipsis,
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.w700,
+          height: 1.40,
         ),
       ),
     );
