@@ -5,6 +5,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
   final double htio;
   final bool isSpread;
   final VoidCallback onToggleSpread;
+  final void Function({required int index})onCategoryChange;
 
   CategoryTopBarDelegate({
     required this.htio, /* SliverPersistentHeaderDelegate 에서는 context를 바로 활용할 수 없기
@@ -12,6 +13,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
      안보이는 원인 해결 */
      required this.isSpread,
      required this.onToggleSpread,
+     required this.onCategoryChange,
   });
   
   @override
@@ -27,6 +29,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
           isSpread: isSpread,
           onToggleSpread: onToggleSpread,
           htio: htio,
+          onCategoryChange: onCategoryChange,
         ),
       ),
     );

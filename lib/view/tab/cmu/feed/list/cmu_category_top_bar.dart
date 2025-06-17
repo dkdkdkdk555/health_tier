@@ -9,12 +9,14 @@ class CategoryTopBar extends ConsumerStatefulWidget {
   final double htio;
   final bool isSpread;
   final VoidCallback onToggleSpread;
+  final void Function({required int index})onCategoryChange;
 
   const CategoryTopBar({
     super.key,
     required this.htio,
     required this.isSpread,
-    required this.onToggleSpread
+    required this.onToggleSpread,
+    required this.onCategoryChange,
   });
 
   @override
@@ -22,6 +24,8 @@ class CategoryTopBar extends ConsumerStatefulWidget {
 }
 
 class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
+  bool isBestFeedTap = false;
+  int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       child: Row(
         children: [
           if(!widget.isSpread) ...[
-            const BestFeed(),
+            bestFeed(),
             borderLine(),
             buildCategoryCollapsed(categoriesAsync)
           ]else...[
@@ -72,7 +76,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
             children: [
               Row(
                 children: [
-                  const BestFeed(),
+                  bestFeed(),
                   borderLine(),
                   ...firstRowCategories.map(makeCategory),
                 ],
@@ -126,46 +130,56 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   }
 
 
-  Container makeCategory(Category category) {
-    return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        margin: const EdgeInsets.only(right: 4),
-        decoration: ShapeDecoration(
-            color: Colors.white,
-            shape: RoundedRectangleBorder(
-                side: const BorderSide(
-                    width: 1,
-                    color: Color(0xFFDDDDDD),
-                ),
-                borderRadius: BorderRadius.circular(99),
-            ),
-        ),
-        child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-                Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 4,
-                    children: [
-                        Text(
-                            category.name,
-                            style: const TextStyle(
-                                color: Color(0xFF333333),
-                                fontSize: 12,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w400,
-                                height: 1.50,
-                            ),
-                        ),
-                    ],
-                ),
-            ],
-        ),
+  Widget makeCategory(Category category) {
+    final isSelected = selectedCategoryId == category.id;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedCategoryId = category.id;
+          widget.onCategoryChange(index: selectedCategoryId);
+        });
+      },
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          margin: const EdgeInsets.only(right: 4),
+          decoration: ShapeDecoration(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                      width: 1,
+                      color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFFDDDDDD),
+                  ),
+                  borderRadius: BorderRadius.circular(99),
+              ),
+          ),
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 4,
+                      children: [
+                          Text(
+                              category.name,
+                              style: TextStyle(
+                                  color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFF333333),
+                                  fontSize: 12,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.50,
+                              ),
+                          ),
+                      ],
+                  ),
+              ],
+          ),
+      ),
     );
   }
 
@@ -203,25 +217,22 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       ),
     );
   }
-}
 
-
-class BestFeed extends StatelessWidget {
-  const BestFeed({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget bestFeed(){
     return GestureDetector(
+      onTap: () {
+        setState(() {
+          isBestFeedTap = !isBestFeedTap;
+        });
+      },
       child: Container(
           height: 34,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: ShapeDecoration(
               shape: RoundedRectangleBorder(
-                  side: const BorderSide(
+                  side: BorderSide(
                       width: 1,
-                      color: Color(0xFFDDDDDD),
+                      color: isBestFeedTap ? const Color(0xFF0D85E7) : const Color(0xFFDDDDDD),
                   ),
                   borderRadius: BorderRadius.circular(99),
               ),
@@ -245,15 +256,15 @@ class BestFeed extends StatelessWidget {
                               'assets/icons/best.svg'
                             )
                           ),
-                          const Text(
-                              '지금 뜨는',
-                              style: TextStyle(
-                                  color: Color(0xFF333333),
-                                  fontSize: 12,
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.50,
-                              ),
+                          Text(
+                            '지금 뜨는',
+                            style: TextStyle(
+                                color: isBestFeedTap ? const Color(0xFF0D85E7) : const Color(0xFF333333),
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                height: 1.50,
+                            ),
                           ),
                       ],
                   ),
@@ -263,3 +274,5 @@ class BestFeed extends StatelessWidget {
     );
   }
 }
+
+

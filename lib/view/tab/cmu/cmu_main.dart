@@ -27,7 +27,23 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   // 카테고리바 펼쳐짐 여부
   bool isSpread = false;
   // 피드목록 조회조건
-  late final FeedQueryParams _feedParams;
+  late final FeedQueryParams _feedParams = FeedQueryParams(
+    categoryId: null,
+    hotYn: 'N',
+    cursorId: null,
+    limit: 10,
+  );
+
+  // 카테고리 상태
+  bool isBestFeedTap = false;
+  int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
+  // 카테고리 선택 콜백
+  void _categoryChange({required int index}){
+    setState(() {
+      _feedParams.categoryId = index;
+      selectedCategoryId = index;
+    });
+  }
   
 
   void toggleSpread() {
@@ -40,13 +56,6 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   void initState() {
     super.initState();
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
-    // 검색조건
-    _feedParams = FeedQueryParams(
-      categoryId: null,
-      hotYn: 'N',
-      cursorId: null,
-      limit: 10,
-    );
 
     _scrollController = ScrollController();
     _scrollController.addListener(() {
@@ -130,6 +139,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
                   htio: htio,
                   isSpread: isSpread,
                   onToggleSpread : toggleSpread,
+                  onCategoryChange: _categoryChange,
                 )
               ),
 
