@@ -46,7 +46,17 @@ class _CmuMainState extends ConsumerState<CmuMain> {
       cursorId: null,
       limit: 10,
     );
+  }
 
+  void _getHotFeedBtnClick({required bool hotYn}){
+    isBestFeedTap = hotYn;
+    debugPrint('HOTYN :$hotYn');
+    ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
+      categoryId: selectedCategoryId,
+      hotYn: hotYn ? 'Y' : 'N',
+      cursorId: null,
+      limit: 10,
+    );
   }
   
 
@@ -138,6 +148,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
               isSpread: isSpread,
               onToggleSpread : toggleSpread,
               onCategoryChange: _categoryChange,
+              onHotFeedBtnClick: _getHotFeedBtnClick,
               selectedCategoryId: selectedCategoryId,
             )
           ),

@@ -6,6 +6,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
   final bool isSpread;
   final VoidCallback onToggleSpread;
   final void Function({required int index})onCategoryChange;
+  final void Function({required bool hotYn})onHotFeedBtnClick;
   final int selectedCategoryId;
 
   CategoryTopBarDelegate({
@@ -15,6 +16,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
      required this.isSpread,
      required this.onToggleSpread,
      required this.onCategoryChange,
+     required this.onHotFeedBtnClick,
      required this.selectedCategoryId,
   });
   
@@ -33,6 +35,7 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
           htio: htio,
           onCategoryChange: onCategoryChange,
           selectedCategoryId: selectedCategoryId,
+          onHotFeedBtnClick: onHotFeedBtnClick,
         ),
       ),
     );

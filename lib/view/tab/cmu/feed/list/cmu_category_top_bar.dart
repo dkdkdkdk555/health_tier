@@ -10,6 +10,7 @@ class CategoryTopBar extends ConsumerStatefulWidget {
   final bool isSpread;
   final VoidCallback onToggleSpread;
   final void Function({required int index})onCategoryChange;
+  final void Function({required bool hotYn})onHotFeedBtnClick;
   final int selectedCategoryId;
 
   const CategoryTopBar({
@@ -18,6 +19,7 @@ class CategoryTopBar extends ConsumerStatefulWidget {
     required this.isSpread,
     required this.onToggleSpread,
     required this.onCategoryChange,
+    required this.onHotFeedBtnClick,
     required this.selectedCategoryId,
   });
 
@@ -231,6 +233,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       onTap: () {
         setState(() {
           isBestFeedTap = !isBestFeedTap;
+          widget.onHotFeedBtnClick(hotYn: isBestFeedTap);
         });
       },
       child: Container(
