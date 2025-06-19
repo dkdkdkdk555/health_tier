@@ -27,7 +27,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   // 카테고리바 펼쳐짐 여부
   bool isSpread = false;
   // 피드목록 조회조건
-  late final FeedQueryParams _feedParams = FeedQueryParams(
+  final FeedQueryParams _feedParams = FeedQueryParams(
     categoryId: null,
     hotYn: 'N',
     cursorId: null,
@@ -41,8 +41,12 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   void _categoryChange({required int index}){
     setState(() {
       _feedParams.categoryId = index;
+      _feedParams.cursorId = null;
       selectedCategoryId = index;
     });
+
+    // 수동 초기화 트리거
+    ref.read(feedPaginationProvider(_feedParams).notifier).fetchInitial();
   }
   
 
@@ -106,7 +110,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
     return scrollResponse.when(
       data : (scrollData) {
         final feeds = scrollData.feeds;
-        _feedParams.cursorId = scrollData.lastCursorId;
+        // _feedParams.cursorId = scrollData.lastCursorId;
 
         return Container(
           color: Colors.white,
@@ -140,9 +144,9 @@ class _CmuMainState extends ConsumerState<CmuMain> {
                   isSpread: isSpread,
                   onToggleSpread : toggleSpread,
                   onCategoryChange: _categoryChange,
+                  selectedCategoryId: selectedCategoryId,
                 )
               ),
-
               SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {

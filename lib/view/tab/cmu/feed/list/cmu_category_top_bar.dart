@@ -10,6 +10,7 @@ class CategoryTopBar extends ConsumerStatefulWidget {
   final bool isSpread;
   final VoidCallback onToggleSpread;
   final void Function({required int index})onCategoryChange;
+  final int selectedCategoryId;
 
   const CategoryTopBar({
     super.key,
@@ -17,6 +18,7 @@ class CategoryTopBar extends ConsumerStatefulWidget {
     required this.isSpread,
     required this.onToggleSpread,
     required this.onCategoryChange,
+    required this.selectedCategoryId,
   });
 
   @override
@@ -25,7 +27,13 @@ class CategoryTopBar extends ConsumerStatefulWidget {
 
 class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   bool isBestFeedTap = false;
-  int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
+  late int selectedCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedCategoryId =  widget.selectedCategoryId;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -13,10 +13,10 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
   List<FeedPreviewDto> _feeds = [];
 
   FeedPaginationNotifier(this._service, this._params) : super(const AsyncLoading()) {
-    _fetchInitial(); // 생성 시 자동 실행
+    fetchInitial(); // 생성 시 자동 실행
   }
 
-  Future<void> _fetchInitial() async {
+  Future<void> fetchInitial() async {
     state = const AsyncLoading();
 
     try {
