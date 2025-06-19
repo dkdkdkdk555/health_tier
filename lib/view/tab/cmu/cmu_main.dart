@@ -5,6 +5,7 @@ import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_list_sliver.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_app_bar_delegate.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
@@ -39,14 +40,13 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
   // 카테고리 선택 콜백
   void _categoryChange({required int index}){
-    setState(() {
-      _feedParams.categoryId = index;
-      _feedParams.cursorId = null;
-      selectedCategoryId = index;
-    });
+    ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
+      categoryId: index,
+      hotYn: isBestFeedTap ? 'Y' : 'N',
+      cursorId: null,
+      limit: 10,
+    );
 
-    // 수동 초기화 트리거
-    ref.read(feedPaginationProvider(_feedParams).notifier).fetchInitial();
   }
   
 
@@ -105,74 +105,45 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     
-    final scrollResponse = ref.watch(feedPaginationProvider(_feedParams));
-
-    return scrollResponse.when(
-      data : (scrollData) {
-        final feeds = scrollData.feeds;
-        // _feedParams.cursorId = scrollData.lastCursorId;
-
-        return Container(
-          color: Colors.white,
-          child: CustomScrollView( 
-            controller: _scrollController,
-            slivers: [
-              // 상단바 접혔을때 생기는 여백
-              SliverAppBar(
-                pinned: true,
-                primary: false,
-                toolbarHeight: 44,
-                flexibleSpace: Container(
-                  decoration: const BoxDecoration(color: Colors.white),
-                )
-              ),
-              // 상단바
-              SliverPersistentHeader(
-                pinned: !_scrolledDown,
-                delegate: CmuAppBarDelegate(
-                  selectedIndex: _selectedIndex, 
-                  onTap: _onTap, 
-                  htio: htio,
-                  isVisible: !_scrolledDown
-                )
-              ),
-              // 카테고리바
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: CategoryTopBarDelegate(
-                  htio: htio,
-                  isSpread: isSpread,
-                  onToggleSpread : toggleSpread,
-                  onCategoryChange: _categoryChange,
-                  selectedCategoryId: selectedCategoryId,
-                )
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    // 마지막 인덱스엔 로딩 인디케이터
-                    if (index == feeds.length) {
-                      return scrollData.hasNext
-                        ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                        : const SizedBox.shrink();
-                    }
-                    return CmuFeedItem(feed: feeds[index],);
-                  },
-                  childCount: feeds.length + 1,
-                ),
-              ),
-            ],
+    return Container(
+      color: Colors.white,
+      child: CustomScrollView( 
+        controller: _scrollController,
+        slivers: [
+          // 상단바 접혔을때 생기는 여백
+          SliverAppBar(
+            pinned: true,
+            primary: false,
+            toolbarHeight: 44,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(color: Colors.white),
+            )
           ),
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) {
-        debugPrintStack(stackTrace: stack);
-        return Center(child: Text('에러 발생: $err'));
-      }
+          // 상단바
+          SliverPersistentHeader(
+            pinned: !_scrolledDown,
+            delegate: CmuAppBarDelegate(
+              selectedIndex: _selectedIndex, 
+              onTap: _onTap, 
+              htio: htio,
+              isVisible: !_scrolledDown
+            )
+          ),
+          // 카테고리바
+          SliverPersistentHeader(
+            pinned: true,
+            
+            delegate: CategoryTopBarDelegate(
+              htio: htio,
+              isSpread: isSpread,
+              onToggleSpread : toggleSpread,
+              onCategoryChange: _categoryChange,
+              selectedCategoryId: selectedCategoryId,
+            )
+          ),
+          const FeedListSliver(),
+        ],
+      ),
     );
   }
 }

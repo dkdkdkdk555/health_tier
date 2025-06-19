@@ -36,7 +36,7 @@ class CmuFeedItem extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(feed.imgPreview == null)... {
+                if(feed.imgPreview == null || feed.imgPreview!.isEmpty)... {
                   title(),
                   ctntPreview()
                 } else... {
