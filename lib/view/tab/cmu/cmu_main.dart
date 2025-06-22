@@ -21,7 +21,7 @@ class CmuMain extends ConsumerStatefulWidget {
 
  var htio = 0.0;
 
-class _CmuMainState extends ConsumerState<CmuMain> {
+class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin {
   // 어느 하위 탭인지
   late int _selectedIndex;
   // 스크롤 상태관리
@@ -34,7 +34,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   // 최신피드id
   int? latestFeedId;
   // 새게시글 위젯표시 변수
-  late OverlayEntry _alarmOverlay;
+  OverlayEntry? _alarmOverlay;
   // 중복호출 방지 플래그
   bool _checkingNewFeed = false;
   // 카테고리 상태
@@ -86,6 +86,9 @@ class _CmuMainState extends ConsumerState<CmuMain> {
           setState(() {
             _scrolledDown = true;
           });
+          if (_alarmOverlay != null) {
+            _showNewFeedAlarmOverlay(); // 다시 띄워서 위치 갱신
+          }
         }
       } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
         // 위로 스크롤 시작
@@ -93,6 +96,9 @@ class _CmuMainState extends ConsumerState<CmuMain> {
           setState(() {
             _scrolledDown = false;
           });
+        }
+        if (_alarmOverlay != null) {
+          _showNewFeedAlarmOverlay(); // 다시 띄워서 위치 갱신
         }
       }
 
@@ -129,7 +135,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   }
 
   void _checkNewFeed() async {
-    if (_checkingNewFeed) return; // 중복 호출 방지
+    if (_checkingNewFeed || _alarmOverlay != null) return; // 중복 호출 방지
     _checkingNewFeed = true;
     final service = ref.read(feedService); // FeedService 인스턴스
     final categoryId = selectedCategoryId;
@@ -149,7 +155,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
       debugPrint('새 피드 체크 중 에러 발생: $e');
     } finally {
       // 짧은 시간 후에 다시 체크 가능하도록 플래그 해제
-      await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 5));
       _checkingNewFeed = false;
     }
   }
@@ -201,20 +207,72 @@ class _CmuMainState extends ConsumerState<CmuMain> {
     );
   }
 
-
   void _showNewFeedAlarmOverlay() {
+    var origin = 178;
+    var flip = 114;
+    var y = _scrolledDown ? (origin - flip) : origin;
+
+    final overlay = Overlay.of(context);
+
+    final animationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    final slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOut,
+    ));
+
+    final fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeIn,
+    ));
+
+    _alarmOverlay?.remove(); // 기존 알람 제거
+
     _alarmOverlay = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 178, // AppBar + 카테고리바 + 여백
+        top: MediaQuery.of(context).padding.top + y,
         left: 0,
         right: 0,
-        child: const Center(child: CmuNewFeedAlarm()),
+        child: SlideTransition(
+          position: slideAnimation,
+          child: FadeTransition(
+            opacity: fadeAnimation,
+            child: Center(child: CmuNewFeedAlarm(
+              onTap: () {
+                _alarmOverlay?.remove();
+                _alarmOverlay = null;
+                ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
+                  categoryId: selectedCategoryId,
+                  hotYn: isBestFeedTap ? 1 : 0,
+                  cursorId: null,
+                  limit: 10,
+                );
+              },
+            )),
+          ),
+        ),
       ),
     );
 
-    Overlay.of(context).insert(_alarmOverlay);
-    Future.delayed(const Duration(seconds: 4), () {
-      _alarmOverlay.remove();
-    });
-  }
+    overlay.insert(_alarmOverlay!);
+    animationController.forward();
+
+    // Future.delayed(const Duration(seconds: 10), () async {
+    //   await animationController.reverse();
+    //   _alarmOverlay?.remove();
+    //   _alarmOverlay = null;
+    //   animationController.dispose();
+    // });
+}
+
+
 }

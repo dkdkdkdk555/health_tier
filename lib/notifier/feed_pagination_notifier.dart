@@ -21,6 +21,7 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
 
     try {
       final response = await _service.getFeedList(_params);
+      _feeds.clear();
       _feeds = response.feeds;
       _hasNext = response.hasNext;
       _params.cursorId = response.lastCursorId;
