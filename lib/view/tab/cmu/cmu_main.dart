@@ -30,7 +30,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   // 피드목록 조회조건
   final FeedQueryParams _feedParams = FeedQueryParams(
     categoryId: null,
-    hotYn: 'N',
+    hotYn: 0,
     cursorId: null,
     limit: 10,
   );
@@ -42,7 +42,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   void _categoryChange({required int index}){
     ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
       categoryId: index,
-      hotYn: isBestFeedTap ? 'Y' : 'N',
+      hotYn: isBestFeedTap ? 1 : 0,
       cursorId: null,
       limit: 10,
     );
@@ -50,10 +50,9 @@ class _CmuMainState extends ConsumerState<CmuMain> {
 
   void _getHotFeedBtnClick({required bool hotYn}){
     isBestFeedTap = hotYn;
-    debugPrint('HOTYN :$hotYn');
     ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
       categoryId: selectedCategoryId,
-      hotYn: hotYn ? 'Y' : 'N',
+      hotYn: hotYn ? 1 : 0,
       cursorId: null,
       limit: 10,
     );

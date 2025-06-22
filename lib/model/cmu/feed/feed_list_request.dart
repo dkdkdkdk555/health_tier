@@ -1,6 +1,6 @@
 class FeedQueryParams {
   int? categoryId;
-  String? hotYn;
+  int? hotYn;
   int? cursorId;
   final int limit;
 
@@ -13,7 +13,7 @@ class FeedQueryParams {
 
   FeedQueryParams copyWith({
     int? categoryId,
-    String? hotYn,
+    int? hotYn,
     int? cursorId,
     int? limit,
   }) {
