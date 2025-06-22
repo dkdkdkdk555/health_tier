@@ -6,9 +6,11 @@ import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_list_sliver.dart';
+import 'package:my_app/view/tab/cmu/feed/list/cmu_new_feed_alarm.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_app_bar_delegate.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/service/feed_service.dart';
 
 class CmuMain extends ConsumerStatefulWidget {
   const CmuMain({super.key});
@@ -27,10 +29,18 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   bool _scrolledDown = false;
   // 카테고리바 펼쳐짐 여부
   bool isSpread = false;
-
+  // 처음 화면 진입 상태관리
+  bool _initialLoadDone = false;
+  // 최신피드id
+  int? latestFeedId;
+  // 새게시글 위젯표시 변수
+  late OverlayEntry _alarmOverlay;
+  // 중복호출 방지 플래그
+  bool _checkingNewFeed = false;
   // 카테고리 상태
   bool isBestFeedTap = false;
   int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
+
   // 카테고리 선택 콜백
   void _categoryChange({required int index}){
     selectedCategoryId = index;
@@ -52,6 +62,9 @@ class _CmuMainState extends ConsumerState<CmuMain> {
     );
   }
   
+  void _saveLatestIndex({required int index}){
+    latestFeedId = index;
+  }
 
   void toggleSpread() {
     setState(() {
@@ -89,6 +102,16 @@ class _CmuMainState extends ConsumerState<CmuMain> {
         final params = ref.read(feedParamsProvider);
         ref.read(feedPaginationProvider(params).notifier).fetchNext();
       }
+
+      // f3 : 새 피드 있는지 묻기
+      if (_initialLoadDone && _scrollController.position.pixels <= 0) {
+        _checkNewFeed();
+      }
+
+      // 최초 1회 로딩 후 true로 전환
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _initialLoadDone = true;
+      });
     });
   }
 
@@ -103,6 +126,32 @@ class _CmuMainState extends ConsumerState<CmuMain> {
       _selectedIndex = index;
       cachedCmuTabIndex = index; // 캐싱
     });
+  }
+
+  void _checkNewFeed() async {
+    if (_checkingNewFeed) return; // 중복 호출 방지
+    _checkingNewFeed = true;
+    final service = ref.read(feedService); // FeedService 인스턴스
+    final categoryId = selectedCategoryId;
+
+    try {
+      final hasNew = await service.isThereNewFeed(
+        latestId: latestFeedId ?? 0,
+        categoryId: categoryId,
+      );
+
+      if (hasNew) {
+        _showNewFeedAlarmOverlay();
+      } else {
+        debugPrint('새피드 없음');
+      }
+    } catch (e) {
+      debugPrint('새 피드 체크 중 에러 발생: $e');
+    } finally {
+      // 짧은 시간 후에 다시 체크 가능하도록 플래그 해제
+      await Future.delayed(const Duration(seconds: 3));
+      _checkingNewFeed = false;
+    }
   }
 
   @override
@@ -146,9 +195,26 @@ class _CmuMainState extends ConsumerState<CmuMain> {
               selectedCategoryId: selectedCategoryId,
             )
           ),
-          const FeedListSliver(),
+          FeedListSliver(saveLatestIndex: _saveLatestIndex,),
         ],
       ),
     );
+  }
+
+
+  void _showNewFeedAlarmOverlay() {
+    _alarmOverlay = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + 178, // AppBar + 카테고리바 + 여백
+        left: 0,
+        right: 0,
+        child: const Center(child: CmuNewFeedAlarm()),
+      ),
+    );
+
+    Overlay.of(context).insert(_alarmOverlay);
+    Future.delayed(const Duration(seconds: 4), () {
+      _alarmOverlay.remove();
+    });
   }
 }

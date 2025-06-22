@@ -11,6 +11,7 @@ class FeedService {
   final Dio dio;
   FeedService(this.dio);
 
+  // 카테고리 조회
   Future<Result<List<Category>>> getCategories() async {
     final response = await dio.get(FeedAPI.getCategories);
     return Result.fromJson(
@@ -21,8 +22,8 @@ class FeedService {
     );
   }
 
+  // 피드목록 조회
   Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams) async {
-
     final response = await dio.get(
       FeedAPI.getFeeds,
       queryParameters: {
@@ -32,12 +33,29 @@ class FeedService {
         'limit': feedQueryParams.limit,
       },
     );
-
     return ScrollResponse.fromJson(
       response.data,
       (json) => FeedPreviewDto.fromJson(json),
     );
   }
+
+  // 새 피드 존재 여부 확인
+  Future<bool> isThereNewFeed({
+    required int latestId,
+    int? categoryId,
+  }) async {
+    final response = await dio.get(
+      FeedAPI.isThereNewFeed,
+      queryParameters: {
+        'latestId': latestId,
+        if (categoryId != null && categoryId != 0) 'category': categoryId,
+      },
+    );
+    debugPrint(response.data.toString());
+    return response.data.toString() == 'Y';
+  }
+
+
 
 
 }

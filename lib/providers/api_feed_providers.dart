@@ -34,4 +34,3 @@ final feedPaginationProvider = StateNotifierProvider.family<FeedPaginationNotifi
 final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
   return FeedQueryParams();
 });
-

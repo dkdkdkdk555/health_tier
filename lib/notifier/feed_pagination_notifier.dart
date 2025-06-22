@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';

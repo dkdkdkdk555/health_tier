@@ -4,7 +4,10 @@ import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 
 class FeedListSliver extends ConsumerWidget {
-  const FeedListSliver({super.key});
+  final void Function({required int index}) saveLatestIndex;
+  const FeedListSliver({super.key
+    , required this.saveLatestIndex,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,6 +17,9 @@ class FeedListSliver extends ConsumerWidget {
     return scrollResponse.when(
       data: (scrollData) {
         final feeds = scrollData.feeds;
+
+
+        saveLatestIndex(index:feeds[0].id);
 
         return SliverList(
           delegate: SliverChildBuilderDelegate(
