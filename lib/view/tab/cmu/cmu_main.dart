@@ -33,6 +33,7 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
   // 카테고리 선택 콜백
   void _categoryChange({required int index}){
+    selectedCategoryId = index;
     ref.read(feedParamsProvider.notifier).state = FeedQueryParams(
       categoryId: index,
       hotYn: isBestFeedTap ? 1 : 0,

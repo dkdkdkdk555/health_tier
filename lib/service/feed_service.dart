@@ -23,8 +23,6 @@ class FeedService {
 
   Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams) async {
 
-    debugPrint('${feedQueryParams.categoryId} : ${feedQueryParams.hotYn}');
-
     final response = await dio.get(
       FeedAPI.getFeeds,
       queryParameters: {
