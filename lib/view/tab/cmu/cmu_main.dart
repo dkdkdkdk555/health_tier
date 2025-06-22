@@ -27,13 +27,6 @@ class _CmuMainState extends ConsumerState<CmuMain> {
   bool _scrolledDown = false;
   // 카테고리바 펼쳐짐 여부
   bool isSpread = false;
-  // 피드목록 조회조건
-  final FeedQueryParams _feedParams = FeedQueryParams(
-    categoryId: null,
-    hotYn: 0,
-    cursorId: null,
-    limit: 10,
-  );
 
   // 카테고리 상태
   bool isBestFeedTap = false;
@@ -92,7 +85,8 @@ class _CmuMainState extends ConsumerState<CmuMain> {
       // f2 : 무한스크롤 감지
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
         // 거의 바닥 근처까지 스크롤됐을 때 다음 페이지 로드
-        ref.read(feedPaginationProvider(_feedParams).notifier).fetchNext();
+        final params = ref.read(feedParamsProvider);
+        ref.read(feedPaginationProvider(params).notifier).fetchNext();
       }
     });
   }
