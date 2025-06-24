@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 
 class CmuFeedItem extends StatelessWidget {
   final FeedPreviewDto feed;
@@ -11,55 +12,79 @@ class CmuFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: const ShapeDecoration(
-          shape: RoundedRectangleBorder(
-          side: BorderSide(
-              width: 1,
-              color: Color(0xFFEEEEEE),
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                FeedDetail(feedId: feed.id),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+              const end = Offset.zero;       // 현재 위치로 이동
+              const curve = Curves.ease;
+
+              final tween = Tween(begin: begin, end: end)
+                  .chain(CurveTween(curve: curve));
+
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 300),
           ),
-        ),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  profileImage(feed.userImgPath),
-                  feedProfile()
-                ],
+        );
+      },
+      child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: const ShapeDecoration(
+            shape: RoundedRectangleBorder(
+            side: BorderSide(
+                width: 1,
+                color: Color(0xFFEEEEEE),
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if(feed.imgPreview == null || feed.imgPreview!.isEmpty)... {
-                  title(),
-                  ctntPreview()
-                } else... {
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            title(),
-                            ctntPreview(),
-                          ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    profileImage(feed.userImgPath),
+                    feedProfile()
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if(feed.imgPreview == null || feed.imgPreview!.isEmpty)... {
+                    title(),
+                    ctntPreview()
+                  } else... {
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              title(),
+                              ctntPreview(),
+                            ],
+                          ),
                         ),
-                      ),
-                      imagePreview()
-                    ],
-                  ),
-                }
-                ,likeAndReply()
-              ],
-            )
-          ],
-        ),
+                        imagePreview()
+                      ],
+                    ),
+                  }
+                  ,likeAndReply()
+                ],
+              )
+            ],
+          ),
+      ),
     );
   }
 
