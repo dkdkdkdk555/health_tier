@@ -5,7 +5,7 @@ class Result<T> {
 
   Result({required this.data, required this.count, required this.message});
 
-  factory Result.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) {
+  factory Result.fromJson(Map<String, dynamic> json, T Function(Object? obj) fromJsonT) {
     return Result(
       data: fromJsonT(json['data']),
       count: json['count'],

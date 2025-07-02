@@ -33,8 +33,8 @@ class FeedDetail extends StatelessWidget {
           ),
 
           // 🔷 게시글 본문
-          const SliverToBoxAdapter(
-            child: FeedDetailMain(),
+          SliverToBoxAdapter(
+            child: FeedDetailMain(feedId: feedId),
           ),
 
           // 🔷 댓글 리스트

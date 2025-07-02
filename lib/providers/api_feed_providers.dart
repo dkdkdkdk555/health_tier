@@ -4,6 +4,7 @@ import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
+import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
@@ -33,4 +34,10 @@ final feedPaginationProvider = StateNotifierProvider.family<FeedPaginationNotifi
 
 final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
   return FeedQueryParams();
+});
+
+// 피드 상세 조회 프로바이더
+final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
+  final service = ref.watch(feedService);
+  return await service.getFeedDetail(feedId);
 });

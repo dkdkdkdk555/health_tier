@@ -4,6 +4,7 @@ import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
+import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 
@@ -55,7 +56,14 @@ class FeedService {
     return response.data.toString() == 'Y';
   }
 
-
+  // 피드 상세 조회
+  Future<Result<FeedDetailDto>> getFeedDetail(int id) async{
+    final response = await dio.get('${FeedAPI.getFeed}/$id');
+    return Result.fromJson(
+      response.data,
+      (json) => FeedDetailDto.fromJson(json as Map<String, dynamic>),
+    );
+  }
 
 
 }
