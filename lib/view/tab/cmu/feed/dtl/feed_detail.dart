@@ -19,16 +19,15 @@ class FeedDetail extends StatelessWidget {
             pinned: true,
             primary: false,
             toolbarHeight: 44,
+            automaticallyImplyLeading: false,
             flexibleSpace: Container(
               decoration: const BoxDecoration(color: Colors.white),
             )
           ),
-          // 🔷 상단 앱바
+          // 상단 앱바
           SliverPersistentHeader(
             pinned: true,
-            delegate: FeedDetailAppBarDelegate(
-
-            ),
+            delegate: FeedDetailAppBarDelegate(),
           ),
 
           // 🔷 게시글 본문
