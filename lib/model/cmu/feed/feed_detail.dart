@@ -13,9 +13,6 @@ class FeedDetailDto {
   final int views;
   final String displayDttm;
   final int replyCount;
-  final int? crtifiNums;
-  final String? crtifiWho;
-  final int? crtifiId;
 
   FeedDetailDto({
     required this.id,
@@ -32,9 +29,6 @@ class FeedDetailDto {
     required this.views,
     required this.displayDttm,
     required this.replyCount,
-    this.crtifiNums,
-    this.crtifiWho,
-    this.crtifiId,
   });
 
   factory FeedDetailDto.fromJson(Map<String, dynamic> json) {
@@ -47,10 +41,10 @@ class FeedDetailDto {
       userId: json['userId'] as int,
       nickname: json['nickname'] as String? ?? '',
       imgPath: json['imgPath'] as String? ?? '',
-      likeCnt: json['likeCnt'] as int,
+      likeCnt: json['likeCnt'] as int? ?? 0,
       isLiked: json['isLiked'] as bool? ?? false,
       isReportedForMe: json['isReportedForMe'] as bool? ?? false,
-      views: json['views'] as int,
+      views: json['views'] as int? ?? 0,
       displayDttm: json['displayDttm'] as String? ?? '',
       replyCount: json['replyCount'] as int,
     );

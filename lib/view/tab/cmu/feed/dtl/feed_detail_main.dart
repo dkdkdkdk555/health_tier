@@ -19,8 +19,6 @@ class FeedDetailMain extends ConsumerWidget {
       data: (result) {
         final feed = result.data;
 
-        debugPrint('타이틀:${feed.title}');
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -44,14 +42,25 @@ class FeedDetailMain extends ConsumerWidget {
                           shape: BoxShape.circle,
                         ),
                         child: ClipOval(
-                          child: SvgPicture.asset(
-                            'assets/widgets/default_user_profile.svg',
-                            fit: BoxFit.cover,
-                          ),
+                          child: (feed.imgPath.isEmpty)
+                              ? SvgPicture.asset(
+                                  'assets/widgets/default_user_profile.svg',
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  feed.imgPath,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return SvgPicture.asset(
+                                      'assets/widgets/default_user_profile.svg',
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Column(
+                      Column(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,8 +72,8 @@ class FeedDetailMain extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '멸치표류기0212',
-                                  style: TextStyle(
+                                  feed.nickname,
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
@@ -113,7 +122,7 @@ class FeedDetailMain extends ConsumerWidget {
                                                             borderRadius: BorderRadius.circular(99),
                                                         ),
                                                     ),
-                                                    child: const Row(
+                                                    child: Row(
                                                         mainAxisSize: MainAxisSize.min,
                                                         mainAxisAlignment: MainAxisAlignment.start,
                                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,8 +135,8 @@ class FeedDetailMain extends ConsumerWidget {
                                                                 spacing: 4,
                                                                 children: [
                                                                     Text(
-                                                                        '운동부위',
-                                                                        style: TextStyle(
+                                                                        feed.categoryName,
+                                                                        style: const TextStyle(
                                                                             color: Color(0xFF777777),
                                                                             fontSize: 12,
                                                                             fontFamily: 'Pretendard',
@@ -140,11 +149,11 @@ class FeedDetailMain extends ConsumerWidget {
                                                         ],
                                                     ),
                                                 ),
-                                                const SizedBox(
+                                                SizedBox(
                                                     width: 335,
                                                     child: Text(
-                                                        '오늘 데드리프트 PR 갱신했습니다🔥 오늘 데드리프트',
-                                                        style: TextStyle(
+                                                        feed.title,
+                                                        style: const TextStyle(
                                                             color: Colors.black,
                                                             fontSize: 20,
                                                             fontFamily: 'Pretendard',
@@ -153,15 +162,15 @@ class FeedDetailMain extends ConsumerWidget {
                                                         ),
                                                     ),
                                                 ),
-                                                const Row(
+                                                Row(
                                                     mainAxisSize: MainAxisSize.min,
                                                     mainAxisAlignment: MainAxisAlignment.start,
                                                     crossAxisAlignment: CrossAxisAlignment.center,
                                                     spacing: 4,
                                                     children: [
                                                         Text(
-                                                            '방금 전',
-                                                            style: TextStyle(
+                                                            feed.displayDttm,
+                                                            style: const TextStyle(
                                                                 color: Color(0xFF777777),
                                                                 fontSize: 14,
                                                                 fontFamily: 'Pretendard',
@@ -169,7 +178,7 @@ class FeedDetailMain extends ConsumerWidget {
                                                                 height: 1.50,
                                                             ),
                                                         ),
-                                                        Text(
+                                                        const Text(
                                                             '·',
                                                             style: TextStyle(
                                                                 color: Color(0xFF777777),
@@ -180,8 +189,8 @@ class FeedDetailMain extends ConsumerWidget {
                                                             ),
                                                         ),
                                                         Text(
-                                                            '조회수 140',
-                                                            style: TextStyle(
+                                                            '조회수 ${feed.views}',
+                                                            style: const TextStyle(
                                                                 color: Color(0xFF777777),
                                                                 fontSize: 14,
                                                                 fontFamily: 'Pretendard',
@@ -263,15 +272,15 @@ class FeedDetailMain extends ConsumerWidget {
                                                                             fit: BoxFit.cover,
                                                                           ),
                                                                         ),
-                                                                        const Text(
-                                                                            '좋아요',
-                                                                            style: TextStyle(
-                                                                                color: Color(0xFF333333),
-                                                                                fontSize: 12,
-                                                                                fontFamily: 'Pretendard',
-                                                                                fontWeight: FontWeight.w400,
-                                                                                height: 1.50,
-                                                                            ),
+                                                                        Text(
+                                                                          feed.likeCnt == 0 ? '좋아요' : '${feed.likeCnt}',
+                                                                          style: const TextStyle(
+                                                                            color: Color(0xFF333333),
+                                                                            fontSize: 12,
+                                                                            fontFamily: 'Pretendard',
+                                                                            fontWeight: FontWeight.w400,
+                                                                            height: 1.50,
+                                                                          ),
                                                                         ),
                                                                     ],
                                                                 ),
