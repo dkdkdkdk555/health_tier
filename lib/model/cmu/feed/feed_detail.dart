@@ -8,8 +8,8 @@ class FeedDetailDto {
   final String nickname;
   final String imgPath;
   final int likeCnt;
-  final bool isLiked;
-  final bool isReportedForMe;
+  final bool? isLiked;
+  final bool? isReportedForMe;
   final int views;
   final String displayDttm;
   final int replyCount;
@@ -41,21 +41,18 @@ class FeedDetailDto {
     return FeedDetailDto(
       id: json['id'] as int,
       categoryId: json['categoryId'] as int,
-      categoryName: json['categoryName'] as String,
-      title: json['title'] as String,
-      ctnt: json['ctnt'] as String,
+      categoryName: json['categoryName'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      ctnt: json['ctnt'] as String? ?? '',
       userId: json['userId'] as int,
-      nickname: json['nickname'] as String,
-      imgPath: json['imgPath'] as String,
+      nickname: json['nickname'] as String? ?? '',
+      imgPath: json['imgPath'] as String? ?? '',
       likeCnt: json['likeCnt'] as int,
-      isLiked: json['isLiked'] as bool,
-      isReportedForMe: json['isReportedForMe'] as bool,
+      isLiked: json['isLiked'] as bool? ?? false,
+      isReportedForMe: json['isReportedForMe'] as bool? ?? false,
       views: json['views'] as int,
-      displayDttm: json['displayDttm'] as String,
+      displayDttm: json['displayDttm'] as String? ?? '',
       replyCount: json['replyCount'] as int,
-      crtifiNums: json['crtifiNums'] != null ? json['crtifiNums'] as int : null,
-      crtifiWho: json['crtifiWho'] as String?,
-      crtifiId: json['crtifiId'] != null ? json['crtifiId'] as int : null,
     );
   }
 }
