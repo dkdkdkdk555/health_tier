@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'dart:convert';
 
 class FeedDetailMain extends ConsumerWidget {
   final int feedId;
@@ -73,18 +75,21 @@ class FeedDetailMain extends ConsumerWidget {
                                             ],
                                         ),
                                     ),
-                                    const SizedBox(
-                                        width: 335,
-                                        child: Text(
-                                            '3대 운동 시작한 지 6개월 차인데 드디어 데드리프트 140kg 성공했어요! 폼 체크도 받았는데 괜찮다고 해서 너무 뿌듯합니다.',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16,
-                                                fontFamily: 'Pretendard',
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.40,
-                                            ),
+                                    SizedBox(
+                                      width: 335,
+                                      child: quill.QuillEditor.basic(
+                                        controller: quill.QuillController(
+                                          readOnly: true,
+                                          document: quill.Document.fromJson(
+                                            feed.ctnt.isNotEmpty
+                                              ? List<Map<String, dynamic>>.from(
+                                                  (jsonDecode(feed.ctnt) as List),
+                                                )
+                                              : [],
+                                          ),
+                                          selection: const TextSelection.collapsed(offset: 0),
                                         ),
+                                      ),
                                     ),
                                 ],
                             ),
