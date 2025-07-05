@@ -16,7 +16,7 @@ class FeedListSliver extends ConsumerWidget {
 
     return scrollResponse.when(
       data: (scrollData) {
-        final feeds = scrollData.feeds;
+        final feeds = scrollData.items;
         saveLatestIndex(index:feeds[0].id);
         return SliverList(
           delegate: SliverChildBuilderDelegate(

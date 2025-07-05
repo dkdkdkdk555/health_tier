@@ -22,7 +22,7 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
     try {
       final response = await _service.getFeedList(_params);
       _feeds.clear();
-      _feeds = response.feeds;
+      _feeds = response.items;
       _hasNext = response.hasNext;
       _params.cursorId = response.lastCursorId;
       state = AsyncData(response);
@@ -37,11 +37,11 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
 
     try {
       final response = await _service.getFeedList(_params.copyWith(cursorId: _params.cursorId));
-      _feeds.addAll(response.feeds);
+      _feeds.addAll(response.items);
       _params.cursorId = response.lastCursorId;
       _hasNext = response.hasNext;
       state = AsyncData(ScrollResponse(
-        feeds: _feeds,
+        items: _feeds,
         lastCursorId: _params.cursorId,
         hasNext: _hasNext,
       ));
