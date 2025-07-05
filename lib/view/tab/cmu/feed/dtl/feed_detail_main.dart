@@ -24,18 +24,6 @@ class FeedDetailMain extends ConsumerWidget {
       data: (result) {
         final feed = result.data;
 
-        debugPrint('DEBUG: feed.ctnt value: "${feed.ctnt}"');
-        debugPrint('DEBUG: feed.ctnt type: ${feed.ctnt.runtimeType}');
-        debugPrint('DEBUG: feed.ctnt is empty: ${feed.ctnt.isEmpty}');
-        debugPrint('DEBUG: feed.ctnt is null: ${feed.ctnt == null}');
-
-        final docContent = feed.ctnt.isNotEmpty
-            ? List<Map<String, dynamic>>.from(jsonDecode(feed.ctnt) as List)
-            : [];
-
-        debugPrint('DEBUG: Content being passed to quill.Document.fromJson(): $docContent');
-        debugPrint('DEBUG: Type of content being passed: ${docContent.runtimeType}');
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
