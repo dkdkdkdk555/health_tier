@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/model/cmu/feed/reply_response.dart';
 
 class FeedService {
   final Dio dio;
@@ -65,5 +66,23 @@ class FeedService {
     );
   }
 
+  // 피드 댓글 조회
+  Future<ScrollResponse<ReplyResponseDto>> getReplies({
+    required int cmuId,
+    int? cursorId,
+    int limit = 5,
+  }) async {
+    final response = await dio.get(
+      '${FeedAPI.getReplies}/$cmuId',
+      queryParameters: {
+        if (cursorId != null) 'cursorId': cursorId,
+        'limit': limit,
+      },
+    );
+    return ScrollResponse.fromJson(
+      response.data,
+      (json) => ReplyResponseDto.fromJson(json),
+    );
+  }
 
 }

@@ -7,7 +7,9 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
+import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
 
 // Dio 프로바이더를 전역으로 관리
@@ -40,4 +42,11 @@ final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
 final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
   final service = ref.watch(feedService);
   return await service.getFeedDetail(feedId);
+});
+
+// 피드 상세 댓글 조회 프로바이더
+final replyPaginationProvider = StateNotifierProvider.family
+    <ReplyPaginationNotifier, AsyncValue<ScrollResponse<ReplyResponseDto>>, int>((ref, cmuId) {
+  final service = ref.watch(feedService);
+  return ReplyPaginationNotifier(service, cmuId);
 });

@@ -9,4 +9,6 @@ class FeedAPI {
   static const isThereNewFeed = '$base/isThereNewFeed';
   static const getCategories = '$base/categories';
   static const getFeed = '$base/';
+
+  static const getReplies = '/reply/';
 }

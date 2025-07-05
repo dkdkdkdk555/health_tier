@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply_bottom_bar.dart';
 
 class FeedDetail extends StatelessWidget {
@@ -38,16 +40,7 @@ class FeedDetail extends StatelessWidget {
           ),
 
           // 🔷 댓글 리스트
-          // SliverList(
-            // delegate: SliverChildBuilderDelegate(
-            //   (context, index) {
-            //     return ListTile(
-            //       title: Text(comments[index]),
-            //     );
-            //   },
-            //   childCount: comments.length,
-            // ),
-          // ),
+          ReplyListSliver(cmuId: feedId),
 
           // 🔷 하단 여백 (필요시)
           const SliverToBoxAdapter(

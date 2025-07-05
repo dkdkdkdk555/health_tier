@@ -109,6 +109,42 @@ class FeedDetailMain extends ConsumerWidget {
                     ],
                 ),
             ),
+            Container( // 구분선
+              height: 8,
+              decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+            ),
+            Container(
+                height: 53,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 4,
+                    children: [
+                        const Text(
+                            '댓글',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                                height: 1.50,
+                            ),
+                        ),
+                        Text(
+                            '${feed.replyCount}',
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w400,
+                                height: 1.50,
+                            ),
+                        ),
+                    ],
+                ),
+            )
           ],
         );
       },
