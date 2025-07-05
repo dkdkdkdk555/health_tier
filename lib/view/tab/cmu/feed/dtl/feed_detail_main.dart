@@ -7,6 +7,8 @@ import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'dart:convert';
 
+import 'package:my_app/util/quill_image_embed_builder.dart';
+
 class FeedDetailMain extends ConsumerWidget {
   final int feedId;
   const FeedDetailMain({
@@ -21,6 +23,18 @@ class FeedDetailMain extends ConsumerWidget {
     return detailAsync.when(
       data: (result) {
         final feed = result.data;
+
+        debugPrint('DEBUG: feed.ctnt value: "${feed.ctnt}"');
+        debugPrint('DEBUG: feed.ctnt type: ${feed.ctnt.runtimeType}');
+        debugPrint('DEBUG: feed.ctnt is empty: ${feed.ctnt.isEmpty}');
+        debugPrint('DEBUG: feed.ctnt is null: ${feed.ctnt == null}');
+
+        final docContent = feed.ctnt.isNotEmpty
+            ? List<Map<String, dynamic>>.from(jsonDecode(feed.ctnt) as List)
+            : [];
+
+        debugPrint('DEBUG: Content being passed to quill.Document.fromJson(): $docContent');
+        debugPrint('DEBUG: Type of content being passed: ${docContent.runtimeType}');
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,15 +96,24 @@ class FeedDetailMain extends ConsumerWidget {
                                           readOnly: true,
                                           document: quill.Document.fromJson(
                                             feed.ctnt.isNotEmpty
-                                              ? List<Map<String, dynamic>>.from(
-                                                  (jsonDecode(feed.ctnt) as List),
-                                                )
-                                              : [],
+                                                ? List<Map<String, dynamic>>.from(jsonDecode(feed.ctnt) as List)
+                                                : [
+                                                    {"insert": "\n"}
+                                                  ],
                                           ),
                                           selection: const TextSelection.collapsed(offset: 0),
                                         ),
+                                        config: quill.QuillEditorConfig(
+                                          embedBuilders: [
+                                            // 직접 만든 CustomImageEmbedBuilder를 추가합니다.
+                                            CustomImageEmbedBuilder(),
+                                            // 다른 임베드(예: 비디오)가 필요하면, 여기에 해당 EmbedBuilder를 추가해야 합니다.
+                                            // 예를 들어, FlutterQuillEmbeds에서 비디오 빌더만 가져와야 한다면:
+                                            // ...FlutterQuillEmbeds.editorBuilders().where((builder) => builder.key == 'video'),
+                                          ]
+                                        ),
                                       ),
-                                    ),
+                                    )
                                 ],
                             ),
                         ),
