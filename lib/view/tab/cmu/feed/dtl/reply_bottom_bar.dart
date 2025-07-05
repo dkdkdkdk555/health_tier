@@ -58,7 +58,7 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
           _barHeight = 106;
           _showSendButton = false;
         }
-      }
+      } 
     });
   }
 
@@ -84,126 +84,121 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
     // 키보드 높이를 가져와 하단 여백으로 사용
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    return Positioned(
-      left: 0,
-      right: 0, // Stack 내에서 좌우 정렬을 위해 right도 0으로 설정
-      bottom: 0, // 하단에 고정
-      child: AnimatedContainer( // 높이 애니메이션을 위한 AnimatedContainer
-        duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
-        curve: Curves.easeOut, // 애니메이션 곡선
-        height: _barHeight + keyboardHeight, // 키보드 높이만큼 바 높이 확장
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(
-              width: 1,
-              color: Color(0xFFEEEEEE),
-            ),
-          ),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(40),
-            topRight: Radius.circular(40),
+    return AnimatedContainer( // 높이 애니메이션을 위한 AnimatedContainer
+      duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
+      curve: Curves.easeOut, // 애니메이션 곡선
+      height: _barHeight + keyboardHeight, // 키보드 높이만큼 바 높이 확장
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            width: 1,
+            color: Color(0xFFEEEEEE),
           ),
         ),
-        child: Stack( // 기존 Stack 구조를 유지하면서 버튼만 추가
-          children: [
-            Positioned(
-              left: 20,
-              top: 23,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  // 사용자 프로필 이미지
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/widgets/default_user_profile.svg',
-                      fit: BoxFit.cover,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
+      child: Stack( // 기존 Stack 구조를 유지하면서 버튼만 추가
+        children: [
+          Positioned(
+            left: 20,
+            top: 23,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 8,
+              children: [
+                // 사용자 프로필 이미지
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/widgets/default_user_profile.svg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                // 댓글 입력 필드
+                Container(
+                  width: 303, // 기존 너비 유지
+                  height: 37,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: ShapeDecoration(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        width: 1,
+                        color: _textFieldBorderColor,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  // 댓글 입력 필드
-                  Container(
-                    width: 303, // 기존 너비 유지
-                    height: 37,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          width: 1,
-                          color: _textFieldBorderColor,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: TextField(
-                      focusNode: _focusNode, // FocusNode 연결
-                      controller: _textEditingController, // TextEditingController 연결
-                      decoration: const InputDecoration(
-                        hintText: '댓글 달기',
-                        border: InputBorder.none,
-                        hintStyle: TextStyle(
-                          color: Color(0xFF999999),
-                          fontSize: 14,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          height: 1.50,
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Color(0xFF000000),
+                  child: TextField(
+                    focusNode: _focusNode, // FocusNode 연결
+                    controller: _textEditingController, // TextEditingController 연결
+                    decoration: const InputDecoration(
+                      hintText: '댓글 달기',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                        color: Color(0xFF999999),
                         fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
                         height: 1.50,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            // 전송 버튼 (애니메이션 효과와 함께 나타나고 사라짐)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
-              curve: Curves.easeOut, // 애니메이션 곡선
-              left: 294,
-              top: _showSendButton ? 68 : _barHeight + keyboardHeight, // 가시성에 따라 위치 변경
-              child: AnimatedOpacity( // 투명도 애니메이션
-                opacity: _showSendButton ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 250),
-                child: IgnorePointer( // 버튼이 보이지 않을 때는 클릭 이벤트 무시
-                  ignoring: !_showSendButton,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: ShapeDecoration(
-                      color: _sendButtonColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(99),
-                      ),
+                    style: const TextStyle(
+                      color: Color(0xFF000000),
+                      fontSize: 14,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                      height: 1.50,
                     ),
-                    child: const Text(
-                      '전송',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        height: 1.50,
-                      ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // 전송 버튼 (애니메이션 효과와 함께 나타나고 사라짐)
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
+            curve: Curves.easeOut, // 애니메이션 곡선
+            left: 294,
+            top: _showSendButton ? 68 : _barHeight + keyboardHeight, // 가시성에 따라 위치 변경
+            child: AnimatedOpacity( // 투명도 애니메이션
+              opacity: _showSendButton ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 250),
+              child: IgnorePointer( // 버튼이 보이지 않을 때는 클릭 이벤트 무시
+                ignoring: !_showSendButton,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: ShapeDecoration(
+                    color: _sendButtonColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  child: const Text(
+                    '전송',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w500,
+                      height: 1.50,
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
