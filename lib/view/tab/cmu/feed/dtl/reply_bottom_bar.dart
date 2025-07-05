@@ -142,6 +142,7 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
                   child: TextField(
                     focusNode: _focusNode, // FocusNode 연결
                     controller: _textEditingController, // TextEditingController 연결
+                    keyboardType: TextInputType.multiline,
                     decoration: const InputDecoration(
                       hintText: '댓글 달기',
                       border: InputBorder.none,
