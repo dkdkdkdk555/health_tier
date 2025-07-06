@@ -24,6 +24,14 @@ class FeedDetailMain extends ConsumerWidget {
       data: (result) {
         final feed = result.data;
 
+         Future.microtask(() { // 위젯 트리가 빌드되는 중에 프로바이더의 상태를 변경할 수 없다는 오류로
+         // 아래 프로바이더 작업의 실행 시점을 위젯 생명주기 밖으로 옮기는것
+            // 다른 위젯과 공유할 값들 changeNotifier 에 값 설정
+            ref.read(feedMainChangeNotifierProvider).changeUserIdValue(feed.userId);
+            ref.read(feedMainChangeNotifierProvider).changeCategoryId(feed.categoryId);
+          }
+         );
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -8,6 +8,7 @@ import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/notifier/feed_main_change_notifier.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
@@ -49,4 +50,8 @@ final replyPaginationProvider = StateNotifierProvider.family
     <ReplyPaginationNotifier, AsyncValue<ScrollResponse<ReplyResponseDto>>, int>((ref, cmuId) {
   final service = ref.watch(feedService);
   return ReplyPaginationNotifier(service, cmuId);
+});
+// 피드 상세 와 댓글 조회 간 데이터공유
+final feedMainChangeNotifierProvider = ChangeNotifierProvider<FeedMainChangeNotifier>((ref) {
+  return FeedMainChangeNotifier();
 });

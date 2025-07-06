@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/notifier/feed_main_change_notifier.dart';
+import 'package:my_app/providers/api_feed_providers.dart';
 
 class Reply extends StatelessWidget {
   final ReplyResponseDto reply;
@@ -70,22 +73,30 @@ class Reply extends StatelessWidget {
                           height: 1.50,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                        decoration: ShapeDecoration(
-                          color: const Color(0x33333333),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                        ),
-                        child: const Text(
-                          '작성자',
-                          style: TextStyle(
-                            color: Color(0xFF333333),
-                            fontSize: 10,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w700,
-                            height: 1.50,
-                          ),
-                        ),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final feedWriterUserId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.userId));
+
+                          return reply.userId == feedWriterUserId
+                            ? Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                              decoration: ShapeDecoration(
+                                color: const Color(0x33333333),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                              ),
+                              child: const Text(
+                                '작성자',
+                                style: TextStyle(
+                                  color: Color(0xFF333333),
+                                  fontSize: 10,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.50,
+                                ),
+                              ),
+                            )
+                            : Container();
+                        }
                       )
                     ],
                   ),
