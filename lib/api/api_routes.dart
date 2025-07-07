@@ -11,4 +11,6 @@ class FeedAPI {
   static const getFeed = '$base/';
 
   static const getReplies = '/reply/';
+
+  static const getSameCategoryFeeds = '$base/sameCategoryFeeds';
 }
