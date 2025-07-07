@@ -85,4 +85,20 @@ class FeedService {
     );
   }
 
+  Future<ScrollResponse<FeedPreviewDto>> getSameCategoryFeedList(FeedQueryParams feedQueryParams) async {
+    final response = await dio.get(
+      FeedAPI.getSameCategoryFeeds,
+      queryParameters: {
+        if (feedQueryParams.categoryId != null) 'categoryId': feedQueryParams.categoryId == 0 ? null : feedQueryParams.categoryId,
+        if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
+        'limit': feedQueryParams.limit,
+      },
+    );
+    return ScrollResponse.fromJson(
+      response.data,
+      (json) => FeedPreviewDto.fromJson(json),
+    );
+  }
+
+
 }
