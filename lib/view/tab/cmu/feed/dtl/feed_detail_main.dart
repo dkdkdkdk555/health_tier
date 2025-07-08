@@ -29,6 +29,7 @@ class FeedDetailMain extends ConsumerWidget {
             // 다른 위젯과 공유할 값들 changeNotifier 에 값 설정
             ref.read(feedMainChangeNotifierProvider).changeUserIdValue(feed.userId);
             ref.read(feedMainChangeNotifierProvider).changeCategoryId(feed.categoryId);
+            ref.read(feedMainChangeNotifierProvider).changeCategoryNm(feed.categoryName);
           }
          );
 

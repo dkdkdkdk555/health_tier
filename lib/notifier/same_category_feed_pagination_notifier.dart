@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
@@ -18,6 +19,9 @@ class SameCategoryFeedPaginationNotifier extends StateNotifier<AsyncValue<Scroll
 
   Future<void> fetchInitial() async {
     state = const AsyncLoading();
+
+    debugPrint('@ :${_params.categoryId}');
+    debugPrint('@ : ${_params.cursorId}');
 
     try {
       final response = await _service.getSameCategoryFeedList(_params);

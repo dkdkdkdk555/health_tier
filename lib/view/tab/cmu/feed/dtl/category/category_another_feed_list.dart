@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_item.dart';
 
@@ -40,6 +41,7 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
 
     final params = ref.watch(feedParamsProvider2);
     params.categoryId = feedCategoryId;
+    debugPrint('꽥 : $feedCategoryId');
 
     final feedState = ref.watch(sameCategoryFeedPaginationProvider(params));
 
@@ -47,45 +49,91 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
       child: Column(
         children: [
           Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: feedCategoryNm,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const TextSpan(
-                        text: '의 다른 글',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Text(
-                  '전체보기',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
+            width: 375,
+            padding: const EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+                bottom: 12,
             ),
-          ),
+            decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 12,
+                children: [
+                    SizedBox(
+                        width: 335,
+                        child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 8,
+                            children: [
+                                Text.rich(
+                                    TextSpan(
+                                        children: [
+                                            TextSpan(
+                                                text: feedCategoryNm,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                    fontFamily: 'Pretendard',
+                                                    fontWeight: FontWeight.w700,
+                                                    height: 1.50,
+                                                ),
+                                            ),
+                                            const TextSpan(
+                                                text: '의 다른 글',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14,
+                                                    fontFamily: 'Pretendard',
+                                                    fontWeight: FontWeight.w400,
+                                                    height: 1.50,
+                                                ),
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                                Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    spacing: 4,
+                                    children: [
+                                        const Text(
+                                            '전체보기',
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 12,
+                                                fontFamily: 'Pretendard',
+                                                fontWeight: FontWeight.w400,
+                                                height: 1.50,
+                                            ),
+                                        ),
+                                        Container(
+                                            width: 16,
+                                            height: 16,
+                                            clipBehavior: Clip.antiAlias,
+                                            decoration: const BoxDecoration(),
+                                            child: IconButton(
+                                              icon: SvgPicture.asset('assets/icons/ico_right.svg'),
+                                              onPressed: (){
+                                                
+                                              },
+                                              padding: EdgeInsets.zero,
+                                            ),
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        ),
           SizedBox(
             height: 260, // 아이템 높이 + padding 고려
             child: feedState.when(
