@@ -85,13 +85,14 @@ class FeedService {
     );
   }
 
+  // 피드 상세 - 같은 카테고리의 다른 글(인기순) 가져오기
   Future<ScrollResponse<FeedPreviewDto>> getSameCategoryFeedList(FeedQueryParams feedQueryParams) async {
     final response = await dio.get(
       FeedAPI.getSameCategoryFeeds,
       queryParameters: {
         if (feedQueryParams.categoryId != null) 'categoryId': feedQueryParams.categoryId == 0 ? null : feedQueryParams.categoryId,
         if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
-        'limit': feedQueryParams.limit,
+        'limit': 5,// feedQueryParams.limit,
       },
     );
     return ScrollResponse.fromJson(

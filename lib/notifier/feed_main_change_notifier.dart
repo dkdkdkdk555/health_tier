@@ -3,9 +3,11 @@ import 'package:flutter/widgets.dart';
 class FeedMainChangeNotifier extends ChangeNotifier{
   int _userId = 0;
   int _categoryId = 0;
+  String _categoryNm = '';
   
   int get userId => _userId;
   int get categoryId => _categoryId;
+  String get categoryNm => _categoryNm;
 
   // userId 값을 변경하고 리스너들에게 알리는 메서드
   void changeUserIdValue(int userId) {
@@ -19,6 +21,13 @@ class FeedMainChangeNotifier extends ChangeNotifier{
   void changeCategoryId(int categoryId){
     if (_categoryId != categoryId){
       _categoryId = categoryId;
+      notifyListeners();
+    }
+  }
+
+  void changeCategoryNm(String categoryNm){
+    if (_categoryNm != categoryNm){
+      _categoryNm = categoryNm;
       notifyListeners();
     }
   }

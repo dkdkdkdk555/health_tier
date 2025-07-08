@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_list.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_list_sliver.dart';
@@ -52,6 +53,8 @@ class _FeedDetailState extends State<FeedDetail> {
           ),
           // 댓글리스트
           ReplyListSliver(cmuId: widget.feedId),
+          // 같은 카테고리의 다른 글
+          const CategoryAnotherFeedList(),
 
           // 하단 여백(필요시)
           const SliverToBoxAdapter(

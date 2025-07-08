@@ -11,6 +11,7 @@ import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/notifier/feed_main_change_notifier.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
+import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
 
 // Dio 프로바이더를 전역으로 관리
@@ -29,7 +30,7 @@ final getFeedCategories = FutureProvider<Result<List<Category>>>((ref) async {
   return service.getCategories();
 });
 
-// stateNotifier provider
+// 피드목록 stateNotifier provider
 final feedPaginationProvider = StateNotifierProvider.family<FeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, FeedQueryParams>((ref, params) {
   final service = ref.watch(feedService);
   return FeedPaginationNotifier(service, params);
@@ -54,4 +55,14 @@ final replyPaginationProvider = StateNotifierProvider.family
 // 피드 상세 와 댓글 조회 간 데이터공유
 final feedMainChangeNotifierProvider = ChangeNotifierProvider<FeedMainChangeNotifier>((ref) {
   return FeedMainChangeNotifier();
+});
+
+// 피드상세 - 같은카테고리의 피드목록 
+final sameCategoryFeedPaginationProvider = StateNotifierProvider.family<SameCategoryFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, FeedQueryParams>((ref, params) {
+  final service = ref.watch(feedService);
+  return SameCategoryFeedPaginationNotifier(service, params);
+});
+
+final feedParamsProvider2 = StateProvider<FeedQueryParams>((ref) {
+  return FeedQueryParams();
 });
