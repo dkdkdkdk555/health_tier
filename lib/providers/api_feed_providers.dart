@@ -62,7 +62,3 @@ final sameCategoryFeedPaginationProvider = StateNotifierProvider.family<SameCate
   final service = ref.watch(feedService);
   return SameCategoryFeedPaginationNotifier(service, params);
 });
-
-final feedParamsProvider2 = StateProvider<FeedQueryParams>((ref) {
-  return FeedQueryParams();
-});

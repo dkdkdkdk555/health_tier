@@ -32,16 +32,16 @@ class FeedPreviewDto {
   factory FeedPreviewDto.fromJson(Map<String, dynamic> json) {
     return FeedPreviewDto(
       id: json['id'] as int,
-      category: json['category'] as String,
-      categoryId: json['category_id'] as int,
-      title: json['title'] as String,
+      category: json['category'] ?? '',
+      categoryId: json['categoryId'] as int,
+      title: json['title'] ?? '',
       ctntPreview: json['ctntPreview'] as String?,
       imgPreview: json['imgPreview'] as String?,
       replyCnt: json['replyCnt'] ?? 0,
       likeCnt: json['likeCnt'] ?? 0,
       views: json['views'] ?? 0,
-      viewDttm: json['viewDttm'] as String,
-      nickName: json['nickName'] as String,
+      viewDttm: json['viewDttm'] ?? '',
+      nickName: json['nickName'] ?? '',
       userImgPath: json['userImgPath'] as String?,
       tier: json['tier'] as String?,
     );

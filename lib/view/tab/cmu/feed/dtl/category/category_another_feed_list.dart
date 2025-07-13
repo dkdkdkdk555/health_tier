@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_item.dart';
 
 class CategoryAnotherFeedList extends ConsumerStatefulWidget {
-  const CategoryAnotherFeedList({super.key});
+  final int categoryId;
+
+  const CategoryAnotherFeedList({
+    super.key,
+    required this.categoryId,
+  });
 
   @override
   ConsumerState<CategoryAnotherFeedList> createState() => _CategoryAnotherFeedListState();
@@ -14,16 +20,17 @@ class CategoryAnotherFeedList extends ConsumerStatefulWidget {
 class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedList> {
   final ScrollController _scrollController = ScrollController();
 
+  late final FeedQueryParams _initialParams;
+
   @override
   void initState() {
     super.initState();
 
+    _initialParams = FeedQueryParams(categoryId: widget.categoryId);
+
     _scrollController.addListener(() {
-      // 현재 스크롤 위치가 maxScrollExtent(맨 우측) 근처에 도달하면
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-        // 다음 페이지 호출
-        final params = ref.read(feedParamsProvider2);
-        ref.read(sameCategoryFeedPaginationProvider(params).notifier).fetchNext();
+        ref.read(sameCategoryFeedPaginationProvider(_initialParams).notifier).fetchNext();
       }
     });
   }
@@ -36,14 +43,9 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
 
   @override
   Widget build(BuildContext context) {
-    final feedCategoryId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.categoryId));
     final feedCategoryNm = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.categoryNm));
 
-    final params = ref.watch(feedParamsProvider2);
-    params.categoryId = feedCategoryId;
-    debugPrint('꽥 : $feedCategoryId');
-
-    final feedState = ref.watch(sameCategoryFeedPaginationProvider(params));
+    final feedState = ref.watch(sameCategoryFeedPaginationProvider(_initialParams));
 
     return SliverToBoxAdapter(
       child: Column(
@@ -134,37 +136,47 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
                 ],
             ),
         ),
-          SizedBox(
-            height: 260, // 아이템 높이 + padding 고려
-            child: feedState.when(
-              data: (data) {
-                final items = data.items;
-                return ListView.builder(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: items.length + (data.hasNext ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index < items.length) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 20, bottom: 20),
-                        child: CategoryAnotherFeedItem(feed: items[index]),
-                      );
-                    } else {
-                      // 로딩 인디케이터 표시
-                      return const Padding(
-                        padding: EdgeInsets.all(20),
-                        child: SizedBox(
-                          width: 50,
-                          height: 50,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => Center(child: Text('오류: $error')),
+          Container(
+            padding: const EdgeInsets.only(left:20),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5)
+            ),
+            child: SizedBox(
+              height: 192,
+              child: feedState.when(
+                data: (data) {
+                  final items = data.items;
+                  return ListView.builder(
+                    controller: _scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: items.length + (data.hasNext ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index < items.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10, bottom: 20),
+                          child: CategoryAnotherFeedItem(feed: items[index]),
+                        );
+                      } else {
+                        // 로딩 인디케이터 표시
+                        return const Padding(
+                          padding: EdgeInsets.all(20),
+                          child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                        );
+                      }
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stackTrace) {
+                  debugPrint('$error');
+                  debugPrint('$stackTrace');
+                  return null;
+                }
+              ),
             ),
           ),
         ],

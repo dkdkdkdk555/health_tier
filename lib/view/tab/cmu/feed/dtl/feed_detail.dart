@@ -7,9 +7,11 @@ import 'package:my_app/view/tab/cmu/feed/dtl/reply_bottom_bar.dart';
 
 class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
   final int feedId;
+  final int categoryId;
   const FeedDetail({
     super.key,
     required this.feedId,
+    required this.categoryId,
   });
 
   @override
@@ -54,7 +56,7 @@ class _FeedDetailState extends State<FeedDetail> {
           // 댓글리스트
           ReplyListSliver(cmuId: widget.feedId),
           // 같은 카테고리의 다른 글
-          const CategoryAnotherFeedList(),
+          CategoryAnotherFeedList(categoryId: widget.categoryId,),
 
           // 하단 여백(필요시)
           const SliverToBoxAdapter(

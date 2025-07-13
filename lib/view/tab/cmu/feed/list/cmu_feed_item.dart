@@ -17,7 +17,7 @@ class CmuFeedItem extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                FeedDetail(feedId: feed.id),
+                FeedDetail(feedId: feed.id, categoryId: feed.categoryId),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
               const end = Offset.zero;       // 현재 위치로 이동

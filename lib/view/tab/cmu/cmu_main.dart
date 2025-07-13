@@ -4,13 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
-import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_new_feed_alarm.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_app_bar_delegate.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
-import 'package:my_app/service/feed_service.dart';
 
 class CmuMain extends ConsumerStatefulWidget {
   const CmuMain({super.key});
