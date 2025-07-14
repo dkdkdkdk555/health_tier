@@ -9,8 +9,14 @@ class FeedAPI {
   static const isThereNewFeed = '$base/isThereNewFeed';
   static const getCategories = '$base/categories';
   static const getFeed = '$base/';
-
   static const getReplies = '/reply/';
-
   static const getSameCategoryFeeds = '$base/sameCategoryFeeds';
+  static const getUsersFeeds = '$base/users/';
+
+}
+
+class UserAPI {
+  static const base = '/cmu/usr/';
+
+  static const getUserInfo = '$base/';
 }

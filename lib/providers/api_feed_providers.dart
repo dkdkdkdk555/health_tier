@@ -8,10 +8,13 @@ import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
+import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 import 'package:my_app/notifier/feed_main_change_notifier.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
+import 'package:my_app/notifier/user_create_feed_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
 
 // Dio 프로바이더를 전역으로 관리
@@ -61,4 +64,16 @@ final feedMainChangeNotifierProvider = ChangeNotifierProvider<FeedMainChangeNoti
 final sameCategoryFeedPaginationProvider = StateNotifierProvider.family<SameCategoryFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, FeedQueryParams>((ref, params) {
   final service = ref.watch(feedService);
   return SameCategoryFeedPaginationNotifier(service, params);
+});
+
+// 사용자 프로필 - 사용자 정보
+final userInfoProvider = FutureProvider.family<UserInfoResponseDto, int>((ref, userId) async {
+  final service = ref.watch(feedService);
+  return service.getUserInfo(userId);
+});
+
+// 사용자 프로필 - 사용자 작성 피드목록 조회
+final userCreateFeedsProvider = StateNotifierProvider.family<UserCreateFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, UsrsFeedQueryParams>((ref, params) {
+  final service = ref.watch(feedService);
+  return UserCreateFeedPaginationNotifier(service, params);
 });

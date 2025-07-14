@@ -8,6 +8,7 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';
+import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
 class FeedDetailMain extends ConsumerWidget {
   final int feedId;
@@ -49,7 +50,7 @@ class FeedDetailMain extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      creatorProfile(feed),
+                      creatorProfile(feed, context),
                       const SizedBox(width: 10),
                       creatorNickname(feed),
                     ],
@@ -364,29 +365,39 @@ class FeedDetailMain extends ConsumerWidget {
     );
   }
 
-  Container creatorProfile(FeedDetailDto feed) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      child: ClipOval(
-        child: (feed.imgPath.isEmpty)
-            ? SvgPicture.asset(
-                'assets/widgets/default_user_profile.svg',
-                fit: BoxFit.cover,
-              )
-            : Image.network(
-                feed.imgPath,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return SvgPicture.asset(
-                    'assets/widgets/default_user_profile.svg',
-                    fit: BoxFit.cover,
-                  );
-                },
-              ),
+  Widget creatorProfile(FeedDetailDto feed, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CmuUsrProfile(userId: feed.userId),
+        ),
+      );
+    },
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+        ),
+        child: ClipOval(
+          child: (feed.imgPath.isEmpty)
+              ? SvgPicture.asset(
+                  'assets/widgets/default_user_profile.svg',
+                  fit: BoxFit.cover,
+                )
+              : Image.network(
+                  feed.imgPath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return SvgPicture.asset(
+                      'assets/widgets/default_user_profile.svg',
+                      fit: BoxFit.cover,
+                    );
+                  },
+                ),
+        ),
       ),
     );
   }

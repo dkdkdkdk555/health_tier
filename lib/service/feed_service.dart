@@ -8,6 +8,8 @@ import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
+import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 
 class FeedService {
   final Dio dio;
@@ -101,5 +103,26 @@ class FeedService {
     );
   }
 
+  // 사용자 작성 피드 목록 조회
+  Future<ScrollResponse<FeedPreviewDto>> getUserFeeds(UsrsFeedQueryParams usrsFeedQueryParams) async {
+    final response = await dio.get(
+      FeedAPI.getUsersFeeds,
+      queryParameters: {
+        if (usrsFeedQueryParams.userId != null) 'userId': usrsFeedQueryParams.userId == 0 ? null : usrsFeedQueryParams.userId,
+        if (usrsFeedQueryParams.cursorId != null) 'cursorId': usrsFeedQueryParams.cursorId,
+        'limit': usrsFeedQueryParams.limit,
+      },
+    );
+    return ScrollResponse.fromJson(
+      response.data,
+      (json) => FeedPreviewDto.fromJson(json),
+    );
+  }
+
+  // 사용자 정보 조회
+  Future<UserInfoResponseDto> getUserInfo(int userId) async {
+    final response = await dio.get('${UserAPI.getUserInfo}/$userId');
+    return UserInfoResponseDto.fromJson(response.data);
+  }
 
 }

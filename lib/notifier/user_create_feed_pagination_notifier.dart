@@ -1,19 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
-import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 import 'package:my_app/service/feed_service.dart';
 
-class SameCategoryFeedPaginationNotifier
-    extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>> {
+class UserCreateFeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>> {
   final FeedService _service;
-  late FeedQueryParams _params;
+  late UsrsFeedQueryParams _params;
 
   bool _isFetching = false;
   bool _hasNext = true;
   List<FeedPreviewDto> _feeds = [];
 
-  SameCategoryFeedPaginationNotifier(this._service, FeedQueryParams initialParams)
+  UserCreateFeedPaginationNotifier(this._service, UsrsFeedQueryParams initialParams)
       : super(const AsyncLoading()) {
     _params = initialParams;
     fetchInitial();
@@ -25,7 +24,7 @@ class SameCategoryFeedPaginationNotifier
     _hasNext = true;
 
     try {
-      final response = await _service.getSameCategoryFeedList(_params);
+      final response = await _service.getUserFeeds(_params);
       _feeds = response.items;
       _hasNext = response.hasNext;
       _params = _params.copyWith(cursorId: response.lastCursorId);
@@ -42,7 +41,7 @@ class SameCategoryFeedPaginationNotifier
 
     try {
       final nextParams = _params.copyWith(cursorId: _params.cursorId);
-      final response = await _service.getSameCategoryFeedList(nextParams);
+      final response = await _service.getUserFeeds(nextParams);
 
       _feeds.addAll(response.items);
       _params = _params.copyWith(cursorId: response.lastCursorId);
