@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/providers/api_feed_providers.dart';
+import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
 class Reply extends StatelessWidget {
   final ReplyResponseDto reply;
@@ -38,28 +39,38 @@ class Reply extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 8,
                     children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: ClipOval(
-                          child: (reply.imgPath.isEmpty)
-                              ? SvgPicture.asset(
-                                  'assets/widgets/default_user_profile.svg',
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.network(
-                                  reply.imgPath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return SvgPicture.asset(
-                                      'assets/widgets/default_user_profile.svg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                ),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CmuUsrProfile(userId: reply.userId),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: (reply.imgPath.isEmpty)
+                                ? SvgPicture.asset(
+                                    'assets/widgets/default_user_profile.svg',
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    reply.imgPath,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return SvgPicture.asset(
+                                        'assets/widgets/default_user_profile.svg',
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
+                          ),
                         ),
                       ),
                       Text(

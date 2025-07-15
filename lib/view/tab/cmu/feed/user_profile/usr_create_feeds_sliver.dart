@@ -64,7 +64,7 @@ class _UsrCreateFeedsSliverState extends ConsumerState<UsrCreateFeedsSliver> {
                   '작성한 글',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w600,
                   ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 
 class CmuAppBar extends StatefulWidget {
   final int selectedIndex;
@@ -19,7 +21,7 @@ var htio = 0.0;
 var wtio = 0.0;
 
 class _CmuAppBarState extends State<CmuAppBar> {
-  final List<String> tabs = ['피드', '대결', '랭킹'];
+  final List<String> tabs = ['피드'];
   final List<GlobalKey> _tabKeys = [];
 
   late int selectedIndex;
@@ -76,19 +78,41 @@ class _CmuAppBarState extends State<CmuAppBar> {
           Expanded(
             flex: 41,
             child: Padding(
-              padding: EdgeInsets.only(left: 20 * wtio),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '커뮤니티',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20 * htio,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    height: 1.50 * htio,
+              padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '커뮤니티',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20 * htio,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.50 * htio,
+                      ),
+                    ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CmuTotalSrch(),
+                        ),
+                      );
+                    },
+                    child: SizedBox(
+                      width: 28 * wtio,
+                      height: 28 * htio,
+                      child: SvgPicture.asset(
+                        'assets/widgets/search_btn.svg'
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),

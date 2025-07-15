@@ -368,13 +368,12 @@ class FeedDetailMain extends ConsumerWidget {
   Widget creatorProfile(FeedDetailDto feed, BuildContext context) {
     return GestureDetector(
       onTap: () {
-         debugPrint('${feed.userId}');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => CmuUsrProfile(userId: feed.userId),
-        ),
-      );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CmuUsrProfile(userId: feed.userId),
+          ),
+        );
     },
       child: Container(
         width: 40,
