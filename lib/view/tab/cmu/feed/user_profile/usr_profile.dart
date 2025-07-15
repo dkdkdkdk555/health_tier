@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:my_app/providers/api_feed_providers.dart';
 
 class UsrProfile extends ConsumerWidget {
   final int userId;
@@ -11,76 +12,84 @@ class UsrProfile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          width: 80,
-          height: 80,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-          ),
-          child: ClipOval(
-            child: userId != 1 // (feed.imgPath.isEmpty)
-                ? SvgPicture.asset(
-                    'assets/widgets/default_user_profile.svg',
-                    fit: BoxFit.cover,
-                  )
-                : Image.network(
-                    'feed.imgPath',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return SvgPicture.asset(
+    final userInfoAsync = ref.watch(userInfoProvider(userId));
+
+    return userInfoAsync.when(
+      data: (userInfo) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 프로필 이미지
+            Container(
+              width: 80,
+              height: 80,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: userInfo.imgPath == null
+                    ? SvgPicture.asset(
                         'assets/widgets/default_user_profile.svg',
                         fit: BoxFit.cover,
-                      );
-                    },
-                  ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.topLeft,
-          child: Row(
-            children: [
-              const Text(
-                'feed.nickname',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
-                  height: 1.50,
-                ),
+                      )
+                    : Image.network(
+                        userInfo.imgPath!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return SvgPicture.asset(
+                            'assets/widgets/default_user_profile.svg',
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      ),
               ),
-              Container(
-                  width: 30,
-                  height: 17,
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                  decoration: ShapeDecoration(
-                      color: const Color(0x33FAA131),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            ),
+            const SizedBox(width: 16),
+            // 닉네임 + 뱃지 리스트
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userInfo.nickname,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w500,
+                      height: 1.5,
+                    ),
                   ),
-                  child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                          Text(
-                              '뱃지',
-                              style: TextStyle(
-                                  color: Color(0xFFFAA131),
-                                  fontSize: 10,
-                                  fontFamily: 'Pretendard',
-                                  height: 0.15,
-                              ),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: userInfo.badges.map((badge) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0x33FAA131),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          badge.badgeName,
+                          style: const TextStyle(
+                            color: Color(0xFFFAA131),
+                            fontSize: 10,
+                            fontFamily: 'Pretendard',
                           ),
-                      ],
+                        ),
+                      );
+                    }).toList(),
                   ),
+                ],
               ),
-            ],
-          ),
-        )
-      ],
+            )
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('에러: $err // $stack')),
     );
   }
 }

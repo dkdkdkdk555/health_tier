@@ -121,7 +121,12 @@ class FeedService {
 
   // 사용자 정보 조회
   Future<UserInfoResponseDto> getUserInfo(int userId) async {
+    if (userId == null || userId == 0) {
+      throw Exception("유효하지 않은 사용자 ID입니다.");
+    }
     final response = await dio.get('${UserAPI.getUserInfo}/$userId');
+    debugPrint('유저아이디 : $userId');
+    debugPrint('리스폰스 : $response');
     return UserInfoResponseDto.fromJson(response.data);
   }
 
