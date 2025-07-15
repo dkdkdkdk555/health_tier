@@ -41,7 +41,7 @@ class _CmuUsrProfileState extends State<CmuUsrProfile> {
             child: UsrProfile(userId: widget.userId,),
           ),
           // 작성한 글
-          UsrCreateFeedsSliver(userId: widget.userId,)
+          // UsrCreateFeedsSliver(userId: widget.userId,)
         ],
       ),
     );

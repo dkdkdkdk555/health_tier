@@ -15,21 +15,39 @@ class _UsrProfileAppBarState extends State<UsrProfileAppBar> {
       width: 375,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      height: 48,
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          // 좌측 아이콘
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: SizedBox(
-              width: 24,
-              height: 24,
-              child: SvgPicture.asset(
-                'assets/icons/feed_detail/ico_back.svg',
+          // 가운데 텍스트
+          const Center(
+            child: Text(
+              '이용자 프로필',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                height: 1,
+              ),
+            ),
+          ),
+
+          // 왼쪽 뒤로가기 버튼
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: SizedBox(
                 width: 24,
                 height: 24,
+                child: SvgPicture.asset(
+                  'assets/icons/feed_detail/ico_back.svg',
+                  width: 24,
+                  height: 24,
+                ),
               ),
             ),
           ),
