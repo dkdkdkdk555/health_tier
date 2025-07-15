@@ -4,8 +4,7 @@ import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/service/feed_service.dart';
 
-class SameCategoryFeedPaginationNotifier
-    extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>> {
+class SameCategoryFeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<FeedPreviewDto>>> {
   final FeedService _service;
   late FeedQueryParams _params;
 

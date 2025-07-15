@@ -107,9 +107,8 @@ class FeedService {
   // 사용자 작성 피드 목록 조회
   Future<ScrollResponse<FeedPreviewDto>> getUserFeeds(UsrsFeedQueryParams usrsFeedQueryParams) async {
     final response = await dio.get(
-      FeedAPI.getUsersFeeds,
+      '${FeedAPI.getUsersFeeds}/${usrsFeedQueryParams.userId}',
       queryParameters: {
-        if (usrsFeedQueryParams.userId != null) 'userId': usrsFeedQueryParams.userId == 0 ? null : usrsFeedQueryParams.userId,
         if (usrsFeedQueryParams.cursorId != null) 'cursorId': usrsFeedQueryParams.cursorId,
         'limit': usrsFeedQueryParams.limit,
       },
