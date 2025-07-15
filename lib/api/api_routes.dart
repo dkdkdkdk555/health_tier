@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.8:8080';
+  static const baseUrl = 'http://192.168.10.52:8080';
 }
 
 class FeedAPI {
@@ -12,6 +12,7 @@ class FeedAPI {
   static const getReplies = '/reply/';
   static const getSameCategoryFeeds = '$base/sameCategoryFeeds';
   static const getUsersFeeds = '$base/users/';
+  static const search = '$base/search';
 
 }
 

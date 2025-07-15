@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/model/cmu/feed/keyword_search_param.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
 import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
@@ -14,6 +15,7 @@ import 'package:my_app/notifier/feed_main_change_notifier.dart';
 import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
+import 'package:my_app/notifier/search_result_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/user_create_feed_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
 
@@ -76,4 +78,10 @@ final userInfoProvider = FutureProvider.family<UserInfoResponseDto, int>((ref, u
 final userCreateFeedsProvider = StateNotifierProvider.family<UserCreateFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, UsrsFeedQueryParams>((ref, params) {
   final service = ref.watch(feedService);
   return UserCreateFeedPaginationNotifier(service, params);
+});
+
+// 통합검색
+final searchFeedsProvider = StateNotifierProvider.family<SearchResultFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, KeywordSearchParam>((ref, params) {
+  final service = ref.watch(feedService);
+  return SearchResultFeedPaginationNotifier(service, params);
 });

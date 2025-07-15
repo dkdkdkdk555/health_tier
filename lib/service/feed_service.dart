@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/model/cmu/feed/keyword_search_param.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
 import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
@@ -130,4 +131,20 @@ class FeedService {
     return UserInfoResponseDto.fromJson(response.data);
   }
 
+  // 통합검색
+  Future<ScrollResponse<FeedPreviewDto>> getFeedsByKeyword(KeywordSearchParam searchParam) async {
+    final response = await dio.get(
+      FeedAPI.search,
+      queryParameters: {
+        'keyword': searchParam.keyword,
+        if (searchParam.cursorId != null) 'cursorId': searchParam.cursorId,
+        'limit': searchParam.limit,
+      },
+    );
+    return ScrollResponse.fromJson(
+      response.data,
+      (json) => FeedPreviewDto.fromJson(json),
+    );
+  }
+  
 }
