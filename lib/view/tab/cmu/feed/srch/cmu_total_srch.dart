@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/cmu/feed/srch/recent_srch_terms_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_app_bar_delegate.dart';
 
 class CmuTotalSrch extends StatefulWidget {
@@ -31,7 +32,7 @@ class _CmuTotalSrchState extends State<CmuTotalSrch> {
             delegate: SrchAppBarDelegate(),
           ),
           // 최근검색어
-
+          const RecentSearchTermsSliver()
           // 검색결과(글 목록)
         ],
       ),

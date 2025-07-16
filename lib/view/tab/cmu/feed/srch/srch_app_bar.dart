@@ -1,0 +1,130 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:my_app/notifier/srch_keyword_notifier.dart';
+
+class SrchAppBar extends ConsumerStatefulWidget {
+  const SrchAppBar({super.key});
+
+  @override
+  ConsumerState<SrchAppBar> createState() => _SrchAppBarState();
+}
+
+class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 검색어 설정: 프로바이더의 현재 값을 컨트롤러에 반영
+    _searchController.text = ref.read(srchKeywordProvider);
+  }
+
+  @override
+  void dispose() {
+    // 컨트롤러와 포커스 노드 해제
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
+
+  // 검색어를 프로바이더에 업데이트하고 키보드를 내리는 공통 함수
+  void _performSearch() {
+    // 현재 TextField의 텍스트를 가져와 프로바이더 업데이트
+    ref.read(srchKeywordProvider.notifier).updateKeyword(_searchController.text);
+    // 키보드 내리기
+    _searchFocusNode.unfocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 375,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      color: Colors.white,
+      height: 48,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+
+          // 왼쪽 뒤로가기 버튼
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: SvgPicture.asset(
+                  'assets/icons/feed_detail/ico_back.svg',
+                ),
+              ),
+            ),
+          ),
+
+          // 검색어 입력칸
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0), // 뒤로가기/검색 버튼 공간 확보
+            child: TextField(
+              controller: _searchController,
+              focusNode: _searchFocusNode,
+              textAlignVertical: TextAlignVertical.center, // 텍스트를 세로 중앙 정렬
+              decoration: InputDecoration(
+                hintText: '검색어를 입력하세요',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFAAAAAA),
+                  fontSize: 14,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5), // 배경색
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0), // 내부 패딩 조절
+                border: OutlineInputBorder( // 테두리 설정
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none, // 테두리 선 없음
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFF0D86E7), width: 1), // 포커스 시 테두리 색상 변경
+                ),
+              ),
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w400,
+              ),
+              cursorColor: const Color(0xFF0D86E7), // 커서 색상
+              onSubmitted: (_) => _performSearch(), // 엔터 시 _performSearch 호출
+            ),
+          ),
+
+          // 우측 검색 버튼
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () {
+               _performSearch(); // 검색 버튼 탭 시 _performSearch 호출
+              },
+              child: SizedBox(
+                width: 28,
+                height: 28,
+                child: SvgPicture.asset(
+                  'assets/widgets/search_btn.svg',
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
