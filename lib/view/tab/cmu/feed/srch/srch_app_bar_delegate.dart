@@ -8,10 +8,10 @@ class SrchAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 44;
+  double get maxExtent => 48;
 
   @override
-  double get minExtent => 44;
+  double get minExtent => 48;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {

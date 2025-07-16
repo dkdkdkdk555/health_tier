@@ -1,6 +1,6 @@
 class KeywordSearchParam {
-  String keyword;
-  int? cursorId;
+  final String keyword;
+  final int? cursorId;
   final int limit;
 
   KeywordSearchParam({

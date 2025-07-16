@@ -16,6 +16,7 @@ import 'package:my_app/notifier/feed_pagination_notifier.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/search_result_feed_pagination_notifier.dart';
+import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/notifier/user_create_feed_pagination_notifier.dart';
 import 'package:my_app/service/feed_service.dart';
 
@@ -81,7 +82,8 @@ final userCreateFeedsProvider = StateNotifierProvider.family<UserCreateFeedPagin
 });
 
 // 통합검색
-final searchFeedsProvider = StateNotifierProvider.family<SearchResultFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, KeywordSearchParam>((ref, params) {
+final searchFeedsProvider = StateNotifierProvider.family<SearchResultFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, String>((ref, keyword) {
   final service = ref.watch(feedService);
+  final params = KeywordSearchParam(keyword: keyword);
   return SearchResultFeedPaginationNotifier(service, params);
 });

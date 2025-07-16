@@ -19,6 +19,11 @@ class SearchResultFeedPaginationNotifier extends StateNotifier<AsyncValue<Scroll
   }
 
   Future<void> fetchInitial() async {
+    if (_params.keyword.trim().isEmpty) {
+      state = AsyncData(ScrollResponse(items: [], lastCursorId: null, hasNext: false));
+      return;
+    }
+
     state = const AsyncLoading();
     _feeds.clear();
     _hasNext = true;
@@ -36,7 +41,8 @@ class SearchResultFeedPaginationNotifier extends StateNotifier<AsyncValue<Scroll
   }
 
   Future<void> fetchNext() async {
-    if (_isFetching || !_hasNext) return;
+    if (_isFetching || !_hasNext || _params.keyword.trim().isEmpty) return;
+    
     _isFetching = true;
 
     try {

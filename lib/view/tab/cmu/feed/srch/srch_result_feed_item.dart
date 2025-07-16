@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/view/tab/cmu/feed/item/category_widget.dart';
-import 'package:my_app/view/tab/cmu/feed/item/content_preview_widget.dart';
+import 'package:my_app/view/tab/cmu/feed/item/content_preview_widget_highlight.dart';
 import 'package:my_app/view/tab/cmu/feed/item/image_preview_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/item/like_and_reply_widget.dart';
-import 'package:my_app/view/tab/cmu/feed/item/title_widget.dart';
+import 'package:my_app/view/tab/cmu/feed/item/title_widget_highlight.dart';
 
-class UsrCreateFeedItem extends StatelessWidget {
-  final FeedPreviewDto feed; // UsrFeedPreviewDto는 요청 모델이 아닌 응답 모델이어야 합니다.
+class SrchResultFeedItem extends StatelessWidget {
+  final FeedPreviewDto feed;
+  final String searchKeyword; 
 
-  const UsrCreateFeedItem({
+  const SrchResultFeedItem({
     super.key,
     required this.feed,
+    this.searchKeyword = '',
   });
 
   @override
@@ -24,8 +26,8 @@ class UsrCreateFeedItem extends StatelessWidget {
           // 이미지 미리보기가 없는 경우 (텍스트만)
           if (feed.imgPreview == null || feed.imgPreview!.isEmpty) ...{
             CategoryWidget(categoryNm: feed.category),
-            TitleWidget(title: feed.title, categoryNm: feed.category,),
-            ContentPreviewWidget(ctntPreview: feed.ctntPreview ?? ''),
+            TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, ),
+            ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, ),
           } else ...{
             // 이미지 미리보기가 있는 경우 (텍스트와 이미지)
             Row(
@@ -36,8 +38,8 @@ class UsrCreateFeedItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CategoryWidget(categoryNm: feed.category),
-                      TitleWidget(title: feed.title, categoryNm: feed.category,),
-                      ContentPreviewWidget(ctntPreview: feed.ctntPreview ?? ''),
+                      TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, ),
+                      ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, ),
                     ],
                   ),
                 ),
