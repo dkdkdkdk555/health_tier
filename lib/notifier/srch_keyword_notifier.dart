@@ -1,5 +1,6 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/util/recent_search_shared_preferences.dart';
 
 class SrchKeywordNotifier extends StateNotifier<String> {
   SrchKeywordNotifier() : super(''); // 초기 상태를 빈 문자열로 설정
@@ -9,6 +10,7 @@ class SrchKeywordNotifier extends StateNotifier<String> {
   void updateKeyword(String newKeyword) {
     if (state != newKeyword) { // 불필요한 상태 업데이트 방지
       state = newKeyword;
+      RecentSearchesManager.addSearchKeyword(state);
     }
   }
 
@@ -24,3 +26,6 @@ class SrchKeywordNotifier extends StateNotifier<String> {
 final srchKeywordProvider = StateNotifierProvider<SrchKeywordNotifier, String>((ref) {
   return SrchKeywordNotifier();
 });
+
+// 검색어창에 포커징이 됐는지여부
+final isSearchFocusedProvider = StateProvider<bool>((ref) => false);

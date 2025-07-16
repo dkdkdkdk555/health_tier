@@ -1,38 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // SVG 아이콘 사용시 필요
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/notifier/srch_keyword_notifier.dart';
+import 'package:my_app/util/recent_search_shared_preferences.dart'; 
 
-class RecentSearchTermsSliver extends StatefulWidget {
+class RecentSearchTermsSliver extends ConsumerStatefulWidget {
   const RecentSearchTermsSliver({super.key});
 
   @override
-  State<RecentSearchTermsSliver> createState() => _RecentSearchTermsSliverState();
+  ConsumerState<RecentSearchTermsSliver> createState() => _RecentSearchTermsSliverState();
 }
 
-class _RecentSearchTermsSliverState extends State<RecentSearchTermsSliver> {
-  // 하드코딩된 예시 최근 검색어 목록
-  List<String> _recentSearches = [
-    'ㅇㅇ', '햄스터', '너였다면', '러브', '태닝', '태닝로션', '알바', '웡세', 'lg그램',
-  ];
+class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSliver> {
+  List<String> _recentSearches = []; // 초기값을 빈 리스트로 변경
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentSearches(); // 위젯 초기화 시 최근 검색어 불러오기
+  }
+
+  // 최근 검색어 불러오는 비동기 메서드
+  Future<void> _loadRecentSearches() async {
+    final searches = await RecentSearchesManager.loadRecentSearches();
+    setState(() {
+      _recentSearches = searches;
+    });
+  }
 
   // 특정 검색어 삭제
-  void _removeSearchTerm(String term) {
-    setState(() {
-      _recentSearches.remove(term);
-    });
+  void _removeSearchTerm(String term) async {
+    await RecentSearchesManager.removeSearchKeyword(term); // shared_preferences에서 삭제
+    await _loadRecentSearches(); // 목록 다시 불러와 UI 업데이트
     debugPrint('개별 검색어 삭제: $term');
   }
 
   // 전체 검색어 삭제
-  void _clearAllSearches() {
-    setState(() {
-      _recentSearches.clear();
-    });
+  void _clearAllSearches() async {
+    await RecentSearchesManager.clearAllSearches(); // shared_preferences에서 전체 삭제
+    await _loadRecentSearches(); // 목록 다시 불러와 UI 업데이트
     debugPrint('최근 검색어 전체 삭제');
+  }
+
+  // 검색어 클릭 시 동작
+  void _onSearchTermTap(String term) {
+    debugPrint('검색어 클릭: $term');
+    // srchKeywordProvider 업데이트 -> SrchAppBar의 TextField에 반영 및 검색 트리거
+    ref.read(srchKeywordProvider.notifier).updateKeyword(term);
+
+    // 검색어 클릭 후 키보드를 내리고 싶다면, SrchAppBar의 FocusNode를 제어해야 합니다.
+    // 이는 SrchAppBar에서 FocusNode를 노출시키거나,
+    // SrchKeywordNotifier에 FocusNode 제어 로직을 추가하는 방식으로 가능합니다.
+    // 여기서는 단순히 검색어만 업데이트합니다.
   }
 
   @override
   Widget build(BuildContext context) {
-    return SliverMainAxisGroup( // 여러 슬리버를 그룹화
+    // srchKeywordProvider는 이 위젯에서 직접 watch할 필요는 없습니다.
+    // _onSearchTermTap에서 read로 한 번만 값을 업데이트하기 때문입니다.
+
+    return SliverMainAxisGroup(
       slivers: [
         // '최근검색' 타이틀 및 '전체 삭제' 헤더
         SliverToBoxAdapter(
@@ -47,12 +73,12 @@ class _RecentSearchTermsSliverState extends State<RecentSearchTermsSliver> {
                     color: Colors.black,
                     fontSize: 14,
                     fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700, // 볼드 처리
+                    fontWeight: FontWeight.w700,
                     height: 1.50,
                   ),
                 ),
                 GestureDetector(
-                  onTap: _clearAllSearches, // 전체 삭제 기능
+                  onTap: _clearAllSearches,
                   child: const Text(
                     '전체 삭제',
                     style: TextStyle(
@@ -95,20 +121,14 @@ class _RecentSearchTermsSliverState extends State<RecentSearchTermsSliver> {
                     const Icon(
                       Icons.access_time,
                       size: 16,
-                      color: const Color(0xFFBBBBBB),
+                      color: Color(0xFFBBBBBB), // Color를 const로 변경
                     ),
-                    const SizedBox(width: 8), // 아이콘과 텍스트 사이 간격
+                    const SizedBox(width: 8),
 
                     // 검색어 텍스트
                     Expanded(
                       child: GestureDetector(
-                        onTap: () {
-                          // 검색어 클릭 시 동작 (예: 검색 입력 필드에 채우기)
-                          debugPrint('검색어 클릭: $searchTerm');
-                          // setState를 통해 _recentSearches 리스트를 업데이트할 수 있지만
-                          // 현재 이 위젯은 검색어 입력을 받는 UsrProfileAppBar와 직접 연결되어 있지 않음.
-                          // 만약 연동이 필요하다면 Callbacks 또는 Provider(Riverpod/Provider 패키지) 사용을 고려해야 함.
-                        },
+                        onTap: () => _onSearchTermTap(searchTerm), // 검색어 클릭 시 _onSearchTermTap 호출
                         child: Text(
                           searchTerm,
                           style: const TextStyle(
@@ -125,11 +145,11 @@ class _RecentSearchTermsSliverState extends State<RecentSearchTermsSliver> {
 
                     // X 버튼
                     GestureDetector(
-                      onTap: () => _removeSearchTerm(searchTerm), // 개별 검색어 삭제 기능
+                      onTap: () => _removeSearchTerm(searchTerm),
                       child: const Icon(
                         Icons.close,
                         size: 16,
-                        color: Color(0xFFBBBBBB),
+                        color: Color(0xFFBBBBBB), // Color를 const로 변경
                       ),
                     ),
                   ],

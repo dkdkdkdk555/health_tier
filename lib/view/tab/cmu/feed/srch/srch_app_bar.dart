@@ -19,10 +19,20 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
     super.initState();
     // 초기 검색어 설정: 프로바이더의 현재 값을 컨트롤러에 반영
     _searchController.text = ref.read(srchKeywordProvider);
+     // FocusNode 리스너 추가: 포커스 상태 변경을 감지합니다.
+    _searchFocusNode.addListener(_onFocusChanged);
+  }
+
+  void _onFocusChanged() {
+    // isSearchFocusedProvider의 상태를 업데이트합니다.
+    // _searchFocusNode.hasFocus는 현재 TextField가 포커스를 가지고 있는지 여부를 반환합니다.
+    ref.read(isSearchFocusedProvider.notifier).state = _searchFocusNode.hasFocus;
   }
 
   @override
   void dispose() {
+    // FocusNode 리스너 제거: 메모리 누수 방지를 위해 필수입니다.
+    _searchFocusNode.removeListener(_onFocusChanged);
     // 컨트롤러와 포커스 노드 해제
     _searchController.dispose();
     _searchFocusNode.dispose();
@@ -30,7 +40,7 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
   }
 
   // 검색어를 프로바이더에 업데이트하고 키보드를 내리는 공통 함수
-  void _performSearch() {
+  void _performSearch() async{
     // 현재 TextField의 텍스트를 가져와 프로바이더 업데이트
     ref.read(srchKeywordProvider.notifier).updateKeyword(_searchController.text);
     // 키보드 내리기
