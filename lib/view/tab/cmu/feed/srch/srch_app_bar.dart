@@ -55,6 +55,9 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final srchKeyword = ref.watch(srchKeywordProvider);
+    _searchController.text = srchKeyword;
+
     return Container(
       width: 375,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
