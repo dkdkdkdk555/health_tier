@@ -4,7 +4,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 
 class SrchAppBar extends ConsumerStatefulWidget {
-  const SrchAppBar({super.key});
+  final bool focusSearchArea;
+  final VoidCallback searchAreaControll;
+  const SrchAppBar({
+    super.key,
+    required this.focusSearchArea,
+    required this.searchAreaControll,
+  });
 
   @override
   ConsumerState<SrchAppBar> createState() => _SrchAppBarState();
@@ -63,7 +69,12 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
             alignment: Alignment.centerLeft,
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                if(widget.focusSearchArea){
+                  widget.searchAreaControll();
+                  _searchFocusNode.unfocus();
+                } else {
+                  Navigator.pop(context);
+                }
               },
               child: SizedBox(
                 width: 24,
