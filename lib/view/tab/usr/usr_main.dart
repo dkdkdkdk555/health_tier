@@ -6,6 +6,6 @@ class UsrMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetStartedScreen();
+    return const GetStartedScreen();
   }
 }

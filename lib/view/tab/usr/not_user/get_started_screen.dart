@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/usr/not_user/agreement_bottom_bar.dart';
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
+
+  void _showAgreementBottomBar(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AgreementBottomBar(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,67 +54,77 @@ class GetStartedScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 50, // 버튼의 지름
-                height: 50, // 버튼의 지름
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle, // 원형 모양
-                  color: Colors.green, // 초록색
+              GestureDetector(
+                onTap: () => _showAgreementBottomBar(context),
+                child: Container(
+                  width: 50, // 버튼의 지름
+                  height: 50, // 버튼의 지름
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle, // 원형 모양
+                    color: Colors.green, // 초록색
+                  ),
+                  child: const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'N',
+                      style: TextStyle(
+                        fontSize: 21,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFFFFFF),
+                      ),
+                    ),
+                  ),
                 ),
-                child: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'N',
-                    style: TextStyle(
-                      fontSize: 21,
-                      fontWeight: FontWeight.bold,
+              ),
+              const SizedBox(width: 15), // 버튼 사이 간격
+
+              GestureDetector(
+                onTap: () => _showAgreementBottomBar(context),
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.yellow, // 노란색
+                  ),
+                  child: const Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Kakao',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 15), // 버튼 사이 간격
+
+              GestureDetector(
+                onTap: () => _showAgreementBottomBar(context),
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black, // 검은색
+                  ),
+                   child: const Align(
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.apple_outlined,
                       color: Color(0xFFFFFFFF),
-                    ),
+                      size: 26,
+                    )
                   ),
-                ),
-              ),
-              const SizedBox(width: 15), // 버튼 사이 간격
-
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.yellow, // 노란색
-                ),
-                child: const Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Kakao',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 15), // 버튼 사이 간격
-
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black, // 검은색
-                ),
-                 child: const Align(
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.apple_outlined,
-                    color: Color(0xFFFFFFFF),
-                    size: 26,
-                  )
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 }
+
