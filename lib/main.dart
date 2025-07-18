@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
+import 'package:my_app/view/tab/usr/usr_main.dart';
 import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
 
@@ -41,7 +42,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       const DocMain(), 
       const StcMain(),
       const CmuMain(),
-      const Center(child: Text('회원')),
+      const UsrMain()
   ];
 
   @override
