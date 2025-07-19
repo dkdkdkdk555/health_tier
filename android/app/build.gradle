@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ukhyeon.healthtier"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -45,6 +45,9 @@ android {
         release {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'flutter_proguard_rules.pro'
         }
     }
 
