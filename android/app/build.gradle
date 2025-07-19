@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace = "com.example.my_app"
+    namespace = "com.ukhyeon.healthtier"
     compileSdk = 35                  // ✅ 수정됨
     ndkVersion = flutter.ndkVersion
 
@@ -34,7 +34,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.ht"
+        applicationId = "com.ukhyeon.healthtier"
         minSdk = flutter.minSdkVersion
         targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
