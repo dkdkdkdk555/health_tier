@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.10.52:8080';
+  static const baseUrl = 'http://192.168.0.16:8080';
 }
 
 class FeedAPI {
@@ -20,4 +20,10 @@ class UserAPI {
   static const base = '/cmu/usr';
 
   static const getUserInfo = '$base/';
+}
+
+class AuthAPI {
+  static const base = '/auth';
+
+  static const verifyValidTokenOrSigned = '$base/naver/verify';
 }

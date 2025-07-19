@@ -71,6 +71,7 @@ class _NaverLoginState extends State<NaverLogin> {
                         Text('출생년도: ${userInfo?.birthYear}'),
                         Text('프로필 이미지: ${userInfo?.profileImage}'),
                         Text('휴대폰 번호: ${userInfo?.mobile}'),
+                        Text('엑세스토큰 : $accessToken'),
                         Text('E164 형식 휴대폰 번호: ${userInfo?.mobileE164}'),
                       ] else
                         const Text('사용자 정보 없음'),
@@ -111,6 +112,7 @@ class _NaverLoginState extends State<NaverLogin> {
       setState(() {
         isLogin = res.status == NaverLoginStatus.loggedIn;
         if (res.account != null) {
+          accessToken = res.accessToken?.accessToken;
           userInfo = res.account;
         }
       });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 
 class AgreementBottomBar extends StatefulWidget {
   const AgreementBottomBar({super.key});
@@ -143,8 +144,16 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
               height: 48,
               child: ElevatedButton(
                 onPressed: agreeAll
-                    ? () {
-                        // TODO: 동의하고 다음 단계로 이동
+                    ? () async {
+                        final nickname = await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const NicknameInputPage()),
+                        );
+
+                        if (nickname != null) {
+                          debugPrint('✔️ 닉네임 입력 완료: $nickname');
+                           Navigator.pop(context, nickname);
+                        }
                       }
                     : null, // 전체 동의 안하면 비활성화
                 style: ElevatedButton.styleFrom(

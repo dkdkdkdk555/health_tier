@@ -18,7 +18,7 @@ import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/search_result_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/notifier/user_create_feed_pagination_notifier.dart';
-import 'package:my_app/service/feed_service.dart';
+import 'package:my_app/service/feed_api_service.dart';
 
 // Dio 프로바이더를 전역으로 관리
 final dioProvider = Provider<Dio>((ref){

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
-import 'package:my_app/service/feed_service.dart';
+import 'package:my_app/service/feed_api_service.dart';
 
 class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<ReplyResponseDto>>> {
   final FeedService service;
