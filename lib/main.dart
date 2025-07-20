@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
@@ -16,6 +17,12 @@ void main() async{
   // 테스트 데이터 삽입 시만 사용
   // final db = AppDatabase();
   // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+
+  // 카카오sdk 초기화
+   KakaoSdk.init(
+        nativeAppKey: 'KAKAO_NATIVE_APP_KEY_REDACTED',
+        javaScriptAppKey: 'KAKAO_JAVASCRIPT_APP_KEY_REDACTED',
+    );
 
   runApp(const ProviderScope( // 상태관리 패키지 - Riverpod 설정
     child:MyApp())

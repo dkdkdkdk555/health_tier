@@ -63,6 +63,7 @@ dependencies:
   dio: ^5.4.0
   shared_preferences: ^2.5.1
   flutter_naver_login: ^2.1.0
+  kakao_flutter_sdk_user: ^1.9.5 # 카카오 로그인 API 패키지
 
 dev_dependencies:
   flutter_test:
