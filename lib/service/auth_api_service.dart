@@ -9,7 +9,7 @@ class AuthApiService {
   // 네이버 토큰 검증 및 응답 전체 반환
   Future<Response> verifyNaverToken({
     required String accessToken,
-    required String id,
+    required String snsId,
     required String name,
     required String birthday,
   }) async {
@@ -17,7 +17,8 @@ class AuthApiService {
       AuthAPI.verifyValidTokenOrSigned,
       data: {
         'accessToken': accessToken,
-        'id': id,
+        'snsId': snsId,
+        'snsType': 'naver',
         'name': name,
         'birthday': birthday,
       },
@@ -26,7 +27,7 @@ class AuthApiService {
 
   // 네이버 회원가입 + 로그인 → JWT 발급
   Future<Response> joinAndLoginNaver({
-    required String id,
+    required String snsId,
     required String email,
     required String name,
     required String birthday,
@@ -35,7 +36,8 @@ class AuthApiService {
     return await dio.post(
       '/auth/naver/join',
       data: {
-        'id': id,
+        'snsId': snsId,
+        'snsType': 'naver',
         'email': email,
         'name': name,
         'birthday': birthday,
