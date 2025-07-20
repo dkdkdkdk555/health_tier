@@ -60,11 +60,10 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
     }
 
     try {
-      final response = await authApi.verifyNaverToken(
+      final response = await authApi.verifySnsToken(
         accessToken: accessToken!,
         snsId: userInfo?.id ?? '',
-        name: userInfo?.name ?? '',
-        birthday: userInfo?.birthday ?? '',
+        snsType: 'naver',
       );
 
       if (response.statusCode == 200) {
@@ -110,8 +109,9 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
    Future<void> handleNaverJoinAndLogin() async {
 
     try {
-      final response = await authApi.joinAndLoginNaver(
+      final response = await authApi.joinAndLoginWithSns(
         snsId: userInfo?.id ?? '',
+        snsType: 'naver',
         email: userInfo?.email ?? '',
         name: userInfo?.name ?? '',
         birthday: '${userInfo?.birthYear}-${userInfo?.birthday}',

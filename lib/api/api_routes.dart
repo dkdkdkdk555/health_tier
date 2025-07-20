@@ -25,5 +25,6 @@ class UserAPI {
 class AuthAPI {
   static const base = '/auth';
 
-  static const verifyValidTokenOrSigned = '$base/naver/verify';
+  static const verifyValidTokenOrSigned = '$base/sns/verify';
+  static const joinAndLoginWithSns = '$base/sns/join';
 }

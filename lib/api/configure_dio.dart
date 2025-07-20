@@ -8,8 +8,8 @@ class DIOConfig {
 
     dio.options = BaseOptions(
       baseUrl: APIServer.baseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 6),
+      connectTimeout: const Duration(seconds: 100),
+      receiveTimeout: const Duration(seconds: 106),
       contentType: 'application/json',
       // headers, contentType, responseType 등도 여기서 설정 가능
     );
