@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_app/service/auth_api_service.dart';
 
 class KakaoLoginButton extends StatefulWidget {
   const KakaoLoginButton({super.key});
@@ -15,12 +15,12 @@ class KakaoLoginButton extends StatefulWidget {
 }
 
 class _KakaoLoginButtonState extends State<KakaoLoginButton> {
+  final authApi = AuthApiService();
+  
   String? accessToken;
   User? kakaoUserInfo;
   String? nickname;
   
-  get authApi => null;
-
   Future<void> kakaoLoginButton(BuildContext context) async {
     OAuthToken? token;
     // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
