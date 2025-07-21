@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.16:8080';
+  static const baseUrl = 'http://192.168.0.25:8080';
 }
 
 class FeedAPI {
@@ -27,4 +27,5 @@ class AuthAPI {
 
   static const verifyValidTokenOrSigned = '$base/sns/verify';
   static const joinAndLoginWithSns = '$base/sns/join';
+  static const checkNickname = '/check-nickname';
 }

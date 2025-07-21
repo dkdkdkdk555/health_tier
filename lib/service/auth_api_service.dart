@@ -43,4 +43,22 @@ class AuthApiService {
       },
     );
   }
+
+  // 회원가입 절차 - 닉네임 입력 시 중복방지 로직
+  Future<bool> checkNicknameDuplicate(String nickname) async {
+    try {
+      final response = await dio.get(
+        AuthAPI.checkNickname,
+        queryParameters: {'nickname': nickname},
+      );
+      if (response.statusCode == 200) {
+        return response.data as bool;
+      } else {
+        throw Exception('Nickname check failed');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
 }
