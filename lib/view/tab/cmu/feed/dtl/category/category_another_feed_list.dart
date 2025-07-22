@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
-import 'package:my_app/providers/api_feed_providers.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_item.dart';
 
 class CategoryAnotherFeedList extends ConsumerStatefulWidget {

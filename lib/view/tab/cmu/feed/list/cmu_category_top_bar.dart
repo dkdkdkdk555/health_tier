@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
-import 'package:my_app/providers/api_feed_providers.dart';
+import 'package:my_app/providers/feed_providers.dart';
 
 class CategoryTopBar extends ConsumerStatefulWidget {
   final double htio;

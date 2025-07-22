@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_app/providers/api_feed_providers.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 
 class FeedListSliver extends ConsumerWidget {
