@@ -4,6 +4,7 @@ import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply_bottom_bar.dart';
+import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 
 class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
   final int feedId;
@@ -35,15 +36,7 @@ class _FeedDetailState extends State<FeedDetail> {
         controller: _scrollController,
         slivers: [
           // 상단바 위 여백
-          SliverAppBar(
-            pinned: true,
-            primary: false,
-            toolbarHeight: 44,
-            automaticallyImplyLeading: false,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(color: Colors.white),
-            )
-          ),
+          const TopBlankArea(),
           // 상단 앱바
           SliverPersistentHeader(
             pinned: true,

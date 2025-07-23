@@ -9,8 +9,8 @@ class DIOConfig {
 
     dio.options = BaseOptions(
       baseUrl: APIServer.baseUrl,
-      connectTimeout: const Duration(seconds: 100),
-      receiveTimeout: const Duration(seconds: 106),
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 6),
       contentType: 'application/json',
       // headers, contentType, responseType 등도 여기서 설정 가능
     );
@@ -25,8 +25,8 @@ class DIOConfig {
 
     dio.options = BaseOptions(
       baseUrl: APIServer.baseUrl,
-      connectTimeout: const Duration(seconds: 100),
-      receiveTimeout: const Duration(seconds: 106),
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 6),
       contentType: contentType,
       headers: {
         if (jwtToken != null) 'Authorization': 'Bearer $jwtToken',

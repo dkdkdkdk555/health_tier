@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-class UsrProfileAppBar extends StatefulWidget {
-  const UsrProfileAppBar({super.key});
+class CmuBasicAppBar extends StatefulWidget {
+  final String centerText;
+  const CmuBasicAppBar({
+    super.key,
+    required this.centerText
+  });
 
   @override
-  State<UsrProfileAppBar> createState() => _UsrProfileAppBarState();
+  State<CmuBasicAppBar> createState() => _CmuBasicAppBarState();
 }
 
-class _UsrProfileAppBarState extends State<UsrProfileAppBar> {
+class _CmuBasicAppBarState extends State<CmuBasicAppBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,10 +24,10 @@ class _UsrProfileAppBarState extends State<UsrProfileAppBar> {
         alignment: Alignment.center,
         children: [
           // 가운데 텍스트
-          const Center(
+          Center(
             child: Text(
-              '이용자 프로필',
-              style: TextStyle(
+              widget.centerText,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 18,
                 fontFamily: 'Pretendard',

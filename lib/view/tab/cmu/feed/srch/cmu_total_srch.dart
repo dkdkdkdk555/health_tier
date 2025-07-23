@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
+import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/recent_srch_terms_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_result_list_sliver.dart';
@@ -56,15 +57,7 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
             controller: _scrollController,
             slivers: [
               // 상단바 위 여백 (SliverAppBar)
-              SliverAppBar(
-                pinned: true,
-                primary: false,
-                toolbarHeight: _sliverAppBarHeight,
-                automaticallyImplyLeading: false,
-                flexibleSpace: Container(
-                  decoration: const BoxDecoration(color: Colors.white),
-                )
-              ),
+              const TopBlankArea(),
               // 상단바 (SrchAppBarDelegate)
               SliverPersistentHeader(
                 pinned: true,

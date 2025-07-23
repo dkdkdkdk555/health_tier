@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
+import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
@@ -108,45 +109,59 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           alignment: Alignment.center,
           children: [
             // cmu 작성 버튼
-            if(_selectedIndex == 2)
-            Positioned(
-              height: 52,
-              right: 38,
-              bottom: 42, // == IslandNavigationBar
-              child: SlideTransition(
-                position: _fabSlide,
-                child: (_selectedIndex == 2)
-                    ? FloatingActionButton(
-                        onPressed: () {},
-                        backgroundColor: const Color(0xFF0D85E7),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: SvgPicture.asset('assets/widgets/create_feed.svg'),
-                      )
-                    : const SizedBox.shrink(), // 빈 위젯로 대체
-              ),
-            )
-            else
+          if (_selectedIndex == 2)
             Positioned(
               height: 52,
               right: 38,
               bottom: 42,
               child: SlideTransition(
                 position: _fabSlide,
-                child: (_selectedIndex != 2)
-                    ? FadeTransition(
-                      opacity: _fabOpacity,
-                      child: FloatingActionButton(
-                          onPressed: () {},
-                          backgroundColor: const Color(0xFF0D85E7),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: SvgPicture.asset('assets/widgets/create_feed.svg'),
+                child: Builder(
+                  builder: (context) => FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WriteFeed(),
                         ),
-                    )
-                    : const SizedBox.shrink(), // 빈 위젯로 대체
+                      );
+                    },
+                    backgroundColor: const Color(0xFF0D85E7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SvgPicture.asset('assets/widgets/create_feed.svg'),
+                  ),
+                ),
+              ),
+            )
+          else
+            Positioned(
+              height: 52,
+              right: 38,
+              bottom: 42,
+              child: SlideTransition(
+                position: _fabSlide,
+                child: FadeTransition(
+                  opacity: _fabOpacity,
+                  child: Builder(
+                    builder: (context) => FloatingActionButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WriteFeed(),
+                          ),
+                        );
+                      },
+                      backgroundColor: const Color(0xFF0D85E7),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SvgPicture.asset('assets/widgets/create_feed.svg'),
+                    ),
+                  ),
+                ),
               ),
             ),
             AnimatedContainer( 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/cmu/feed/user_profile/usr_profile_app_bar.dart';
+import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
 
 class UsrProfileAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return const UsrProfileAppBar();
+    return const CmuBasicAppBar(centerText: '이용자 프로필',);
   }
 
   @override

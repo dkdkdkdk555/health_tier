@@ -12,7 +12,6 @@ class UsrProfile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    debugPrint('빌드메서드 내부 : $userId');
     final userInfoAsync = ref.watch(userInfoProvider(userId));
 
     return userInfoAsync.when(
