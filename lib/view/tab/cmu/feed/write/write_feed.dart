@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
+import 'package:my_app/view/tab/cmu/feed/write/write_feed_editor.dart';
 
 class WriteFeed extends StatefulWidget {
   const WriteFeed({super.key});
@@ -75,6 +76,9 @@ class _WriteFeedState extends State<WriteFeed> {
                 cursorColor: const Color(0xFF0D85E7),
               ),
             ),
+
+             const SizedBox(height: 24),
+             const WriteFeedEditor()
           ],
         )
       ),
