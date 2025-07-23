@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
+import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
 
 class WriteFeed extends StatefulWidget {
@@ -13,6 +13,10 @@ class _WriteFeedState extends State<WriteFeed> {
   final TextEditingController _titleController = TextEditingController();
 
   void _onCategoryChange({required int index}) {
+
+  }
+
+  void _onSubmit(){
 
   }
 
@@ -31,7 +35,7 @@ class _WriteFeedState extends State<WriteFeed> {
         child: Column(
           children: [
             // 상단 바 
-            const CmuBasicAppBar(centerText: '피드 작성하기'),
+            CmuWriteAppBar(centerText: '피드 작성하기', onSubmit: _onSubmit,),
             // 카테고리 선택 바
             WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: 0,),
             // 제목 입력 섹션
@@ -62,12 +66,13 @@ class _WriteFeedState extends State<WriteFeed> {
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
-                      color: Color(0xFF0D85E7), // 원하는 색상
+                      color: Color(0xFF0D85E7),
                       width: 2.0,
                     ),
                   ),
                 ),
                 style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
+                cursorColor: const Color(0xFF0D85E7),
               ),
             ),
           ],
