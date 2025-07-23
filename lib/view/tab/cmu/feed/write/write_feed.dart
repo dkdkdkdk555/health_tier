@@ -31,6 +31,7 @@ class _WriteFeedState extends State<WriteFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 44,),
         child: Column(
@@ -64,6 +65,10 @@ class _WriteFeedState extends State<WriteFeed> {
                 controller: _titleController,
                 decoration: const InputDecoration(
                   hintText: '제목을 입력해주세요',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                     color: Color.fromRGBO(158, 158, 158, 0.8), 
+                  ),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
@@ -72,7 +77,7 @@ class _WriteFeedState extends State<WriteFeed> {
                     ),
                   ),
                 ),
-                style: const TextStyle(fontSize: 14, color: Color(0xFF333333)),
+                style: const TextStyle(fontSize: 16, color: Color(0xff0000000)),
                 cursorColor: const Color(0xFF0D85E7),
               ),
             ),

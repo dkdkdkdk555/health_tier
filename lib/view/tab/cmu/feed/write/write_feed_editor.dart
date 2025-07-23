@@ -1,11 +1,7 @@
-import 'package:flutter/material.dart';
-import 'dart:convert' show jsonDecode, jsonEncode;
-
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'package:http/http.dart' as http;
 import 'dart:io' as io show Directory, File;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -18,159 +14,231 @@ class WriteFeedEditor extends StatefulWidget {
 }
 
 class _WriteFeedEditorState extends State<WriteFeedEditor> {
-   /*
-   Quill 에디터의 전체 상태를 제어하는 컨트롤러
-    - 역할: Quill 에디터의 전체 상태를 제어하는 컨트롤러
-    - 문서의 Delta 상태, selection 범위, undo/redo 등 내부 상태를 포함
-  */   
-  final QuillController _controller = () {
-    return QuillController.basic( // basic 기본 문서 컨트롤러를 초기화함
-      config: QuillControllerConfig(
-            clipboardConfig: 
-              QuillClipboardConfig( // 클립보드 설정
-                enableExternalRichPaste: true, // 외부 리치텍스트의 붙여넣기를 허용
-                onImagePaste: (imageBytes) async { // 이미지가 붙여넣기 될 때 실행하는 콜백
-                // imageBytes 는 붙여넣은 이미지의 바이트
-                  if (kIsWeb) {
-                    return null;
-                  }
-                  final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
-                  final newPath = path.join(io.Directory.systemTemp.path, newFileName,);
-                  // 이미지 바이트를 디스크에 PNG 파일로 저장
-                  final file = await io.File(newPath,).writeAsBytes(imageBytes, flush: true);
-                  // 저장한 이미지 경로를 반환(Quill이 해당 이미지를 문서에 삽입 가능하게 함)
-                  return file.path;
-                },
-              )
-            )
-    );
-  }();
-  // 에디터의 포커스 상태를 추적 및 제어 (예: 툴바에서 버튼 클릭 후 에디터로 다시 포커스 주기)
+  final QuillController _controller = QuillController.basic(
+    config: QuillControllerConfig(
+      clipboardConfig: QuillClipboardConfig(
+        enableExternalRichPaste: true,
+        onImagePaste: (imageBytes) async {
+          if (kIsWeb) {
+            return null;
+          }
+          final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
+          final newPath = path.join(io.Directory.systemTemp.path, newFileName);
+          final file = await io.File(newPath).writeAsBytes(imageBytes, flush: true);
+          return file.path;
+        },
+      ),
+    ),
+  );
+
   final FocusNode _editorFocusNode = FocusNode();
-  // 에디터 내부의 스크롤 위치 제어 (스크롤 감지, 특정 위치로 스크롤 이동)
   final ScrollController _editorScrollController = ScrollController();
-  
-  
+
+  // 툴바 가시성 상태
+  bool _showToolbar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 포커스 노드에 리스너 추가: 에디터의 포커스 상태가 변경될 때마다 _updateToolbarVisibility 호출
+    _editorFocusNode.addListener(_updateToolbarVisibility);
+  }
+
+  void _updateToolbarVisibility() {
+    setState(() {
+      _showToolbar = _editorFocusNode.hasFocus; // 에디터에 포커스가 있으면 툴바 표시
+    });
+  }
+
+  @override
+  void dispose() {
+    _editorFocusNode.removeListener(_updateToolbarVisibility); // 리스너 제거
+    _editorFocusNode.dispose();
+    _editorScrollController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          QuillSimpleToolbar(
-            controller: _controller,
-            config: QuillSimpleToolbarConfig(
-                showBoldButton: true,
-                showUnderLineButton: true,
-                showStrikeThrough: true,
-                showListBullets: true,
-                showListNumbers: true,
-                showListCheck: true,
-                showUndo: true,
-                showRedo: true,
+    // 키보드 높이 가져오기
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
 
-                // 나머지 모두 숨기기
-                showItalicButton: false,
-                showSmallButton: false,
-                showInlineCode: false,
-                showCodeBlock: false,
-                showQuote: false,
-                showDirection: false,
-                showSubscript: false,
-                showSuperscript: false,
-                showFontFamily: false,
-                showFontSize: false,
-                showColorButton: false,
-                showBackgroundColorButton: false,
-                showClearFormat: false,
-                showAlignmentButtons: false,
-                showHeaderStyle: false,
-                showIndent: false,
-                showLink: false,
-                showSearchButton: false,
-                showLineHeightButton: false,
-                showClipboardCut: false,
-                showClipboardCopy: false,
-                showClipboardPaste: false,
-                embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                  imageButtonOptions: QuillToolbarImageButtonOptions(
-                    imageButtonConfig: QuillToolbarImageConfig(
-                      onImageInsertCallback: (image, controller) async {
-                          final originalFile = io.File(image);
-                          if (!await originalFile.exists()) return;
-
-                          // ✅ 앱의 문서 디렉토리에 저장
-                          final appDir = await getApplicationDocumentsDirectory();
-                          final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
-                          final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-
-                          // ✅ Delta에는 file:// 경로 삽입
-                          final imageUrl = 'file://${savedFile.path}';
-
-                          controller.document.insert(
-                            controller.selection.extentOffset,
-                            BlockEmbed.image(imageUrl),
-                          );
-
-                          controller.updateSelection(
-                            TextSelection.collapsed(
-                              offset: controller.selection.extentOffset + 1,
-                            ),
-                            ChangeSource.local,
-                          );
+    return Column( // WriteFeedEditor가 SingleChildScrollView 내부에 있으므로, Column으로 충분합니다.
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 20, right: 20, bottom: 6),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.only(left: 4,),
+              child: Text(
+                '피드 내용',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF333333),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey.shade300, // 부드러운 테두리
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: SizedBox(
+            height: 200,
+            child: QuillEditor(
+              focusNode: _editorFocusNode,
+              scrollController: _editorScrollController,
+              controller: _controller,
+              config: QuillEditorConfig(
+                placeholder: '내용을 입력해주세요...', // Placeholder 텍스트 변경
+                customStyles: const DefaultStyles(
+                  placeHolder: DefaultTextBlockStyle(
+                    TextStyle(
+                      fontSize: 14, // 원하는 크기로 조절
+                      color: Color.fromRGBO(158, 158, 158, 0.8), // 더 명확한 표현
+                    ),
+                    HorizontalSpacing.zero,
+                    VerticalSpacing.zero,
+                    VerticalSpacing.zero,
+                    null,
+                  ),
+                ),
+                padding: const EdgeInsets.all(16),
+                embedBuilders: [
+                  ...FlutterQuillEmbeds.editorBuilders(
+                    imageEmbedConfig: QuillEditorImageEmbedConfig(
+                      imageProviderBuilder: (context, imageUrl) {
+                        debugPrint(imageUrl);
+                        if (imageUrl.startsWith('file://')) {
+                          final path = Uri.parse(imageUrl).toFilePath();
+                          final file = io.File(path);
+            
+                          final exists = file.existsSync();
+                          debugPrint('File at $path exists: $exists');
+            
+                          if (exists) return FileImage(file);
+                        }
+                        return null;
                       },
-                    )
-                  )
-                ),
-                customButtons: const [
-                
+                    ),
+                    videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                      customVideoBuilder: (videoUrl, readOnly) {
+                        return null;
+                      },
+                    ),
+                  ),
                 ],
-                buttonOptions: QuillSimpleToolbarButtonOptions(
-                  linkStyle: QuillToolbarLinkStyleButtonOptions(
-                    validateLink: (link) {
-                      final uri = Uri.tryParse(link);
-                      return uri != null && (uri.hasScheme && (uri.isAbsolute));
-                    },
-                  )
-              )
+              ),
             ),
           ),
-          QuillEditor(
-            focusNode: _editorFocusNode,
-            scrollController: _editorScrollController,
-            controller: _controller,
-            config: QuillEditorConfig(
-              placeholder: 'Start writing your notes...',
-              padding: const EdgeInsets.all(16),
-              embedBuilders: [
-                ...FlutterQuillEmbeds.editorBuilders(
-                  imageEmbedConfig: QuillEditorImageEmbedConfig(
-                    imageProviderBuilder: (context, imageUrl) {
-                      debugPrint(imageUrl);
-                      if (imageUrl.startsWith('file://')) {
-                        final path = Uri.parse(imageUrl).toFilePath(); // 여기서 file:// 제거 해서 랜더링 제대로됨
-                        final file = io.File(path);
+        ),
 
-                        final exists = file.existsSync();
-                        debugPrint('File at $path exists: $exists');
-                        
-                        if (exists) return FileImage(file);
-                      }
+        // 툴바 섹션
+        // 키보드 높이에 따라 패딩을 조절하여 툴바를 키보드 위에 띄웁니다.
+        // AnimatedContainer를 사용하여 키보드가 올라오고 내려갈 때 자연스러운 애니메이션 효과를 줍니다.
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300), // 애니메이션 지속 시간
+          height: _showToolbar ? 50.0 : 0.0, // 툴바가 보일 때 높이, 안 보일 때 0
+          padding: EdgeInsets.only(bottom: keyboardHeight), // 키보드 위에 위치하도록 패딩 추가
+          // 툴바를 가로로 스크롤 가능하게 만듭니다.
+          child: _showToolbar
+              ? SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    color: Colors.grey[200], // 툴바 배경색 (선택 사항)
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row( // QuillSimpleToolbar를 children으로 직접 넣기
+                      children: [
+                        QuillSimpleToolbar(
+                          controller: _controller,
+                          config: QuillSimpleToolbarConfig(
+                            showBoldButton: true,
+                            showUnderLineButton: true,
+                            showStrikeThrough: true,
+                            showListBullets: true,
+                            showListNumbers: true,
+                            showListCheck: true,
+                            showUndo: true,
+                            showRedo: true,
 
-                      return null;
-                    },
+                            // 나머지 모두 숨기기
+                            showItalicButton: false,
+                            showSmallButton: false,
+                            showInlineCode: false,
+                            showCodeBlock: false,
+                            showQuote: false,
+                            showDirection: false,
+                            showSubscript: false,
+                            showSuperscript: false,
+                            showFontFamily: false,
+                            showFontSize: false,
+                            showColorButton: false,
+                            showBackgroundColorButton: false,
+                            showClearFormat: false,
+                            showAlignmentButtons: false,
+                            showHeaderStyle: false,
+                            showIndent: false,
+                            showLink: false,
+                            showSearchButton: false,
+                            showLineHeightButton: false,
+                            showClipboardCut: false,
+                            showClipboardCopy: false,
+                            showClipboardPaste: false, // 이전에 true였던 것으로 보이는데, 숨기는 목록에 포함됨
+                            // 이미지 버튼은 QuillSimpleToolbar에서 embedButtons를 통해 제어
+                            embedButtons: FlutterQuillEmbeds.toolbarButtons(
+                              imageButtonOptions: QuillToolbarImageButtonOptions(
+                                imageButtonConfig: QuillToolbarImageConfig(
+                                  onImageInsertCallback: (image, controller) async {
+                                    final originalFile = io.File(image);
+                                    if (!await originalFile.exists()) return;
+
+                                    final appDir = await getApplicationDocumentsDirectory();
+                                    final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
+                                    final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+                                    final imageUrl = 'file://${savedFile.path}';
+
+                                    controller.document.insert(
+                                      controller.selection.extentOffset,
+                                      BlockEmbed.image(imageUrl),
+                                    );
+                                    controller.updateSelection(
+                                      TextSelection.collapsed(
+                                        offset: controller.selection.extentOffset + 1,
+                                      ),
+                                      ChangeSource.local,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            customButtons: const [],
+                            buttonOptions: QuillSimpleToolbarButtonOptions(
+                              linkStyle: QuillToolbarLinkStyleButtonOptions(
+                                validateLink: (link) {
+                                  final uri = Uri.tryParse(link);
+                                  return uri != null && (uri.hasScheme && (uri.isAbsolute));
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                    customVideoBuilder: (videoUrl, readOnly) {
-                      return null;
-                    },
-                  ),
-                ),
-              ]
-            ),
-          ),
-        ],
-      ),
+                )
+              : const SizedBox.shrink(), // 툴바가 보이지 않을 때는 빈 위젯
+        ),
+      ],
     );
   }
 }
