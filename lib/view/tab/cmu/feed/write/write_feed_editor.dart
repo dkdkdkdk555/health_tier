@@ -67,20 +67,20 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
     final RenderBox? renderBox = _editorFocusNode.context?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final newHeight = renderBox.size.height;
-      if (newHeight > _currentEditorHeight) {
+      if (newHeight != _currentEditorHeight) {
         setState(() {
           _currentEditorHeight = newHeight;
         });
         widget.scrollUp();
       }
     }
+
   }
 
 
   void _updateToolbarVisibility() {
     setState(() {
       _showToolbar = _editorFocusNode.hasFocus; // 에디터에 포커스가 있으면 툴바 표시
-      // widget.scrollUp(scrollAmount: 14); --> 키보드 나타났을때 스크롤 시키는건데 안먹힘
     });
   }
 
@@ -95,12 +95,6 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
 
   @override
   Widget build(BuildContext context) {
-    // 키보드 높이 가져오기
-    final mediaQuery = MediaQuery.of(context);
-    final keyboardHeight = mediaQuery.viewInsets.bottom;
-    debugPrint('키보드 : $keyboardHeight');
-     
-
     return Column( // WriteFeedEditor가 SingleChildScrollView 내부에 있으므로, Column으로 충분합니다.
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -125,67 +119,61 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
           height: 1,
           color:Colors.grey.shade300
         ),
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            minHeight: 250,
-          ),
-          child: QuillEditor(
-            focusNode: _editorFocusNode,
-            controller: _controller,
-            scrollController: _editorScrollController,
-            config: QuillEditorConfig(
-              scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
-              autoFocus: false, // 필요에 따라 자동 포커스 설정
-              padding: const EdgeInsets.symmetric(horizontal: 20), // 기본 패딩 제거
-                placeholder: '내용을 입력해주세요...',
-                customStyles: const DefaultStyles(
-                  placeHolder: DefaultTextBlockStyle(
-                    TextStyle(
-                      fontSize: 14,
-                      color: Color.fromRGBO(158, 158, 158, 0.8),
-                    ),
-                    HorizontalSpacing.zero,
-                    VerticalSpacing.zero,
-                    VerticalSpacing.zero,
-                    null,
+        QuillEditor(
+          focusNode: _editorFocusNode,
+          controller: _controller,
+          scrollController: _editorScrollController,
+          config: QuillEditorConfig(
+            scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
+            autoFocus: false, // 필요에 따라 자동 포커스 설정
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20), // 기본 패딩 제거
+              placeholder: '내용을 입력해주세요...',
+              customStyles: const DefaultStyles(
+                placeHolder: DefaultTextBlockStyle(
+                  TextStyle(
+                    fontSize: 14,
+                    color: Color.fromRGBO(158, 158, 158, 0.8),
+                  ),
+                  HorizontalSpacing.zero,
+                  VerticalSpacing.zero,
+                  VerticalSpacing.zero,
+                  null,
+                ),
+              ),
+              // padding: const EdgeInsets.all(16),
+              embedBuilders: [
+                ...FlutterQuillEmbeds.editorBuilders(
+                  imageEmbedConfig: QuillEditorImageEmbedConfig(
+                    imageProviderBuilder: (context, imageUrl) {
+                      debugPrint(imageUrl);
+                      if (imageUrl.startsWith('file://')) {
+                        final path = Uri.parse(imageUrl).toFilePath();
+                        final file = io.File(path);
+          
+                        final exists = file.existsSync();
+                        debugPrint('File at $path exists: $exists');
+          
+                        if (exists) return FileImage(file);
+                      }
+                      return null;
+                    },
+                  ),
+                  videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                    customVideoBuilder: (videoUrl, readOnly) {
+                      return null;
+                    },
                   ),
                 ),
-                // padding: const EdgeInsets.all(16),
-                embedBuilders: [
-                  ...FlutterQuillEmbeds.editorBuilders(
-                    imageEmbedConfig: QuillEditorImageEmbedConfig(
-                      imageProviderBuilder: (context, imageUrl) {
-                        debugPrint(imageUrl);
-                        if (imageUrl.startsWith('file://')) {
-                          final path = Uri.parse(imageUrl).toFilePath();
-                          final file = io.File(path);
-            
-                          final exists = file.existsSync();
-                          debugPrint('File at $path exists: $exists');
-            
-                          if (exists) return FileImage(file);
-                        }
-                        return null;
-                      },
-                    ),
-                    videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                      customVideoBuilder: (videoUrl, readOnly) {
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-            ),
+              ],
           ),
         ),
-
         // 툴바 섹션
         // 키보드 높이에 따라 패딩을 조절하여 툴바를 키보드 위에 띄웁니다.
         // AnimatedContainer를 사용하여 키보드가 올라오고 내려갈 때 자연스러운 애니메이션 효과를 줍니다.
         AnimatedContainer(
           duration: const Duration(milliseconds: 300), // 애니메이션 지속 시간
           height: _showToolbar ? 50.0 : 0.0, // 툴바가 보일 때 높이, 안 보일 때 0
-          padding: EdgeInsets.only(bottom: keyboardHeight), // 키보드 위에 위치하도록 패딩 추가
+          margin: const EdgeInsets.only(top: 50),
           // 툴바를 가로로 스크롤 가능하게 만듭니다.
           child: _showToolbar
               ? SingleChildScrollView(
@@ -198,16 +186,27 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
                         QuillSimpleToolbar(
                           controller: _controller,
                           config: QuillSimpleToolbarConfig(
+                             customButtons: [
+                              QuillToolbarCustomButtonOptions(
+                                icon: const Icon(
+                                  Icons.keyboard_hide_outlined
+                                ), // 키보드 아이콘
+                                tooltip: 'Hide Keyboard', // 툴팁
+                                onPressed: () {
+                                  FocusScope.of(context).unfocus(); // 현재 포커스된 위젯에서 포커스를 해제하여 키보드를 내립니다.
+                                },
+                              ),
+                            ],
                             showBoldButton: true,
                             showUnderLineButton: true,
                             showStrikeThrough: true,
                             showListBullets: true,
                             showListNumbers: true,
-                            showListCheck: true,
                             showUndo: true,
                             showRedo: true,
 
                             // 나머지 모두 숨기기
+                            showListCheck: false,
                             showItalicButton: false,
                             showSmallButton: false,
                             showInlineCode: false,
@@ -257,7 +256,6 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
                                 ),
                               ),
                             ),
-                            customButtons: const [],
                             buttonOptions: QuillSimpleToolbarButtonOptions(
                               linkStyle: QuillToolbarLinkStyleButtonOptions(
                                 validateLink: (link) {

@@ -106,7 +106,7 @@ class _WriteFeedState extends State<WriteFeed> {
                   ),
             
                    const SizedBox(height: 24),
-                  WriteFeedEditor(scrollUp: _scrollUp,)
+                  WriteFeedEditor(scrollUp: _scrollUp)
                 ],
               )
             ),
