@@ -156,7 +156,7 @@ class _WriteFeedState extends State<WriteFeed> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF333333),
+                                color: Color(0xFF555555),
                               ),
                             ),
                           ),
@@ -198,7 +198,7 @@ class _WriteFeedState extends State<WriteFeed> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF333333),
+                                  color: Color(0xFF555555),
                                 ),
                               ),
                             ),
@@ -216,44 +216,46 @@ class _WriteFeedState extends State<WriteFeed> {
                             scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
                             autoFocus: false, // 필요에 따라 자동 포커스 설정
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20), // 기본 패딩 제거
-                              placeholder: '내용을 입력해주세요...',
-                              customStyles: const DefaultStyles(
-                                placeHolder: DefaultTextBlockStyle(
-                                  TextStyle(
-                                    fontSize: 14,
-                                    color: Color.fromRGBO(158, 158, 158, 0.8),
-                                  ),
-                                  HorizontalSpacing.zero,
-                                  VerticalSpacing.zero,
-                                  VerticalSpacing.zero,
-                                  null,
+                            placeholder: '내용을 입력해주세요...',
+                            customStyles: const DefaultStyles(
+                              placeHolder: DefaultTextBlockStyle(
+                                TextStyle(
+                                  fontSize: 14,
+                                  color: Color.fromRGBO(158, 158, 158, 0.8),
+                                ),
+                                HorizontalSpacing.zero,
+                                VerticalSpacing.zero,
+                                VerticalSpacing.zero,
+                                null,
+                              ),
+                            ),
+                            textSelectionThemeData: const TextSelectionThemeData(
+                              cursorColor: Color(0xFF0D85E7), // 원하는 커서 색상으로 변경
+                            ),
+                            embedBuilders: [
+                              ...FlutterQuillEmbeds.editorBuilders(
+                                imageEmbedConfig: QuillEditorImageEmbedConfig(
+                                  imageProviderBuilder: (context, imageUrl) {
+                                    debugPrint(imageUrl);
+                                    if (imageUrl.startsWith('file://')) {
+                                      final path = Uri.parse(imageUrl).toFilePath();
+                                      final file = io.File(path);
+                        
+                                      final exists = file.existsSync();
+                                      debugPrint('File at $path exists: $exists');
+                        
+                                      if (exists) return FileImage(file);
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                                  customVideoBuilder: (videoUrl, readOnly) {
+                                    return null;
+                                  },
                                 ),
                               ),
-                              // padding: const EdgeInsets.all(16),
-                              embedBuilders: [
-                                ...FlutterQuillEmbeds.editorBuilders(
-                                  imageEmbedConfig: QuillEditorImageEmbedConfig(
-                                    imageProviderBuilder: (context, imageUrl) {
-                                      debugPrint(imageUrl);
-                                      if (imageUrl.startsWith('file://')) {
-                                        final path = Uri.parse(imageUrl).toFilePath();
-                                        final file = io.File(path);
-                          
-                                        final exists = file.existsSync();
-                                        debugPrint('File at $path exists: $exists');
-                          
-                                        if (exists) return FileImage(file);
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                                    customVideoBuilder: (videoUrl, readOnly) {
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                              ],
+                            ],
                           ),
                         ),
                          // 툴바 높이 + 키보드 높이와 동일한 아래쪽 패딩 추가

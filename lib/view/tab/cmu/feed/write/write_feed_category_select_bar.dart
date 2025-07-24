@@ -46,7 +46,8 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                   '카테고리 선택',
                   style: TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.bold
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF555555),
                   ),
                 ),
             ),
