@@ -1,13 +1,16 @@
 import 'dart:io' as io;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
 
 class WriteFeed extends StatefulWidget {
   const WriteFeed({super.key});
@@ -45,6 +48,8 @@ class _WriteFeedState extends State<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
+  // 파일 선택 중인지 나타내는 플래그 추가
+  bool _isPickingFile = false;
 
   @override
   void initState() {
@@ -81,6 +86,8 @@ class _WriteFeedState extends State<WriteFeed> {
 
   }
 
+
+
   void _updateToolbarVisibility() {
     setState(() {
       _showToolbar = _editorFocusNode.hasFocus; // 에디터에 포커스가 있으면 툴바 표시
@@ -96,7 +103,8 @@ class _WriteFeedState extends State<WriteFeed> {
   }
 
 
-  void _scrollUp(){
+  void _scrollUp() async{
+    await Future.delayed(const Duration(milliseconds: 50));
     // 스크롤 가능한 최대 범위(바닥)로 이동
     final double targetOffset = _scrollController.position.maxScrollExtent;
     if (_scrollController.hasClients) { // 컨트롤러가 attached 되어 있는지 확인
@@ -181,7 +189,7 @@ class _WriteFeedState extends State<WriteFeed> {
                               ),
                             ),
                           ),
-                          style: const TextStyle(fontSize: 16, color: Color(0xff0000000)),
+                          style: const TextStyle(fontSize: 16, color: Color(0xff000000)),
                           cursorColor: const Color(0xFF0D85E7),
                         ),
                       ),
@@ -236,7 +244,7 @@ class _WriteFeedState extends State<WriteFeed> {
                               ...FlutterQuillEmbeds.editorBuilders(
                                 imageEmbedConfig: QuillEditorImageEmbedConfig(
                                   imageProviderBuilder: (context, imageUrl) {
-                                    debugPrint(imageUrl);
+                                    // debugPrint(imageUrl);
                                     if (imageUrl.startsWith('file://')) {
                                       final path = Uri.parse(imageUrl).toFilePath();
                                       final file = io.File(path);
@@ -250,8 +258,29 @@ class _WriteFeedState extends State<WriteFeed> {
                                   },
                                 ),
                                 videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                                  // 비디오 렌더링을 위한 customVideoBuilder 커스터마이징
                                   customVideoBuilder: (videoUrl, readOnly) {
-                                    return null;
+                                    // 여기에 비디오 플레이어 위젯을 반환합니다.
+                                    // videoUrl은 삽입된 비디오의 URL입니다.
+                                    if (videoUrl.isEmpty) {
+                                      return const SizedBox(); // 비디오 URL이 없으면 빈 위젯 반환
+                                    }
+                                    // `file://` 스킴을 처리하기 위한 로직 추가
+                                    Uri? uri = Uri.tryParse(videoUrl);
+                                    if (uri == null) {
+                                      return const SizedBox();
+                                    }
+
+                                    late VideoPlayerController videoController;
+                                    if (uri.scheme == 'file') {
+                                      // 로컬 파일 경로인 경우
+                                      videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
+                                    } else {
+                                      // 네트워크 URL인 경우
+                                      videoController = VideoPlayerController.networkUrl(uri);
+                                    }
+
+                                    return QuillVideoPlayer(controller: videoController);
                                   },
                                 ),
                               ),
@@ -297,6 +326,7 @@ class _WriteFeedState extends State<WriteFeed> {
                       showListNumbers: true,
                       showUndo: true,
                       showRedo: true,
+
                       showListCheck: false,
                       showItalicButton: false,
                       showSmallButton: false,
@@ -345,6 +375,12 @@ class _WriteFeedState extends State<WriteFeed> {
                             },
                           ),
                         ),
+                        videoButtonOptions: QuillToolbarVideoButtonOptions(
+                          videoConfig: QuillToolbarVideoConfig(
+                             // onVideoInsertCallback을 커스터마이징합니다.
+                            onVideoInsertCallback: (video, controller) => _handleVideoInsert(video, controller),
+                          )
+                        )
                       ),
                       buttonOptions: QuillSimpleToolbarButtonOptions(
                         linkStyle: QuillToolbarLinkStyleButtonOptions(
@@ -362,5 +398,71 @@ class _WriteFeedState extends State<WriteFeed> {
         ],
       ),
     );
+  }
+
+  // 비디오 선택시
+   Future<void> _handleVideoInsert(String video, QuillController controller) async {
+    if (_isPickingFile) {
+      // 이미 파일 선택 중이면 추가 요청을 무시합니다.
+      debugPrint('File picking in progress, ignoring duplicate request.');
+      return;
+    }
+
+    setState(() {
+      _isPickingFile = true; // 파일 선택 시작 플래그 설정
+    });
+
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: false,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        debugPrint('No video selected or operation cancelled.');
+        return; // 사용자가 파일을 선택하지 않았거나 취소했습니다.
+      }
+
+      final pickedFile = result.files.single;
+      final videoPath = pickedFile.path;
+
+      if (videoPath == null) {
+        debugPrint('Video path is null.');
+        return;
+      }
+
+      final originalFile = io.File(videoPath);
+      if (!await originalFile.exists()) {
+        debugPrint('Original video file does not exist.');
+        return;
+      }
+
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'vid-${DateTime.now().millisecondsSinceEpoch}.mp4';
+      final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+      final videoUrl = 'file://${savedFile.path}';
+
+      controller.document.insert(
+        controller.selection.extentOffset,
+        BlockEmbed.video(videoUrl),
+      );
+      controller.updateSelection(
+        TextSelection.collapsed(
+          offset: controller.selection.extentOffset + 1,
+        ),
+        ChangeSource.local,
+      );
+    } catch (e) {
+      debugPrint('Error picking video: $e');
+      // 오류 발생 시 사용자에게 알림을 표시할 수 있습니다.
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('비디오 선택 중 오류가 발생했습니다: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isPickingFile = false; // 파일 선택 완료 또는 오류 발생 후 플래그 해제
+      });
+    }
   }
 } 
