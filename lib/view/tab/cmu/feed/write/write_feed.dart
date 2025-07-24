@@ -23,6 +23,18 @@ class _WriteFeedState extends State<WriteFeed> {
   }
 
 
+  void _scrollUp(){
+    // 스크롤 가능한 최대 범위(바닥)로 이동
+    final double targetOffset = _scrollController.position.maxScrollExtent;
+    if (_scrollController.hasClients) { // 컨트롤러가 attached 되어 있는지 확인
+        _scrollController.animateTo(
+          targetOffset,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+    }
+  }
+
 
 
 
@@ -94,7 +106,7 @@ class _WriteFeedState extends State<WriteFeed> {
                   ),
             
                    const SizedBox(height: 24),
-                   const WriteFeedEditor()
+                  WriteFeedEditor(scrollUp: _scrollUp,)
                 ],
               )
             ),

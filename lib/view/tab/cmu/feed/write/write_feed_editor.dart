@@ -7,7 +7,11 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 class WriteFeedEditor extends StatefulWidget {
-  const WriteFeedEditor({super.key});
+  final VoidCallback scrollUp;
+  const WriteFeedEditor({
+    super.key,
+    required this.scrollUp,
+  });
 
   @override
   State<WriteFeedEditor> createState() => _WriteFeedEditorState();
@@ -33,7 +37,8 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
 
   final FocusNode _editorFocusNode = FocusNode();
   final ScrollController _editorScrollController = ScrollController();
-
+  // 에디터의 현재 높이를 저장할 변수
+  double _currentEditorHeight = 0.0;
   // 툴바 가시성 상태
   bool _showToolbar = false;
 
@@ -42,11 +47,40 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
     super.initState();
     // 포커스 노드에 리스너 추가: 에디터의 포커스 상태가 변경될 때마다 _updateToolbarVisibility 호출
     _editorFocusNode.addListener(_updateToolbarVisibility);
+
+    // QuillEditor 변경 감지
+    _controller.document.changes.listen((event) {
+      _onDocumentContentChanged();
+    });
   }
+
+   void _onDocumentContentChanged() {
+    // 문서 내용이 변경될 때마다 높이를 다시 측정합니다.
+    // 다음 프레임에 측정해야 정확한 높이를 얻을 수 있습니다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measureEditorHeight();
+    });
+  }
+
+  void _measureEditorHeight() {
+    // RenderBox를 통해 위젯의 실제 크기를 얻습니다.
+    final RenderBox? renderBox = _editorFocusNode.context?.findRenderObject() as RenderBox?;
+    if (renderBox != null) {
+      final newHeight = renderBox.size.height;
+      if (newHeight > _currentEditorHeight) {
+        setState(() {
+          _currentEditorHeight = newHeight;
+        });
+        widget.scrollUp();
+      }
+    }
+  }
+
 
   void _updateToolbarVisibility() {
     setState(() {
       _showToolbar = _editorFocusNode.hasFocus; // 에디터에 포커스가 있으면 툴바 표시
+      // widget.scrollUp(scrollAmount: 14); --> 키보드 나타났을때 스크롤 시키는건데 안먹힘
     });
   }
 
@@ -54,7 +88,7 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
   void dispose() {
     _editorFocusNode.removeListener(_updateToolbarVisibility); // 리스너 제거
     _editorFocusNode.dispose();
-    _editorScrollController.dispose();
+     _editorScrollController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -64,8 +98,11 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
     // 키보드 높이 가져오기
     final mediaQuery = MediaQuery.of(context);
     final keyboardHeight = mediaQuery.viewInsets.bottom;
+    debugPrint('키보드 : $keyboardHeight');
+     
 
     return Column( // WriteFeedEditor가 SingleChildScrollView 내부에 있으므로, Column으로 충분합니다.
+      mainAxisSize: MainAxisSize.min,
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 20, right: 20, bottom: 6),
@@ -85,27 +122,27 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
           ),
         ),
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey.shade300, // 부드러운 테두리
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(5),
+          height: 1,
+          color:Colors.grey.shade300
+        ),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: 250,
           ),
-          child: SizedBox(
-            height: 200,
-            child: QuillEditor(
-              focusNode: _editorFocusNode,
-              scrollController: _editorScrollController,
-              controller: _controller,
-              config: QuillEditorConfig(
-                placeholder: '내용을 입력해주세요...', // Placeholder 텍스트 변경
+          child: QuillEditor(
+            focusNode: _editorFocusNode,
+            controller: _controller,
+            scrollController: _editorScrollController,
+            config: QuillEditorConfig(
+              scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
+              autoFocus: false, // 필요에 따라 자동 포커스 설정
+              padding: const EdgeInsets.symmetric(horizontal: 20), // 기본 패딩 제거
+                placeholder: '내용을 입력해주세요...',
                 customStyles: const DefaultStyles(
                   placeHolder: DefaultTextBlockStyle(
                     TextStyle(
-                      fontSize: 14, // 원하는 크기로 조절
-                      color: Color.fromRGBO(158, 158, 158, 0.8), // 더 명확한 표현
+                      fontSize: 14,
+                      color: Color.fromRGBO(158, 158, 158, 0.8),
                     ),
                     HorizontalSpacing.zero,
                     VerticalSpacing.zero,
@@ -113,7 +150,7 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
                     null,
                   ),
                 ),
-                padding: const EdgeInsets.all(16),
+                // padding: const EdgeInsets.all(16),
                 embedBuilders: [
                   ...FlutterQuillEmbeds.editorBuilders(
                     imageEmbedConfig: QuillEditorImageEmbedConfig(
@@ -138,7 +175,6 @@ class _WriteFeedEditorState extends State<WriteFeedEditor> {
                     ),
                   ),
                 ],
-              ),
             ),
           ),
         ),
