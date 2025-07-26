@@ -1,23 +1,17 @@
-import 'dart:convert';
 import 'dart:io' as io; // File을 사용하기 위해 필요
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
-import 'package:path/path.dart' as path; // path 라이브러리 추가
-import 'package:path_provider/path_provider.dart'; // getApplicationDocumentsDirectory를 위해 추가
 
 class QuillVideoPlayer extends StatefulWidget {
   const QuillVideoPlayer({
     super.key,
     this.videoUrl, // 일반 비디오 URL 또는 파일 경로를 문자열로 받음
     this.youtubeVideoId, // 유튜브 비디오 ID
-    this.qc, // QuillController는 여전히 외부에서 받아야 할 수 있습니다.
   });
 
   final String? videoUrl; // 로컬/네트워크 비디오 URL/경로 (nullable)
   final String? youtubeVideoId; // 유튜브 비디오 ID (nullable)
-  final QuillController? qc;
 
   @override
   State<QuillVideoPlayer> createState() => QuillVideoPlayerState();
@@ -58,7 +52,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
         initialVideoId: widget.youtubeVideoId!,
         flags: const YoutubePlayerFlags(
           autoPlay: false,
-          mute: true, // 에디터에서는 기본적으로 음소거
+          mute: false,
           disableDragSeek: false,
           loop: false,
           isLive: false,

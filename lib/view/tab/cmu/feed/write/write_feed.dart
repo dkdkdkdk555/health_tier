@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +11,6 @@ import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class WriteFeed extends StatefulWidget {
@@ -62,7 +60,6 @@ class _WriteFeedState extends State<WriteFeed> {
               final youtubeVideoId = YoutubePlayer.convertUrlToId(text);
               if (youtubeVideoId != null) {
                 final int index = _controller.selection.extentOffset;
-                // 여기서 youtube://$youtubeVideoId 대신 표준 유튜브 URL 형식으로 변경
                 _controller.document.insert(
                   index,
                   BlockEmbed.video('https://www.youtube.com/watch?v=$youtubeVideoId'), // **수정된 부분**
@@ -295,20 +292,7 @@ class _WriteFeedState extends State<WriteFeed> {
                                       return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
                                     }
 
-                                    // Uri? uri = Uri.tryParse(videoUrl);
-                                    // if (uri == null) {
-                                    //   debugPrint('Invalid URI: $videoUrl');
-                                    //   return const SizedBox();
-                                    // }
-
-                                    // // 로컬 파일 및 네트워크 비디오 처리 (기존 로직 유지)
-                                    // late VideoPlayerController videoController;
-                                    // if (uri.scheme == 'file') {
-                                    //   videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
-                                    // } else {
-                                    //   videoController = VideoPlayerController.networkUrl(uri);
-                                    // }
-                                    return QuillVideoPlayer(videoUrl: videoUrl, qc: _controller,);
+                                    return QuillVideoPlayer(videoUrl: videoUrl,);
                                   },
                                 ),
                               ),
