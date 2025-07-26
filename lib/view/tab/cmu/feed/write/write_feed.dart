@@ -43,15 +43,17 @@ class _WriteFeedState extends State<WriteFeed> {
     _controller = QuillController.basic(
       config: QuillControllerConfig(
         clipboardConfig: QuillClipboardConfig(
-          enableExternalRichPaste: false,
+          enableExternalRichPaste: true,
           onImagePaste: (imageBytes) async {
             if (kIsWeb) {
               return null;
             }
+
+            debugPrint('히히');
             final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
             final newPath = path.join(io.Directory.systemTemp.path, newFileName);
             final file = await io.File(newPath).writeAsBytes(imageBytes, flush: true);
-            return file.path;
+             return 'file://${file.path}'; 
           },
           onClipboardPaste: () async {
             final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
@@ -69,6 +71,20 @@ class _WriteFeedState extends State<WriteFeed> {
                   ChangeSource.local,
                 );
                 debugPrint('YouTube video embedded via onClipboardPaste: $youtubeVideoId');
+                return true;
+              } else if (text.toLowerCase().contains('.gif') && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('file://'))) {
+                debugPrint('???');
+                // 클립보드 텍스트가 .gif를 포함하고, URL 또는 파일 경로 형식인 경우
+                final int index = _controller.selection.extentOffset;
+                _controller.document.insert(
+                  index,
+                  BlockEmbed.image(text), // GIF URL/경로를 이미지로 삽입
+                );
+                _controller.updateSelection(
+                  TextSelection.collapsed(offset: index + 1),
+                  ChangeSource.local,
+                );
+                debugPrint('GIF image embedded via onClipboardPaste: $text');
                 return true;
               }
             }
@@ -268,7 +284,7 @@ class _WriteFeedState extends State<WriteFeed> {
                               ...FlutterQuillEmbeds.editorBuilders(
                                 imageEmbedConfig: QuillEditorImageEmbedConfig(
                                   imageProviderBuilder: (context, imageUrl) {
-                                    // debugPrint(imageUrl);
+                                    debugPrint('파일패스 $imageUrl');
                                     if (imageUrl.startsWith('file://')) {
                                       final path = Uri.parse(imageUrl).toFilePath();
                                       final file = io.File(path);
@@ -277,9 +293,13 @@ class _WriteFeedState extends State<WriteFeed> {
                                       debugPrint('File at $path exists: $exists');
                         
                                       if (exists) return FileImage(file);
+                                    } else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+                                      // 네트워크 이미지 (GIF 포함) 처리
+                                      debugPrint('Network image detected: $imageUrl');
+                                      return NetworkImage(imageUrl);
                                     }
                                     return null;
-                                  },
+                                  },                            
                                 ),
                                 videoEmbedConfig: QuillEditorVideoEmbedConfig(
                                   customVideoBuilder: (videoUrl, readOnly) {

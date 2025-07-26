@@ -34,6 +34,8 @@ class _RichTextEditorPageState extends State<RichTextEditorPage> {
                   if (kIsWeb) {
                     return null;
                   }
+
+                  debugPrint('들옴?');
                   final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
                   final newPath = path.join(io.Directory.systemTemp.path, newFileName,);
                   // 이미지 바이트를 디스크에 PNG 파일로 저장
@@ -77,6 +79,9 @@ class _RichTextEditorPageState extends State<RichTextEditorPage> {
           IconButton(
             icon: const Icon(Icons.open_in_new_outlined),
             onPressed: () async {
+
+              debugPrint(jsonEncode(_controller.document.toDelta().toJson()));
+              return;
               final delta = _controller.document.toDelta();
 
               // 1. file:// 이미지 경로 수집
@@ -244,7 +249,7 @@ class _RichTextEditorPageState extends State<RichTextEditorPage> {
                     ...FlutterQuillEmbeds.editorBuilders(
                       imageEmbedConfig: QuillEditorImageEmbedConfig(
                         imageProviderBuilder: (context, imageUrl) {
-                          debugPrint(imageUrl);
+                          debugPrint('여기? $imageUrl');
                           if (imageUrl.startsWith('file://')) {
                             final path = Uri.parse(imageUrl).toFilePath(); // 여기서 file:// 제거 해서 랜더링 제대로됨
                             final file = io.File(path);
