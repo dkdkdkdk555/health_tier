@@ -295,20 +295,20 @@ class _WriteFeedState extends State<WriteFeed> {
                                       return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
                                     }
 
-                                    Uri? uri = Uri.tryParse(videoUrl);
-                                    if (uri == null) {
-                                      debugPrint('Invalid URI: $videoUrl');
-                                      return const SizedBox();
-                                    }
+                                    // Uri? uri = Uri.tryParse(videoUrl);
+                                    // if (uri == null) {
+                                    //   debugPrint('Invalid URI: $videoUrl');
+                                    //   return const SizedBox();
+                                    // }
 
-                                    // 로컬 파일 및 네트워크 비디오 처리 (기존 로직 유지)
-                                    late VideoPlayerController videoController;
-                                    if (uri.scheme == 'file') {
-                                      videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
-                                    } else {
-                                      videoController = VideoPlayerController.networkUrl(uri);
-                                    }
-                                    return QuillVideoPlayer(controller: videoController, qc: _controller,);
+                                    // // 로컬 파일 및 네트워크 비디오 처리 (기존 로직 유지)
+                                    // late VideoPlayerController videoController;
+                                    // if (uri.scheme == 'file') {
+                                    //   videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
+                                    // } else {
+                                    //   videoController = VideoPlayerController.networkUrl(uri);
+                                    // }
+                                    return QuillVideoPlayer(videoUrl: videoUrl, qc: _controller,);
                                   },
                                 ),
                               ),

@@ -1,20 +1,22 @@
 import 'dart:convert';
-
+import 'dart:io' as io; // File을 사용하기 위해 필요
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
+import 'package:path/path.dart' as path; // path 라이브러리 추가
+import 'package:path_provider/path_provider.dart'; // getApplicationDocumentsDirectory를 위해 추가
 
 class QuillVideoPlayer extends StatefulWidget {
   const QuillVideoPlayer({
     super.key,
-    this.controller, // nullable로 변경
-    this.youtubeVideoId,
-    this.qc,
+    this.videoUrl, // 일반 비디오 URL 또는 파일 경로를 문자열로 받음
+    this.youtubeVideoId, // 유튜브 비디오 ID
+    this.qc, // QuillController는 여전히 외부에서 받아야 할 수 있습니다.
   });
 
-  final VideoPlayerController? controller; // 로컬/네트워크 비디오 컨트롤러 (nullable)
-  final String? youtubeVideoId; // 유튜브 비디오 ID
+  final String? videoUrl; // 로컬/네트워크 비디오 URL/경로 (nullable)
+  final String? youtubeVideoId; // 유튜브 비디오 ID (nullable)
   final QuillController? qc;
 
   @override
@@ -22,21 +24,41 @@ class QuillVideoPlayer extends StatefulWidget {
 }
 
 class QuillVideoPlayerState extends State<QuillVideoPlayer> {
-  late Future<void> _initializeVideoPlayerFuture;
+  VideoPlayerController? _videoController; // 로컬/네트워크 비디오 컨트롤러
   YoutubePlayerController? _youtubePlayerController; // 유튜브 컨트롤러
+  Future<void>? _initializeVideoPlayerFuture; // 비디오 플레이어 초기화 퓨처
 
   @override
   void initState() {
     super.initState();
+    _initializeControllers(); // 위젯 초기화 시 컨트롤러 초기화 로직 호출
+  }
+
+  // 핵심: 위젯이 업데이트될 때 컨트롤러를 관리합니다.
+  @override
+  void didUpdateWidget(covariant QuillVideoPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // YouTube ID 또는 비디오 URL이 변경되었는지 확인
+    if (widget.youtubeVideoId != oldWidget.youtubeVideoId ||
+        widget.videoUrl != oldWidget.videoUrl) {
+      debugPrint('비디오 소스 변경 감지: 이전 YouTube ID: ${oldWidget.youtubeVideoId}, 새 YouTube ID: ${widget.youtubeVideoId}');
+      debugPrint('이전 Video URL: ${oldWidget.videoUrl}, 새 Video URL: ${widget.videoUrl}');
+      _disposeControllers(); // 이전 컨트롤러들 해제
+      _initializeControllers(); // 새로운 컨트롤러 초기화
+    }
+  }
+
+  // 컨트롤러 초기화 로직을 별도 메서드로 분리
+  void _initializeControllers() {
+    _initializeVideoPlayerFuture = null; // 초기화 퓨처 리셋
 
     if (widget.youtubeVideoId != null) {
-
-      // 유튜브 비디오 ID가 있으면 유튜브 컨트롤러 초기화
+      debugPrint('YoutubePlayerController 초기화 중: ID = ${widget.youtubeVideoId}');
       _youtubePlayerController = YoutubePlayerController(
         initialVideoId: widget.youtubeVideoId!,
         flags: const YoutubePlayerFlags(
           autoPlay: false,
-          mute: true,
+          mute: true, // 에디터에서는 기본적으로 음소거
           disableDragSeek: false,
           loop: false,
           isLive: false,
@@ -44,105 +66,140 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
           enableCaption: false,
         ),
       );
-    } else if (widget.controller != null) {
-      // 로컬/네트워크 비디오 컨트롤러가 있으면 초기화
-      _initializeVideoPlayerFuture = widget.controller!.initialize().catchError((error) {
-        debugPrint('Error initializing video player: $error');
+      // YoutubePlayerController는 생성 시점에 이미 준비되므로 별도의 future는 필요 없음
+    } else if (widget.videoUrl != null) {
+      debugPrint('VideoPlayerController 초기화 중: URL = ${widget.videoUrl}');
+      Uri? uri = Uri.tryParse(widget.videoUrl!);
+      if (uri == null) {
+        debugPrint('유효하지 않은 비디오 URL: ${widget.videoUrl}');
+        return; // 유효하지 않은 URL이면 초기화하지 않음
+      }
+
+      if (uri.scheme == 'file') {
+        _videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
+      } else {
+        _videoController = VideoPlayerController.networkUrl(uri);
+      }
+
+      _initializeVideoPlayerFuture = _videoController!.initialize().then((_) {
+        // 비디오 초기화 완료 시 재생 상태 변경을 감지하기 위해 리스너 추가
+        _videoController!.addListener(_videoListener);
+        setState(() {}); // 초기화 완료 후 UI 업데이트
+      }).catchError((error) {
+        debugPrint('VideoPlayerController 초기화 오류: $error');
+        if (mounted) {
+          // 오류 발생 시 사용자에게 알림
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('비디오 로드 실패: ${error.toString()}')),
+          );
+        }
       });
     }
   }
 
+  // 비디오 컨트롤러 상태 변화 리스너
+  void _videoListener() {
+    // 재생 상태가 변경될 때마다 UI를 다시 그리기 위해 setState 호출
+    if (_videoController != null && _videoController!.value.isPlaying != _isPlaying) {
+      setState(() {
+        _isPlaying = _videoController!.value.isPlaying;
+      });
+    }
+  }
+  bool _isPlaying = false; // 현재 재생 상태 추적
 
 
-  // @override
-  // void didUpdateWidget(covariant QuillVideoPlayer oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   // 컨트롤러가 변경되었는지 확인하고, 변경되었다면 이전 컨트롤러를 dispose하고 새 컨트롤러를 초기화
-  //   if (widget.controller != oldWidget.controller) {
-  //     oldWidget.controller?.dispose(); // 이전 컨트롤러 dispose
-  //     if (widget.controller != null) {
-  //       _initializeVideoPlayerFuture = widget.controller!.initialize().then((_) {
-  //         setState(() {});
-  //       }).catchError((error) {
-  //         debugPrint('Error initializing video player in didUpdateWidget: $error');
-  //       });
-  //     }
-  //   }
-  // }
+  // 컨트롤러 해제 로직
+  void _disposeControllers() {
+    debugPrint('QuillVideoPlayer _disposeControllers 호출됨');
+    if (_youtubePlayerController != null) {
+      _youtubePlayerController!.dispose();
+      _youtubePlayerController = null;
+      debugPrint('YoutubePlayerController 해제 완료.');
+    }
+    if (_videoController != null) {
+      _videoController!.removeListener(_videoListener); // 리스너 제거
+      _videoController!.dispose();
+      _videoController = null;
+      debugPrint('VideoPlayerController 해제 완료.');
+    }
+  }
 
   @override
   void dispose() {
-    debugPrint('QuillVideoPlayer dispose 호출됨. YouTube ID: ${widget.youtubeVideoId}');
-    if (_youtubePlayerController != null) {
-      // 컨트롤러가 아직 초기화되지 않았거나 이미 dispose된 경우를 대비
-      // 하지만 dispose()는 이미 dispose된 컨트롤러에 대해 안전하게 호출될 수 있어야 합니다.
-      // 중요한 것은 컨트롤러가 null이 아닌지 확인하는 것입니다.
-      _youtubePlayerController!.dispose();
-      _youtubePlayerController = null; // dispose 후 null로 설정
-      debugPrint('YoutubePlayerController disposed.');
-    }
-    // 로컬/네트워크 비디오 컨트롤러 처리 (기존 로직 유지)
-    widget.controller?.dispose();
-      super.dispose();
+    debugPrint('QuillVideoPlayer dispose 호출됨.');
+    _disposeControllers(); // 위젯이 완전히 제거될 때 컨트롤러 해제
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.youtubeVideoId != null && _youtubePlayerController != null) {
+    if (widget.youtubeVideoId != null) {
       // 유튜브 영상인 경우
+      if (_youtubePlayerController == null) {
+        return const Center(child: CircularProgressIndicator()); // 컨트롤러 준비 중
+      }
       return YoutubePlayer(
         controller: _youtubePlayerController!,
         showVideoProgressIndicator: true,
         progressIndicatorColor: Colors.blueAccent,
         onReady: () {
-          debugPrint('Youtube Player is ready.');
+          debugPrint('Youtube Player 준비 완료.');
         },
       );
-    } else if (widget.controller != null) {
-      debugPrint(jsonEncode(widget.qc?.document.toDelta().toJson()));
-      debugPrint('로컬/네트워크');
+    } else if (widget.videoUrl != null) {
       // 로컬/네트워크 영상인 경우
+      if (_videoController == null || _initializeVideoPlayerFuture == null) {
+        return const Center(child: CircularProgressIndicator()); // 컨트롤러 또는 퓨처 준비 중
+      }
       return FutureBuilder(
         future: _initializeVideoPlayerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
+              debugPrint('비디오 로드 에러: ${snapshot.error}');
               return Center(
-                child: Text('Error loading video: ${snapshot.error}'),
+                child: Text('비디오 로드 중 오류 발생: ${snapshot.error}'),
               );
+            }
+            if (_videoController == null || !_videoController!.value.isInitialized) {
+               debugPrint('비디오 컨트롤러가 초기화되지 않았습니다.');
+               return const Center(child: Text('비디오를 로드할 수 없습니다.'));
             }
             // 비디오가 초기화되면 AspectRatio로 비디오를 표시합니다.
             return AspectRatio(
-              aspectRatio: widget.controller!.value.aspectRatio,
+              aspectRatio: _videoController!.value.aspectRatio,
               child: Stack(
                 alignment: Alignment.bottomCenter,
                 children: [
-                  VideoPlayer(widget.controller!),
-                  // 비디오 재생/일시정지 버튼 (선택 사항)
-                  if (!widget.controller!.value.isPlaying)
-                    Center(
-                      child: IconButton(
-                        icon: const Icon(Icons.play_arrow, color: Colors.white, size: 50.0),
-                        onPressed: () {
-                          setState(() {
-                            widget.controller!.play();
-                          });
-                        },
-                      ),
-                    )
-                  else
-                    Center(
-                      child: IconButton(
-                        icon: const Icon(Icons.pause, color: Colors.white, size: 50.0),
-                        onPressed: () {
-                          setState(() {
-                            widget.controller!.pause();
-                          });
-                        },
+                  VideoPlayer(_videoController!),
+                  // 비디오 재생/일시정지 버튼 오버레이
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _videoController!.value.isPlaying
+                            ? _videoController!.pause()
+                            : _videoController!.play();
+                        _isPlaying = _videoController!.value.isPlaying; // 상태 업데이트
+                      });
+                    },
+                    child: AnimatedOpacity(
+                      opacity: _videoController!.value.isPlaying ? 0.0 : 1.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: Container(
+                        color: Colors.black26,
+                        child: Center(
+                          child: Icon(
+                            _videoController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                            color: Colors.white,
+                            size: 70.0, // 아이콘 크기 약간 줄임
+                          ),
+                        ),
                       ),
                     ),
+                  ),
                   VideoProgressIndicator(
-                    widget.controller!,
+                    _videoController!,
                     allowScrubbing: true,
                     colors: const VideoProgressColors(
                       playedColor: Colors.blueAccent,
@@ -161,6 +218,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
       );
     } else {
       // 컨트롤러도, 유튜브 ID도 없는 경우
+      debugPrint('비디오 URL 또는 YouTube ID가 제공되지 않았습니다.');
       return const SizedBox();
     }
   }
