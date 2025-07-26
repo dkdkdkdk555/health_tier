@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:my_app/util/quill_video_player.dart';
@@ -11,6 +12,7 @@ import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.da
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class WriteFeed extends StatefulWidget {
   const WriteFeed({super.key});
@@ -24,22 +26,7 @@ class _WriteFeedState extends State<WriteFeed> {
   final ScrollController _scrollController = ScrollController();
 
   // Quill 에디터 컨트롤러
-  final QuillController _controller = QuillController.basic(
-    config: QuillControllerConfig(
-      clipboardConfig: QuillClipboardConfig(
-        enableExternalRichPaste: true,
-        onImagePaste: (imageBytes) async {
-          if (kIsWeb) {
-            return null;
-          }
-          final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
-          final newPath = path.join(io.Directory.systemTemp.path, newFileName);
-          final file = await io.File(newPath).writeAsBytes(imageBytes, flush: true);
-          return file.path;
-        },
-      ),
-    ),
-  );
+  late QuillController _controller;
   // 포커스 노드 : 에디터 포커스 상태 관리
   final FocusNode _editorFocusNode = FocusNode();
   // 에디터 내부 스크롤 컨트롤러
@@ -54,6 +41,46 @@ class _WriteFeedState extends State<WriteFeed> {
   @override
   void initState() {
     super.initState();
+
+    _controller = QuillController.basic(
+      config: QuillControllerConfig(
+        clipboardConfig: QuillClipboardConfig(
+          enableExternalRichPaste: false,
+          onImagePaste: (imageBytes) async {
+            if (kIsWeb) {
+              return null;
+            }
+            final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
+            final newPath = path.join(io.Directory.systemTemp.path, newFileName);
+            final file = await io.File(newPath).writeAsBytes(imageBytes, flush: true);
+            return file.path;
+          },
+          onClipboardPaste: () async {
+            final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+            final text = clipboardData?.text;
+            if (text != null) {
+              final youtubeVideoId = YoutubePlayer.convertUrlToId(text);
+              if (youtubeVideoId != null) {
+                final int index = _controller.selection.extentOffset;
+                // 여기서 youtube://$youtubeVideoId 대신 표준 유튜브 URL 형식으로 변경
+                _controller.document.insert(
+                  index,
+                  BlockEmbed.video('https://www.youtube.com/watch?v=$youtubeVideoId'), // **수정된 부분**
+                );
+                _controller.updateSelection(
+                  TextSelection.collapsed(offset: index + 1),
+                  ChangeSource.local,
+                );
+                debugPrint('YouTube video embedded via onClipboardPaste: $youtubeVideoId');
+                return true;
+              }
+            }
+            return false;
+          },
+        ),
+      ),
+    );
+
     // 포커스 노드에 리스너 추가: 에디터의 포커스 상태가 변경될 때마다 _updateToolbarVisibility 호출
     _editorFocusNode.addListener(_updateToolbarVisibility);
 
@@ -258,28 +285,29 @@ class _WriteFeedState extends State<WriteFeed> {
                                   },
                                 ),
                                 videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                                  // 비디오 렌더링을 위한 customVideoBuilder 커스터마이징
                                   customVideoBuilder: (videoUrl, readOnly) {
-                                    // 여기에 비디오 플레이어 위젯을 반환합니다.
-                                    // videoUrl은 삽입된 비디오의 URL입니다.
-                                    if (videoUrl.isEmpty) {
-                                      return const SizedBox(); // 비디오 URL이 없으면 빈 위젯 반환
+                                    debugPrint('customVideoBuilder called with URL: $videoUrl');
+
+                                    final youtubeVideoIdFromUrl = YoutubePlayer.convertUrlToId(videoUrl); // **새로 추가된 부분**
+
+                                    if (youtubeVideoIdFromUrl != null) {
+                                      debugPrint('Detected YouTube video with ID: $youtubeVideoIdFromUrl');
+                                      return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
                                     }
-                                    // `file://` 스킴을 처리하기 위한 로직 추가
+
                                     Uri? uri = Uri.tryParse(videoUrl);
                                     if (uri == null) {
+                                      debugPrint('Invalid URI: $videoUrl');
                                       return const SizedBox();
                                     }
 
+                                    // 로컬 파일 및 네트워크 비디오 처리 (기존 로직 유지)
                                     late VideoPlayerController videoController;
                                     if (uri.scheme == 'file') {
-                                      // 로컬 파일 경로인 경우
                                       videoController = VideoPlayerController.file(io.File(uri.toFilePath()));
                                     } else {
-                                      // 네트워크 URL인 경우
                                       videoController = VideoPlayerController.networkUrl(uri);
                                     }
-
                                     return QuillVideoPlayer(controller: videoController);
                                   },
                                 ),
@@ -376,6 +404,7 @@ class _WriteFeedState extends State<WriteFeed> {
                           ),
                         ),
                         videoButtonOptions: QuillToolbarVideoButtonOptions(
+                          
                           videoConfig: QuillToolbarVideoConfig(
                              // onVideoInsertCallback을 커스터마이징합니다.
                             onVideoInsertCallback: (video, controller) => _handleVideoInsert(video, controller),
@@ -385,6 +414,7 @@ class _WriteFeedState extends State<WriteFeed> {
                       buttonOptions: QuillSimpleToolbarButtonOptions(
                         linkStyle: QuillToolbarLinkStyleButtonOptions(
                           validateLink: (link) {
+                            debugPrint('호호');
                             final uri = Uri.tryParse(link);
                             return uri != null && (uri.hasScheme && (uri.isAbsolute));
                           },
@@ -402,6 +432,8 @@ class _WriteFeedState extends State<WriteFeed> {
 
   // 비디오 선택시
    Future<void> _handleVideoInsert(String video, QuillController controller) async {
+    debugPrint('헤헤');
+    
     if (_isPickingFile) {
       // 이미 파일 선택 중이면 추가 요청을 무시합니다.
       debugPrint('File picking in progress, ignoring duplicate request.');

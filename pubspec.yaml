@@ -53,11 +53,13 @@ dependencies:
   # 그래프그리기
   fl_chart: ^0.71.0
   # 리치 텍스트 에디터
-  flutter_quill: ^11.4.1
+  flutter_quill: ^11.4.2
   flutter_quill_extensions: ^11.0.0
   cached_network_image: ^3.3.1 # CachedNetworkImage는 네트워크 이미지 로딩에 실패했을 때 errorWidget을 제공하는 등 훨씬 강력한 오류 처리 기능을 내장하고 있습니다. 또한, 이미지 캐싱 기능도 있어 성능 향상에 도움이 됩니다.
   video_player: ^2.8.5 # 비디오 재생
-  file_picker: ^8.0.0 # 파일 선택(로컬 비디오 삽입 시)
+  file_picker: ^10.2.0 # 파일 선택(로컬 비디오 삽입 시)
+  youtube_player_flutter: ^8.1.2
+
   # 이미지 가져오기
   image_picker: ^1.1.2
   # rest api 요청
