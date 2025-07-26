@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
 
@@ -7,10 +10,12 @@ class QuillVideoPlayer extends StatefulWidget {
     super.key,
     this.controller, // nullable로 변경
     this.youtubeVideoId,
+    this.qc,
   });
 
   final VideoPlayerController? controller; // 로컬/네트워크 비디오 컨트롤러 (nullable)
   final String? youtubeVideoId; // 유튜브 비디오 ID
+  final QuillController? qc;
 
   @override
   State<QuillVideoPlayer> createState() => QuillVideoPlayerState();
@@ -26,7 +31,6 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
 
     if (widget.youtubeVideoId != null) {
 
-      debugPrint('플레이어 : ${widget.youtubeVideoId}');
       // 유튜브 비디오 ID가 있으면 유튜브 컨트롤러 초기화
       _youtubePlayerController = YoutubePlayerController(
         initialVideoId: widget.youtubeVideoId!,
@@ -42,13 +46,29 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
       );
     } else if (widget.controller != null) {
       // 로컬/네트워크 비디오 컨트롤러가 있으면 초기화
-      _initializeVideoPlayerFuture = widget.controller!.initialize().then((_) {
-        setState(() {}); // 상태 업데이트
-      }).catchError((error) {
+      _initializeVideoPlayerFuture = widget.controller!.initialize().catchError((error) {
         debugPrint('Error initializing video player: $error');
       });
     }
   }
+
+
+
+  // @override
+  // void didUpdateWidget(covariant QuillVideoPlayer oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   // 컨트롤러가 변경되었는지 확인하고, 변경되었다면 이전 컨트롤러를 dispose하고 새 컨트롤러를 초기화
+  //   if (widget.controller != oldWidget.controller) {
+  //     oldWidget.controller?.dispose(); // 이전 컨트롤러 dispose
+  //     if (widget.controller != null) {
+  //       _initializeVideoPlayerFuture = widget.controller!.initialize().then((_) {
+  //         setState(() {});
+  //       }).catchError((error) {
+  //         debugPrint('Error initializing video player in didUpdateWidget: $error');
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -79,6 +99,8 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
         },
       );
     } else if (widget.controller != null) {
+      debugPrint(jsonEncode(widget.qc?.document.toDelta().toJson()));
+      debugPrint('로컬/네트워크');
       // 로컬/네트워크 영상인 경우
       return FutureBuilder(
         future: _initializeVideoPlayerFuture,

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:file_picker/file_picker.dart';
@@ -35,8 +36,7 @@ class _WriteFeedState extends State<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
-  // 파일 선택 중인지 나타내는 플래그 추가
-  bool _isPickingFile = false;
+
 
   @override
   void initState() {
@@ -104,9 +104,7 @@ class _WriteFeedState extends State<WriteFeed> {
     if (renderBox != null) {
       final newHeight = renderBox.size.height;
       if (newHeight != _currentEditorHeight) {
-        setState(() {
-          _currentEditorHeight = newHeight;
-        });
+        _currentEditorHeight = newHeight;
         _scrollUp();
       }
     }
@@ -143,9 +141,6 @@ class _WriteFeedState extends State<WriteFeed> {
     }
   }
 
-
-
-
   @override
   void dispose() {
     _editorFocusNode.removeListener(_updateToolbarVisibility); // 리스너 제거
@@ -180,18 +175,23 @@ class _WriteFeedState extends State<WriteFeed> {
                       // 카테고리 선택 바
                       WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: 0,),
                       // 제목 입력 섹션
-                      const Padding(
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 15),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 4,),
-                            child: Text(
-                              '피드 제목',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF555555),
+                      GestureDetector(
+                        onTap: (){
+                          debugPrint(jsonEncode(_controller.document.toDelta().toJson()));
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.only(left: 20, right: 20, top: 15),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 4,),
+                              child: Text(
+                                '피드 제목',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF555555),
+                                ),
                               ),
                             ),
                           ),
@@ -308,7 +308,7 @@ class _WriteFeedState extends State<WriteFeed> {
                                     } else {
                                       videoController = VideoPlayerController.networkUrl(uri);
                                     }
-                                    return QuillVideoPlayer(controller: videoController);
+                                    return QuillVideoPlayer(controller: videoController, qc: _controller,);
                                   },
                                 ),
                               ),
@@ -332,6 +332,7 @@ class _WriteFeedState extends State<WriteFeed> {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 height: 50.0,
+                width: MediaQuery.of(context).size.width,
                 color: Colors.grey[200],
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -407,14 +408,13 @@ class _WriteFeedState extends State<WriteFeed> {
                           
                           videoConfig: QuillToolbarVideoConfig(
                              // onVideoInsertCallback을 커스터마이징합니다.
-                            onVideoInsertCallback: (video, controller) => _handleVideoInsert(video, controller),
+                            onVideoInsertCallback: (videoPathFromPicker, controller) => _handleVideoInsert(videoPathFromPicker, controller),
                           )
                         )
                       ),
                       buttonOptions: QuillSimpleToolbarButtonOptions(
                         linkStyle: QuillToolbarLinkStyleButtonOptions(
                           validateLink: (link) {
-                            debugPrint('호호');
                             final uri = Uri.tryParse(link);
                             return uri != null && (uri.hasScheme && (uri.isAbsolute));
                           },
@@ -430,71 +430,59 @@ class _WriteFeedState extends State<WriteFeed> {
     );
   }
 
-  // 비디오 선택시
-   Future<void> _handleVideoInsert(String video, QuillController controller) async {
-    debugPrint('헤헤');
-    
-    if (_isPickingFile) {
-      // 이미 파일 선택 중이면 추가 요청을 무시합니다.
-      debugPrint('File picking in progress, ignoring duplicate request.');
+// 비디오 선택시
+Future<void> _handleVideoInsert(String videoPathFromPicker, QuillController controller) async {
+  debugPrint('[_handleVideoInsert] Function called with path: $videoPathFromPicker');
+
+  // _isPickingFile 플래그는 ImagePicker 호출 시점을 제어하는 용도로 사용되었으나,
+  // 이제 ImagePicker 호출은 FlutterQuillEmbeds.toolbarButtons()의 내부 로직이 담당하므로,
+  // 이 함수 내에서는 _isPickingFile 관련 setState 로직은 필요 없습니다.
+  // 다만, 중복 삽입 방지나 UI 상태 관리를 위해 여전히 유용할 수 있습니다.
+  // 이 함수 호출 시점에는 이미 파일이 선택되어 Path가 넘어왔다고 가정합니다.
+
+  if (videoPathFromPicker.isEmpty) {
+    debugPrint('[_handleVideoInsert] Video path from picker is empty. Skipping insertion.');
+    return;
+  }
+
+  try {
+    final originalFile = io.File(videoPathFromPicker);
+    if (!await originalFile.exists()) {
+      debugPrint('[_handleVideoInsert] Original video file does not exist at path: $videoPathFromPicker');
+      // 사용자가 갤러리에서 선택했지만, 파일이 존재하지 않는 극히 드문 경우를 대비
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('선택된 비디오 파일을 찾을 수 없습니다.')),
+      );
       return;
     }
 
-    setState(() {
-      _isPickingFile = true; // 파일 선택 시작 플래그 설정
-    });
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName = 'vid-${DateTime.now().millisecondsSinceEpoch}.mp4';
+    final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+    final videoUrl = 'file://${savedFile.path}';
+    debugPrint('[_handleVideoInsert] Saved video URL: $videoUrl');
 
-    try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.video,
-        allowMultiple: false,
-      );
-
-      if (result == null || result.files.isEmpty) {
-        debugPrint('No video selected or operation cancelled.');
-        return; // 사용자가 파일을 선택하지 않았거나 취소했습니다.
-      }
-
-      final pickedFile = result.files.single;
-      final videoPath = pickedFile.path;
-
-      if (videoPath == null) {
-        debugPrint('Video path is null.');
-        return;
-      }
-
-      final originalFile = io.File(videoPath);
-      if (!await originalFile.exists()) {
-        debugPrint('Original video file does not exist.');
-        return;
-      }
-
-      final appDir = await getApplicationDocumentsDirectory();
-      final fileName = 'vid-${DateTime.now().millisecondsSinceEpoch}.mp4';
-      final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-      final videoUrl = 'file://${savedFile.path}';
-
-      controller.document.insert(
-        controller.selection.extentOffset,
-        BlockEmbed.video(videoUrl),
-      );
-      controller.updateSelection(
-        TextSelection.collapsed(
-          offset: controller.selection.extentOffset + 1,
-        ),
-        ChangeSource.local,
-      );
-    } catch (e) {
-      debugPrint('Error picking video: $e');
-      // 오류 발생 시 사용자에게 알림을 표시할 수 있습니다.
-      if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('비디오 선택 중 오류가 발생했습니다: ${e.toString()}')),
-      );
-    } finally {
-      setState(() {
-        _isPickingFile = false; // 파일 선택 완료 또는 오류 발생 후 플래그 해제
-      });
-    }
+    controller.document.insert(
+      controller.selection.extentOffset,
+      BlockEmbed.video(videoUrl),
+    );
+    controller.updateSelection(
+      TextSelection.collapsed(
+        offset: controller.selection.extentOffset + 1,
+      ),
+      ChangeSource.local,
+    );
+    debugPrint('[_handleVideoInsert] Video inserted into Quill editor successfully.');
+  } catch (e) {
+    debugPrint('[_handleVideoInsert] !!! Error processing/inserting video: $e');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('비디오 처리 및 삽입 중 오류가 발생했습니다: ${e.toString()}')),
+    );
+  } finally {
+    
   }
+}
+
 } 
