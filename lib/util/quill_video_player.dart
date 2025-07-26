@@ -32,7 +32,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
         initialVideoId: widget.youtubeVideoId!,
         flags: const YoutubePlayerFlags(
           autoPlay: false,
-          mute: false,
+          mute: true,
           disableDragSeek: false,
           loop: false,
           isLive: false,
@@ -52,11 +52,18 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
 
   @override
   void dispose() {
-    if (widget.controller != null) {
-      widget.controller!.dispose(); // 기존 컨트롤러 해제
+    debugPrint('QuillVideoPlayer dispose 호출됨. YouTube ID: ${widget.youtubeVideoId}');
+    if (_youtubePlayerController != null) {
+      // 컨트롤러가 아직 초기화되지 않았거나 이미 dispose된 경우를 대비
+      // 하지만 dispose()는 이미 dispose된 컨트롤러에 대해 안전하게 호출될 수 있어야 합니다.
+      // 중요한 것은 컨트롤러가 null이 아닌지 확인하는 것입니다.
+      _youtubePlayerController!.dispose();
+      _youtubePlayerController = null; // dispose 후 null로 설정
+      debugPrint('YoutubePlayerController disposed.');
     }
-    _youtubePlayerController?.dispose(); // 유튜브 컨트롤러 해제
-    super.dispose();
+    // 로컬/네트워크 비디오 컨트롤러 처리 (기존 로직 유지)
+    widget.controller?.dispose();
+      super.dispose();
   }
 
   @override
