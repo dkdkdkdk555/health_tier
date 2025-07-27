@@ -41,7 +41,7 @@ class FeedCudService {
   }
 
   // 게시글 수정 (PUT)
-  Future<void> updateFeed(FeedDto dto) async {
+  Future<int> updateFeed(int feedId, FeedDto dto) async {
     try {
       final response = await dio.put(
         FeedCudAPI.updateFeed, // '/cud/cmu/feed/'
@@ -50,7 +50,7 @@ class FeedCudService {
 
       // 백엔드 응답: ResponseEntity.ok("수정 성공");
       if (response.statusCode == 200 && response.data == "수정 성공") {
-        return; // 성공 시 void 반환
+        return feedId; // 성공 시 void 반환
       } else {
         throw Exception('게시글 수정 실패: ${response.data}');
       }

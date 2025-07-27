@@ -21,7 +21,7 @@ class FeedCudAPI {
 
   static const uploadImages = '$base/images/upload-multiple';
   static const createFeed = base; // POST
-  static const updateFeed = '$base/'; // PUT
+  static const updateFeed = base; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
 }
 

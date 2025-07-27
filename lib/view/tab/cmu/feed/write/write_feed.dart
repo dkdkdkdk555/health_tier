@@ -52,6 +52,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   // 피드저장 로딩상태 관리
   bool _isSubmitting = false;
   int categoryId = 0;
+  // 수정 모드일 때 데이터 로딩 완료 여부
+  bool _isEditDataLoaded = false;
 
   @override
   void initState() {
@@ -116,6 +118,41 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     _controller.document.changes.listen((event) {
       _onDocumentContentChanged();
     });
+
+     // 수정 모드일 경우 데이터 로드
+    if (widget.feedId != null) {
+      // ref.listen을 사용하여 데이터가 로드될 때 UI 업데이트
+      ref.listenManual(feedDetailProviderForUpdate(widget.feedId!), (previous, next) {
+        if (next.hasValue && next.value != null) {
+          final feedDetail = next.value!.data;
+          // 데이터 로드 완료 플래그 설정
+          _isEditDataLoaded = true;
+          // UI 업데이트
+          _titleController.text = feedDetail.title;
+          try {
+            // ctnt는 JSON 문자열이므로 Delta로 변환
+            final decodedContent = jsonDecode(feedDetail.ctnt);
+            debugPrint(json.toString());
+            _controller.document = Document.fromDelta(Delta.fromJson(decodedContent));
+          } catch (e) {
+            debugPrint('Error parsing Quill content JSON: $e');
+            // 파싱 실패 시 기본 문서로 초기화하거나 에러 처리
+            _controller.document = Document.fromDelta(Delta()..insert('\n'));
+          }
+          setState(() {
+            categoryId = feedDetail.categoryId;
+          });
+          debugPrint('수정할 피드 데이터 로드 완료: ${feedDetail.title}');
+        } else if (next.hasError) {
+          debugPrint('수정할 피드 데이터 로드 실패: ${next.error}');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('게시글 정보를 불러오는데 실패했습니다: ${next.error}')),
+            );
+          }
+        }
+      });
+    }
   }
 
   void _onDocumentContentChanged() {
@@ -347,6 +384,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       final String content = jsonEncode(_controller.document.toDelta().toJson()); // 최종 Delta JSON
       
       final FeedDto feedDto = FeedDto(
+        id: widget.feedId,
         categoryId: categoryId,
         title: title,
         ctnt: content,
@@ -354,12 +392,17 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         imgPreview: imgPreview
       );
 
-      debugPrint('내용미리보기 ${feedDto.ctntPreview}');
-      debugPrint('이미지미리보기 ${feedDto.imgPreview}');
+      int resultFeedId;
 
-      // 게시글 생성 서비스 호출
-      final int newFeedId = await feedCudServiceInstance.createFeed(feedDto);
-      debugPrint('게시글 생성 성공! Feed ID: $newFeedId');
+      if (widget.feedId != null) {
+        // 수정 모드: updateFeed 호출
+        resultFeedId = await feedCudServiceInstance.updateFeed(widget.feedId!, feedDto);
+        debugPrint('게시글 수정 성공! Feed ID: $resultFeedId');
+      } else {
+        // 생성 모드: createFeed 호출
+        resultFeedId = await feedCudServiceInstance.createFeed(feedDto);
+        debugPrint('게시글 생성 성공! Feed ID: $resultFeedId');
+      }
 
       // 성공 메시지 표시 및 화면 이동 등
       if (!mounted) return;
@@ -370,7 +413,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              FeedDetail(feedId: newFeedId, categoryId: categoryId, isFromWriteFeed: true,),
+              FeedDetail(feedId: resultFeedId, categoryId: categoryId, isFromWriteFeed: true,),
         ), (Route<dynamic> route) => false, // 이전 모든 라우터 제거
       );
       
@@ -421,6 +464,19 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     final bool canSubmit = !_isSubmitting && !isServiceLoadingOrError;
 
     final FeedCudService? feedCudService = feedCudServiceAsyncValue.valueOrNull;
+
+    // 수정 모드일 때만 데이터를 watch하고, 로딩 상태를 보여줍니다.
+    final feedDetailAsyncValue = widget.feedId != null
+        ? ref.watch(feedDetailProviderForUpdate(widget.feedId!))
+        : null;
+
+    // 수정 모드이고 데이터가 아직 로드되지 않았다면 로딩 인디케이터를 보여줍니다.
+    if (widget.feedId != null && (feedDetailAsyncValue == null || feedDetailAsyncValue.isLoading || !_isEditDataLoaded)) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -443,7 +499,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                   child: Column(
                     children: [
                       // 카테고리 선택 바
-                      WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: 0,),
+                      WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: categoryId,),
                       // 제목 입력 섹션
                       GestureDetector(
                         onTap: (){

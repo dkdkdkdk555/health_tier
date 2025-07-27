@@ -33,12 +33,12 @@ class FeedDetailDto {
 
   factory FeedDetailDto.fromJson(Map<String, dynamic> json) {
     return FeedDetailDto(
-      id: json['id'] as int,
+      id: json['id'] as int? ?? 0,
       categoryId: json['categoryId'] as int,
       categoryName: json['categoryName'] as String? ?? '',
       title: json['title'] as String? ?? '',
       ctnt: json['ctnt'] as String? ?? '',
-      userId: json['userId'] as int,
+      userId: json['userId'] as int? ?? 0,
       nickname: json['nickname'] as String? ?? '',
       imgPath: json['imgPath'] as String? ?? '',
       likeCnt: json['likeCnt'] as int? ?? 0,
@@ -46,7 +46,7 @@ class FeedDetailDto {
       isReportedForMe: json['isReportedForMe'] as bool? ?? false,
       views: json['views'] as int? ?? 0,
       displayDttm: json['displayDttm'] as String? ?? '',
-      replyCount: json['replyCount'] as int,
+      replyCount: json['replyCount'] as int? ?? 0,
     );
   }
 }
