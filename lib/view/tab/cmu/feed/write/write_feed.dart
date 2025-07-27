@@ -6,27 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
-import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class WriteFeed extends ConsumerStatefulWidget {
+class WriteFeed extends StatefulWidget {
   const WriteFeed({super.key});
 
   @override
-  ConsumerState<WriteFeed> createState() => _WriteFeedState();
+  State<WriteFeed> createState() => _WriteFeedState();
 }
 
-class _WriteFeedState extends ConsumerState<WriteFeed> {
+class _WriteFeedState extends State<WriteFeed> {
   final TextEditingController _titleController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isLoading = true; // 로딩 상태 추가 (토큰 검증 중)
 
   // Quill 에디터 컨트롤러
   late QuillController _controller;
@@ -43,7 +39,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   @override
   void initState() {
     super.initState();
-    _checkTokenValidity();
 
     _controller = QuillController.basic(
       config: QuillControllerConfig(
@@ -54,7 +49,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               return null;
             }
 
-            debugPrint('히히');
             final newFileName = 'image-file-${DateTime.now().toIso8601String()}.png';
             final newPath = path.join(io.Directory.systemTemp.path, newFileName);
             final file = await io.File(newPath).writeAsBytes(imageBytes, flush: true);
@@ -78,7 +72,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 debugPrint('YouTube video embedded via onClipboardPaste: $youtubeVideoId');
                 return true;
               } else if (text.toLowerCase().contains('.gif') && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('file://'))) {
-                debugPrint('???');
                 // 클립보드 텍스트가 .gif를 포함하고, URL 또는 파일 경로 형식인 경우
                 final int index = _controller.selection.extentOffset;
                 _controller.document.insert(
@@ -106,51 +99,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     _controller.document.changes.listen((event) {
       _onDocumentContentChanged();
     });
-  }
-
-  // 토큰 유효성 검증 메서드
-  Future<void> _checkTokenValidity() async {
-    setState(() {
-      _isLoading = true; // 로딩 시작
-    });
-
-    try {
-      final response = await ref.read(jwtTokenVerificationProvider.future);
-
-      if (response.isValid) {
-        setState(() {
-          _isLoading = false; // 로딩 끝
-        });
-      } else {
-        // 토큰이 유효하지 않음: 로그인 화면으로 이동
-        // 현재 화면 스택에서 WriteFeed를 제거하고 LoginScreen으로 대체
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          // 현재 WriteFeed 화면에서 뒤로 가기
-          Navigator.of(context).pop();
-
-          // 사용자에게 메시지 표시
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('글을 작성하려면 로그인이 필요합니다ㄴㅇㄹ'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        });
-      }
-    } catch (e) {
-      // 에러 발생 시
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // 현재 WriteFeed 화면에서 뒤로 가기
-        Navigator.of(context).pop();
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('토큰 검증 중 오류 발생: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      });
-    }
   }
 
   void _onDocumentContentChanged() {
