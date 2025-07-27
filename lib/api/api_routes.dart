@@ -34,6 +34,7 @@ class UserAPI {
 class AuthAPI {
   static const base = '/auth';
 
+  static const verifyToken = '/verify-token';
   static const verifyValidTokenOrSigned = '$base/sns/verify';
   static const joinAndLoginWithSns = '$base/sns/join';
   static const checkNickname = '/check-nickname';
