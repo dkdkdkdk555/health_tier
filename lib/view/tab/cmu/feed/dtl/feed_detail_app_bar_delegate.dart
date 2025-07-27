@@ -2,9 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar.dart';
 
 class FeedDetailAppBarDelegate extends SliverPersistentHeaderDelegate {
+  bool isFromWriteFeed;
+  final int feedId;
+  FeedDetailAppBarDelegate(
+    this.isFromWriteFeed,
+    this.feedId
+  );
+
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return const FeedDetailAppBar(
+    return FeedDetailAppBar(
+      isFromWriteFeed: isFromWriteFeed,
+      feedId: feedId,
     );
   }
 

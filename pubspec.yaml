@@ -58,7 +58,7 @@ dependencies:
   cached_network_image: ^3.3.1 # CachedNetworkImage는 네트워크 이미지 로딩에 실패했을 때 errorWidget을 제공하는 등 훨씬 강력한 오류 처리 기능을 내장하고 있습니다. 또한, 이미지 캐싱 기능도 있어 성능 향상에 도움이 됩니다.
   video_player: ^2.8.5 # 비디오 재생
   youtube_player_flutter: ^9.1.1
-
+  mime: ^2.0.0
   # 이미지 가져오기
   image_picker: ^1.1.2
   # rest api 요청
@@ -67,6 +67,7 @@ dependencies:
   shared_preferences: ^2.5.1
   flutter_naver_login: ^2.1.0
   kakao_flutter_sdk_user: ^1.9.5 # 카카오 로그인 API 패키지
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

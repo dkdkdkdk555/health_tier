@@ -3,7 +3,7 @@ class FeedDto {
   final int categoryId;
   final String title;
   final String ctnt; // content는 백엔드에서 `ctnt`로 사용됨
-  final int userId; // userId도 백엔드에서 Long 타입일 수 있으므로 Long으로 가정
+  final int? userId; // userId도 백엔드에서 Long 타입일 수 있으므로 Long으로 가정
   final String ctntPreview;
   final String imgPreview;
 
@@ -12,7 +12,7 @@ class FeedDto {
     required this.categoryId,
     required this.title,
     required this.ctnt,
-    required this.userId,
+    this.userId,
     required this.ctntPreview,
     required this.imgPreview,
   });

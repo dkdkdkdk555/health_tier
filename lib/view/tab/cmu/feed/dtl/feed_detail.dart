@@ -9,11 +9,15 @@ import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
   final int feedId;
   final int categoryId;
-  const FeedDetail({
+  final bool isFromWriteFeed;
+  const FeedDetail(
+    {
     super.key,
     required this.feedId,
     required this.categoryId,
-  });
+    this.isFromWriteFeed = false,
+    }
+  );
 
   @override
   State<FeedDetail> createState() => _FeedDetailState();
@@ -40,7 +44,7 @@ class _FeedDetailState extends State<FeedDetail> {
           // 상단 앱바
           SliverPersistentHeader(
             pinned: true,
-            delegate: FeedDetailAppBarDelegate(),
+            delegate: FeedDetailAppBarDelegate(widget.isFromWriteFeed, widget.feedId),
           ),
           // 게시글 본문
           SliverToBoxAdapter(

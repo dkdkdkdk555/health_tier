@@ -20,7 +20,7 @@ class FeedCudAPI {
   static const base = '/cud/cmu/feed';
 
   static const uploadImages = '$base/images/upload-multiple';
-  static const createFeed = '$base/'; // POST
+  static const createFeed = base; // POST
   static const updateFeed = '$base/'; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
 }

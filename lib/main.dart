@@ -31,7 +31,11 @@ void main() async{
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final int mvIndex;
+  const MyApp({
+    super.key,
+    this.mvIndex = 0
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -56,6 +60,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
     _fabController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 350),
@@ -77,6 +82,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         parent: _fabController, 
         curve: Curves.easeIn
     ));
+
+    if(widget.mvIndex!=0) _onTap(widget.mvIndex);
   }
 
   @override
@@ -100,6 +107,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(

@@ -9,20 +9,27 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mime/mime.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/providers/feed_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:http_parser/http_parser.dart';
 
 
 class WriteFeed extends ConsumerStatefulWidget {
-  const WriteFeed({super.key});
+  final int? feedId;
+  const WriteFeed({
+    super.key,
+    this.feedId
+  });
 
   @override
   ConsumerState<WriteFeed> createState() => _WriteFeedState();
@@ -42,10 +49,9 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
-
   // 피드저장 로딩상태 관리
   bool _isSubmitting = false;
-
+  int categoryId = 0;
 
   @override
   void initState() {
@@ -133,6 +139,20 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   }
 
+  // 제목과 카테고리를 선택했는지
+  bool _isFeedContentValid() {
+    // 1. categoryId가 0이 아닌지 확인
+    if (categoryId == 0) {
+      return false;
+    }
+
+    // 2. titleText가 비어있지 않은지 확인 (공백만 있는 경우도 비어있는 것으로 간주)
+    if (_titleController.text.trim().isEmpty) {
+      return false;
+    }
+
+    return true; // 모든 조건을 통과하면 유효함
+  }
 
 
   void _updateToolbarVisibility() {
@@ -142,7 +162,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   }
 
   void _onCategoryChange({required int index}) {
-
+    categoryId = index;
   }
 
   void _onSubmit(
@@ -150,9 +170,21 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   ) async {
     if (_isSubmitting) return; // 이미 업로드 중이면 중복 실행 방지
 
+     // 유효성검증
+    if (!_isFeedContentValid()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('카테고리, 제목을 모두 입력해주세요.')),
+      );
+      return; // 유효성 검증 실패 시 함수 종료
+    }
+
     setState(() {
       _isSubmitting = true; // 로딩 상태 시작
     });
+
+    String ctntPreview = '';
+    String imgPreview = '';
 
     try {
       // 1. Quill Delta에서 로컬 이미지/비디오 경로 추출
@@ -166,11 +198,18 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
       for (int i = 0; i < currentDelta.operations.length; i++) {
         final op = currentDelta.operations[i];
+        debugPrint('후후');
+        debugPrint(op.isInsert.toString());
+        debugPrint((op.data is Map).toString());
         if (op.isInsert && op.data is Map) {
           final Map<String, dynamic> insertData = op.data as Map<String, dynamic>;
 
           if (insertData.containsKey('image')) {
             final String imageUrl = insertData['image'];
+            // 첫 번째 이미지의 URL을 imgPreview로 설정 (로컬이든 서버 URL이든 상관없음)
+            if (imgPreview.isEmpty) { // 이미 설정되지 않았을 경우에만
+              imgPreview = imageUrl;
+            }
             if (imageUrl.startsWith('file://')) {
               final String filePath = Uri.parse(imageUrl).toFilePath();
               final file = io.File(filePath);
@@ -204,21 +243,44 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 debugPrint('Warning: Local video file not found: $filePath');
               }
             }
-          }
+          } 
+        } else if(op.isInsert && op.data is String) {
+            final String text = op.data as String;
+            debugPrint('텍스트 : $text');
+            // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
+            if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
+              ctntPreview = text;
+              if (ctntPreview.length > 25) { // 25자 제한
+                ctntPreview = ctntPreview.substring(0, 25);
+              }
+            }
         }
       }
 
       // 2. 파일들을 MultipartFile로 변환
       final List<MultipartFile> multipartFiles = [];
       for (var file in filesToUpload) {
+        // 파일 경로를 기반으로 MIME 타입 자동 추론
+        final String? mimeType = lookupMimeType(file.path);
+        MediaType? contentType;
+        if (mimeType != null) {
+          final List<String> parts = mimeType.split('/');
+          if (parts.length == 2) {
+            contentType = MediaType(parts[0], parts[1]);
+          }
+        }
+
+        debugPrint('Preparing file: ${file.path}, Detected content type via mime package: ${contentType?.toString() ?? 'null'}');
+
         multipartFiles.add(
-          await MultipartFile.fromFile(
+          MultipartFile.fromFileSync(
             file.path,
             filename: path.basename(file.path),
+            contentType: contentType, // 추론된 MediaType을 넘겨줍니다.
           ),
         );
       }
-
+      
       // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
       List<String> uploadedUrls = [];
       if (multipartFiles.isNotEmpty) {
@@ -228,6 +290,11 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         if (uploadResult.count == 1) {
           uploadedUrls = uploadResult.data;
           debugPrint('Uploaded URLs: $uploadedUrls');
+
+          // 서버 업로드된 첫 번째 이미지 URL 넣어주기
+          if (imgPreview.startsWith('file://') && uploadedUrls.isNotEmpty) {
+            imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
+          }
         } else {
           throw Exception('이미지/비디오 업로드 실패: ${uploadResult.message}');
         }
@@ -276,25 +343,36 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       }
 
       // 5. 최종 FeedDto 구성 및 게시글 생성 요청
-      // final String title = _titleController.text;
-      // final String content = jsonEncode(_controller.document.toDelta().toJson()); // 최종 Delta JSON
+      final String title = _titleController.text;
+      final String content = jsonEncode(_controller.document.toDelta().toJson()); // 최종 Delta JSON
       
-      // final FeedDto feedDto = FeedDto(
-      //   title: title,
-      //   ctnt: content,
-      //   // categoryId 등 필요한 다른 필드 추가
-      // );
+      final FeedDto feedDto = FeedDto(
+        categoryId: categoryId,
+        title: title,
+        ctnt: content,
+        ctntPreview: ctntPreview,
+        imgPreview: imgPreview
+      );
 
-      // // 게시글 생성 서비스 호출
-      // final int newFeedId = await feedCudServiceInstance.createFeed(feedDto);
-      // debugPrint('게시글 생성 성공! Feed ID: $newFeedId');
+      debugPrint('내용미리보기 ${feedDto.ctntPreview}');
+      debugPrint('이미지미리보기 ${feedDto.imgPreview}');
 
-      // // 성공 메시지 표시 및 화면 이동 등
-      // if (!mounted) return;
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('게시글이 성공적으로 등록되었습니다.')),
-      // );
-      // Navigator.pop(context); // 이전 화면으로 돌아가기 등
+      // 게시글 생성 서비스 호출
+      final int newFeedId = await feedCudServiceInstance.createFeed(feedDto);
+      debugPrint('게시글 생성 성공! Feed ID: $newFeedId');
+
+      // 성공 메시지 표시 및 화면 이동 등
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시글이 성공적으로 등록되었습니다.')),
+      );
+      
+      Navigator.of(context).pushAndRemoveUntil(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              FeedDetail(feedId: newFeedId, categoryId: categoryId, isFromWriteFeed: true,),
+        ), (Route<dynamic> route) => false, // 이전 모든 라우터 제거
+      );
       
     } catch (e) {
       debugPrint('게시글 등록 중 오류 발생: $e');
