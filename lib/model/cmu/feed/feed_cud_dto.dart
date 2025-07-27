@@ -4,6 +4,8 @@ class FeedDto {
   final String title;
   final String ctnt; // content는 백엔드에서 `ctnt`로 사용됨
   final int userId; // userId도 백엔드에서 Long 타입일 수 있으므로 Long으로 가정
+  final String ctntPreview;
+  final String imgPreview;
 
   FeedDto({
     this.id,
@@ -11,6 +13,8 @@ class FeedDto {
     required this.title,
     required this.ctnt,
     required this.userId,
+    required this.ctntPreview,
+    required this.imgPreview,
   });
 
   // JSON으로부터 FeedDto 객체를 생성하는 팩토리 생성자 (수동 매핑)
@@ -21,6 +25,8 @@ class FeedDto {
       title: json['title'] as String,
       ctnt: json['ctnt'] as String,
       userId: json['userId'] as int,
+      ctntPreview: json['ctntPreview'] as String,
+      imgPreview: json['imgPreview'] as String
     );
   }
 
@@ -32,6 +38,8 @@ class FeedDto {
       'title': title,
       'ctnt': ctnt,
       'userId': userId,
+      'ctntPreview': ctntPreview,
+      'imgPreview' : imgPreview
     };
   }
 }

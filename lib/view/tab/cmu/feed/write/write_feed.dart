@@ -1,11 +1,18 @@
 import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
+import 'package:my_app/model/cmu/feed/image_upload_args.dart';
+import 'package:my_app/providers/feed_auth_providers.dart';
+import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
@@ -13,14 +20,15 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class WriteFeed extends StatefulWidget {
+
+class WriteFeed extends ConsumerStatefulWidget {
   const WriteFeed({super.key});
 
   @override
-  State<WriteFeed> createState() => _WriteFeedState();
+  ConsumerState<WriteFeed> createState() => _WriteFeedState();
 }
 
-class _WriteFeedState extends State<WriteFeed> {
+class _WriteFeedState extends ConsumerState<WriteFeed> {
   final TextEditingController _titleController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -34,6 +42,9 @@ class _WriteFeedState extends State<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
+
+  // 피드저장 로딩상태 관리
+  bool _isSubmitting = false;
 
 
   @override
@@ -134,10 +145,169 @@ class _WriteFeedState extends State<WriteFeed> {
 
   }
 
-  void _onSubmit(){
+  void _onSubmit(
+    FeedCudService feedCudServiceInstance
+  ) async {
+    if (_isSubmitting) return; // 이미 업로드 중이면 중복 실행 방지
 
+    setState(() {
+      _isSubmitting = true; // 로딩 상태 시작
+    });
+
+    try {
+      // 1. Quill Delta에서 로컬 이미지/비디오 경로 추출
+      final documentJson = _controller.document.toDelta().toJson();
+      final Delta currentDelta = Delta.fromJson(documentJson);
+      
+      // 업로드할 파일 리스트와 원본 Delta의 해당 operation 인덱스 및 키를 저장
+      final List<io.File> filesToUpload = [];
+      final Map<String, int> localPathToIndexMap = {}; // localPath -> original op index
+      final List<Map<String, dynamic>> operationsToUpdate = []; // {index: opIndex, type: 'image'/'video', localPath: 'file://...'}
+
+      for (int i = 0; i < currentDelta.operations.length; i++) {
+        final op = currentDelta.operations[i];
+        if (op.isInsert && op.data is Map) {
+          final Map<String, dynamic> insertData = op.data as Map<String, dynamic>;
+
+          if (insertData.containsKey('image')) {
+            final String imageUrl = insertData['image'];
+            if (imageUrl.startsWith('file://')) {
+              final String filePath = Uri.parse(imageUrl).toFilePath();
+              final file = io.File(filePath);
+              if (await file.exists()) {
+                filesToUpload.add(file);
+                operationsToUpdate.add({
+                  'index': i,
+                  'type': 'image',
+                  'localPath': imageUrl,
+                });
+                localPathToIndexMap[imageUrl] = filesToUpload.length - 1; // filesToUpload 리스트에서의 인덱스
+              } else {
+                debugPrint('Warning: Local image file not found: $filePath');
+              }
+            }
+          } else if (insertData.containsKey('video')) {
+            final String videoUrl = insertData['video'];
+            // YouTube URL은 서버에 업로드할 필요가 없으므로 건너뜁니다.
+            if (videoUrl.startsWith('file://')) {
+              final String filePath = Uri.parse(videoUrl).toFilePath();
+              final file = io.File(filePath);
+              if (await file.exists()) {
+                filesToUpload.add(file);
+                operationsToUpdate.add({
+                  'index': i,
+                  'type': 'video',
+                  'localPath': videoUrl,
+                });
+                localPathToIndexMap[videoUrl] = filesToUpload.length - 1; // filesToUpload 리스트에서의 인덱스
+              } else {
+                debugPrint('Warning: Local video file not found: $filePath');
+              }
+            }
+          }
+        }
+      }
+
+      // 2. 파일들을 MultipartFile로 변환
+      final List<MultipartFile> multipartFiles = [];
+      for (var file in filesToUpload) {
+        multipartFiles.add(
+          await MultipartFile.fromFile(
+            file.path,
+            filename: path.basename(file.path),
+          ),
+        );
+      }
+
+      // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
+      List<String> uploadedUrls = [];
+      if (multipartFiles.isNotEmpty) {
+        final uploadArgs = ImageUploadArgs(images: multipartFiles);
+        final uploadResult = await ref.read(imageUploadProvider(uploadArgs).future); // FutureProvider 호출
+        
+        if (uploadResult.count == 1) {
+          uploadedUrls = uploadResult.data;
+          debugPrint('Uploaded URLs: $uploadedUrls');
+        } else {
+          throw Exception('이미지/비디오 업로드 실패: ${uploadResult.message}');
+        }
+      }
+
+      // 4. Quill Delta 업데이트: file:// 경로를 서버 경로로 치환
+      if (uploadedUrls.isNotEmpty) {
+        final Delta newDelta = Delta.fromJson(documentJson); // 원본 Delta를 복사하여 수정
+        
+        // uploadedUrls 리스트의 순서와 filesToUpload 리스트의 순서가 일치한다고 가정합니다.
+        // 즉, filesToUpload[0]이 업로드되어 uploadedUrls[0]이 되었다고 가정합니다.
+        // 따라서 localPathToIndexMap을 사용하여 매핑합니다.
+
+        for (var opToUpdate in operationsToUpdate) {
+          final int originalOpIndex = opToUpdate['index'] as int;
+          final String localPath = opToUpdate['localPath'] as String;
+          final String type = opToUpdate['type'] as String;
+
+          final int fileIndex = localPathToIndexMap[localPath]!;
+          final String serverUrl = uploadedUrls[fileIndex];
+
+          // 해당 operation을 찾아 내용을 업데이트
+          final Map<String, dynamic> originalInsertData = newDelta.operations[originalOpIndex].data as Map<String, dynamic>;
+          
+          if (type == 'image') {
+            originalInsertData['image'] = serverUrl;
+          } else if (type == 'video') {
+            originalInsertData['video'] = serverUrl;
+          }
+          // 실제 Delta 객체는 불변(immutable)이므로, 새로운 Delta를 생성하거나
+          // replace 메서드를 사용하여 변경된 부분을 적용해야 합니다.
+          // 여기서는 `newDelta`를 직접 수정하는 방식은 `Delta`의 내부 구현에 따라
+          // 예상치 못한 동작을 할 수 있습니다.
+          // 더 안전한 방법은 `_controller.document.replace`를 사용하는 것입니다.
+          // 하지만 현재 `newDelta.operations[originalOpIndex].data`를 직접 수정하는 방식은
+          // `Delta`가 내부적으로 `List<Operation>`을 참조하기 때문에 동작할 수 있습니다.
+          // 좀 더 명확하고 안전한 방법은 `Delta.forEach`를 사용하여 새로운 Delta를 빌드하는 것입니다.
+          
+          // 간단한 구현을 위해 현재 Delta를 복사하고, 해당 operation의 data를 직접 수정하는 방식으로 진행합니다.
+          // 실제 프로덕션 코드에서는 Quill 라이브러리의 Delta 조작 API를 더 깊이 이해하고 사용하는 것이 좋습니다.
+        }
+        
+        // 수정된 Delta로 Quill 에디터 업데이트
+        _controller.document = Document.fromDelta(newDelta);
+        debugPrint('Quill document updated with server URLs. : \n${_controller.document}');
+      }
+
+      // 5. 최종 FeedDto 구성 및 게시글 생성 요청
+      // final String title = _titleController.text;
+      // final String content = jsonEncode(_controller.document.toDelta().toJson()); // 최종 Delta JSON
+      
+      // final FeedDto feedDto = FeedDto(
+      //   title: title,
+      //   ctnt: content,
+      //   // categoryId 등 필요한 다른 필드 추가
+      // );
+
+      // // 게시글 생성 서비스 호출
+      // final int newFeedId = await feedCudServiceInstance.createFeed(feedDto);
+      // debugPrint('게시글 생성 성공! Feed ID: $newFeedId');
+
+      // // 성공 메시지 표시 및 화면 이동 등
+      // if (!mounted) return;
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('게시글이 성공적으로 등록되었습니다.')),
+      // );
+      // Navigator.pop(context); // 이전 화면으로 돌아가기 등
+      
+    } catch (e) {
+      debugPrint('게시글 등록 중 오류 발생: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시글 등록 실패: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isSubmitting = false; // 로딩 상태 종료
+      });
+    }
   }
-
 
   void _scrollUp() async{
     await Future.delayed(const Duration(milliseconds: 50));
@@ -165,6 +335,14 @@ class _WriteFeedState extends State<WriteFeed> {
   @override
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+     // build 메서드 내에서 ref.watch로 서비스 인스턴스를 가져옵니다.
+    final feedCudServiceAsyncValue = ref.watch(feedCudServiceProvider); // <-- FutureProvider를 watch
+
+    // 서비스 인스턴스가 로딩 중이거나 에러 상태인지 확인합니다.
+    final bool isServiceLoadingOrError = feedCudServiceAsyncValue.isLoading || feedCudServiceAsyncValue.hasError;
+    final bool canSubmit = !_isSubmitting && !isServiceLoadingOrError;
+
+    final FeedCudService? feedCudService = feedCudServiceAsyncValue.valueOrNull;
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -176,7 +354,10 @@ class _WriteFeedState extends State<WriteFeed> {
               // 상단바
               Padding(
                 padding: const EdgeInsets.only(top: 44),
-                child: CmuWriteAppBar(centerText: '피드 작성하기', onSubmit: _onSubmit),
+                child: CmuWriteAppBar(
+                  centerText: '피드 작성하기', 
+                  onSubmit: canSubmit ? () => _onSubmit(feedCudService!) : () {debugPrint('아직로드안됐다..');},
+                )
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -282,7 +463,6 @@ class _WriteFeedState extends State<WriteFeed> {
                               ...FlutterQuillEmbeds.editorBuilders(
                                 imageEmbedConfig: QuillEditorImageEmbedConfig(
                                   imageProviderBuilder: (context, imageUrl) {
-                                    debugPrint('파일패스 $imageUrl');
                                     if (imageUrl.startsWith('file://')) {
                                       final path = Uri.parse(imageUrl).toFilePath();
                                       final file = io.File(path);

@@ -44,7 +44,10 @@ class CmuWriteAppBar extends StatelessWidget {
 
           // 오른쪽 '완료' 텍스트 버튼
           GestureDetector(
-            onTap: onSubmit,
+            onTap: () {
+              debugPrint('로드됐다..');
+              onSubmit();
+            },
             child: const Text(
               '완료',
               style: TextStyle(
