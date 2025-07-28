@@ -10,6 +10,7 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mime/mime.dart';
+import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/providers/feed_auth_providers.dart';
@@ -54,6 +55,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   int categoryId = 0;
   // 수정 모드일 때 데이터 로딩 완료 여부
   bool _isEditDataLoaded = false;
+   // 수정 전 게시글에 있던 서버 이미지/비디오 URL 목록
+  List<String> _initialServerMediaUrls = [];
 
   @override
   void initState() {
@@ -132,8 +135,12 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           try {
             // ctnt는 JSON 문자열이므로 Delta로 변환
             final decodedContent = jsonDecode(feedDetail.ctnt);
-            debugPrint(json.toString());
-            _controller.document = Document.fromDelta(Delta.fromJson(decodedContent));
+            final loadedDelta = Delta.fromJson(decodedContent);
+            _controller.document = Document.fromDelta(loadedDelta);
+
+             // 중요: 기존 문서에서 서버 이미지/비디오 URL 추출하여 저장
+            _initialServerMediaUrls = _extractServerMediaUrls(loadedDelta);
+            debugPrint('Initial Server Media URLs: $_initialServerMediaUrls');
           } catch (e) {
             debugPrint('Error parsing Quill content JSON: $e');
             // 파싱 실패 시 기본 문서로 초기화하거나 에러 처리
@@ -153,6 +160,28 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         }
       });
     }
+  }
+
+  // Quill Delta에서 서버 이미지/비디오 URL을 추출하는 헬퍼 함수
+  List<String> _extractServerMediaUrls(Delta delta) {
+    final List<String> urls = [];
+    for (var op in delta.operations) {
+      if (op.isInsert && op.data is Map) {
+        final Map<String, dynamic> insertData = op.data as Map<String, dynamic>;
+        String? url;
+        if (insertData.containsKey('image')) {
+          url = insertData['image'] as String;
+        } else if (insertData.containsKey('video')) {
+          url = insertData['video'] as String;
+        }
+
+        // 'file://'로 시작하지 않는 URL (즉, 서버 URL)만 추가
+        if (url != null && (url.startsWith('http://') || url.startsWith('https://'))) {
+          urls.add(url);
+        }
+      }
+    }
+    return urls;
   }
 
   void _onDocumentContentChanged() {
@@ -233,11 +262,11 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       final Map<String, int> localPathToIndexMap = {}; // localPath -> original op index
       final List<Map<String, dynamic>> operationsToUpdate = []; // {index: opIndex, type: 'image'/'video', localPath: 'file://...'}
 
+      // 현재 에디터에 있는 서버 이미지/비디오 URL 목록 (수정 후)
+      final List<String> currentServerMediaUrls = [];
+
       for (int i = 0; i < currentDelta.operations.length; i++) {
         final op = currentDelta.operations[i];
-        debugPrint('후후');
-        debugPrint(op.isInsert.toString());
-        debugPrint((op.data is Map).toString());
         if (op.isInsert && op.data is Map) {
           final Map<String, dynamic> insertData = op.data as Map<String, dynamic>;
 
@@ -247,6 +276,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             if (imgPreview.isEmpty) { // 이미 설정되지 않았을 경우에만
               imgPreview = imageUrl;
             }
+
             if (imageUrl.startsWith('file://')) {
               final String filePath = Uri.parse(imageUrl).toFilePath();
               final file = io.File(filePath);
@@ -261,6 +291,9 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               } else {
                 debugPrint('Warning: Local image file not found: $filePath');
               }
+            } else if(imageUrl.contains(APIServer.baseUrl)) {
+              // 기존 서버에 저장된 url추가
+              currentServerMediaUrls.add(imageUrl);
             }
           } else if (insertData.containsKey('video')) {
             final String videoUrl = insertData['video'];
@@ -279,11 +312,13 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               } else {
                 debugPrint('Warning: Local video file not found: $filePath');
               }
+            } else if(videoUrl.contains(APIServer.baseUrl)) {
+              // 기존 서버에 저장된 url추가
+              currentServerMediaUrls.add(videoUrl);
             }
           } 
         } else if(op.isInsert && op.data is String) {
             final String text = op.data as String;
-            debugPrint('텍스트 : $text');
             // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
             if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
               ctntPreview = text;
@@ -292,6 +327,18 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               }
             }
         }
+      }
+
+      // 수정 모드이고, 기존 미디어 URL이 존재할 경우 삭제할 URL 식별
+      List<String> deleteUrls = [];
+      if (widget.feedId != null && _initialServerMediaUrls.isNotEmpty) {
+        for (String initialUrl in _initialServerMediaUrls) {
+          if (!currentServerMediaUrls.contains(initialUrl)) {
+            // 기존 URL이 현재 문서에 없으면 삭제 목록에 추가
+            deleteUrls.add(initialUrl);
+          }
+        }
+        debugPrint('Identified URLs to delete: $deleteUrls');
       }
 
       // 2. 파일들을 MultipartFile로 변환
@@ -307,8 +354,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           }
         }
 
-        debugPrint('Preparing file: ${file.path}, Detected content type via mime package: ${contentType?.toString() ?? 'null'}');
-
         multipartFiles.add(
           MultipartFile.fromFileSync(
             file.path,
@@ -320,21 +365,17 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       
       // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
       List<String> uploadedUrls = [];
-      if (multipartFiles.isNotEmpty) {
-        final uploadArgs = ImageUploadArgs(images: multipartFiles);
+      if (multipartFiles.isNotEmpty || deleteUrls.isNotEmpty) {
+        final uploadArgs = ImageUploadArgs(images: multipartFiles, deleteUrls: deleteUrls);
         final uploadResult = await ref.read(imageUploadProvider(uploadArgs).future); // FutureProvider 호출
         
-        if (uploadResult.count == 1) {
+        if (uploadResult.count >= 1) {
           uploadedUrls = uploadResult.data;
-          debugPrint('Uploaded URLs: $uploadedUrls');
-
           // 서버 업로드된 첫 번째 이미지 URL 넣어주기
           if (imgPreview.startsWith('file://') && uploadedUrls.isNotEmpty) {
             imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
           }
-        } else {
-          throw Exception('이미지/비디오 업로드 실패: ${uploadResult.message}');
-        }
+        } 
       }
 
       // 4. Quill Delta 업데이트: file:// 경로를 서버 경로로 치환
