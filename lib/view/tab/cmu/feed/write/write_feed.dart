@@ -13,6 +13,7 @@ import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
+import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/quill_video_player.dart';
@@ -57,6 +58,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   bool _isEditDataLoaded = false;
    // 수정 전 게시글에 있던 서버 이미지/비디오 URL 목록
   List<String> _initialServerMediaUrls = [];
+  // WriteFeedCategorySelectBar에서 전달받을 운동 항목 데이터
+  List<ExerciseEntry> _currentExerciseEntries = [];
 
   @override
   void initState() {
@@ -217,6 +220,21 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       return false;
     }
 
+    // 카테고리 3(중량인증)일 경우, 운동 항목 유효성 검사 추가
+    if (categoryId == 3) {
+      if (_currentExerciseEntries.isEmpty) {
+        return false; // 항목이 없으면 유효하지 않음
+      }
+      for (var entry in _currentExerciseEntries) {
+        if (entry.type == null || entry.weightController.text.trim().isEmpty) {
+          return false; // 타입 또는 중량이 비어있으면 유효하지 않음
+        }
+        if (int.tryParse(entry.weightController.text.trim()) == null) {
+          return false; // 중량이 유효한 숫자가 아니면 유효하지 않음
+        }
+      }
+    }
+
     return true; // 모든 조건을 통과하면 유효함
   }
 
@@ -229,6 +247,14 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   void _onCategoryChange({required int index}) {
     categoryId = index;
+  }
+
+  // ✅ WriteFeedCategorySelectBar에서 운동 항목이 변경될 때 호출될 콜백 함수
+  void _onExerciseEntriesChanged(List<ExerciseEntry> entries) {
+    _currentExerciseEntries = entries;
+    // 여기서는 setState를 호출하지 않아도 됨.
+    // _currentExerciseEntries는 _onSubmit에서 사용될 데이터이므로 UI 업데이트와 직접 연결되지 않음.
+    // 만약 이 데이터 변경으로 인해 WriteFeed의 UI가 변경되어야 한다면 setState를 호출해야 함.
   }
 
   void _onSubmit(
@@ -251,8 +277,19 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
     String ctntPreview = '';
     String imgPreview = '';
+    List<UserWeightCrtifiDto>? userWeightsData;
 
     try {
+      // 카테고리 3(중량인증)일 경우, _currentExerciseEntries에서 중량 데이터 가져오기
+      if (categoryId == 3) {
+        userWeightsData = _currentExerciseEntries.map((entry) {
+          return UserWeightCrtifiDto(
+            weightType: entry.type,
+            weightKg: int.tryParse(entry.weightController.text),
+          );
+        }).toList();
+      }
+
       // 1. Quill Delta에서 로컬 이미지/비디오 경로 추출
       final documentJson = _controller.document.toDelta().toJson();
       final Delta currentDelta = Delta.fromJson(documentJson);
@@ -430,7 +467,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         title: title,
         ctnt: content,
         ctntPreview: ctntPreview,
-        imgPreview: imgPreview
+        imgPreview: imgPreview,
+        userWeights: userWeightsData,
       );
 
       int resultFeedId;
@@ -491,6 +529,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
      _editorScrollController.dispose();
     _controller.dispose();
     _titleController.dispose();
+     for (var entry in _currentExerciseEntries) {
+      entry.dispose();
+    }
+    _currentExerciseEntries.clear();
     super.dispose();
   }
 
@@ -540,7 +582,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                   child: Column(
                     children: [
                       // 카테고리 선택 바
-                      WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: categoryId,),
+                      WriteFeedCategorySelectBar(onCategoryChange: _onCategoryChange, selectedCategoryId: categoryId, onExerciseEntriesChanged: _onExerciseEntriesChanged,),
                       // 제목 입력 섹션
                       GestureDetector(
                         onTap: (){
