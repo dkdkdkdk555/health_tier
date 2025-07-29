@@ -19,10 +19,10 @@ class CustomImageEmbedBuilder implements quill.EmbedBuilder {
       ),
       errorWidget: (context, url, error) {
         // SocketException 등 이미지 로딩 실패 시 호출
-        print('--- Image loading failed using CachedNetworkImage ---');
-        print('Image URL: $url');
-        print('Error: $error');
-        print('--------------------------------------------------');
+        debugPrint('--- Image loading failed using CachedNetworkImage ---');
+        debugPrint('Image URL: $url');
+        debugPrint('Error: $error');
+        debugPrint('--------------------------------------------------');
 
         // 사용자에게 빈 박스와 에러 메시지 표시
         return Container(

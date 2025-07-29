@@ -685,12 +685,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                                       final file = io.File(path);
                         
                                       final exists = file.existsSync();
-                                      debugPrint('File at $path exists: $exists');
                         
                                       if (exists) return FileImage(file);
                                     } else if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
                                       // 네트워크 이미지 (GIF 포함) 처리
-                                      debugPrint('Network image detected: $imageUrl');
                                       return NetworkImage(imageUrl);
                                     }
                                     return null;
@@ -698,8 +696,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                                 ),
                                 videoEmbedConfig: QuillEditorVideoEmbedConfig(
                                   customVideoBuilder: (videoUrl, readOnly) {
-                                    debugPrint('customVideoBuilder called with URL: $videoUrl');
-
                                     final youtubeVideoIdFromUrl = YoutubePlayer.convertUrlToId(videoUrl); // **새로 추가된 부분**
 
                                     if (youtubeVideoIdFromUrl != null) {

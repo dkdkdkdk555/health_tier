@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
@@ -8,7 +9,9 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';
+import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class FeedDetailMain extends ConsumerWidget {
   final int feedId;
@@ -102,12 +105,22 @@ class FeedDetailMain extends ConsumerWidget {
                                           selection: const TextSelection.collapsed(offset: 0),
                                         ),
                                         config: quill.QuillEditorConfig(
+                                          showCursor: false,
                                           embedBuilders: [
-                                            // 직접 만든 CustomImageEmbedBuilder를 추가합니다.
-                                            CustomImageEmbedBuilder(),
-                                            // 다른 임베드(예: 비디오)가 필요하면, 여기에 해당 EmbedBuilder를 추가해야 합니다.
-                                            // 예를 들어, FlutterQuillEmbeds에서 비디오 빌더만 가져와야 한다면:
-                                            // ...FlutterQuillEmbeds.editorBuilders().where((builder) => builder.key == 'video'),
+                                            CustomImageEmbedBuilder(), // 이미지 렌더링
+                                            ...FlutterQuillEmbeds.editorBuilders(
+                                              videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                                                customVideoBuilder: (videoUrl, readOnly) {
+                                                  final youtubeVideoIdFromUrl = YoutubePlayer.convertUrlToId(videoUrl); // **새로 추가된 부분**
+
+                                                  if (youtubeVideoIdFromUrl != null) {
+                                                    return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
+                                                  }
+
+                                                  return QuillVideoPlayer(videoUrl: videoUrl,);
+                                                },
+                                              )
+                                            )
                                           ]
                                         ),
                                       ),
