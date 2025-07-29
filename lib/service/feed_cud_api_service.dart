@@ -4,6 +4,7 @@ import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
+import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 
 class FeedCudService {
   final Dio dio;
@@ -107,6 +108,27 @@ class FeedCudService {
     } on DioException catch (e) {
       // Dio 에러 발생 시 예외를 다시 던져 상위 계층에서 처리하도록 합니다.
       throw Exception('이미지 업로드 실패: ${e.response?.data ?? e.message}');
+    }
+  }
+
+  // 게시글 신고하기
+  Future<String> reportFeed(ReportRequestDto dto) async {
+    try {
+      final response = await dio.post(
+        FeedCudAPI.reportFeed,
+        data: dto.toJson(),
+      );
+      return response.data.toString(); // "신고가 접수되었습니다."
+    } on DioException catch (e) {
+      // 서버에서 보낸 메시지를 파싱
+      if (e.response?.statusCode == 409) {
+        final message = e.response?.data['message'] ?? '이미 신고된 게시글입니다.';
+        throw Exception(message);
+      } else {
+        throw Exception('신고 실패: ${e.response?.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('알 수 없는 오류: $e');
     }
   }
   

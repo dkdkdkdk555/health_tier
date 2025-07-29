@@ -15,7 +15,7 @@ class FeedAPI {
   static const search = '$base/search';
 
 }
-
+ 
 class FeedCudAPI {
   static const base = '/cud/cmu/feed';
 
@@ -23,6 +23,8 @@ class FeedCudAPI {
   static const createFeed = base; // POST
   static const updateFeed = base; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
+  
+  static const reportFeed = '/cud/report';
 }
 
 class UserAPI {
