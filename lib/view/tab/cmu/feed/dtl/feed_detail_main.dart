@@ -10,6 +10,7 @@ import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -40,27 +41,7 @@ class FeedDetailMain extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 375,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      creatorProfile(feed, context),
-                      const SizedBox(width: 10),
-                      creatorNickname(feed),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            FeedDetailProfileSection(userId:feed.userId),
             Container(
                 width: 375,
                 padding: const EdgeInsets.all(20),
@@ -346,72 +327,6 @@ class FeedDetailMain extends ConsumerWidget {
                 ),
             ],
         ),
-    );
-  }
-
-  Column creatorNickname(FeedDetailDto feed) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                feed.nickname,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
-                  height: 1.50,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget creatorProfile(FeedDetailDto feed, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CmuUsrProfile(userId: feed.userId),
-          ),
-        );
-    },
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-        ),
-        child: ClipOval(
-          child: (feed.imgPath.isEmpty)
-              ? SvgPicture.asset(
-                  'assets/widgets/default_user_profile.svg',
-                  fit: BoxFit.cover,
-                )
-              : Image.network(
-                  feed.imgPath,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return SvgPicture.asset(
-                      'assets/widgets/default_user_profile.svg',
-                      fit: BoxFit.cover,
-                    );
-                  },
-                ),
-        ),
-      ),
     );
   }
   
