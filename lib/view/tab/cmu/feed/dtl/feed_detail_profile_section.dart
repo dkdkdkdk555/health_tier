@@ -19,26 +19,27 @@ class FeedDetailProfileSection extends ConsumerWidget {
 
     return asyncUserInfo.when(
       data: (userInfo) {
+        final hasWeightBadge = userInfo.badges
+            .any((badge) => badge.badgeType == 'weight' && badge.badgeId.isNotEmpty);
+
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: hasWeightBadge ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             children: [
-              // userInfo를 _buildProfileImageStack에 전달
               _buildProfileImageStack(userInfo),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: hasWeightBadge ? MainAxisAlignment.start : MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // userInfo를 _buildWeightTag에 전달
                     _buildWeightTag(userInfo),
-                    const SizedBox(height: 1),
+                    if (hasWeightBadge) const SizedBox(height: 1),
                     Text(
                       userInfo.nickname,
                       style: const TextStyle(
@@ -61,10 +62,10 @@ class FeedDetailProfileSection extends ConsumerWidget {
     );
   }
 
+
   Widget _buildProfileImageStack(UserInfoResponseDto userInfo) {
-    // today 뱃지 ID 찾기
     final todayBadge = userInfo.badges
-        .firstWhere( // firstWhereOrNull 사용
+        .firstWhere(
           (badge) => badge.badgeType == 'today',
           orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
         );
@@ -74,20 +75,16 @@ class FeedDetailProfileSection extends ConsumerWidget {
       height: 44,
       child: Stack(
         children: [
-          // 바깥 원형 테두리 (today 뱃지가 있을 경우에만 표시)
-          if (todayBadge.badgeId != '')
+          if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
             Positioned.fill(
               child: SvgPicture.asset(
-                'assets/widgets/${todayBadge.badgeId}.svg', // todayBadgeId.svg
+                'assets/widgets/${todayBadge.badgeId}.svg',
                 fit: BoxFit.cover,
-                // SVG를 로드할 수 없을 경우를 대비한 errorBuilder (이 경우 아예 안 보이게 하거나, 기본 테두리 이미지 사용)
                 errorBuilder: (context, error, stackTrace) {
-                  // 뱃지 로드 실패 시 아무것도 보여주지 않음 (또는 다른 폴백 로직 추가)
                   return const SizedBox.shrink();
                 },
               ),
             ),
-          // 실제 프로필 이미지 (imgPath 유무에 따라 NetworkImage 또는 기본 SVG)
           Positioned(
             left: 2,
             top: 2,
@@ -103,7 +100,6 @@ class FeedDetailProfileSection extends ConsumerWidget {
                         userInfo.imgPath!,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          // 에러 발생 시 기본 SVG 프로필 이미지
                           return SvgPicture.asset(
                             'assets/widgets/default_user_profile.svg',
                             fit: BoxFit.cover,
@@ -122,28 +118,28 @@ class FeedDetailProfileSection extends ConsumerWidget {
     );
   }
 
-  // userInfo를 매개변수로 받도록 수정
   Widget _buildWeightTag(UserInfoResponseDto userInfo) {
-    // weight 뱃지 ID 찾기
-    final weightBadgeId = userInfo.badges
+    final weightBadge = userInfo.badges
         .firstWhere(
           (badge) => badge.badgeType == 'weight',
           orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
-        )
-        .badgeId;
+        );
 
-    if (weightBadgeId != '') {
-      return const SizedBox();
+    // badgeId가 비어있으면 뱃지를 표시하지 않음
+    if (weightBadge.badgeId.isEmpty) { // != '' 대신 .isEmpty 사용
+      return const SizedBox.shrink(); // 공간도 차지하지 않도록 SizedBox.shrink() 사용
     }
+
+    debugPrint(weightBadge.badgeId); // 디버그 프린트 유지
+    debugPrint('??'); // 디버그 프린트 유지
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0.2),
       child: SvgPicture.asset(
-        'assets/widgets/$weightBadgeId.svg', // weightBadgeId.svg
+        'assets/widgets/${weightBadge.badgeId}.svg',
         fit: BoxFit.cover,
-        // SVG를 로드할 수 없을 경우를 대비한 errorBuilder
         errorBuilder: (context, error, stackTrace) {
-          // 기본 weight400.svg를 대체 이미지로 사용
-          return const SizedBox();
+          return const SizedBox.shrink(); // 에러 시에도 공간 차지하지 않음
         },
       ),
     );
