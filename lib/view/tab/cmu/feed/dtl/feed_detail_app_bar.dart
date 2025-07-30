@@ -199,6 +199,9 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
     final feedWriterUserId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.userId));
     final bool isMyPost = _myUserId != null && _myUserId == feedWriterUserId;
 
+    final feedCategoryId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.categoryId));
+    final bool isCrtifiCategory = feedCategoryId == 2 ? true : feedCategoryId==3 ? true : false;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -212,6 +215,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
               mainAxisSize: MainAxisSize.min, // 내용물 크기에 맞게 높이 조절
               children: <Widget>[
                 if (isMyPost) // 내 게시글인 경우
+                  if(!isCrtifiCategory)
                   ListTile(
                     leading: const Icon(Icons.edit),
                     title: const Text('수정하기'),
