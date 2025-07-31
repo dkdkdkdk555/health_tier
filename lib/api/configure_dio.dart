@@ -29,7 +29,7 @@ class DIOConfig {
       receiveTimeout: const Duration(seconds: 6),
       contentType: contentType,
       headers: {
-        if (jwtToken != null) 'Authorization': 'Bearer $jwtToken',
+       'Authorization': 'Bearer ${jwtToken ?? ''}',
       },
     );
 
