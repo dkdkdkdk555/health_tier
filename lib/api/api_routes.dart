@@ -23,6 +23,8 @@ class FeedCudAPI {
   static const createFeed = base; // POST
   static const updateFeed = base; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
+
+  static const certificate = '$base/certificatte';
   
   static const reportFeed = '/cud/report';
 }

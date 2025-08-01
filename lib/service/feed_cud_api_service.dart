@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
+import 'package:my_app/model/cmu/feed/crtifi_accept_request_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
@@ -131,5 +132,29 @@ class FeedCudService {
       throw Exception('알 수 없는 오류: $e');
     }
   }
+
+  // 게시글 인증하기
+  Future<String> acceptCertification({
+    required CrtifiAcceptRequestDto dto,
+  }) async {
+    try {
+      final response = await dio.post(
+        FeedCudAPI.certificate,
+        data: dto.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data.toString(); // 예: "success"
+      } else {
+        throw Exception('인증 실패: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? '인증 요청 실패';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('알 수 없는 에러: $e');
+    }
+  }
+
   
 }
