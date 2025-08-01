@@ -24,9 +24,20 @@ final dioProvider = Provider<Dio>((ref){
   return DIOConfig().createNoneAuthDio();
 });
 
+// Dio 프로바이더를 전역으로 관리
+final dioAuthProvider = FutureProvider<Dio>((ref){
+  return DIOConfig().createAuthDio();
+});
+
 // 서비스 객체 의존성 주입 받아 사용
 final feedService = Provider<FeedService>((ref) {
   final dio = ref.watch(dioProvider);
+  return FeedService(dio);
+});
+
+// 서비스 객체 의존성 주입 받아 사용
+final feedService_auth = FutureProvider<FeedService>((ref) async{
+  final dio = await ref.watch(dioAuthProvider.future);
   return FeedService(dio);
 });
 
@@ -47,7 +58,7 @@ final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
 
 // 피드 상세 조회 프로바이더
 final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
-  final service = ref.watch(feedService);
+  final service = await ref.watch(feedService_auth.future);
   return await service.getFeedDetail(feedId);
 });
 

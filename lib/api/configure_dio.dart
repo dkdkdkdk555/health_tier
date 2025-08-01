@@ -18,7 +18,7 @@ class DIOConfig {
     return dio;
   }
 
-  Future<Dio> createAuthDio(String contentType) async {
+  Future<Dio> createAuthDio() async {
     final dio = Dio();
     final prefs = await SharedPreferences.getInstance();
     final jwtToken = prefs.getString('jwt_token');
@@ -27,7 +27,7 @@ class DIOConfig {
       baseUrl: APIServer.baseUrl,
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 6),
-      contentType: contentType,
+      contentType: 'application/json',
       headers: {
        'Authorization': 'Bearer ${jwtToken ?? ''}',
       },

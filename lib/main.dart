@@ -3,6 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
@@ -14,6 +15,8 @@ import 'package:intl/date_symbol_data_local.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko');
+
+  await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
 
   // 테스트 데이터 삽입 시만 사용
   // final db = AppDatabase();

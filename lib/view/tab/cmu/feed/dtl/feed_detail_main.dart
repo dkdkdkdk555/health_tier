@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/feed_like_and_certifi_section.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
@@ -38,118 +39,136 @@ class FeedDetailMain extends ConsumerWidget {
           }
          );
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return Stack(
           children: [
-            FeedDetailProfileSection(userId:feed.userId),
-            Container(
-                width: 375,
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 40,
-                    children: [
-                        SizedBox(
-                            child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 24,
-                                children: [
-                                    SizedBox(
-                                        child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            spacing: 8,
-                                            children: [
-                                                feedCategory(feed),
-                                                feedTitle(feed),
-                                                feedMetaData(feed),
-                                            ],
+              Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FeedDetailProfileSection(userId:feed.userId),
+                Container(
+                    width: 375,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 40,
+                        children: [
+                            SizedBox(
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    spacing: 24,
+                                    children: [
+                                        SizedBox(
+                                            child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                spacing: 8,
+                                                children: [
+                                                    feedCategory(feed),
+                                                    feedTitle(feed),
+                                                    feedMetaData(feed),
+                                                ],
+                                            ),
                                         ),
-                                    ),
-                                    SizedBox(
-                                      width: 335,
-                                      child: quill.QuillEditor.basic(
-                                        controller: quill.QuillController(
-                                          readOnly: true,
-                                          document: quill.Document.fromJson(
-                                            feed.ctnt.isNotEmpty
-                                                ? List<Map<String, dynamic>>.from(jsonDecode(feed.ctnt) as List)
-                                                : [
-                                                    {"insert": "\n"}
-                                                  ],
+                                        SizedBox(
+                                          width: 335,
+                                          child: quill.QuillEditor.basic(
+                                            controller: quill.QuillController(
+                                              readOnly: true,
+                                              document: quill.Document.fromJson(
+                                                feed.ctnt.isNotEmpty
+                                                    ? List<Map<String, dynamic>>.from(jsonDecode(feed.ctnt) as List)
+                                                    : [
+                                                        {"insert": "\n"}
+                                                      ],
+                                              ),
+                                              selection: const TextSelection.collapsed(offset: 0),
+                                            ),
+                                            config: quill.QuillEditorConfig(
+                                              showCursor: false,
+                                              embedBuilders: [
+                                                CustomImageEmbedBuilder(), // 이미지 렌더링
+                                                ...FlutterQuillEmbeds.editorBuilders(
+                                                  videoEmbedConfig: QuillEditorVideoEmbedConfig(
+                                                    customVideoBuilder: (videoUrl, readOnly) {
+                                                      final youtubeVideoIdFromUrl = YoutubePlayer.convertUrlToId(videoUrl); // **새로 추가된 부분**
+            
+                                                      if (youtubeVideoIdFromUrl != null) {
+                                                        return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
+                                                      }
+            
+                                                      return QuillVideoPlayer(videoUrl: videoUrl,);
+                                                    },
+                                                  )
+                                                )
+                                              ]
+                                            ),
                                           ),
-                                          selection: const TextSelection.collapsed(offset: 0),
-                                        ),
-                                        config: quill.QuillEditorConfig(
-                                          showCursor: false,
-                                          embedBuilders: [
-                                            CustomImageEmbedBuilder(), // 이미지 렌더링
-                                            ...FlutterQuillEmbeds.editorBuilders(
-                                              videoEmbedConfig: QuillEditorVideoEmbedConfig(
-                                                customVideoBuilder: (videoUrl, readOnly) {
-                                                  final youtubeVideoIdFromUrl = YoutubePlayer.convertUrlToId(videoUrl); // **새로 추가된 부분**
-
-                                                  if (youtubeVideoIdFromUrl != null) {
-                                                    return QuillVideoPlayer(youtubeVideoId: youtubeVideoIdFromUrl); // **수정된 부분**
-                                                  }
-
-                                                  return QuillVideoPlayer(videoUrl: videoUrl,);
-                                                },
-                                              )
-                                            )
-                                          ]
-                                        ),
-                                      ),
-                                    )
-                                ],
+                                        )
+                                    ],
+                                ),
                             ),
-                        ),
-                        likeWidget(feed),
-                    ],
+                            FeedLikeAndCertifiSection(feed: feed),
+                        ],
+                    ),
                 ),
-            ),
-            Container( // 구분선
-              height: 8,
-              decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
-            ),
-            Container(
-                height: 53,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 4,
-                    children: [
-                        const Text(
-                            '댓글',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w500,
-                                height: 1.50,
-                            ),
-                        ),
-                        Text(
-                            '${feed.replyCount}',
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w400,
-                                height: 1.50,
-                            ),
-                        ),
-                    ],
+                Container( // 구분선
+                  height: 8,
+                  decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
                 ),
-            )
-          ],
+                Container(
+                    height: 53,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 4,
+                        children: [
+                            const Text(
+                                '댓글',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w500,
+                                    height: 1.50,
+                                ),
+                            ),
+                            Text(
+                                '${feed.replyCount}',
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.50,
+                                ),
+                            ),
+                        ],
+                    ),
+                )
+              ],
+            ),
+            // 인증게시글의 경우 인증상태라면 인증벳지 보여주기
+            if(feed.crtifiId != 0 && feed.crtifiYn == 'Y')...{
+              Positioned(
+                top: 0,
+                right: 18,
+                child: SizedBox(
+                  width: 82,
+                  height: 82,
+                  child: Image.asset(
+                    'assets/widgets/feed_certifi_${feed.crtifiWho}.png'
+                  ),
+                )
+              )
+            }
+          ]
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -331,3 +350,4 @@ class FeedDetailMain extends ConsumerWidget {
   }
   
 }
+

@@ -9,7 +9,7 @@ import 'package:my_app/service/feed_cud_api_service.dart';
 
 // 토큰 정보를 헤더에 둔 요청객체
 final authDioProvider = FutureProvider<Dio>((ref){
-  return DIOConfig().createAuthDio('application/json');
+  return DIOConfig().createAuthDio();
 });
 
 // FeedCudService도 FutureProvider로 변경 (가장 권장되는 방식)

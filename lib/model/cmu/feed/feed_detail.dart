@@ -1,3 +1,6 @@
+import 'package:my_app/model/cmu/feed/certifi_user_dto.dart';
+import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
+
 class FeedDetailDto {
   final int id;
   final int categoryId;
@@ -13,6 +16,11 @@ class FeedDetailDto {
   final int views;
   final String displayDttm;
   final int replyCount;
+  String? crtifiYn;
+  String? crtifiWho;
+  int? crtifiId;
+  List<UserWeightCrtifiDto>? weightCertifications;
+  List<CertifiUserDto>? certifiedUsers;
 
   FeedDetailDto({
     required this.id,
@@ -29,6 +37,11 @@ class FeedDetailDto {
     required this.views,
     required this.displayDttm,
     required this.replyCount,
+    this.crtifiYn,
+    this.crtifiWho,
+    this.crtifiId,
+    this.weightCertifications,
+    this.certifiedUsers,
   });
 
   factory FeedDetailDto.fromJson(Map<String, dynamic> json) {
@@ -47,6 +60,15 @@ class FeedDetailDto {
       views: json['views'] as int? ?? 0,
       displayDttm: json['displayDttm'] as String? ?? '',
       replyCount: json['replyCount'] as int? ?? 0,
+      crtifiYn: json['crtifiYn'] as String? ?? '',
+      crtifiWho: json['crtifiWho'] as String? ?? '',
+      crtifiId: json['crtifiId'] as int? ?? 0,
+      weightCertifications: (json['weightCertifications'] as List<dynamic>?)
+          ?.map((e) => UserWeightCrtifiDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      certifiedUsers: (json['certifiedUsers'] as List<dynamic>?)
+          ?.map((e) => CertifiUserDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
