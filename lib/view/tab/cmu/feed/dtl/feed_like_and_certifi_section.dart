@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/certifi_user_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/util/user_prefs.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
   const FeedLikeAndCertifiSection({
@@ -19,13 +18,13 @@ class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
 }
 
 class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndCertifiSection> {
-  int _myUserId = UserPrefs.myUserId ?? 16;
+  final int _myUserId = UserPrefs.myUserId ?? 16;
 
   // 로그인 이용자가 인증눌렀는지 여부 
   bool _isMyUserCertified = false;
   // 인증버튼 활성상태 여부
   bool _isCrtifiBtnActive = false;
-  late int certifiUserNum;
+  int certifiUserNum = 0;
 
   @override
   void initState() {
@@ -33,13 +32,13 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
     if(widget.feed.crtifiId !=0) {
       _checkIfMyUserIsCertified();
        _isCrtifiBtnActive = widget.feed.crtifiYn != 'Y';
-       certifiUserNum = widget.feed.certifiedUsers?.length ?? 0;
+       certifiUserNum = widget.feed.crtifiUsers?.length ?? 0;
     }
   }
 
    void _checkIfMyUserIsCertified() {
-    if (widget.feed.certifiedUsers != null) {
-      _isMyUserCertified = widget.feed.certifiedUsers!.any(
+    if (widget.feed.crtifiUsers != null) {
+      _isMyUserCertified = widget.feed.crtifiUsers!.any(
         (certifiUser) => certifiUser.userId == _myUserId,
       );
     } else {
@@ -51,9 +50,9 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
   Widget build(BuildContext context) {
     List<Widget> certifiedUserAvatars = [];
     if(certifiUserNum > 0 && widget.feed.crtifiId != 0) {  
-      certifiedUserAvatars = makeCertifiedUserProfileList(widget.feed.certifiedUsers!);
+      certifiedUserAvatars = makeCertifiedUserProfileList(widget.feed.crtifiUsers!);
     }
-    return Container(
+    return SizedBox(
         width: double.infinity,
         child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -74,7 +73,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                                 shape: RoundedRectangleBorder(
                                     side: const BorderSide(
                                         width: 1,
-                                        color: const Color(0xFFDDDDDD),
+                                        color: Color(0xFFDDDDDD),
                                     ),
                                     borderRadius: BorderRadius.circular(99),
                                 ),
@@ -104,7 +103,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                                             const Text(
                                                 '좋아요',
                                                 style: TextStyle(
-                                                    color: const Color(0xFF333333),
+                                                    color: Color(0xFF333333),
                                                     fontSize: 12,
                                                     fontFamily: 'Pretendard',
                                                     fontWeight: FontWeight.w400,
@@ -123,8 +122,8 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                                   color:  _isMyUserCertified ? const Color(0xFFFFE6D7) : _isCrtifiBtnActive ?Colors.white : const Color(0x33333333),
                                   shape: RoundedRectangleBorder(
                                       side: BorderSide(
-                                        width: _isMyUserCertified ? 1 : 0,
-                                        color: const Color(0xFFDDDDDD),
+                                        width: _isMyUserCertified ? 0 : 1,
+                                        color: _isMyUserCertified ? const Color(0xFFFFE6D7) : const Color(0xFFDDDDDD),
                                       ),
                                       borderRadius: BorderRadius.circular(99),
                                   ),
@@ -172,7 +171,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                           ),
                     ],
                 ),
-                Container(
+                SizedBox(
                     width: double.infinity,
                     child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -180,17 +179,11 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                         crossAxisAlignment: CrossAxisAlignment.center,
                         spacing: 4,
                         children: [
-                            SizedBox(
-                              width: 10.0 * (certifiedUserAvatars.length - 1 < 0 ? 0 : certifiedUserAvatars.length - 1) + 16, // 겹치는 offset + 마지막 아바타 너비
-                              height: 16,
-                              child: Stack(
-                                children: certifiedUserAvatars.reversed.toList(), // Stack은 마지막에 추가된 위젯이 맨 위에 그려지므로 reversed
-                              ),
-                            ),
+                            
                             Text(
                                 '${widget.feed.likeCnt}명이 좋아합니다',
-                                style: TextStyle(
-                                    color: const Color(0xFF333333),
+                                style: const TextStyle(
+                                    color: Color(0xFF333333),
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w400,
@@ -198,20 +191,27 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                                 ),
                             ),
                             if(widget.feed.crtifiId != 0 && certifiUserNum > 0)...[
-                              Text(
+                              const Text(
                                   '·',
                                   style: TextStyle(
-                                      color: const Color(0xFF333333),
+                                      color: Color(0xFF333333),
                                       fontSize: 14,
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w400,
                                       height: 1.50,
                                   ),
                               ),
+                              SizedBox(
+                                width: 10.0 * (certifiedUserAvatars.length - 1 < 0 ? 0 : certifiedUserAvatars.length - 1) + 16, // 겹치는 offset + 마지막 아바타 너비
+                                height: 16,
+                                child: Stack(
+                                  children: certifiedUserAvatars.reversed.toList(), // Stack은 마지막에 추가된 위젯이 맨 위에 그려지므로 reversed
+                                ),
+                              ),
                               Text(
-                                  certifiUserNum!=0 ? '${certifiUserNum}명이 인증합니다' : '',
-                                  style: TextStyle(
-                                      color: const Color(0xFF333333),
+                                  certifiUserNum!=0 ? '$certifiUserNum명이 인증합니다' : '',
+                                  style: const TextStyle(
+                                      color: Color(0xFF333333),
                                       fontSize: 14,
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w400,
@@ -231,7 +231,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
   List<Widget> makeCertifiedUserProfileList(List<CertifiUserDto> crtifiUsers){
     // certifiedUsers를 기반으로 Positioned 위젯 리스트 생성
     List<Widget> certifiedUserAvatars = [];
-    if (crtifiUsers!.isNotEmpty) {
+    if (crtifiUsers.isNotEmpty) {
       // 최대 3개까지만 표시하도록 제한 (원하는 개수로 조절 가능)
       final displayCount = certifiUserNum > 5 ? 5 : certifiUserNum;
 
@@ -242,9 +242,9 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         
         // ImageProvider를 동적으로 결정 (네트워크 이미지 vs. SVG asset)
         Widget userImageWidget;
-        if (user.imgPath.startsWith('http')) { // URL인 경우
+        if (user.imgPath!.startsWith('http')) { // URL인 경우
           userImageWidget = Image.network(
-            user.imgPath,
+            user.imgPath!,
             width: 16,
             height: 16,
             fit: BoxFit.cover,
@@ -279,9 +279,9 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                     color: Colors.white,
                   ),
                 ),
-                image: user.imgPath.startsWith('http')
+                image: user.imgPath!.startsWith('http')
                     ? DecorationImage( // 네트워크 이미지일 경우
-                        image: NetworkImage(user.imgPath),
+                        image: NetworkImage(user.imgPath!),
                         fit: BoxFit.cover,
                         onError: (exception, stackTrace) {
                            debugPrint('Error loading image: ${user.imgPath}');
@@ -289,7 +289,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                       )
                     : null, // SVG 또는 기타 asset은 Container의 child로 처리
               ),
-              child: user.imgPath.startsWith('http') ? null : userImageWidget, // 네트워크 이미지가 아니면 child로 설정
+              child: user.imgPath!.startsWith('http') ? null : userImageWidget, // 네트워크 이미지가 아니면 child로 설정
             ),
           ),
         );

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,6 +23,8 @@ class DIOConfig {
     final dio = Dio();
     final prefs = await SharedPreferences.getInstance();
     final jwtToken = prefs.getString('jwt_token');
+
+    debugPrint(jwtToken);
 
     dio.options = BaseOptions(
       baseUrl: APIServer.baseUrl,

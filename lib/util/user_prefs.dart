@@ -13,7 +13,7 @@ class UserPrefs {
       return; // 이미 로드되었다면 다시 로드할 필요 없음
     }
     final prefs = await SharedPreferences.getInstance();
-    _myUserId = prefs.getInt('myUserId') ?? 16; //✅임시userId
+    _myUserId = prefs.getInt('myUserId') ?? 30; //✅임시userId
     _isInitialized = true;
     debugPrint('Loaded myUserId from SharedPreferences: $_myUserId');
   }

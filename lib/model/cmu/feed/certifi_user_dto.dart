@@ -1,7 +1,7 @@
 class CertifiUserDto {
   final int userId;
   final String nickname;
-  final String imgPath;
+  final String? imgPath;
 
   CertifiUserDto({
     required this.userId,
@@ -13,7 +13,7 @@ class CertifiUserDto {
     return CertifiUserDto(
       userId: json['userId'] as int,
       nickname: json['nickname'] as String,
-      imgPath: json['imgPath'] as String,
+      imgPath: json['imgPath'] as String? ?? '',
     );
   }
 

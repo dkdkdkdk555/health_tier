@@ -19,8 +19,8 @@ class FeedDetailDto {
   String? crtifiYn;
   String? crtifiWho;
   int? crtifiId;
-  List<UserWeightCrtifiDto>? weightCertifications;
-  List<CertifiUserDto>? certifiedUsers;
+  List<UserWeightCrtifiDto>? userWeights;
+  List<CertifiUserDto>? crtifiUsers;
 
   FeedDetailDto({
     required this.id,
@@ -40,8 +40,8 @@ class FeedDetailDto {
     this.crtifiYn,
     this.crtifiWho,
     this.crtifiId,
-    this.weightCertifications,
-    this.certifiedUsers,
+    this.userWeights,
+    this.crtifiUsers,
   });
 
   factory FeedDetailDto.fromJson(Map<String, dynamic> json) {
@@ -55,18 +55,18 @@ class FeedDetailDto {
       nickname: json['nickname'] as String? ?? '',
       imgPath: json['imgPath'] as String? ?? '',
       likeCnt: json['likeCnt'] as int? ?? 0,
-      isLiked: json['isLiked'] as bool? ?? false,
-      isReportedForMe: json['isReportedForMe'] as bool? ?? false,
+      isLiked: json['liked'] as bool? ?? false,
+      isReportedForMe: json['reportedForMe'] as bool? ?? false,
       views: json['views'] as int? ?? 0,
       displayDttm: json['displayDttm'] as String? ?? '',
       replyCount: json['replyCount'] as int? ?? 0,
       crtifiYn: json['crtifiYn'] as String? ?? '',
       crtifiWho: json['crtifiWho'] as String? ?? '',
       crtifiId: json['crtifiId'] as int? ?? 0,
-      weightCertifications: (json['weightCertifications'] as List<dynamic>?)
+      userWeights: (json['userWeights'] as List<dynamic>?)
           ?.map((e) => UserWeightCrtifiDto.fromJson(e as Map<String, dynamic>))
           .toList(),
-      certifiedUsers: (json['certifiedUsers'] as List<dynamic>?)
+      crtifiUsers: (json['crtifiUsers'] as List<dynamic>?)
           ?.map((e) => CertifiUserDto.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

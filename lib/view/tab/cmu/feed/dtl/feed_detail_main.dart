@@ -163,7 +163,7 @@ class FeedDetailMain extends ConsumerWidget {
                   width: 82,
                   height: 82,
                   child: Image.asset(
-                    'assets/widgets/feed_certifi_${feed.crtifiWho}.png'
+                    'assets/widgets/feed_certifi_${feed.crtifiWho!.toLowerCase()}.png'
                   ),
                 )
               )
