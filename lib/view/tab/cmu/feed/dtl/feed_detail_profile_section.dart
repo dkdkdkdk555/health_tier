@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
-import 'package:my_app/providers/feed_providers.dart'; // feed_providers.dart 경로 확인
+import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart'; // feed_providers.dart 경로 확인
 
 class FeedDetailProfileSection extends ConsumerWidget {
   const FeedDetailProfileSection({
@@ -30,7 +31,7 @@ class FeedDetailProfileSection extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: hasWeightBadge ? CrossAxisAlignment.start : CrossAxisAlignment.center,
             children: [
-              _buildProfileImageStack(userInfo),
+              _buildProfileImageStack(userInfo, context),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -63,57 +64,67 @@ class FeedDetailProfileSection extends ConsumerWidget {
   }
 
 
-  Widget _buildProfileImageStack(UserInfoResponseDto userInfo) {
+  Widget _buildProfileImageStack(UserInfoResponseDto userInfo, BuildContext context) {
     final todayBadge = userInfo.badges
         .firstWhere(
           (badge) => badge.badgeType == 'today',
           orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
         );
 
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Stack(
-        children: [
-          if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
-            Positioned.fill(
-              child: SvgPicture.asset(
-                'assets/widgets/${todayBadge.badgeId}.svg',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          Positioned(
-            left: 2,
-            top: 2,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: (userInfo.imgPath != null && userInfo.imgPath!.isNotEmpty)
-                    ? Image.network(
-                        userInfo.imgPath!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return SvgPicture.asset(
-                            'assets/widgets/default_user_profile.svg',
-                            fit: BoxFit.cover,
-                          );
-                        },
-                      )
-                    : SvgPicture.asset(
-                        'assets/widgets/default_user_profile.svg',
-                        fit: BoxFit.cover,
-                      ),
-              ),
-            ),
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CmuUsrProfile(userId: userId),
           ),
-        ],
+        );
+      },
+      child: SizedBox(
+        width: 44,
+        height: 44,
+        child: Stack(
+          children: [
+            if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
+              Positioned.fill(
+                child: SvgPicture.asset(
+                  'assets/widgets/${todayBadge.badgeId}.svg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            Positioned(
+              left: 2,
+              top: 2,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: (userInfo.imgPath != null && userInfo.imgPath!.isNotEmpty)
+                      ? Image.network(
+                          userInfo.imgPath!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return SvgPicture.asset(
+                              'assets/widgets/default_user_profile.svg',
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
+                      : SvgPicture.asset(
+                          'assets/widgets/default_user_profile.svg',
+                          fit: BoxFit.cover,
+                        ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

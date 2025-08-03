@@ -1,3 +1,5 @@
+import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+
 class ReplyResponseDto {
   final int id;
   final int userId;
@@ -10,6 +12,7 @@ class ReplyResponseDto {
   final bool isLiked;
   final int? parentReplyId;
   final List<ReplyResponseDto> children;
+  final List<BadgeInfoDto>? badges;
 
   ReplyResponseDto({
     required this.id,
@@ -23,6 +26,7 @@ class ReplyResponseDto {
     required this.isLiked,
     required this.parentReplyId,
     required this.children,
+    this.badges,
   });
 
   factory ReplyResponseDto.fromJson(Map<String, dynamic> json) {
@@ -39,6 +43,9 @@ class ReplyResponseDto {
       parentReplyId: json['parentReplyId'] as int?,
       children: (json['children'] as List<dynamic>? ?? [])
           .map((e) => ReplyResponseDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      badges: (json['badges'] as List<dynamic>)
+          .map((e) => BadgeInfoDto.fromJson(e))
           .toList(),
     );
   }
