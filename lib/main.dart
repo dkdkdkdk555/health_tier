@@ -16,6 +16,7 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko');
 
+  await UserPrefs.cleanExpiredPostViewCache();
   await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
 
   // 테스트 데이터 삽입 시만 사용
