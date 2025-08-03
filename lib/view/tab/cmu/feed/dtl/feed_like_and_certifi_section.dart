@@ -29,6 +29,9 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
 
   // 버튼이 눌리고 있는지를 나타내는 상태
   bool _isCertifyButtonPressedState = false; 
+  // 좋아요 버튼이 눌리고 있는지를 나타내는 상태
+  final bool _isLikeButtonPressedState = false;
+
 
   @override
   void initState() {
@@ -110,7 +113,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
     try {
       final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
       await feedCudService!.acceptCertification(
-        dto: CrtifiAcceptRequestDto(
+        dto: LikeAndCrtifiRequestDto(
           userId: _myUserId,
           feedId: widget.feed.id,
           feedWriterUserId: widget.feed.userId
@@ -125,6 +128,57 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('인증 실패: ${e.toString()}')),
       );
+    }
+  }
+
+  // 좋아요 버튼 클릭 핸들러 (새로 추가)
+  Future<void> _onLikeButtonPressed() async {
+    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
+    if (_myUserId == null || _myUserId == 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그인이 필요합니다.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return; // 함수 실행 중단
+    }
+
+    final feedCudService = ref.read(feedCudServiceProvider).value;
+    if (feedCudService == null) return;
+
+    try {
+      if (widget.feed.isLiked == false) {
+        // 좋아요가 아닌 상태에서 누르면 좋아요 요청
+        await feedCudService.likeFeed(
+          LikeAndCrtifiRequestDto(
+            userId: _myUserId,
+            feedId: widget.feed.id,
+            feedWriterUserId: widget.feed.userId,
+          ),
+        );
+      } else if (widget.feed.isLiked == true) {
+        // 좋아요 상태에서 누르면 좋아요 취소 요청
+        await feedCudService.cancelFeedLike(
+          LikeAndCrtifiRequestDto(
+            userId: _myUserId,
+            feedId: widget.feed.id,
+            feedWriterUserId: widget.feed.userId,
+          ),
+        );
+      }
+      
+      // 성공적으로 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+      ref.invalidate(feedDetailProvider(widget.feed.id));
+
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('좋아요 처리 실패: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -155,6 +209,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                 borderColor: const Color(0xFFDDDDDD),
                 textColor: const Color(0xFF333333),
                 iconColor: null,
+                onTap: _onLikeButtonPressed, 
               ),
               if (widget.feed.crtifiId != 0 && widget.feed.crtifiYn != '')
                 Padding(

@@ -25,7 +25,8 @@ class FeedCudAPI {
   static const getFeedWhenUpate = '$base/'; // GET
 
   static const certificate = '$base/certificate';
-  static const like = '$base/like';
+  static const like = '$base/like'; // post
+  static const cancelLike = '$base/like'; // delete
   
   static const reportFeed = '/cud/report';
 }
