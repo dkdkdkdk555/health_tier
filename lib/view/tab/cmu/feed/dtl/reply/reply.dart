@@ -20,6 +20,9 @@ class Reply extends StatelessWidget {
     return Container(
       width: 375,
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: reply.likeCnt >=5 ? const Color(0xFFFFF4E9) : Colors.white,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
