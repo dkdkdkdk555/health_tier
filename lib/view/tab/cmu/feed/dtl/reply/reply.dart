@@ -15,6 +15,11 @@ class Reply extends StatelessWidget {
     required this.isChild,
   });
 
+  void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -80,14 +85,12 @@ class Reply extends StatelessWidget {
                     }
                   ),
                   const Spacer(),
-                  Text(
-                    reply.displayDttm,
-                    style: const TextStyle(
-                      color: Color(0xFFAAAAAA),
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      height: 1.50,
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: SvgPicture.asset(
+                      'assets/widgets/replyHambuger.svg',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ],
@@ -110,49 +113,55 @@ class Reply extends StatelessWidget {
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 12,
+                spacing: 2,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 2,
-                    children: [
-                      SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: SvgPicture.asset(
-                          'assets/icons/like.svg',
-                          width: 16,
-                          height: 16,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Text(
-                        '${reply.likeCnt}',
-                        style: const TextStyle(
-                          color: Color(0xFF777777),
-                          fontSize: 12,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w500,
-                          height: 1.50,
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: SvgPicture.asset(
+                      'assets/icons/like.svg',
+                      width: 16,
+                      height: 16,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  const Text(
-                    '답글 쓰기',
-                    style: TextStyle(
-                      color: Colors.black,
+                  Text(
+                    '${reply.likeCnt}',
+                    style: const TextStyle(
+                      color: Color(0xFF777777),
                       fontSize: 12,
                       fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       height: 1.50,
                     ),
                   ),
                 ],
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left:12.0),
+                child: Text(
+                  '답글 쓰기',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w700,
+                    height: 1.50,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                reply.displayDttm,
+                style: const TextStyle(
+                  color: Color(0xFFAAAAAA),
+                  fontSize: 12,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w400,
+                  height: 1.50,
+                ),
               ),
             ],
           ),
