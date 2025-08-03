@@ -135,7 +135,7 @@ class FeedCudService {
 
   // 게시글 인증하기
   Future<String> acceptCertification({
-    required CrtifiAcceptRequestDto dto,
+    required LikeAndCrtifiRequestDto dto,
   }) async {
     try {
       final response = await dio.post(
@@ -156,5 +156,24 @@ class FeedCudService {
     }
   }
 
-  
+  // 좋아요 요청
+  Future<String> likeFeed(LikeAndCrtifiRequestDto dto) async {
+    try {
+      final response = await dio.post(
+        FeedCudAPI.like, // 좋아요 API 엔드포인트
+        data: dto.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
+      } else {
+        throw Exception('좋아요 실패: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? '좋아요 요청 실패';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('알 수 없는 좋아요 에러: $e');
+    }
+  }
 }

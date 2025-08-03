@@ -6,6 +6,7 @@ import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_auth_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // SharedPreferences 임포트
 
@@ -35,12 +36,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
 
   // SharedPreferences에서 현재 로그인한 사용자 ID를 로드하는 함수
   Future<void> _loadMyUserId() async {
-    // final prefs = await SharedPreferences.getInstance();
-    // setState(() {
-    //   _myUserId = prefs.getInt('myUserId'); // 'myUserId' 키로 저장된 사용자 ID 가져오기
-    //   debugPrint('Loaded myUserId from SharedPreferences: $_myUserId');
-    // });
-    _myUserId = 30;
+    _myUserId = UserPrefs.myUserId;
   }
 
    void _showReportDialog(FeedCudService? feedCudServiceInstance) {

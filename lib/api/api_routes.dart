@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.25:8080';
+  static const baseUrl = 'http://192.168.0.23:8080';
 }
 
 class FeedAPI {
@@ -24,7 +24,8 @@ class FeedCudAPI {
   static const updateFeed = base; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
 
-  static const certificate = '$base/certificatte';
+  static const certificate = '$base/certificate';
+  static const like = '$base/like';
   
   static const reportFeed = '/cud/report';
 }

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/certifi_user_dto.dart';
+import 'package:my_app/model/cmu/feed/crtifi_accept_request_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
+import 'package:my_app/providers/feed_auth_providers.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/user_prefs.dart';
 
 class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
@@ -18,17 +21,31 @@ class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
 }
 
 class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndCertifiSection> {
-  final int _myUserId = UserPrefs.myUserId ?? 16;
+  final int? _myUserId = UserPrefs.myUserId;
 
   bool _isMyUserCertified = false;
   bool _isCertifiBtnActive = false;
   int _certifiUserNum = 0;
 
-  Offset? tapPosition;
+  // 버튼이 눌리고 있는지를 나타내는 상태
+  bool _isCertifyButtonPressedState = false; 
 
   @override
   void initState() {
     super.initState();
+    _updateCertifiState();
+  }
+
+  // feed가 업데이트될 때마다 상태를 동기화하기 위해 didUpdateWidget 오버라이드
+  @override
+  void didUpdateWidget(covariant FeedLikeAndCertifiSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.feed != oldWidget.feed) {
+      _updateCertifiState();
+    }
+  }
+
+  void _updateCertifiState() {
     if (widget.feed.crtifiId != 0) {
       _checkIfMyUserIsCertified();
       _isCertifiBtnActive = widget.feed.crtifiYn != 'Y';
@@ -42,6 +59,75 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         ) ??
         false;
   }
+
+  // 인증 버튼 클릭 핸들러
+  Future<void> _onCertifyButtonPressed() async {
+    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
+    if (_myUserId == null || _myUserId == 0) {
+      if (context.mounted) { // context가 마운트된 상태인지 확인
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그인이 필요합니다.'),
+            behavior: SnackBarBehavior.floating, // 원하는 경우 floating으로 설정
+          ),
+        );
+      }
+      return; // 함수 실행 중단
+    }
+
+    if (!_isCertifiBtnActive || _isMyUserCertified) {
+      return;
+    }
+
+    final bool confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          content: const Text('인증 처리는 취소가 불가능합니다.\n계속 진행하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('취소'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false); // 취소 버튼 클릭 시 false 반환
+              },
+            ),
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true); // 확인 버튼 클릭 시 true 반환
+              },
+            ),
+          ],
+        );
+      },
+    ) ?? false; // dialog가 닫히면서 null이 반환될 경우를 대비해 기본값 false 설정
+
+    // 사용자가 '확인'을 누르지 않았다면 함수 실행 중단
+    if (!confirm) {
+      return;
+    }
+
+    try {
+      final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
+      await feedCudService!.acceptCertification(
+        dto: CrtifiAcceptRequestDto(
+          userId: _myUserId,
+          feedId: widget.feed.id,
+          feedWriterUserId: widget.feed.userId
+        ),
+      );
+      
+      // 성공적으로 인증 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+      ref.invalidate(feedDetailProvider(widget.feed.id));
+
+    } catch (e) {
+      // 에러 처리: 사용자에게 메시지를 보여주거나 로깅
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('인증 실패: ${e.toString()}')),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +162,32 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
                   child: _buildActionButton(
                     iconPath: 'assets/icons/check.svg',
                     text: '인증합니다',
-                    backgroundColor: _isMyUserCertified ? const Color(0xFFFFE6D7) : (_isCertifiBtnActive ? Colors.white : const Color(0x33333333)),
+                    backgroundColor: _isMyUserCertified ? const Color(0xFFFFE6D7) : (_isCertifyButtonPressedState ? const Color(0xFFE0E0E0) : (_isCertifiBtnActive ? Colors.white : const Color(0x33333333))),
                     borderColor: _isMyUserCertified ? const Color(0xFFFFE6D7) : const Color(0xFFDDDDDD),
-                    textColor: _isMyUserCertified ? const Color(0xFFE56413) : const Color(0xFF333333),
-                    iconColor: _isMyUserCertified ? const Color(0xFFE56413) : const Color(0xFF777777),
+                    textColor: _isMyUserCertified ? const Color(0xFFE56413) : (_isCertifiBtnActive ? const Color(0xFF333333) : const Color(0xFF666666)),
+                    iconColor: _isMyUserCertified ? const Color(0xFFE56413) : (_isCertifiBtnActive ? const Color(0xFF777777) : const Color(0xFF666666)),
+                    onTap: _onCertifyButtonPressed, 
+                    onTapDown: (details) {
+                      if (_isCertifiBtnActive && !_isMyUserCertified) {
+                        setState(() {
+                          _isCertifyButtonPressedState = true;
+                        });
+                      }
+                    },
+                    onTapUp: (details) {
+                      if (_isCertifiBtnActive && !_isMyUserCertified) {
+                        setState(() {
+                          _isCertifyButtonPressedState = false;
+                        });
+                      }
+                    },
+                    onTapCancel: () {
+                      if (_isCertifiBtnActive && !_isMyUserCertified) {
+                        setState(() {
+                          _isCertifyButtonPressedState = false;
+                        });
+                      }
+                    },
                   ),
                 ),
             ],
@@ -143,47 +251,57 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
     required Color borderColor,
     required Color textColor,
     Color? iconColor,
+    VoidCallback? onTap,
+    GestureTapDownCallback? onTapDown,
+    GestureTapUpCallback? onTapUp,
+    GestureTapCancelCallback? onTapCancel,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: ShapeDecoration(
-        color: backgroundColor,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(
-            width: _isMyUserCertified && text == '인증합니다' ? 0 : 1,
-            color: borderColor,
+    return GestureDetector(
+      onTap: onTap,
+      onTapDown: onTapDown,
+      onTapUp: onTapUp,
+      onTapCancel: onTapCancel,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: ShapeDecoration(
+          color: backgroundColor,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              width: _isMyUserCertified && text == '인증합니다' ? 0 : 1,
+              color: borderColor,
+            ),
+            borderRadius: BorderRadius.circular(99),
           ),
-          borderRadius: BorderRadius.circular(99),
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: SvgPicture.asset(
-              iconPath,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
               width: 16,
               height: 16,
-              fit: BoxFit.cover,
-              colorFilter: iconColor != null ? ColorFilter.mode(iconColor, BlendMode.srcIn) : null,
+              child: SvgPicture.asset(
+                iconPath,
+                width: 16,
+                height: 16,
+                fit: BoxFit.cover,
+                colorFilter: iconColor != null ? ColorFilter.mode(iconColor, BlendMode.srcIn) : null,
+              ),
             ),
-          ),
-          const SizedBox(width: 2),
-          Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 12,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w400,
-              height: 1.50,
+            const SizedBox(width: 2),
+            Text(
+              text,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 12,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w400,
+                height: 1.50,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -36,7 +36,7 @@ final feedService = Provider<FeedService>((ref) {
 });
 
 // 서비스 객체 의존성 주입 받아 사용
-final feedService_auth = FutureProvider<FeedService>((ref) async{
+final feedServiceAuth = FutureProvider<FeedService>((ref) async{
   final dio = await ref.watch(dioAuthProvider.future);
   return FeedService(dio);
 });
@@ -58,7 +58,7 @@ final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
 
 // 피드 상세 조회 프로바이더
 final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
-  final service = await ref.watch(feedService_auth.future);
+  final service = await ref.watch(feedServiceAuth.future);
   return await service.getFeedDetail(feedId);
 });
 
