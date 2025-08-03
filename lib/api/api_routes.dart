@@ -13,6 +13,7 @@ class FeedAPI {
   static const getSameCategoryFeeds = '$base/sameCategoryFeeds';
   static const getUsersFeeds = '$base/users';
   static const search = '$base/search';
+  static increaseViewCount(int id) => '$base/$id/view';
 
 }
  

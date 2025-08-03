@@ -12,19 +12,100 @@ import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_like_and_certifi_section.dart';
-import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-class FeedDetailMain extends ConsumerWidget {
+class FeedDetailMain extends ConsumerStatefulWidget {
   final int feedId;
   const FeedDetailMain({
     super.key,
     required this.feedId,
   });
 
+    @override
+  ConsumerState<FeedDetailMain> createState() => _FeedDetailMainState();
+}
+
+class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(feedDetailProvider(feedId));
+  void initState() {
+    super.initState();
+    // 위젯이 처음 생성될 때만 호출
+    _incrementPostView(widget.feedId);
+  }
+
+
+  Future<void> _incrementPostView(int feedId) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 1. 캐시된 조회 기록 불러오기
+    String? cachedViewsJson = prefs.getString('post_view_cache');
+    Map<String, String> cachedViewsMap = {}; // 키를 String으로 유지하는 것이 안전합니다.
+
+    if (cachedViewsJson != null && cachedViewsJson.isNotEmpty) {
+      try {
+        final decodedData = jsonDecode(cachedViewsJson);
+        // 디코딩된 데이터가 Map<String, dynamic> 타입인지 확인
+        if (decodedData is Map<String, dynamic>) {
+          // Map의 각 엔트리를 순회하며 Map<String, String>으로 변환
+          decodedData.forEach((key, value) {
+            if (value is String) { // 값이 String 타입인지 확인
+              cachedViewsMap[key] = value;
+            } else {
+              debugPrint('캐시된 데이터의 값 타입이 String이 아닙니다: $key: $value');
+              // 필요하다면 해당 엔트리를 스킵하거나 기본값으로 처리
+            }
+          });
+        } else {
+          debugPrint('캐시된 데이터가 Map<String, dynamic> 타입이 아닙니다: $decodedData');
+          // 이전에 잘못된 형식으로 저장된 경우, 캐시를 초기화합니다.
+          await prefs.remove('post_view_cache');
+        }
+      } catch (e) {
+        debugPrint('캐시 데이터 디코딩 중 에러 발생: $e');
+        // JSON 파싱 에러 발생 시, 캐시를 초기화합니다.
+        await prefs.remove('post_view_cache');
+      }
+    }
+
+    DateTime? lastViewTime;
+    // feedId를 String으로 변환하여 캐시 키로 사용
+    if (cachedViewsMap.containsKey(feedId.toString())) {
+      try {
+        lastViewTime = DateTime.parse(cachedViewsMap[feedId.toString()]!);
+      } catch (e) {
+        debugPrint('캐시된 시간 데이터 파싱 중 에러 발생: $e');
+        // 시간 데이터 파싱 에러 시, 해당 캐시 엔트리를 무효화합니다.
+        cachedViewsMap.remove(feedId.toString());
+        await prefs.setString("post_view_cache", jsonEncode(cachedViewsMap));
+      }
+    }
+
+    // 2. 24시간이 경과했는지 확인
+    final now = DateTime.now();
+    final cachingTime = now.subtract(const Duration(hours: 24));
+
+    if (lastViewTime == null || lastViewTime.isBefore(cachingTime)) {
+      // 3. 24시간이 경과했거나 처음 조회하는 경우 -> 조회수 증가
+      try {
+        await ref.read(feedService).increaseView(feedId);
+        debugPrint('게시글 $feedId 에 대한 조회수 증가 API 호출 성공');
+
+        // 4. API 호출 성공 시에만 캐시 업데이트
+        cachedViewsMap[feedId.toString()] = now.toIso8601String();
+        await prefs.setString("post_view_cache", jsonEncode(cachedViewsMap));
+      } catch (e) {
+        debugPrint('조회수 증가 API 호출 실패: $e');
+        // API 호출 실패 시 캐시를 업데이트하지 않으므로 다음번에 다시 시도할 수 있습니다.
+      }
+    } else {
+      debugPrint('게시글 $feedId 는 24시간 이내에 이미 조회되어 API 호출 생략');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final detailAsync = ref.watch(feedDetailProvider(widget.feedId));
     
     return detailAsync.when(
       data: (result) {
