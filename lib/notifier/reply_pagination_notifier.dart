@@ -1,23 +1,43 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/service/feed_api_service.dart';
 
 class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<ReplyResponseDto>>> {
-  final FeedService service;
+  final Ref _ref;
   final int cmuId;
+  FeedService? _service;
   int? _cursorId;
   bool _hasNext = true; // 다음 페이지가 있는지 여부
 
-  ReplyPaginationNotifier(this.service, this.cmuId)
+  ReplyPaginationNotifier(this._ref, this.cmuId)
       : super(const AsyncValue.loading()) {
-    fetchInitial();
+    _initializeServiceAndFetch(); // 서비스 초기화 및 초기 데이터 로딩 시작
+  }
+
+  // 비동기적으로 FeedService를 초기화하고 초기 데이터를 불러오는 메서드
+  Future<void> _initializeServiceAndFetch() async {
+    try {
+      // feedServiceAuth FutureProvider가 완료될 때까지 기다립니다.
+      _service = await _ref.watch(feedServiceAuth.future);
+      // 서비스 초기화 완료 후 초기 데이터 로딩
+      await fetchInitial();
+    } catch (e, st) {
+      // 서비스 로딩 실패 또는 초기 데이터 로딩 실패 시 에러 처리
+      state = AsyncValue.error(e, st);
+    }
   }
 
   Future<void> fetchInitial() async {
+     if (_service == null) {
+      state = AsyncValue.error('FeedService is not initialized yet.', StackTrace.current);
+      return;
+    }
+
     state = const AsyncValue.loading();
     try {
-      final response = await service.getReplies(cmuId: cmuId);
+      final response = await _service!.getReplies(cmuId: cmuId);
       _cursorId = response.lastCursorId;
       _hasNext = response.hasNext;
       state = AsyncValue.data(response);
@@ -27,6 +47,9 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
   }
 
   Future<void> fetchNext() async {
+     if (_service == null) {
+      return;
+    }
     // 1. 다음 페이지가 없거나, 현재 이미 로딩 중이라면 아무것도 하지 않음.
     //    `isLoading`은 `AsyncValue.loading()` 상태일 때만 true이므로,
     //    만약 기존 데이터를 유지하며 로딩 중임을 나타내고 싶다면,
@@ -55,7 +78,7 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
 
     try {
       // 3. API 호출
-      final response = await service.getReplies(
+      final response = await _service!.getReplies(
         cmuId: cmuId,
         cursorId: _cursorId,
       );
@@ -67,7 +90,7 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
       // 5. 기존 데이터에 새 데이터를 이어붙여 상태 업데이트
       final combinedItems = [...currentState.items, ...response.items];
 
-      // ✅ `AsyncValue.data` 상태를 유지하며 새로운 `ScrollResponse` 객체로 업데이트.
+      // `AsyncValue.data` 상태를 유지하며 새로운 `ScrollResponse` 객체로 업데이트.
       //    이것이 스크롤 위치 유지의 핵심입니다.
       state = AsyncValue.data(ScrollResponse(
         items: combinedItems,
@@ -79,7 +102,7 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
     } catch (e, st) {
       // 에러 발생 시, 현재 데이터를 유지하면서 에러 상태로 변경 (선택 사항)
       // 또는 그냥 에러 상태로 전체 전환할 수도 있습니다.
-      state = AsyncValue.error(e, st);
+      state = AsyncValue.error(e, st).copyWithPrevious(state).value;
     }
   }
 }

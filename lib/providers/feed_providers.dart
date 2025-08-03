@@ -65,8 +65,7 @@ final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((re
 // 피드 상세 댓글 조회 프로바이더
 final replyPaginationProvider = StateNotifierProvider.family
     <ReplyPaginationNotifier, AsyncValue<ScrollResponse<ReplyResponseDto>>, int>((ref, cmuId) {
-  final service = ref.watch(feedService);
-  return ReplyPaginationNotifier(service, cmuId);
+  return ReplyPaginationNotifier(ref, cmuId);
 });
 // 피드 상세 와 댓글 조회 간 데이터공유
 final feedMainChangeNotifierProvider = ChangeNotifierProvider<FeedMainChangeNotifier>((ref) {
