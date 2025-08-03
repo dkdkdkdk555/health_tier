@@ -29,9 +29,6 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
 
   // 버튼이 눌리고 있는지를 나타내는 상태
   bool _isCertifyButtonPressedState = false; 
-  // 좋아요 버튼이 눌리고 있는지를 나타내는 상태
-  final bool _isLikeButtonPressedState = false;
-
 
   @override
   void initState() {
