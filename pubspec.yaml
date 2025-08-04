@@ -97,6 +97,7 @@ flutter:
     - assets/icons/
     - assets/widgets/
     - assets/icons/feed_detail/
+    - assets/icons/reply/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

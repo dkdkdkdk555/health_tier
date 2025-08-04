@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/user_prefs.dart';
+import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
 class Reply extends StatelessWidget {
@@ -15,13 +17,65 @@ class Reply extends StatelessWidget {
     required this.isChild,
   });
 
-  void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
 
+  void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
+    if(loginUserId == 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인이 필요합니다.')),
+        );
+        return;
+    }
+    // 팝업 메뉴가 표시될 위치를 정확하게 계산
+    final RelativeRect positionRect = RelativeRect.fromRect(
+      position & const Size(40, 40), // 햄버거 아이콘의 대략적인 크기
+      Offset.zero & MediaQuery.of(context).size, // 전체 화면 크기
+    );
+
+    showMenu<ReplyHamburgerAction>(
+      context: context,
+      position: positionRect,
+      color: Colors.transparent,
+      items: [
+        ReplyHamburger(
+          writerUserId: writerUserId,
+          loginUserId: loginUserId,
+          onEdit: () {
+            // 수정 버튼 클릭 시 실행될 로직
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('수정하기 클릭됨!')),
+            );
+            // 여기에 실제 수정 로직(예: 수정 페이지로 이동) 구현
+          },
+          onDelete: () {
+            // 삭제 버튼 클릭 시 실행될 로직
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('삭제하기 클릭됨!')),
+            );
+            // 여기에 실제 삭제 로직(예: 확인 다이얼로그 후 API 호출) 구현
+          },
+          onReport: () {
+            // 신고 버튼 클릭 시 실행될 로직
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('신고하기 클릭됨!')),
+            );
+            // 여기에 실제 신고 로직(예: 신고 팝업 띄우기) 구현
+          },
+        ),
+      ],
+      // showMenu의 elevation과 semanticLabel을 필요에 따라 조절
+      elevation: 0, // ReplyHamburger 자체에 그림자가 있으므로 여기서 0으로 설정
+      // PopupMenuButton 스타일이 아닌 showMenu를 직접 사용하므로 shape는 ReplyHamburger에서 관리
+    ).then((action) {
+      // 메뉴에서 선택된 액션에 따라 추가 작업 수행 가능
+      if (action != null) {
+        debugPrint('Selected action: $action');
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final loginUserId = UserPrefs.myUserId;
     return Container(
       width: 375,
       padding: const EdgeInsets.all(20),
@@ -85,12 +139,23 @@ class Reply extends StatelessWidget {
                     }
                   ),
                   const Spacer(),
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: SvgPicture.asset(
-                      'assets/widgets/replyHambuger.svg',
-                      fit: BoxFit.cover,
+                  if(loginUserId != null || loginUserId != 0)
+                  GestureDetector(
+                    onTapUp: (TapUpDetails details) {
+                      _showReplyHamburgerMenu(
+                        context,
+                        details.globalPosition, // 탭 발생 위치를 전달
+                        reply.userId, // 댓글 작성자 ID
+                        loginUserId ?? 0, // 로그인한 사용자 ID
+                      );
+                    },
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: SvgPicture.asset(
+                        'assets/widgets/replyHambuger.svg',
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ],
@@ -121,7 +186,7 @@ class Reply extends StatelessWidget {
                     width: 16,
                     height: 16,
                     child: SvgPicture.asset(
-                      'assets/icons/like.svg',
+                      reply.isLiked ? 'assets/icons/liked.svg': 'assets/icons/like.svg',
                       width: 16,
                       height: 16,
                       fit: BoxFit.cover,
