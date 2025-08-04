@@ -36,30 +36,36 @@ class _FeedDetailState extends State<FeedDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          // 상단바 위 여백
-          const TopBlankArea(),
-          // 상단 앱바
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: FeedDetailAppBarDelegate(widget.isFromWriteFeed, widget.feedId),
-          ),
-          // 게시글 본문
-          SliverToBoxAdapter(
-            child: FeedDetailMain(feedId: widget.feedId),
-          ),
-          // 댓글리스트
-          ReplyListSliver(cmuId: widget.feedId),
-          // 같은 카테고리의 다른 글
-          CategoryAnotherFeedList(categoryId: widget.categoryId,),
-
-          // 하단 여백(필요시)
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 20),
-          ),
-        ],
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // 포커스 해제 → 키보드 및 바 숨김
+        },
+        behavior: HitTestBehavior.opaque, // 빈 공간도 인식하게 함
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            // 상단바 위 여백
+            const TopBlankArea(),
+            // 상단 앱바
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: FeedDetailAppBarDelegate(widget.isFromWriteFeed, widget.feedId),
+            ),
+            // 게시글 본문
+            SliverToBoxAdapter(
+              child: FeedDetailMain(feedId: widget.feedId),
+            ),
+            // 댓글리스트
+            ReplyListSliver(cmuId: widget.feedId),
+            // 같은 카테고리의 다른 글
+            CategoryAnotherFeedList(categoryId: widget.categoryId,),
+        
+            // 하단 여백(필요시)
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 20),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: const ReplyBottomBar(),
     );

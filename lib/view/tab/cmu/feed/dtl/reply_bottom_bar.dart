@@ -29,13 +29,6 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
 
   // 텍스트 입력가능한 좌우길이는 271px
   // 개행시 21px 만큼 증가
-  /* 
-    변경해줘야 할 값
-  */
-  // 1. AnimatedContainer(댓글입력섹션 최상위 위젯)의 높이
-  // 2. TextField를 감싼 Container의 높이
-  // 3. TextField의 maxLines / keyboardType: TextInputType.text -> multiLine
-  // 4. 전송버튼의 위치
 
   final GlobalKey _textFieldKey = GlobalKey();
   double _textFieldHeight = 37; // 기본 높이
