@@ -11,4 +11,8 @@ class ReplyCommentSupplyNotifier extends ChangeNotifier{
       notifyListeners();
     }
   }
+
+  void disposeReplyState() {
+    pickReplyComment('');
+  }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_app/providers/notifier_provider.dart';
+import 'package:my_app/providers/notifier_provider.dart'; // replyCommentSupplyNotifierProvider 경로 확인
 
 class ReplyBottomBar extends ConsumerStatefulWidget {
   const ReplyBottomBar({
@@ -14,108 +14,172 @@ class ReplyBottomBar extends ConsumerStatefulWidget {
 }
 
 class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
-  // TextField의 포커스 상태를 감지하기 위한 FocusNode
   final FocusNode _focusNode = FocusNode();
-  // TextField의 내용을 제어할 컨트롤러
   final TextEditingController _textEditingController = TextEditingController();
 
-  // 바의 현재 높이 (기본: 106, 확장 시: 116)
   double _barHeight = 106;
-  // 전송 버튼의 가시성 (기본: false, 클릭 시: true)
   bool _showSendButton = false;
 
-  // 텍스트 필드 테두리 색상
   Color _textFieldBorderColor = const Color(0xFFDDDDDD);
-  // 전송 버튼 배경색
   Color _sendButtonColor = const Color(0xFFCCCCCC);
-
-  // 텍스트 입력가능한 좌우길이는 271px
-  // 개행시 21px 만큼 증가
 
   final GlobalKey _textFieldKey = GlobalKey();
   double _textFieldHeight = 37; // 기본 높이
 
+  String _currentReplyTargetComment = ''; // 현재 답글 대상 댓글 내용 저장
+  // 답글 대상 텍스트가 표시될 높이 (대략 한 줄 높이 + 패딩)
+  final double _replyTargetHeight = 30.0; // 답글 대상 텍스트 영역 높이
+
   @override
   void initState() {
     super.initState();
-    // FocusNode에 리스너를 추가하여 포커스 변경 시 높이 및 버튼 가시성 변경
     _focusNode.addListener(_onFocusChange);
-    // TextEditingController에도 리스너를 추가하여 텍스트 변경 감지
     _textEditingController.addListener(_onTextChanged);
+
+    // initState에서는 context가 완전히 빌드되지 않았으므로 didChangeDependencies에서 초기 comment 처리
+    // 또는 `WidgetsBinding.instance.addPostFrameCallback` 사용
   }
 
   @override
-  void dispose() {
-    _focusNode.removeListener(_onFocusChange);
-     _textEditingController.removeListener(_onTextChanged); // 리스너 해제
-    _focusNode.dispose();
-    _textEditingController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
+
+  @override
+  void didUpdateWidget(covariant ReplyBottomBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _onReplyClicked(String comment){
+    if (comment != _currentReplyTargetComment && comment.isNotEmpty) {
+      _currentReplyTargetComment = _truncateComment(comment);
+      // 새로운 답글 대상이 생겼을 때 키보드 올리기
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusNode.requestFocus();
+        _updateBarHeight();
+      });
+    } else if (comment.isEmpty && _currentReplyTargetComment.isNotEmpty) {
+      // comment가 비워졌을 때 답글 대상 제거
+      _currentReplyTargetComment = '';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateBarHeight();
+      });
+    }
+  }
+
+
+@override
+void dispose() {
+  _focusNode.removeListener(_onFocusChange);
+  _textEditingController.removeListener(_onTextChanged);
+  _focusNode.dispose();
+  _textEditingController.dispose();
+
+  super.dispose();
+}
 
   void _onFocusChange() {
     setState(() {
       if (_focusNode.hasFocus) {
-        // TextField에 포커스가 있을 때 높이 늘리고 버튼 표시
-        _barHeight = 116;
         _showSendButton = true;
       } else {
-        // TextField에서 포커스가 벗어났을 때 높이 줄이고 버튼 숨기기
-        // (단, 입력된 텍스트가 없어야만 숨김)
-        if (_textEditingController.text.isEmpty) {
+        _currentReplyTargetComment = '';
+        ref.read(replyCommentSupplyNotifierProvider).pickReplyComment('');
+        if (_textEditingController.text.isEmpty && _currentReplyTargetComment.isEmpty) {
+          // 텍스트도 비어있고 답글 대상도 없을 때만 바 숨김
           _barHeight = 106;
           _showSendButton = false;
         }
-      } 
+      }
+      _updateBarHeight(); // 포커스 변경 시 항상 높이 업데이트
     });
   }
 
   void _onTextChanged() {
-    // 텍스트가 비어있는지 여부에 따라 색상 업데이트
     _updateColorsBasedOnText(_textEditingController.text.isNotEmpty);
+    _updateTextFieldHeight(); // 텍스트 내용 변경 시 TextField 높이 업데이트
   }
 
   void _updateColorsBasedOnText(bool hasText) {
     setState(() {
       if (hasText) {
-        _textFieldBorderColor = const Color(0xFF0D86E7); // 활성 색상
-        _sendButtonColor = const Color(0xFF0D86E7); // 활성 색상
+        _textFieldBorderColor = const Color(0xFF0D86E7);
+        _sendButtonColor = const Color(0xFF0D86E7);
       } else {
-        _textFieldBorderColor = const Color(0xFFDDDDDD); // 원래 색상
-        _sendButtonColor = const Color(0xFFCCCCCC); // 원래 색상
+        _textFieldBorderColor = const Color(0xFFDDDDDD);
+        _sendButtonColor = const Color(0xFFCCCCCC);
       }
     });
   }
 
   void _updateTextFieldHeight() {
+    // 다음 프레임에 렌더링된 TextField의 실제 높이를 측정
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final context = _textFieldKey.currentContext;
-      if (context != null) {
-        final box = context.findRenderObject() as RenderBox;
-        final newHeight = box.size.height;
+      if (context == null) return; // context가 null이면 함수 종료
 
-        if (newHeight != _textFieldHeight) {
-          setState(() {
-            _textFieldHeight = newHeight;
-            _barHeight = _textFieldHeight + 46 + 20 + 10; // + 상하 padding + profile margin 등
-          });
-        }
+      final RenderBox box = context.findRenderObject() as RenderBox;
+      final newHeight = box.size.height;
+
+      if (newHeight != _textFieldHeight) {
+        setState(() {
+          _textFieldHeight = newHeight;
+          _updateBarHeight(); // TextField 높이 변경 시 바 높이도 업데이트
+        });
       }
     });
   }
 
+  // 전체 바 높이를 업데이트하는 로직
+  void _updateBarHeight() {
+    // 프로필 이미지, 텍스트 필드, 버튼의 고정/가변 높이와 패딩을 종합적으로 고려
+    double calculatedBarHeight = 0;
+
+    // 상단 여백 (프로필과 텍스트 필드 시작 위치)
+    calculatedBarHeight += 23;
+
+    // 답글 대상 표시 영역 높이 (있다면 추가)
+    if (_currentReplyTargetComment.isNotEmpty) {
+      calculatedBarHeight += _replyTargetHeight;
+      calculatedBarHeight += 10; // 답글 대상과 TextField 사이 간격
+    }
+
+    // TextField의 현재 높이 (minHeight: 37, maxHeight: 120)
+    calculatedBarHeight += _textFieldHeight;
+
+    // TextField 아래쪽과 전송 버튼 사이의 여백 (또는 바닥 패딩)
+    // 현재 레이아웃에서 전송 버튼의 top 위치에 따라 계산이 달라집니다.
+    // 텍스트필드와 전송 버튼이 같은 레벨에 위치하고, 텍스트 필드가 늘어나는 만큼 버튼이 아래로 밀려나야 한다면
+    // 텍스트 필드 아래에 추가 공간 + 버튼 높이 + 하단 패딩을 고려해야 합니다.
+    // 여기서는 전송 버튼이 TextField 아래쪽에 위치한다고 가정하고 계산합니다.
+    calculatedBarHeight += 15; // TextField 아래와 전송 버튼 사이의 최소 여백
+    calculatedBarHeight += 31; // 전송 버튼의 높이
+    calculatedBarHeight += 10; // 바닥 패딩 (Stack의 바닥에서 여유 공간)
+
+    setState(() {
+      _barHeight = calculatedBarHeight;
+    });
+  }
+
+  // 댓글 내용 자르기 (최대 22글자 + ...)
+  String _truncateComment(String comment) {
+    if (comment.length > 22) {
+      return '${comment.substring(0, 22)}...';
+    }
+    return comment;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 키보드 높이를 가져와 하단 여백으로 사용
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     String comment = ref.watch(replyCommentSupplyNotifierProvider.select((notifier) => notifier.comment));
-    debugPrint('코멘트 : $comment');
+    _onReplyClicked(comment);
 
-    return AnimatedContainer( // 높이 애니메이션을 위한 AnimatedContainer
-      duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
-      curve: Curves.easeOut, // 애니메이션 곡선
-      height: _barHeight + keyboardHeight, // 키보드 높이만큼 바 높이 확장
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+      height: _barHeight + keyboardHeight,
       decoration: const BoxDecoration(
         color: Colors.white,
         border: Border(
@@ -129,7 +193,7 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
           topRight: Radius.circular(40),
         ),
       ),
-      child: Stack( // 기존 Stack 구조를 유지하면서 버튼만 추가
+      child: Stack(
         children: [
           Positioned(
             left: 20,
@@ -138,101 +202,155 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 8,
               children: [
                 // 사용자 프로필 이미지
                 Column(
                   children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                      ),
-                      child: SvgPicture.asset(
-                        'assets/widgets/default_user_profile.svg',
-                        fit: BoxFit.cover,
+                    Padding(
+                      padding: _currentReplyTargetComment.isNotEmpty
+                          ? EdgeInsets.only(top: _replyTargetHeight + 10,) // 답글 대상이 있으면 그만큼 아래로
+                          : EdgeInsets.zero,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: SvgPicture.asset(
+                          'assets/widgets/default_user_profile.svg',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     SizedBox(
-                      height: _textFieldHeight - 37, // 37 = 텍스트 필드 기본 높이, 프로필의 위치가 텍스트필드와 수평을 유지해야함.
+                      height: _textFieldHeight - 37, // 37 = 텍스트 필드 기본 높이, 프로필의 위치가 텍스트필드와 수평을 유지해야함.,
                     )
                   ],
                 ),
-                // 댓글 입력 필드
-                ConstrainedBox(
-                   constraints: const BoxConstraints(
-                    minHeight: 37,
-                    maxHeight: 120, // 3~4줄까지 늘어나도록 제한
-                  ),
-                  child: Container(
-                    key: _textFieldKey,
-                    width: 303, // 기존 너비 유지
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: ShapeDecoration(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          width: 1,
-                          color: _textFieldBorderColor,
+                const SizedBox(width: 8),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 답글 대상 댓글 표시 영역
+                    if (_currentReplyTargetComment.isNotEmpty)
+                      Container(
+                        height: _replyTargetHeight,
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.only(bottom: 10), // TextField와의 간격
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0F0F0), // 배경색 다르게
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: TextField(
-                      focusNode: _focusNode, // FocusNode 연결
-                      controller: _textEditingController, // TextEditingController 연결
-                      onChanged: (_) => _updateTextFieldHeight(),
-                      keyboardType: TextInputType.multiline,
-                      maxLength: 250,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      buildCounter: ( // 글자수제한 표시 없에기
-                        BuildContext context, {
-                        required int currentLength,
-                        required bool isFocused,
-                        required int? maxLength,
-                      }) {
-                        return null; // ← 이게 핵심!
-                      },
-                      maxLines: null,
-                      minLines: 1,
-                      expands: false,
-                      decoration: const InputDecoration(
-                        hintText: '댓글 달기',
-                        border: InputBorder.none,
-                        isCollapsed: true, // 기본 패딩 제거
-                        contentPadding: EdgeInsets.zero, // content padding 명시적으로 제거
-                        hintStyle: TextStyle(
-                          color: Color(0xFF999999),
-                          fontSize: 14,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w400,
-                          height: 1.50,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _currentReplyTargetComment,
+                          style: const TextStyle(
+                            color: Color(0xFF555555),
+                            fontSize: 12,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
-                      style: const TextStyle(
-                        color: Color(0xFF000000),
-                        fontSize: 14,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400,
-                        height: 1.50,
+                    // 댓글 입력 필드
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 37,
+                        maxHeight: 120, // 텍스트 14px, height 1.5면 1줄 21px + 패딩 16 = 37px
+                                         // 120px면 대략 4~5줄 정도 가능
+                      ),
+                      child: Container(
+                        key: _textFieldKey,
+                        width: 303,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: ShapeDecoration(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              width: 1,
+                              color: _textFieldBorderColor,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Row( // 아이콘과 텍스트 필드를 위한 Row
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_currentReplyTargetComment.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 4.0, top: 2.0), // 아이콘과 텍스트 필드 사이 간격
+                                child: Icon(
+                                  Icons.subdirectory_arrow_right_sharp,
+                                  size: 16,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            Expanded( // TextField가 남은 공간을 모두 차지하도록
+                              child: TextField(
+                                focusNode: _focusNode,
+                                controller: _textEditingController,
+                                onChanged: (_) => _updateTextFieldHeight(),
+                                keyboardType: TextInputType.multiline,
+                                maxLength: 250,
+                                maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                                buildCounter: (
+                                  BuildContext context, {
+                                  required int currentLength,
+                                  required bool isFocused,
+                                  required int? maxLength,
+                                }) {
+                                  return null;
+                                },
+                                maxLines: null,
+                                minLines: 1,
+                                expands: false,
+                                decoration: const InputDecoration(
+                                  hintText: '댓글 달기',
+                                  border: InputBorder.none,
+                                  isCollapsed: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFF999999),
+                                    fontSize: 14,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.50,
+                                  ),
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF000000),
+                                  fontSize: 14,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.50,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
-          // 전송 버튼 (애니메이션 효과와 함께 나타나고 사라짐)
+          // 전송 버튼
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
-            curve: Curves.easeOut, // 애니메이션 곡선
-            left: 294,
-            top: 30 + _textFieldHeight, // 기본 top(23) + TextField의 높이에 맞춤,
-            child: AnimatedOpacity( // 투명도 애니메이션
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+            right: 20,
+            // 버튼 top 위치 재조정: bottom으로부터 계산하는 것이 더 쉬움
+            // bottom: keyboardHeight + (_currentReplyTargetComment.isNotEmpty ? 16 : 22), // 답글 대상 유무에 따라 조정
+            top: 30 + _textFieldHeight + (_currentReplyTargetComment.isEmpty ? 0 : _replyTargetHeight + 10),
+            // Note: 이 'bottom' 값은 실제 레이아웃에 맞춰 세부 조정 필요합니다.
+            child: AnimatedOpacity(
               opacity: _showSendButton ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 250),
-              child: IgnorePointer( // 버튼이 보이지 않을 때는 클릭 이벤트 무시
+              child: IgnorePointer(
                 ignoring: !_showSendButton,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
