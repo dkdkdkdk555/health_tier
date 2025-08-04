@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:my_app/providers/notifier_provider.dart';
 
-class ReplyBottomBar extends StatefulWidget {
+class ReplyBottomBar extends ConsumerStatefulWidget {
   const ReplyBottomBar({
     super.key,
   });
 
   @override
-  State<ReplyBottomBar> createState() => _ReplyBottomBarState();
+  ConsumerState<ReplyBottomBar> createState() => _ReplyBottomBarState();
 }
 
-class _ReplyBottomBarState extends State<ReplyBottomBar> {
+class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   // TextField의 포커스 상태를 감지하기 위한 FocusNode
   final FocusNode _focusNode = FocusNode();
   // TextField의 내용을 제어할 컨트롤러
@@ -91,13 +93,11 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
       if (context != null) {
         final box = context.findRenderObject() as RenderBox;
         final newHeight = box.size.height;
-        debugPrint('뉴헤이트 : ${newHeight.toString()}');
 
         if (newHeight != _textFieldHeight) {
           setState(() {
             _textFieldHeight = newHeight;
             _barHeight = _textFieldHeight + 46 + 20 + 10; // + 상하 padding + profile margin 등
-            debugPrint('바헤이트 : ${_barHeight.toString()}');
           });
         }
       }
@@ -108,6 +108,9 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
   Widget build(BuildContext context) {
     // 키보드 높이를 가져와 하단 여백으로 사용
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    String comment = ref.watch(replyCommentSupplyNotifierProvider.select((notifier) => notifier.comment));
+    debugPrint('코멘트 : $comment');
 
     return AnimatedContainer( // 높이 애니메이션을 위한 AnimatedContainer
       duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간

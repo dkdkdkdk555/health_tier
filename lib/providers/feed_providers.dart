@@ -67,10 +67,6 @@ final replyPaginationProvider = StateNotifierProvider.family
     <ReplyPaginationNotifier, AsyncValue<ScrollResponse<ReplyResponseDto>>, int>((ref, cmuId) {
   return ReplyPaginationNotifier(ref, cmuId);
 });
-// 피드 상세 와 댓글 조회 간 데이터공유
-final feedMainChangeNotifierProvider = ChangeNotifierProvider<FeedMainChangeNotifier>((ref) {
-  return FeedMainChangeNotifier();
-});
 
 // 피드상세 - 같은카테고리의 피드목록 
 final sameCategoryFeedPaginationProvider = StateNotifierProvider.family<SameCategoryFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, FeedQueryParams>((ref, params) {

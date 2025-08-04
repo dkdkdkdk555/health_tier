@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
-import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
-class Reply extends StatelessWidget {
+class Reply extends ConsumerWidget {
   final ReplyResponseDto reply;
   final bool isChild;
   const Reply({
@@ -74,7 +74,7 @@ class Reply extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final loginUserId = UserPrefs.myUserId;
     return Container(
       width: 375,
@@ -204,16 +204,21 @@ class Reply extends StatelessWidget {
                   ),
                 ],
               ),
-              const Padding(
-                padding: EdgeInsets.only(left:12.0),
-                child: Text(
-                  '답글 쓰기',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    height: 1.50,
+              Padding(
+                padding: const EdgeInsets.only(left:12.0),
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(replyCommentSupplyNotifierProvider).pickReplyComment(reply.ctnt);
+                  },
+                  child: const Text(
+                    '답글 쓰기',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w700,
+                      height: 1.50,
+                    ),
                   ),
                 ),
               ),

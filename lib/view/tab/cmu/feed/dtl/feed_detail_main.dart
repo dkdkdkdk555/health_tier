@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:my_app/providers/notifier_provider.dart';
 import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';

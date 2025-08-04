@@ -5,6 +5,7 @@ import 'package:my_app/main.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_auth_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
