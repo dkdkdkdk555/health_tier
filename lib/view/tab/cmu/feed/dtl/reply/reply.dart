@@ -80,7 +80,9 @@ class Reply extends ConsumerWidget {
       width: 375,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: reply.likeCnt >=5 ? const Color(0xFFFFF4E9) : Colors.white,
+        color:  (reply.delYn == 'N' && reply.likeCnt >=5 )
+                 ? const Color(0xFFFFF4E9)
+                 : reply.delYn == 'Y'? Colors.grey.shade50 : Colors.white,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -95,13 +97,13 @@ class Reply extends ConsumerWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildProfileImageStack(reply.imgPath, reply.badges, context),
+                  _buildProfileImageStack(reply.imgPath, reply.badges, context, reply.delYn!),
                   Padding(
                     padding: const EdgeInsets.only(left:8.0, right:4.5),
                     child: Text(
                       reply.nickname,
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
                         fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w600,
@@ -139,6 +141,7 @@ class Reply extends ConsumerWidget {
                     }
                   ),
                   const Spacer(),
+                  if(reply.delYn == 'N')
                   if(loginUserId != null || loginUserId != 0)
                   GestureDetector(
                     onTapUp: (TapUpDetails details) {
@@ -161,13 +164,14 @@ class Reply extends ConsumerWidget {
                 ],
               ),
               Text(
-                reply.ctnt,
-                style: const TextStyle(
-                  color: Colors.black,
+                reply.delYn == 'N' ? reply.ctnt : '삭제된 댓글입니다.',
+                style: TextStyle(
+                  color: reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
                   fontSize: 14,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
                   height: 1.50,
+                  fontStyle: reply.delYn == 'N' ? FontStyle.normal : FontStyle.italic,
                 ),
               ),
             ],
@@ -182,6 +186,7 @@ class Reply extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 2,
                 children: [
+                if(reply.delYn == 'N')
                   SizedBox(
                     width: 16,
                     height: 16,
@@ -192,6 +197,7 @@ class Reply extends ConsumerWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
+                if(reply.delYn == 'N')
                   Text(
                     '${reply.likeCnt}',
                     style: const TextStyle(
@@ -204,6 +210,7 @@ class Reply extends ConsumerWidget {
                   ),
                 ],
               ),
+              if(reply.delYn == 'N')
               Padding(
                 padding: const EdgeInsets.only(left:12.0),
                 child: GestureDetector(
@@ -240,7 +247,7 @@ class Reply extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileImageStack(String imgPath, List<BadgeInfoDto>? badges, BuildContext context) {
+  Widget _buildProfileImageStack(String imgPath, List<BadgeInfoDto>? badges, BuildContext context, String delYn) {
     final todayBadge = badges!
         .firstWhere(
           (badge) => badge.badgeType == 'today',
@@ -282,16 +289,30 @@ class Reply extends ConsumerWidget {
                 ),
                 child: ClipOval(
                   child: (imgPath.isNotEmpty)
-                      ? Image.network(
-                          imgPath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return SvgPicture.asset(
-                              'assets/widgets/default_user_profile.svg',
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        )
+                      ? delYn == 'N' ?
+                          Image.network(
+                            imgPath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return SvgPicture.asset(
+                                'assets/widgets/default_user_profile.svg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ) :
+                          Opacity(
+                            opacity: 0.37,
+                            child: Image.network(
+                                imgPath,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return SvgPicture.asset(
+                                    'assets/widgets/default_user_profile.svg',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                            ),
+                          )
                       : SvgPicture.asset(
                           'assets/widgets/default_user_profile.svg',
                           fit: BoxFit.cover,
@@ -316,9 +337,6 @@ class Reply extends ConsumerWidget {
     if (weightBadge.badgeId.isEmpty) { // != '' 대신 .isEmpty 사용
       return const SizedBox.shrink(); // 공간도 차지하지 않도록 SizedBox.shrink() 사용
     }
-
-    debugPrint(weightBadge.badgeId); // 디버그 프린트 유지
-    debugPrint('??'); // 디버그 프린트 유지
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0.2),

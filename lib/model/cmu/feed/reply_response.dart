@@ -11,6 +11,7 @@ class ReplyResponseDto {
   final String displayDttm;
   final bool isLiked;
   final int? parentReplyId;
+  final String? delYn;
   final List<ReplyResponseDto> children;
   final List<BadgeInfoDto>? badges;
 
@@ -24,6 +25,7 @@ class ReplyResponseDto {
     required this.createDttm,
     required this.displayDttm,
     required this.isLiked,
+    required this.delYn,
     required this.parentReplyId,
     required this.children,
     this.badges,
@@ -41,6 +43,7 @@ class ReplyResponseDto {
       displayDttm: json['displayDttm'] as String,
       isLiked: json['isLiked'] as bool? ?? false,
       parentReplyId: json['parentReplyId'] as int?,
+      delYn: json['delYn'] as String? ?? 'N',
       children: (json['children'] as List<dynamic>? ?? [])
           .map((e) => ReplyResponseDto.fromJson(e as Map<String, dynamic>))
           .toList(),
