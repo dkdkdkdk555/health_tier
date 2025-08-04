@@ -237,22 +237,43 @@ void dispose() {
                       Container(
                         height: _replyTargetHeight,
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        margin: const EdgeInsets.only(bottom: 10), // TextField와의 간격
+                        margin: const EdgeInsets.only(bottom: 10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF0F0F0), // 배경색 다르게
+                          color: const Color(0xFFF0F0F0),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          _currentReplyTargetComment,
-                          style: const TextStyle(
-                            color: Color(0xFF555555),
-                            fontSize: 12,
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _currentReplyTargetComment,
+                              style: const TextStyle(
+                                color: Color(0xFF555555),
+                                fontSize: 12,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _currentReplyTargetComment = '';
+                                  ref.read(replyCommentSupplyNotifierProvider).pickReplyComment('');
+                                  _barHeight = 116;
+                                });
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(4.0),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Color(0xFF888888),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     // 댓글 입력 필드
