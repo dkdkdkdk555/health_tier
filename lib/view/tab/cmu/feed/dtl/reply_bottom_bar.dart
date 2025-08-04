@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ReplyBottomBar extends StatefulWidget {
@@ -26,6 +27,18 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
   // 전송 버튼 배경색
   Color _sendButtonColor = const Color(0xFFCCCCCC);
 
+  // 텍스트 입력가능한 좌우길이는 271px
+  // 개행시 21px 만큼 증가
+  /* 
+    변경해줘야 할 값
+  */
+  // 1. AnimatedContainer(댓글입력섹션 최상위 위젯)의 높이
+  // 2. TextField를 감싼 Container의 높이
+  // 3. TextField의 maxLines / keyboardType: TextInputType.text -> multiLine
+  // 4. 전송버튼의 위치
+
+  final GlobalKey _textFieldKey = GlobalKey();
+  double _textFieldHeight = 37; // 기본 높이
 
   @override
   void initState() {
@@ -63,8 +76,8 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
   }
 
   void _onTextChanged() {
-  // 텍스트가 비어있는지 여부에 따라 색상 업데이트
-  _updateColorsBasedOnText(_textEditingController.text.isNotEmpty);
+    // 텍스트가 비어있는지 여부에 따라 색상 업데이트
+    _updateColorsBasedOnText(_textEditingController.text.isNotEmpty);
   }
 
   void _updateColorsBasedOnText(bool hasText) {
@@ -75,6 +88,25 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
       } else {
         _textFieldBorderColor = const Color(0xFFDDDDDD); // 원래 색상
         _sendButtonColor = const Color(0xFFCCCCCC); // 원래 색상
+      }
+    });
+  }
+
+  void _updateTextFieldHeight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = _textFieldKey.currentContext;
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox;
+        final newHeight = box.size.height;
+        debugPrint('뉴헤이트 : ${newHeight.toString()}');
+
+        if (newHeight != _textFieldHeight) {
+          setState(() {
+            _textFieldHeight = newHeight;
+            _barHeight = _textFieldHeight + 46 + 20 + 10; // + 상하 padding + profile margin 등
+            debugPrint('바헤이트 : ${_barHeight.toString()}');
+          });
+        }
       }
     });
   }
@@ -113,53 +145,82 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
               spacing: 8,
               children: [
                 // 사용자 프로필 이미지
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/widgets/default_user_profile.svg',
-                    fit: BoxFit.cover,
-                  ),
+                Column(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(
+                        'assets/widgets/default_user_profile.svg',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    SizedBox(
+                      height: _textFieldHeight - 37, // 37 = 텍스트 필드 기본 높이, 프로필의 위치가 텍스트필드와 수평을 유지해야함.
+                    )
+                  ],
                 ),
                 // 댓글 입력 필드
-                Container(
-                  width: 303, // 기존 너비 유지
-                  height: 37,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: ShapeDecoration(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        width: 1,
-                        color: _textFieldBorderColor,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                ConstrainedBox(
+                   constraints: const BoxConstraints(
+                    minHeight: 37,
+                    maxHeight: 120, // 3~4줄까지 늘어나도록 제한
                   ),
-                  child: TextField(
-                    focusNode: _focusNode, // FocusNode 연결
-                    controller: _textEditingController, // TextEditingController 연결
-                    keyboardType: TextInputType.multiline,
-                    decoration: const InputDecoration(
-                      hintText: '댓글 달기',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(
-                        color: Color(0xFF999999),
+                  child: Container(
+                    key: _textFieldKey,
+                    width: 303, // 기존 너비 유지
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          width: 1,
+                          color: _textFieldBorderColor,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: TextField(
+                      focusNode: _focusNode, // FocusNode 연결
+                      controller: _textEditingController, // TextEditingController 연결
+                      onChanged: (_) => _updateTextFieldHeight(),
+                      keyboardType: TextInputType.multiline,
+                      maxLength: 250,
+                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                      buildCounter: ( // 글자수제한 표시 없에기
+                        BuildContext context, {
+                        required int currentLength,
+                        required bool isFocused,
+                        required int? maxLength,
+                      }) {
+                        return null; // ← 이게 핵심!
+                      },
+                      maxLines: null,
+                      minLines: 1,
+                      expands: false,
+                      decoration: const InputDecoration(
+                        hintText: '댓글 달기',
+                        border: InputBorder.none,
+                        isCollapsed: true, // 기본 패딩 제거
+                        contentPadding: EdgeInsets.zero, // content padding 명시적으로 제거
+                        hintStyle: TextStyle(
+                          color: Color(0xFF999999),
+                          fontSize: 14,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w400,
+                          height: 1.50,
+                        ),
+                      ),
+                      style: const TextStyle(
+                        color: Color(0xFF000000),
                         fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
                         height: 1.50,
                       ),
-                    ),
-                    style: const TextStyle(
-                      color: Color(0xFF000000),
-                      fontSize: 14,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w400,
-                      height: 1.50,
                     ),
                   ),
                 ),
@@ -171,7 +232,7 @@ class _ReplyBottomBarState extends State<ReplyBottomBar> {
             duration: const Duration(milliseconds: 250), // 애니메이션 지속 시간
             curve: Curves.easeOut, // 애니메이션 곡선
             left: 294,
-            top: _showSendButton ? 68 : _barHeight + keyboardHeight, // 가시성에 따라 위치 변경
+            top: 30 + _textFieldHeight, // 기본 top(23) + TextField의 높이에 맞춤,
             child: AnimatedOpacity( // 투명도 애니메이션
               opacity: _showSendButton ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 250),
