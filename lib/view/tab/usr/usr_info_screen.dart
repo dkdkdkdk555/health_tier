@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsrInfoScreen extends StatefulWidget {
@@ -33,7 +32,6 @@ class _UsrInfoScreenState extends State<UsrInfoScreen> {
       body: Column(
         children: [
           const SizedBox(height: 44,),
-          const CmuBasicAppBar(centerText: '회원정보 페이지'),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: _jwtToken == null
