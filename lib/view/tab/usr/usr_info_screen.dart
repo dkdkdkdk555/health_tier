@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,22 +31,36 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final badgeResult = ref.watch(userBadgeListProvider(30));
+    // final badgeResult = ref.watch(userBadgeListProvider(30));
 
-    return badgeResult.when(
-      data: (result) => ListView.builder(
-        itemCount: result.data.length,
-        itemBuilder: (context, index) {
-          final badge = result.data[index];
-          return ListTile(
-            title: Text(badge.badgeName),
-            subtitle: Text(badge.badgeCtnt!),
-          );
-        },
-      ),
+    final latestWeightAsyncValue = ref.watch(getLatestWeightProvider);
+
+    return latestWeightAsyncValue.when(
       loading: () => const CircularProgressIndicator(),
-      error: (e, st) => Text('에러 발생: $e'),
+      error: (err, stack) => Text('Error: $err'),
+      data: (weight) {
+        if (weight != null) {
+          return Text('가장 최근 체중: $weight kg');
+        } else {
+          return const Text('아직 체중 기록이 없습니다.');
+        }
+      },
     );
+
+    // return badgeResult.when(
+    //   data: (result) => ListView.builder(
+    //     itemCount: result.data.length,
+    //     itemBuilder: (context, index) {
+    //       final badge = result.data[index];
+    //       return ListTile(
+    //         title: Text(badge.badgeName),
+    //         subtitle: Text(badge.badgeCtnt!),
+    //       );
+    //     },
+    //   ),
+    //   loading: () => const CircularProgressIndicator(),
+    //   error: (e, st) => Text('에러 발생: $e'),
+    // );
 
     // return Scaffold(
     //   body: Column(

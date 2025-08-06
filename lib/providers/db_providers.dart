@@ -473,3 +473,21 @@ final selectStampList = FutureProvider.family<List<StampModel>, DayRange>((ref, 
 
   return fullList;
 });
+
+/*
+  4-2. 가장 최근의 체중을 가져오기
+*/
+final getLatestWeightProvider = FutureProvider<double?>((ref) async {
+  final db = ref.watch(databaseProvider);
+
+  // htDayBody 테이블에서 체중(weight) 기록이 있는 가장 최근의 데이터를 조회
+  final latestBody = await (db.select(db.htDayBody)
+    ..where((tbl) => tbl.weight.isNotNull()) // 체중 값이 null이 아닌 경우
+    ..where((tbl) => tbl.weight.isNotValue(0)) // 체중 값이 0이 아닌 경우
+    ..orderBy([(tbl) => OrderingTerm.desc(tbl.day)]) // 날짜를 내림차순(최신순)으로 정렬
+    ..limit(1) // 가장 최신 데이터 하나만 가져옴
+  ).getSingleOrNull();
+
+  // 조회된 데이터가 있다면 체중 값을, 없다면 null을 반환
+  return latestBody?.weight;
+});
