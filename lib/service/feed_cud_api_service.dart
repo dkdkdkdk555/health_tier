@@ -2,7 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
-import 'package:my_app/model/cmu/feed/crtifi_accept_request_dto.dart';
+import 'package:my_app/model/cmu/feed/like_and_crtifi_accept_request_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';

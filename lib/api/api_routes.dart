@@ -24,12 +24,21 @@ class FeedCudAPI {
   static const createFeed = base; // POST
   static const updateFeed = base; // PUT
   static const getFeedWhenUpate = '$base/'; // GET
-
   static const certificate = '$base/certificate';
   static const like = '$base/like'; // post
   static const cancelLike = '$base/like'; // delete
-  
   static const reportFeed = '/cud/report';
+}
+
+class ReplyCudAPI {
+  static const base = '/cud/reply';
+
+  static const writeReply = base; // POST
+  static const updateReply = base; // PUT
+  static const deleteReply = base; // DELETE
+  static const likeReply = '$base/like'; // POST
+  static const cancelLikeReply = '$base/like'; // DELETE
+
 }
 
 class UserAPI {

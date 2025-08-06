@@ -24,7 +24,7 @@ class DIOConfig {
     final prefs = await SharedPreferences.getInstance();
     final jwtToken = prefs.getString('jwt_token');
 
-    debugPrint(jwtToken);
+    debugPrint('??$jwtToken');
 
     dio.options = BaseOptions(
       baseUrl: APIServer.baseUrl,

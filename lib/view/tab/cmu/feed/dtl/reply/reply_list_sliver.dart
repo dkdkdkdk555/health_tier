@@ -56,14 +56,14 @@ class ReplyListSliver extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Reply(reply: reply, isChild: false),
+                Reply(reply: reply, isChild: false, cmuId: cmuId,),
 
                 if (reply.children.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Column(
                       children: reply.children.map((childReply) {
-                        return Reply(reply: childReply, isChild: true);
+                        return Reply(reply: childReply, isChild: true, cmuId: cmuId,);
                       }).toList(),
                     ),
                   ),

@@ -3,20 +3,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
+import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
 import 'package:my_app/providers/notifier_provider.dart';
+import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
-class Reply extends ConsumerWidget {
+class Reply extends ConsumerStatefulWidget {
   final ReplyResponseDto reply;
   final bool isChild;
+  final int cmuId;
   const Reply({
     super.key,
     required this.reply,
     required this.isChild,
+    required this.cmuId,
   });
 
+  @override
+  ConsumerState<Reply> createState() => _ReplyConsumerState();
+}
+
+class _ReplyConsumerState extends ConsumerState<Reply> {
 
   void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
     if(loginUserId == 0) {
@@ -73,16 +82,71 @@ class Reply extends ConsumerWidget {
     });
   }
 
+
+   // 좋아요 버튼 클릭 핸들러 (새로 추가)
+  Future<void> _onLikeButtonPressed(int? myUserId, BuildContext context, WidgetRef ref) async {
+    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
+    if (myUserId == null || myUserId == 0) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그인이 필요합니다.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
+    final replyService = replyServiceAsync;
+
+    try {
+      if (widget.reply.isLiked == false) {
+        // 좋아요가 아닌 상태에서 누르면 좋아요 요청
+        await replyService.likeReply(
+          ReplyLikeRequestDto(
+            userId: myUserId,
+            replyId: widget.reply.id,
+          ),
+        );
+        setState(() {
+          widget.reply.isLiked = true;
+          widget.reply.likeCnt += 1;
+        });
+      } else if (widget.reply.isLiked == true) {
+        // 좋아요 상태에서 누르면 좋아요 취소 요청
+        await replyService.cancelReplyLike(
+          ReplyLikeRequestDto(
+            userId: myUserId,
+            replyId: widget.reply.id
+          ),
+        );
+        setState(() {
+          widget.reply.isLiked = false;
+          widget.reply.likeCnt -= 1;
+        });
+      }
+
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('댓글좋아요 처리 실패: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final loginUserId = UserPrefs.myUserId;
+  Widget build(BuildContext context) {
+    final int? loginUserId = UserPrefs.myUserId;
+
     return Container(
       width: 375,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color:  (reply.delYn == 'N' && reply.likeCnt >=5 )
+        color:  (widget.reply.delYn == 'N' && widget.reply.likeCnt >=5 )
                  ? const Color(0xFFFFF4E9)
-                 : reply.delYn == 'Y'? Colors.grey.shade50 : Colors.white,
+                 : widget.reply.delYn == 'Y'? Colors.grey.shade50 : Colors.white,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -97,13 +161,13 @@ class Reply extends ConsumerWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildProfileImageStack(reply.imgPath, reply.badges, context, reply.delYn!),
+                  _buildProfileImageStack(widget.reply.imgPath, widget.reply.badges, context, widget.reply.delYn!),
                   Padding(
                     padding: const EdgeInsets.only(left:8.0, right:4.5),
                     child: Text(
-                      reply.nickname,
+                      widget.reply.nickname,
                       style: TextStyle(
-                        color: reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
+                        color: widget.reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
                         fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w600,
@@ -113,13 +177,13 @@ class Reply extends ConsumerWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(right: 4),
-                    child: _buildWeightTag(reply.badges),
+                    child: _buildWeightTag(widget.reply.badges),
                   ),
                   Consumer(
                     builder: (context, ref, child) {
                       final feedWriterUserId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.userId));
                   
-                      return reply.userId == feedWriterUserId
+                      return widget.reply.userId == feedWriterUserId
                         ? Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                           decoration: ShapeDecoration(
@@ -141,14 +205,14 @@ class Reply extends ConsumerWidget {
                     }
                   ),
                   const Spacer(),
-                  if(reply.delYn == 'N')
+                  if(widget.reply.delYn == 'N')
                   if(loginUserId != null || loginUserId != 0)
                   GestureDetector(
                     onTapUp: (TapUpDetails details) {
                       _showReplyHamburgerMenu(
                         context,
                         details.globalPosition, // 탭 발생 위치를 전달
-                        reply.userId, // 댓글 작성자 ID
+                        widget.reply.userId, // 댓글 작성자 ID
                         loginUserId ?? 0, // 로그인한 사용자 ID
                       );
                     },
@@ -164,14 +228,14 @@ class Reply extends ConsumerWidget {
                 ],
               ),
               Text(
-                reply.delYn == 'N' ? reply.ctnt : '삭제된 댓글입니다.',
+                widget.reply.delYn == 'N' ? widget.reply.ctnt : '삭제된 댓글입니다.',
                 style: TextStyle(
-                  color: reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
+                  color: widget.reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
                   fontSize: 14,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
                   height: 1.50,
-                  fontStyle: reply.delYn == 'N' ? FontStyle.normal : FontStyle.italic,
+                  fontStyle: widget.reply.delYn == 'N' ? FontStyle.normal : FontStyle.italic,
                 ),
               ),
             ],
@@ -186,20 +250,25 @@ class Reply extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 2,
                 children: [
-                if(reply.delYn == 'N')
-                  SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: SvgPicture.asset(
-                      reply.isLiked ? 'assets/icons/liked.svg': 'assets/icons/like.svg',
+                if(widget.reply.delYn == 'N')
+                  GestureDetector(
+                    onTap: () {
+                      _onLikeButtonPressed(loginUserId, context, ref);
+                    },
+                    child: SizedBox(
                       width: 16,
                       height: 16,
-                      fit: BoxFit.cover,
+                      child: SvgPicture.asset(
+                        widget.reply.isLiked ? 'assets/icons/liked.svg': 'assets/icons/like.svg',
+                        width: 16,
+                        height: 16,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                if(reply.delYn == 'N')
+                if(widget.reply.delYn == 'N')
                   Text(
-                    '${reply.likeCnt}',
+                    '${widget.reply.likeCnt}',
                     style: const TextStyle(
                       color: Color(0xFF777777),
                       fontSize: 12,
@@ -210,12 +279,12 @@ class Reply extends ConsumerWidget {
                   ),
                 ],
               ),
-              if(reply.delYn == 'N')
+              if(widget.reply.delYn == 'N')
               Padding(
                 padding: const EdgeInsets.only(left:12.0),
                 child: GestureDetector(
                   onTap: () {
-                    ref.read(replyCommentSupplyNotifierProvider).pickReplyComment(reply.ctnt);
+                    ref.read(replyCommentSupplyNotifierProvider).pickReplyComment(widget.reply.ctnt);
                   },
                   child: const Text(
                     '답글 쓰기',
@@ -231,7 +300,7 @@ class Reply extends ConsumerWidget {
               ),
               const Spacer(),
               Text(
-                reply.displayDttm,
+                widget.reply.displayDttm,
                 style: const TextStyle(
                   color: Color(0xFFAAAAAA),
                   fontSize: 12,
@@ -259,7 +328,7 @@ class Reply extends ConsumerWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => CmuUsrProfile(userId: reply.userId),
+            builder: (_) => CmuUsrProfile(userId: widget.reply.userId),
           ),
         );
       },

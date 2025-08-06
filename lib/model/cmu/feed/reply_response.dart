@@ -6,10 +6,10 @@ class ReplyResponseDto {
   final String nickname;
   final String imgPath;
   final String ctnt;
-  final int likeCnt;
+  int likeCnt; // 좋아요 즉각반영을 위해 final 제거
   final String createDttm;
   final String displayDttm;
-  final bool isLiked;
+  bool isLiked; // 좋아요 즉각반영을 위해 final 제거
   final int? parentReplyId;
   final String? delYn;
   final List<ReplyResponseDto> children;
