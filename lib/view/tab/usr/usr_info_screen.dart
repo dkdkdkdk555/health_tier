@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UsrInfoScreen extends StatefulWidget {
+class UsrInfoScreen extends ConsumerStatefulWidget {
   const UsrInfoScreen({super.key});
 
   @override
-  State<UsrInfoScreen> createState() => _UsrInfoScreenState();
+  ConsumerState<UsrInfoScreen> createState() => _UsrInfoScreenState();
 }
 
-class _UsrInfoScreenState extends State<UsrInfoScreen> {
+class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   String? _jwtToken;
 
   @override
@@ -28,33 +30,50 @@ class _UsrInfoScreenState extends State<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          const SizedBox(height: 44,),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: _jwtToken == null
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        '로그인 되었습니다.',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text('JWT Token:', style: TextStyle(fontSize: 16)),
-                      const SizedBox(height: 8),
-                      Text(
-                        _jwtToken!,
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
+    final badgeResult = ref.watch(userBadgeListProvider(30));
+
+    return badgeResult.when(
+      data: (result) => ListView.builder(
+        itemCount: result.data.length,
+        itemBuilder: (context, index) {
+          final badge = result.data[index];
+          return ListTile(
+            title: Text(badge.badgeName),
+            subtitle: Text(badge.badgeCtnt!),
+          );
+        },
       ),
+      loading: () => const CircularProgressIndicator(),
+      error: (e, st) => Text('에러 발생: $e'),
     );
+
+    // return Scaffold(
+    //   body: Column(
+    //     children: [
+    //       const SizedBox(height: 44,),
+    //       Padding(
+    //         padding: const EdgeInsets.all(20.0),
+    //         child: _jwtToken == null
+    //             ? const Center(child: CircularProgressIndicator())
+    //             : Column(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   const Text(
+    //                     '로그인 되었습니다.',
+    //                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    //                   ),
+    //                   const SizedBox(height: 20),
+    //                   const Text('JWT Token:', style: TextStyle(fontSize: 16)),
+    //                   const SizedBox(height: 8),
+    //                   Text(
+    //                     _jwtToken!,
+    //                     style: const TextStyle(fontSize: 12, color: Colors.grey),
+    //                   ),
+    //                 ],
+    //               ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }

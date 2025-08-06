@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/certifi_user_dto.dart';
 import 'package:my_app/model/cmu/feed/crtifi_accept_request_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
-import 'package:my_app/providers/feed_auth_providers.dart';
+import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/user_prefs.dart';
 

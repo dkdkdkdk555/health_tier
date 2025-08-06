@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.23:8080';
+  static const baseUrl = 'http://192.168.0.37:8080';
 }
 
 class FeedAPI {
@@ -37,6 +37,14 @@ class UserAPI {
 
   static const getUserInfo = '$base/';
 }
+
+
+class UserCudAPI {
+  static const base = '/cud/usr';
+
+  static const getUserBadges = '$base/';
+}
+
 
 class AuthAPI {
   static const base = '/auth';

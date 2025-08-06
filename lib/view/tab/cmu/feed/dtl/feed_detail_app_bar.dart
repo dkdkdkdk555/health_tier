@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/main.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
-import 'package:my_app/providers/feed_auth_providers.dart';
+import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';

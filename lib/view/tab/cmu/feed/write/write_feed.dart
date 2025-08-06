@@ -14,7 +14,7 @@ import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
-import 'package:my_app/providers/feed_auth_providers.dart';
+import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
