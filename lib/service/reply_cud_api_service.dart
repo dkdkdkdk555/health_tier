@@ -48,4 +48,23 @@ class ReplyCudService {
     }
   }
   
+  // 댓글 삭제요청
+  Future<String> deleteReply(int id) async {
+    try {
+      final response = await dio.delete( 
+        '${ReplyCudAPI.deleteReply}/$id',
+      );
+
+      if (response.statusCode == 200) {
+        return response.data.toString();
+      } else {
+        throw Exception('댓글 삭제 취소 실패: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? '댓글 삭제 요청 실패';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('알 수 없는 댓글 삭제 에러: $e');
+    }
+  }
 }

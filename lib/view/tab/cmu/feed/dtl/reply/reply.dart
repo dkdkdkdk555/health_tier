@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/util/user_prefs.dart';
@@ -55,12 +56,56 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
             );
             // 여기에 실제 수정 로직(예: 수정 페이지로 이동) 구현
           },
-          onDelete: () {
-            // 삭제 버튼 클릭 시 실행될 로직
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('삭제하기 클릭됨!')),
-            );
-            // 여기에 실제 삭제 로직(예: 확인 다이얼로그 후 API 호출) 구현
+          onDelete: () async {
+
+             final bool confirm = await showDialog<bool>(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  content: const Text('댓글을 삭제하시겠습니까?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('취소'),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(false); // 취소 버튼 클릭 시 false 반환
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('확인'),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(true); // 확인 버튼 클릭 시 true 반환
+                      },
+                    ),
+                  ],
+                );
+              },
+            ) ?? false; // dialog가 닫히면서 null이 반환될 경우를 대비해 기본값 false 설정
+
+            // 사용자가 '확인'을 누르지 않았다면 함수 실행 중단
+            if (!confirm) {
+              return;
+            }
+
+            final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
+            final replyService = replyServiceAsync;
+            try {
+              await replyService.deleteReply(widget.reply.id);
+
+              ref.invalidate(replyPaginationProvider(widget.cmuId));
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('댓글이 삭제되었습니다.')),
+                );
+              }
+            } catch(e) {
+              debugPrint('$e');
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('댓글 삭제 처리 실패: ${e.toString()}')),
+                );
+              }
+            }
           },
           onReport: () {
             // 신고 버튼 클릭 시 실행될 로직
