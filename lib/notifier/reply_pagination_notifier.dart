@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
@@ -9,6 +10,8 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
   final int cmuId;
   FeedService? _service;
   int? _cursorId;
+  int? _cursorLikeCnt;
+  int? _cursorReplyCount;
   bool _hasNext = true; // 다음 페이지가 있는지 여부
 
   ReplyPaginationNotifier(this._ref, this.cmuId)
@@ -39,6 +42,11 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
     try {
       final response = await _service!.getReplies(cmuId: cmuId);
       _cursorId = response.lastCursorId;
+      debugPrint('fetchInitial : $_cursorId');
+      _cursorLikeCnt = response.items.last.likeCnt;
+      debugPrint('fetchInitial : $_cursorLikeCnt');
+      _cursorReplyCount = response.items.last.children.length;
+      debugPrint('fetchInitial : $_cursorReplyCount');
       _hasNext = response.hasNext;
       state = AsyncValue.data(response);
     } catch (e, st) {
@@ -77,14 +85,21 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
     }
 
     try {
+      debugPrint('fetchNext : $_cursorId');
+      debugPrint('fetchNext : $_cursorLikeCnt');
+      debugPrint('fetchNext : $_cursorReplyCount');
       // 3. API 호출
       final response = await _service!.getReplies(
         cmuId: cmuId,
         cursorId: _cursorId,
+        cursorLikeCnt: _cursorLikeCnt,
+        cursorReplyCount: _cursorReplyCount,
       );
 
       // 4. 커서 및 다음 페이지 여부 업데이트
       _cursorId = response.lastCursorId;
+      _cursorLikeCnt = response.items.last.likeCnt;
+      _cursorReplyCount = response.items.last.children.length;
       _hasNext = response.hasNext;
 
       // 5. 기존 데이터에 새 데이터를 이어붙여 상태 업데이트

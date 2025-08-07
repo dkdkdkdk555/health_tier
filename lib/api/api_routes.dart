@@ -51,7 +51,7 @@ class UserAPI {
 class UserCudAPI {
   static const base = '/cud/usr';
 
-  static const getUserBadges = '$base/';
+  static const getUserBadges = '$base/badges';
 }
 
 

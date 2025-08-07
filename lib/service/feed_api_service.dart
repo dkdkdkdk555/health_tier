@@ -73,12 +73,16 @@ class FeedService {
   Future<ScrollResponse<ReplyResponseDto>> getReplies({
     required int cmuId,
     int? cursorId,
+    int? cursorLikeCnt,
+    int? cursorReplyCount,
     int limit = 5,
   }) async {
     final response = await dio.get(
       '${FeedAPI.getReplies}/$cmuId',
       queryParameters: {
         if (cursorId != null) 'cursorId': cursorId,
+        if (cursorLikeCnt != null) 'cursorLikeCnt': cursorLikeCnt,
+        if (cursorReplyCount != null) 'cursorReplyCount': cursorReplyCount,
         'limit': limit,
       },
     );
