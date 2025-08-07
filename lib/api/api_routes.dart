@@ -27,6 +27,7 @@ class FeedCudAPI {
   static const certificate = '$base/certificate';
   static const like = '$base/like'; // post
   static const cancelLike = '$base/like'; // delete
+
   static const reportFeed = '/cud/report';
 }
 
@@ -38,6 +39,8 @@ class ReplyCudAPI {
   static const deleteReply = base; // DELETE
   static const likeReply = '$base/like'; // POST
   static const cancelLikeReply = '$base/like'; // DELETE
+
+  static const reportReply = '/cud/report/reply';
 
 }
 

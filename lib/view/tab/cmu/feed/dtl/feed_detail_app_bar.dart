@@ -46,9 +46,8 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          // ✅ 다이얼로그 디자인 개선 시작
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0), // 모서리 둥글게
+            borderRadius: BorderRadius.circular(15.0),
           ),
           titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0), // 제목 패딩 조정
           contentPadding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 0.0), // 내용 패딩 조정
@@ -65,7 +64,6 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // '신고 사유를 입력해주세요.' 텍스트 제거 (제목으로 대체)
               const SizedBox(height: 10), // 제목과 텍스트 필드 사이 여백
               TextField(
                 controller: reasonController,
