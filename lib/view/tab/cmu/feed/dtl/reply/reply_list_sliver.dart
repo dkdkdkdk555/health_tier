@@ -37,6 +37,28 @@ class ReplyListSliver extends ConsumerWidget {
         final replies = scrollResponse.items;
         final hasNext = scrollResponse.hasNext;
 
+        if (replies.isEmpty) {
+          return SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Container(
+                  height: 2.5,
+                  decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 70.0, bottom: 85,  right: 20, left: 20),
+                  child: Center(
+                    child: Text(
+                      '아직 댓글이 없습니다.\n 댓글을 입력해주세요.',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         return _buildSliverContent(context, replies, hasNext, replyNotifier);
       },
     );

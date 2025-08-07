@@ -33,7 +33,7 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
   }
 
   Future<void> fetchInitial() async {
-     if (_service == null) {
+    if (_service == null) {
       state = AsyncValue.error('FeedService is not initialized yet.', StackTrace.current);
       return;
     }
@@ -41,19 +41,24 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
     state = const AsyncValue.loading();
     try {
       final response = await _service!.getReplies(cmuId: cmuId);
+
+      if (response.items.isEmpty) {
+        _hasNext = false;
+        state = AsyncValue.data(response); // 빈 리스트로 전달
+        return;
+      }
+
       _cursorId = response.lastCursorId;
-      debugPrint('fetchInitial : $_cursorId');
       _cursorLikeCnt = response.items.last.likeCnt;
-      debugPrint('fetchInitial : $_cursorLikeCnt');
       _cursorReplyCount = response.items.last.children.length;
-      debugPrint('fetchInitial : $_cursorReplyCount');
       _hasNext = response.hasNext;
+
       state = AsyncValue.data(response);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
-
+  
   Future<void> fetchNext() async {
      if (_service == null) {
       return;
@@ -85,9 +90,6 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
     }
 
     try {
-      debugPrint('fetchNext : $_cursorId');
-      debugPrint('fetchNext : $_cursorLikeCnt');
-      debugPrint('fetchNext : $_cursorReplyCount');
       // 3. API 호출
       final response = await _service!.getReplies(
         cmuId: cmuId,
