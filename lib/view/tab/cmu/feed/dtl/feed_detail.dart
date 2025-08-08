@@ -68,7 +68,7 @@ class _FeedDetailState extends State<FeedDetail> {
           ],
         ),
       ),
-      bottomNavigationBar: const ReplyBottomBar(),
+      bottomNavigationBar: ReplyBottomBar(cmuId: widget.feedId,),
     );
   }
 }

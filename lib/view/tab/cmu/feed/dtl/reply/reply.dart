@@ -267,7 +267,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                       if (!dialogContext.mounted) return;
                       Navigator.pop(dialogContext);
 
-                      if (!context.mounted) return;
+                      if (!mounted) return;
 
                       if (message != null) {
                         showDialog(
@@ -476,7 +476,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                 padding: const EdgeInsets.only(left:12.0),
                 child: GestureDetector(
                   onTap: () {
-                    ref.read(replyCommentSupplyNotifierProvider).pickReplyComment(widget.reply.ctnt);
+                    ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt);
                   },
                   child: const Text(
                     '답글 쓰기',

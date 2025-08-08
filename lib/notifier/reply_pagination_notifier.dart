@@ -14,6 +14,8 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
   int? _cursorReplyCount;
   bool _hasNext = true; // 다음 페이지가 있는지 여부
 
+  int? get cursorId => _cursorId;
+
   ReplyPaginationNotifier(this._ref, this.cmuId)
       : super(const AsyncValue.loading()) {
     _initializeServiceAndFetch(); // 서비스 초기화 및 초기 데이터 로딩 시작
@@ -98,14 +100,24 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
         cursorReplyCount: _cursorReplyCount,
       );
 
+      //  기존 데이터에 새 데이터를 이어붙여 상태 업데이트
+      final combinedItems = [...currentState.items, ...response.items];
+
+      if (response.items.isEmpty) {
+        _hasNext = false;
+        state = AsyncValue.data(ScrollResponse(
+          items: combinedItems,
+          lastCursorId: null,
+          hasNext: _hasNext,
+        ));
+        return;
+      }
+
       // 4. 커서 및 다음 페이지 여부 업데이트
       _cursorId = response.lastCursorId;
       _cursorLikeCnt = response.items.last.likeCnt;
       _cursorReplyCount = response.items.last.children.length;
-      _hasNext = response.hasNext;
-
-      // 5. 기존 데이터에 새 데이터를 이어붙여 상태 업데이트
-      final combinedItems = [...currentState.items, ...response.items];
+      _hasNext = response.hasNext;      
 
       // `AsyncValue.data` 상태를 유지하며 새로운 `ScrollResponse` 객체로 업데이트.
       //    이것이 스크롤 위치 유지의 핵심입니다.
@@ -117,9 +129,7 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
       ));
 
     } catch (e, st) {
-      // 에러 발생 시, 현재 데이터를 유지하면서 에러 상태로 변경 (선택 사항)
-      // 또는 그냥 에러 상태로 전체 전환할 수도 있습니다.
-      state = AsyncValue.error(e, st).copyWithPrevious(state).value;
+     state = AsyncValue<ScrollResponse<ReplyResponseDto>>.error(e, st).copyWithPrevious(state);
     }
   }
 }

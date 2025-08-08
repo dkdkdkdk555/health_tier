@@ -36,8 +36,9 @@ class ReplyListSliver extends ConsumerWidget {
       data: (scrollResponse) {
         final replies = scrollResponse.items;
         final hasNext = scrollResponse.hasNext;
+        final int? cursorId = replyNotifier.cursorId;
 
-        if (replies.isEmpty) {
+        if (replies.isEmpty && cursorId == null) {
           return SliverToBoxAdapter(
             child: Column(
               children: [

@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_app/providers/notifier_provider.dart'; // replyCommentSupplyNotifierProvider 경로 확인
+import 'package:my_app/model/cmu/reply/reply_write_request_dto.dart';
+import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/providers/notifier_provider.dart';
+import 'package:my_app/providers/reply_cud_providers.dart'; // replyCommentSupplyNotifierProvider 경로 확인
 
 class ReplyBottomBar extends ConsumerStatefulWidget {
+  final int cmuId;
   const ReplyBottomBar({
+    required this.cmuId,
     super.key,
   });
 
@@ -84,7 +89,7 @@ void dispose() {
         _showSendButton = true;
       } else {
         _currentReplyTargetComment = '';
-        ref.read(replyCommentSupplyNotifierProvider).pickReplyComment('');
+        ref.read(replySupplyNotifierProvider).disposeReplyState();
         if (_textEditingController.text.isEmpty && _currentReplyTargetComment.isEmpty) {
           // 텍스트도 비어있고 답글 대상도 없을 때만 바 숨김
           _barHeight = 106;
@@ -169,12 +174,54 @@ void dispose() {
     return comment;
   }
 
+  Future<void> sendComment(int cmuId, int? replyId, WidgetRef ref) async {
+    final commentText = _textEditingController.text.trim();
+    if (commentText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('댓글을 입력해주세요')),
+      );
+      return;
+    }
+
+    final dto = ReplyWriteRequestDto(
+      cmuId: cmuId,
+      ctnt: commentText,
+      parentReplyId: replyId == 0 ? null : replyId,
+    );
+
+    try {
+      final service = await ref.read(replyCudServiceProvider.future);
+      final resultMessage = await service.writeReply(dto);
+
+      // 성공 시 입력 초기화 및 댓글 목록 갱신
+      _textEditingController.clear();
+      _currentReplyTargetComment = '';
+      _showSendButton = false;
+      ref.read(replySupplyNotifierProvider).disposeReplyState();
+
+      ref.invalidate(replyPaginationProvider(cmuId));
+
+      if(!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(resultMessage)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      _updateBarHeight();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    String comment = ref.watch(replyCommentSupplyNotifierProvider.select((notifier) => notifier.comment));
-    _onReplyClicked(comment);
+    Map<int, String> replyInfo = ref.watch(replySupplyNotifierProvider.select((notifier) => notifier.pickReply));
+    String replyComment = replyInfo.values.isNotEmpty ? replyInfo.values.first : '';
+    int replyId = replyInfo.keys.isNotEmpty ? replyInfo.keys.first : 0;
+    _onReplyClicked(replyComment);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -260,7 +307,7 @@ void dispose() {
                               onTap: () {
                                 setState(() {
                                   _currentReplyTargetComment = '';
-                                  ref.read(replyCommentSupplyNotifierProvider).pickReplyComment('');
+                                  ref.read(replySupplyNotifierProvider).disposeReplyState();
                                   _barHeight = 116;
                                 });
                               },
@@ -373,22 +420,27 @@ void dispose() {
               duration: const Duration(milliseconds: 250),
               child: IgnorePointer(
                 ignoring: !_showSendButton,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: ShapeDecoration(
-                    color: _sendButtonColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(99),
+                child: GestureDetector(
+                  onTap: () async {
+                      await sendComment(widget.cmuId, replyId, ref);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: ShapeDecoration(
+                      color: _sendButtonColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(99),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    '전송',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w500,
-                      height: 1.50,
+                    child: const Text(
+                      '전송',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                        height: 1.50,
+                      ),
                     ),
                   ),
                 ),

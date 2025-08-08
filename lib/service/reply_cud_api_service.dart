@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
+import 'package:my_app/model/cmu/reply/reply_write_request_dto.dart';
 
 class ReplyCudService {
   final Dio dio;
@@ -87,6 +88,28 @@ class ReplyCudService {
       }
     } catch (e) {
       throw Exception('알 수 없는 오류: $e');
+    }
+  }
+
+
+  // 댓글 작성 요청
+  Future<String> writeReply(ReplyWriteRequestDto dto) async {
+    try {
+      final response = await dio.post(
+        ReplyCudAPI.writeReply,
+        data: dto.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data.toString(); // "댓글이 작성되었습니다."
+      } else {
+        throw Exception('댓글 작성 실패: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? '댓글 작성 요청 실패';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('알 수 없는 댓글 작성 에러: $e');
     }
   }
 }
