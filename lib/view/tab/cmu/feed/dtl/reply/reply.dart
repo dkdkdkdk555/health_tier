@@ -51,12 +51,37 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
         ReplyHamburger(
           writerUserId: writerUserId,
           loginUserId: loginUserId,
-          onEdit: () {
-            // 수정 버튼 클릭 시 실행될 로직
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('수정하기 클릭됨!')),
-            );
-            // 여기에 실제 수정 로직(예: 수정 페이지로 이동) 구현
+          onEdit: () async {
+
+            final bool confirm = await showDialog<bool>(
+              context: context,
+              builder: (BuildContext dialogContext) {
+                return AlertDialog(
+                  content: const Text('댓글을 수정하시겠습니까?'),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text('취소'),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(false);
+                      },
+                    ),
+                    TextButton(
+                      child: const Text('확인'),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(true);
+                      },
+                    ),
+                  ],
+                );
+              },
+            ) ?? false;
+
+            if (!confirm) {
+              return;
+            }
+
+             ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, true);
+
           },
           onDelete: () async {
 
@@ -69,19 +94,19 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                     TextButton(
                       child: const Text('취소'),
                       onPressed: () {
-                        Navigator.of(dialogContext).pop(false); // 취소 버튼 클릭 시 false 반환
+                        Navigator.of(dialogContext).pop(false);
                       },
                     ),
                     TextButton(
                       child: const Text('확인'),
                       onPressed: () {
-                        Navigator.of(dialogContext).pop(true); // 확인 버튼 클릭 시 true 반환
+                        Navigator.of(dialogContext).pop(true);
                       },
                     ),
                   ],
                 );
               },
-            ) ?? false; // dialog가 닫히면서 null이 반환될 경우를 대비해 기본값 false 설정
+            ) ?? false;
 
             // 사용자가 '확인'을 누르지 않았다면 함수 실행 중단
             if (!confirm) {
@@ -476,7 +501,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                 padding: const EdgeInsets.only(left:12.0),
                 child: GestureDetector(
                   onTap: () {
-                    ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt);
+                    ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, null);
                   },
                   child: const Text(
                     '답글 쓰기',
