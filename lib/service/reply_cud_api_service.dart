@@ -112,4 +112,25 @@ class ReplyCudService {
       throw Exception('알 수 없는 댓글 작성 에러: $e');
     }
   }
+
+  // 댓글 수정 요청
+  Future<String> updateReply(ReplyWriteRequestDto dto) async {
+    try {
+      final response = await dio.put(
+        ReplyCudAPI.updateReply,
+        data: dto.toJson(),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data.toString();
+      } else {
+        throw Exception('댓글 수정 실패: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      final message = e.response?.data['message'] ?? '댓글 수정 요청 실패';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('알 수 없는 댓글 수정 에러: $e');
+    }
+  }
 }

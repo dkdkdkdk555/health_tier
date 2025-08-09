@@ -25,6 +25,7 @@ class ReplySupplyNotifier extends ChangeNotifier{
   void disposeReplyState() {
     if (_pickReply.isNotEmpty) {
       _pickReply.clear();
+      _isUpdate = false;
       notifyListeners();
     }
   }

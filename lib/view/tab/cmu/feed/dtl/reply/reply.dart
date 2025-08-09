@@ -51,37 +51,8 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
         ReplyHamburger(
           writerUserId: writerUserId,
           loginUserId: loginUserId,
-          onEdit: () async {
-
-            final bool confirm = await showDialog<bool>(
-              context: context,
-              builder: (BuildContext dialogContext) {
-                return AlertDialog(
-                  content: const Text('댓글을 수정하시겠습니까?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('취소'),
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop(false);
-                      },
-                    ),
-                    TextButton(
-                      child: const Text('확인'),
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop(true);
-                      },
-                    ),
-                  ],
-                );
-              },
-            ) ?? false;
-
-            if (!confirm) {
-              return;
-            }
-
+          onEdit: () {
              ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, true);
-
           },
           onDelete: () async {
 

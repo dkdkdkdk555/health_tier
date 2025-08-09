@@ -55,18 +55,26 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
     super.didUpdateWidget(oldWidget);
   }
 
-  void _onReplyClicked(String comment){
-    if (comment != _currentReplyTargetComment && comment.isNotEmpty) {
-      _currentReplyTargetComment = _truncateComment(comment);
-      // 새로운 답글 대상이 생겼을 때 키보드 올리기
+  void _onReplyClicked(String comment, bool isUpdate){
+    if(!isUpdate) {
+      if (comment != _currentReplyTargetComment && comment.isNotEmpty) {
+        _currentReplyTargetComment = _truncateComment(comment);
+        // 새로운 답글 대상이 생겼을 때 키보드 올리기
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _focusNode.requestFocus();
+          _updateBarHeight();
+        });
+      } else if (comment.isEmpty && _currentReplyTargetComment.isNotEmpty) {
+        // comment가 비워졌을 때 답글 대상 제거
+        _currentReplyTargetComment = '';
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateBarHeight();
+        });
+      }
+    } else {
+      _textEditingController.text = comment;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
-        _updateBarHeight();
-      });
-    } else if (comment.isEmpty && _currentReplyTargetComment.isNotEmpty) {
-      // comment가 비워졌을 때 답글 대상 제거
-      _currentReplyTargetComment = '';
-      WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateBarHeight();
       });
     }
@@ -87,6 +95,7 @@ void dispose() {
     setState(() {
       if (_focusNode.hasFocus) {
         _showSendButton = true;
+        _updateBarHeight();
       } else {
         _currentReplyTargetComment = '';
         ref.read(replySupplyNotifierProvider).disposeReplyState();
@@ -96,7 +105,6 @@ void dispose() {
           _showSendButton = false;
         }
       }
-      _updateBarHeight(); // 포커스 변경 시 항상 높이 업데이트
     });
   }
 
@@ -174,7 +182,7 @@ void dispose() {
     return comment;
   }
 
-  Future<void> sendComment(int cmuId, int? replyId, WidgetRef ref) async {
+  Future<void> sendComment(int cmuId, WidgetRef ref) async {
     final commentText = _textEditingController.text.trim();
     if (commentText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,16 +190,27 @@ void dispose() {
       );
       return;
     }
+    
+    // sendComment 함수가 호출될 때마다 최신 상태를 직접 읽어옵니다.
+    final currentIsUpdate = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.isUpdate));
+    final currentReplyId = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.pickReply.keys.isNotEmpty ? notifier.pickReply.keys.first : 0));
 
-    final dto = ReplyWriteRequestDto(
-      cmuId: cmuId,
-      ctnt: commentText,
-      parentReplyId: replyId == 0 ? null : replyId,
-    );
+
+    final dto = currentIsUpdate ? 
+      ReplyWriteRequestDto(
+        id: currentReplyId,
+        cmuId: cmuId,
+        ctnt: commentText,
+      ):
+      ReplyWriteRequestDto(
+        cmuId: cmuId,
+        ctnt: commentText,
+        parentReplyId: currentReplyId == 0 ? null : currentReplyId,
+      );
 
     try {
       final service = await ref.read(replyCudServiceProvider.future);
-      final resultMessage = await service.writeReply(dto);
+      final resultMessage = currentIsUpdate ? await service.updateReply(dto) : await service.writeReply(dto);
 
       // 성공 시 입력 초기화 및 댓글 목록 갱신
       _textEditingController.clear();
@@ -218,10 +237,17 @@ void dispose() {
   Widget build(BuildContext context) {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    Map<int, String> replyInfo = ref.watch(replySupplyNotifierProvider.select((notifier) => notifier.pickReply));
-    String replyComment = replyInfo.values.isNotEmpty ? replyInfo.values.first : '';
-    int replyId = replyInfo.keys.isNotEmpty ? replyInfo.keys.first : 0;
-    _onReplyClicked(replyComment);
+
+    ref.listen<Map<int, String>>(
+      replySupplyNotifierProvider.select((n) => n.pickReply),
+      (previous, next) {
+        String replyComment = next.values.isNotEmpty ? next.values.first : '';
+        bool isUpdate = ref.read(
+          replySupplyNotifierProvider.select((notifier) => notifier.isUpdate),
+        );
+        _onReplyClicked(replyComment, isUpdate);
+      },
+    );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
@@ -422,7 +448,7 @@ void dispose() {
                 ignoring: !_showSendButton,
                 child: GestureDetector(
                   onTap: () async {
-                      await sendComment(widget.cmuId, replyId, ref);
+                      await sendComment(widget.cmuId, ref);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
