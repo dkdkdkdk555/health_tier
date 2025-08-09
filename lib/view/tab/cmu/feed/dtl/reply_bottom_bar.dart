@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/reply/reply_write_request_dto.dart';
+import 'package:my_app/model/cmu/reply/selected_reply_info.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart'; // replyCommentSupplyNotifierProvider 경로 확인
@@ -34,6 +35,7 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   String _currentReplyTargetComment = ''; // 현재 답글 대상 댓글 내용 저장
   // 답글 대상 텍스트가 표시될 높이 (대략 한 줄 높이 + 패딩)
   final double _replyTargetHeight = 30.0; // 답글 대상 텍스트 영역 높이
+  
 
   @override
   void initState() {
@@ -183,7 +185,7 @@ void dispose() {
   }
 
   Future<void> sendComment(int cmuId, WidgetRef ref) async {
-    final commentText = _textEditingController.text.trim();
+    String commentText = _textEditingController.text.trim();
     if (commentText.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('댓글을 입력해주세요')),
@@ -193,8 +195,16 @@ void dispose() {
     
     // sendComment 함수가 호출될 때마다 최신 상태를 직접 읽어옵니다.
     final currentIsUpdate = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.isUpdate));
-    final currentReplyId = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.pickReply.keys.isNotEmpty ? notifier.pickReply.keys.first : 0));
+    final currentReplyId = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.selectedReplyId));
+    final isReReply = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.isReReply));
 
+    if(isReReply){
+      final nickNameTag =  '@${ref.read(replySupplyNotifierProvider.select((notifier) => notifier.nickname))}';
+      debugPrint(nickNameTag);
+      commentText = '$nickNameTag $commentText';
+    }
+
+    debugPrint(commentText);
 
     final dto = currentIsUpdate ? 
       ReplyWriteRequestDto(
@@ -239,13 +249,12 @@ void dispose() {
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
 
-    ref.listen<Map<int, String>>(
+    ref.listen<SelectedReplyInfo?>(
       replySupplyNotifierProvider.select((n) => n.pickReply),
       (previous, next) {
-        String replyComment = next.values.isNotEmpty ? next.values.first : '';
-        bool isUpdate = ref.read(
-          replySupplyNotifierProvider.select((notifier) => notifier.isUpdate),
-        );
+        final String replyComment = next?.comment ?? '';
+        final bool isUpdate = next?.isUpdate ?? false;
+
         _onReplyClicked(replyComment, isUpdate);
       },
     );

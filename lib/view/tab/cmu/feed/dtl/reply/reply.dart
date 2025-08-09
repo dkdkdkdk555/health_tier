@@ -52,7 +52,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
           writerUserId: writerUserId,
           loginUserId: loginUserId,
           onEdit: () {
-             ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, true);
+             ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, null, isUpdate: true);
           },
           onDelete: () async {
 
@@ -324,6 +324,54 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
     );
   }
 
+  // 댓글 내용에 @으로 시작하는 단어 스타일링
+  TextSpan _buildStyledCommentText(String text, String delYn) {
+    final defaultColor = delYn == 'N' ? Colors.black : Colors.grey.shade700;
+    const highlightColor = Color(0xFF0D86E7);
+    final FontStyle fontStyle = delYn == 'N' ? FontStyle.normal : FontStyle.italic;
+
+    final List<TextSpan> spans = [];
+    final RegExp regex = RegExp(r'(\S*@\S+)'); // @으로 시작하는 단어를 찾기 위한 정규식 (단어 전체 매칭)
+
+    text.splitMapJoin(
+      regex,
+      onMatch: (Match match) {
+        spans.add(
+          TextSpan(
+            text: match.group(0), // 매칭된 `@`으로 시작하는 단어
+            style: TextStyle(
+              color: highlightColor,
+              fontSize: 14,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+              height: 1.50,
+              fontStyle: fontStyle,
+            ),
+          ),
+        );
+        return ''; // 매칭된 부분은 이미 TextSpan으로 추가했으므로 빈 문자열 반환
+      },
+      onNonMatch: (String nonMatch) {
+        spans.add(
+          TextSpan(
+            text: nonMatch, // 매칭되지 않은 일반 텍스트
+            style: TextStyle(
+              color: defaultColor,
+              fontSize: 14,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w400,
+              height: 1.50,
+              fontStyle: fontStyle,
+            ),
+          ),
+        );
+        return ''; // 매칭되지 않은 부분은 이미 TextSpan으로 추가했으므로 빈 문자열 반환
+      },
+    );
+
+    return TextSpan(children: spans);
+  }
+
   @override
   Widget build(BuildContext context) {
     final int? loginUserId = UserPrefs.myUserId;
@@ -415,15 +463,10 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                   ),
                 ],
               ),
-              Text(
-                widget.reply.delYn == 'N' ? widget.reply.ctnt : '삭제된 댓글입니다.',
-                style: TextStyle(
-                  color: widget.reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
-                  fontSize: 14,
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w400,
-                  height: 1.50,
-                  fontStyle: widget.reply.delYn == 'N' ? FontStyle.normal : FontStyle.italic,
+              Text.rich(
+                _buildStyledCommentText(
+                  widget.reply.delYn == 'N' ? widget.reply.ctnt : '삭제된 댓글입니다.',
+                  widget.reply.delYn!,
                 ),
               ),
             ],
@@ -472,7 +515,13 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                 padding: const EdgeInsets.only(left:12.0),
                 child: GestureDetector(
                   onTap: () {
-                    ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, null);
+                    ref.read(replySupplyNotifierProvider)
+                      .pickReplyInfo(
+                        widget.reply.parentReplyId==null ? widget.reply.id : widget.reply.parentReplyId!, 
+                        widget.reply.ctnt, 
+                        widget.reply.nickname,
+                        isReReply: widget.reply.parentReplyId!=null
+                      );
                   },
                   child: const Text(
                     '답글 쓰기',

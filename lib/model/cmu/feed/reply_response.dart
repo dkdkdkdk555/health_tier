@@ -1,6 +1,6 @@
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 
-class ReplyResponseDto {
+class  ReplyResponseDto {
   final int id;
   final int userId;
   final String nickname;
