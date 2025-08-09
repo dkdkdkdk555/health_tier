@@ -219,6 +219,7 @@ void dispose() {
       ref.read(replySupplyNotifierProvider).disposeReplyState();
 
       ref.invalidate(replyPaginationProvider(cmuId));
+      ref.invalidate(feedDetailProvider(cmuId));
 
       if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
