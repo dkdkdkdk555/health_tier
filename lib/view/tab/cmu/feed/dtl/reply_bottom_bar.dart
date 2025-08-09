@@ -6,7 +6,8 @@ import 'package:my_app/model/cmu/reply/reply_write_request_dto.dart';
 import 'package:my_app/model/cmu/reply/selected_reply_info.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
-import 'package:my_app/providers/reply_cud_providers.dart'; // replyCommentSupplyNotifierProvider 경로 확인
+import 'package:my_app/providers/reply_cud_providers.dart';
+import 'package:my_app/util/styled_text_controller.dart'; // replyCommentSupplyNotifierProvider 경로 확인
 
 class ReplyBottomBar extends ConsumerStatefulWidget {
   final int cmuId;
@@ -21,7 +22,7 @@ class ReplyBottomBar extends ConsumerStatefulWidget {
 
 class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   final FocusNode _focusNode = FocusNode();
-  final TextEditingController _textEditingController = TextEditingController();
+  final StyledTextController _textEditingController = StyledTextController(); 
 
   double _barHeight = 106;
   bool _showSendButton = false;
@@ -35,7 +36,6 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   String _currentReplyTargetComment = ''; // 현재 답글 대상 댓글 내용 저장
   // 답글 대상 텍스트가 표시될 높이 (대략 한 줄 높이 + 패딩)
   final double _replyTargetHeight = 30.0; // 답글 대상 텍스트 영역 높이
-  
 
   @override
   void initState() {
@@ -57,26 +57,23 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
     super.didUpdateWidget(oldWidget);
   }
 
-  void _onReplyClicked(String comment, bool isUpdate){
-    if(!isUpdate) {
-      if (comment != _currentReplyTargetComment && comment.isNotEmpty) {
-        _currentReplyTargetComment = _truncateComment(comment);
-        // 새로운 답글 대상이 생겼을 때 키보드 올리기
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _focusNode.requestFocus();
-          _updateBarHeight();
-        });
-      } else if (comment.isEmpty && _currentReplyTargetComment.isNotEmpty) {
-        // comment가 비워졌을 때 답글 대상 제거
-        _currentReplyTargetComment = '';
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _updateBarHeight();
-        });
+  void _onReplyClicked(SelectedReplyInfo? selectedReplyInfo) {
+    if (selectedReplyInfo != null && selectedReplyInfo.replyId != 0) {
+      if (selectedReplyInfo.isUpdate) {
+        _textEditingController.text = selectedReplyInfo.comment;
+        _currentReplyTargetComment = ''; // 수정 모드 시 답글 대상 댓글 비움
+      } else {
+        _currentReplyTargetComment = _truncateComment(selectedReplyInfo.comment);
+        _textEditingController.clear(); // 답글 모드 시 기존 입력 내용을 비움
       }
-    } else {
-      _textEditingController.text = comment;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
+        _updateBarHeight();
+      });
+    } else {
+      _currentReplyTargetComment = '';
+      _textEditingController.clear(); // 텍스트 필드 내용 초기화
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateBarHeight();
       });
     }
@@ -101,7 +98,7 @@ void dispose() {
       } else {
         _currentReplyTargetComment = '';
         ref.read(replySupplyNotifierProvider).disposeReplyState();
-        if (_textEditingController.text.isEmpty && _currentReplyTargetComment.isEmpty) {
+        if (_textEditingController.text.isEmpty) {
           // 텍스트도 비어있고 답글 대상도 없을 때만 바 숨김
           _barHeight = 106;
           _showSendButton = false;
@@ -240,7 +237,11 @@ void dispose() {
         SnackBar(content: Text(e.toString())),
       );
     } finally {
-      _updateBarHeight();
+      setState(() {
+        _barHeight = 106;
+        _showSendButton = false;
+        _focusNode.previousFocus();
+      },);
     }
   }
 
@@ -252,10 +253,7 @@ void dispose() {
     ref.listen<SelectedReplyInfo?>(
       replySupplyNotifierProvider.select((n) => n.pickReply),
       (previous, next) {
-        final String replyComment = next?.comment ?? '';
-        final bool isUpdate = next?.isUpdate ?? false;
-
-        _onReplyClicked(replyComment, isUpdate);
+        _onReplyClicked(next);
       },
     );
 
