@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 
 class AgreementBottomBar extends StatefulWidget {
@@ -69,6 +70,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                       color: Colors.white,
                       fontSize: 15.3,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'Pretendard',
                     ),
                   ),
                 ],
@@ -95,12 +97,20 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 const Expanded(
                   child: Text(
                     '(필수) 이용약관 동의',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: 'Pretendard',),
                   ),
                 ),
                 IconButton(
-                  onPressed: () {
-                    // TODO: 약관 상세보기 이동
+                   onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WebViewPage(
+                          title: '이용약관',
+                          url: 'https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link',
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.chevron_right, color: Colors.white),
                 ),
@@ -125,12 +135,20 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 const Expanded(
                   child: Text(
                     '(필수) 개인정보처리방침 동의',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontFamily: 'Pretendard',),
                   ),
                 ),
                 IconButton(
                   onPressed: () {
-                    // TODO: 개인정보처리방침 상세보기 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WebViewPage(
+                          title: '개인정보처리방침',
+                          url: 'https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link',
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.chevron_right, color: Colors.white),
                 ),
@@ -165,7 +183,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 ),
                 child: const Text(
                   '동의하고 계속하기',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Pretendard',),
                 ),
               ),
             ),
