@@ -377,7 +377,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
     final int? loginUserId = UserPrefs.myUserId;
 
     return Container(
-      width: 375,
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color:  (widget.reply.delYn == 'N' && widget.reply.likeCnt >=5 )

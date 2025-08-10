@@ -52,7 +52,7 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
       child: Column(
         children: [
           Container(
-            width: 375,
+            width: double.infinity,
             padding: const EdgeInsets.only(
                 top: 20,
                 left: 20,

@@ -124,7 +124,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
-                    '(필수) 개인정보 처리방침 동의',
+                    '(필수) 개인정보처리방침 동의',
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ),

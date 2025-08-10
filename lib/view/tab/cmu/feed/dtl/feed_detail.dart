@@ -63,7 +63,7 @@ class _FeedDetailState extends State<FeedDetail> {
         
             // 하단 여백(필요시)
             const SliverToBoxAdapter(
-              child: SizedBox(height: 20),
+              child: SizedBox(height: 100),
             ),
           ],
         ),
