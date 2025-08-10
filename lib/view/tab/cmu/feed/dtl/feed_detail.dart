@@ -57,7 +57,7 @@ class _FeedDetailState extends State<FeedDetail> {
               child: FeedDetailMain(feedId: widget.feedId),
             ),
             // 댓글리스트
-            ReplyListSliver(cmuId: widget.feedId),
+            ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
             // 같은 카테고리의 다른 글
             CategoryAnotherFeedList(categoryId: widget.categoryId,),
         

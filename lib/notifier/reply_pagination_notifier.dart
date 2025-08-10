@@ -132,4 +132,83 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
      state = AsyncValue<ScrollResponse<ReplyResponseDto>>.error(e, st).copyWithPrevious(state);
     }
   }
+
+  // 새로운 댓글 추가 (댓글 또는 대댓글)
+  void addReply(ReplyResponseDto newReply) {
+    // 현재 데이터를 가져옵니다.
+    final currentScrollResponse = state.asData?.value;
+    if (currentScrollResponse == null) {
+      // 데이터가 아직 로드되지 않았으면 처리하지 않습니다.
+      return;
+    }
+
+    List<ReplyResponseDto> updatedItems = List.from(currentScrollResponse.items);
+
+    if (newReply.parentReplyId == null) {
+      // 새로운 댓글인 경우 (대댓글이 아닌 경우)
+      // 최신 댓글을 목록의 가장 앞에 추가합니다.
+      updatedItems.add(newReply);
+    } else {
+      // 새로운 대댓글인 경우
+      // 해당 부모 댓글을 찾아 대댓글 목록에 추가합니다.
+      int parentIndex = updatedItems.indexWhere((reply) => reply.id == newReply.parentReplyId);
+      if (parentIndex != -1) {
+        // 부모 댓글의 children 리스트를 복사하여 새 대댓글을 추가하고, 부모 댓글을 새 객체로 교체합니다.
+        // 이는 불변성(immutability)을 유지하기 위함입니다.
+        ReplyResponseDto parentReply = updatedItems[parentIndex];
+        List<ReplyResponseDto> updatedChildren = List.from(parentReply.children);
+        updatedChildren.add(newReply); // 대댓글은 보통 기존 대댓글 뒤에 추가됩니다.
+
+        updatedItems[parentIndex] = parentReply.copyWith(children: updatedChildren);
+      } else {
+        // 부모 댓글을 찾을 수 없는 경우 (예: 부모 댓글이 현재 로드된 페이지에 없는 경우)
+        debugPrint('부모 댓글을 찾을 수 없습니다: ${newReply.parentReplyId}');
+        // 이 경우, API를 다시 호출하여 전체 목록을 갱신하는 것을 고려할 수 있으나,
+        // 여기서는 간단히 무시하거나, 사용자에게 알림을 줄 수 있습니다.
+        // 여기서는 그냥 무시하고 스크롤 위치를 유지하는 데 집중합니다.
+        return;
+      }
+    }
+
+    // 새로운 상태로 업데이트
+    state = AsyncValue.data(currentScrollResponse.copyWith(items: updatedItems));
+  }
+
+  // 기존 댓글 수정 (댓글 또는 대댓글)
+  void updateReply(ReplyResponseDto updatedReply) {
+    // 현재 데이터를 가져옵니다.
+    final currentScrollResponse = state.asData?.value;
+    if (currentScrollResponse == null) {
+      return;
+    }
+
+    List<ReplyResponseDto> updatedItems = List.from(currentScrollResponse.items);
+
+    if (updatedReply.parentReplyId == null) {
+      // 부모 댓글(일반 댓글)인 경우
+      int index = updatedItems.indexWhere((reply) => reply.id == updatedReply.id);
+      if (index != -1) {
+        updatedItems[index] = updatedReply; // 해당 댓글 교체
+      }
+    } else {
+      // 대댓글인 경우
+      // 먼저 부모 댓글을 찾습니다.
+      int parentIndex = updatedItems.indexWhere((reply) => reply.id == updatedReply.parentReplyId);
+      if (parentIndex != -1) {
+        ReplyResponseDto parentReply = updatedItems[parentIndex];
+        List<ReplyResponseDto> updatedChildren = List.from(parentReply.children);
+        
+        // 부모 댓글의 children 목록에서 해당 대댓글을 찾아서 교체합니다.
+        int childIndex = updatedChildren.indexWhere((child) => child.id == updatedReply.id);
+        if (childIndex != -1) {
+          updatedChildren[childIndex] = updatedReply;
+          // 부모 댓글의 children 리스트를 새 리스트로 교체하여 부모 댓글 자체도 새 객체로 만듭니다.
+          updatedItems[parentIndex] = parentReply.copyWith(children: updatedChildren);
+        }
+      }
+    }
+
+    // 새로운 상태로 업데이트
+    state = AsyncValue.data(currentScrollResponse.copyWith(items: updatedItems));
+  }
 }

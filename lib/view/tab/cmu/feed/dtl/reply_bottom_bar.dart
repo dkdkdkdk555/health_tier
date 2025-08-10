@@ -217,20 +217,26 @@ void dispose() {
 
     try {
       final service = await ref.read(replyCudServiceProvider.future);
-      final resultMessage = currentIsUpdate ? await service.updateReply(dto) : await service.writeReply(dto);
+      final resultDto = currentIsUpdate ? await service.updateReply(dto) : await service.writeReply(dto);
+
+      // Notifier를 읽어와서 댓글 상태 직접 업데이트
+      final replyNotifier = ref.read(replyPaginationProvider(cmuId).notifier);
+      if (currentIsUpdate) {
+        replyNotifier.updateReply(resultDto);
+      } else {
+        replyNotifier.addReply(resultDto);
+      }
 
       // 성공 시 입력 초기화 및 댓글 목록 갱신
       _textEditingController.clear();
       _currentReplyTargetComment = '';
       _showSendButton = false;
       ref.read(replySupplyNotifierProvider).disposeReplyState();
-
-      ref.invalidate(replyPaginationProvider(cmuId));
       ref.invalidate(feedDetailProvider(cmuId));
 
       if(!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(resultMessage)),
+        const SnackBar(content: Text('댓글이 작성됐습니다.')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

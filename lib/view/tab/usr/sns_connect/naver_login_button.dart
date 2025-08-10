@@ -32,9 +32,6 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
   Future<void> naverLoginButton(BuildContext context) async {
     try {
-      debugPrint('buttonLoginPressed 호출');
-      _showAgreementBottomBar(context);
-      return;
       final NaverLoginResult res = await FlutterNaverLogin.logIn();
       setState(() {
         isLogin = res.status == NaverLoginStatus.loggedIn;
@@ -49,7 +46,6 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
       debugPrint(error.toString());
     }
 
-    return ;
     // 안드로이드에서는 .logIn 에서 accessToken을 응답받지 못해서 추가
     if(accessToken == null) {
        try {

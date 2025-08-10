@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:my_app/api/api_routes.dart';
+import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
 import 'package:my_app/model/cmu/reply/reply_write_request_dto.dart';
@@ -93,7 +95,7 @@ class ReplyCudService {
 
 
   // 댓글 작성 요청
-  Future<String> writeReply(ReplyWriteRequestDto dto) async {
+  Future<ReplyResponseDto> writeReply(ReplyWriteRequestDto dto) async {
     try {
       final response = await dio.post(
         ReplyCudAPI.writeReply,
@@ -101,7 +103,7 @@ class ReplyCudService {
       );
 
       if (response.statusCode == 200) {
-        return response.data.toString(); // "댓글이 작성되었습니다."
+        return ReplyResponseDto.fromJson(response.data);
       } else {
         throw Exception('댓글 작성 실패: ${response.statusCode}');
       }
@@ -114,7 +116,7 @@ class ReplyCudService {
   }
 
   // 댓글 수정 요청
-  Future<String> updateReply(ReplyWriteRequestDto dto) async {
+  Future<ReplyResponseDto> updateReply(ReplyWriteRequestDto dto) async {
     try {
       final response = await dio.put(
         ReplyCudAPI.updateReply,
@@ -122,7 +124,7 @@ class ReplyCudService {
       );
 
       if (response.statusCode == 200) {
-        return response.data.toString();
+        return ReplyResponseDto.fromJson(response.data);
       } else {
         throw Exception('댓글 수정 실패: ${response.statusCode}');
       }

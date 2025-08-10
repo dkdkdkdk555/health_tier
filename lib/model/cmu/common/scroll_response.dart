@@ -15,4 +15,17 @@ class ScrollResponse<T> {
       hasNext: json['hasNext'] ?? false,
     );
   }
+
+  // copyWith 메서드 추가
+  ScrollResponse<T> copyWith({
+    List<T>? items,
+    int? lastCursorId,
+    bool? hasNext,
+  }) {
+    return ScrollResponse<T>(
+      items: items ?? this.items,
+      lastCursorId: lastCursorId ?? this.lastCursorId,
+      hasNext: hasNext ?? this.hasNext,
+    );
+  }
 }

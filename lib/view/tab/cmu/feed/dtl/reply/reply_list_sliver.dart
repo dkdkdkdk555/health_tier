@@ -5,14 +5,52 @@ import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply.dart';
 
-class ReplyListSliver extends ConsumerWidget {
+class ReplyListSliver extends ConsumerStatefulWidget {
   final int cmuId;
-  const ReplyListSliver({super.key, required this.cmuId});
+  final ScrollController scrollController; // <-- scrollController를 전달받도록 수정
+
+  const ReplyListSliver({
+    super.key,
+    required this.cmuId,
+    required this.scrollController, // <-- 생성자에 추가
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final repliesAsync = ref.watch(replyPaginationProvider(cmuId));
-    final replyNotifier = ref.read(replyPaginationProvider(cmuId).notifier);
+  ConsumerState<ReplyListSliver> createState() => _ReplyListSliverState();
+}
+
+class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
+  @override
+  void initState() {
+    super.initState();
+    // 부모로부터 받은 컨트롤러에 리스너 등록
+    widget.scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    // 위젯이 제거될 때 리스너 해제 (컨트롤러 자체는 부모 위젯에서 해제)
+    widget.scrollController.removeListener(_onScroll);
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final replyNotifier = ref.read(replyPaginationProvider(widget.cmuId).notifier);
+    final repliesState = ref.read(replyPaginationProvider(widget.cmuId));
+    
+    // 다음 페이지가 있고, 스크롤 위치가 맨 아래에 근접했을 때 (200px 남았을 때)
+    if (repliesState.asData?.value.hasNext == true && widget.scrollController.position.extentAfter < 200) {
+      // `fetchNext`가 현재 로딩 중이 아니라면 호출
+      if (!repliesState.isLoading) {
+        replyNotifier.fetchNext();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final repliesAsync = ref.watch(replyPaginationProvider(widget.cmuId));
+    final replyNotifier = ref.read(replyPaginationProvider(widget.cmuId).notifier);
 
     // `repliesAsync.isLoading`은 초기 로딩 또는 fetchNext에서 state가 AsyncValue.loading()으로 바뀔 때만 true
     final bool isInitialLoading = repliesAsync.isLoading && !repliesAsync.hasValue;
@@ -79,14 +117,14 @@ class ReplyListSliver extends ConsumerWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Reply(reply: reply, isChild: false, cmuId: cmuId,),
+                Reply(reply: reply, isChild: false, cmuId: widget.cmuId,),
 
                 if (reply.children.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(left: 16.0),
                     child: Column(
                       children: reply.children.map((childReply) {
-                        return Reply(reply: childReply, isChild: true, cmuId: cmuId,);
+                        return Reply(reply: childReply, isChild: true, cmuId: widget.cmuId,);
                       }).toList(),
                     ),
                   ),
@@ -95,60 +133,10 @@ class ReplyListSliver extends ConsumerWidget {
           }),
 
           if (hasNext)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
               child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    // `fetchNext` 호출. 이 호출이 상태를 `AsyncValue.data`로 유지하면서
-                    // 아이템만 추가하면 스크롤 위치가 유지됩니다.
-                    // 만약 `fetchNext`가 `AsyncValue.loading()`으로 전환된다면 스크롤이 튀고,
-                    // 이 버튼 자리에 로딩 인디케이터를 보여주려면 외부 플래그가 필요합니다.
-                    replyNotifier.fetchNext();
-                  },
-                  child: Container(
-                      padding: const EdgeInsets.only(
-                          top: 16,
-                          left: 20,
-                          right: 20,
-                          bottom: 40,
-                      ),
-                      child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                              Expanded(
-                                  child: Container(
-                                      height: 43,
-                                      decoration: ShapeDecoration(
-                                          color: const Color(0xFFE8ECF2),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                                      ),
-                                      child: const Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          spacing: 10,
-                                          children: [
-                                              Text(
-                                                  '댓글 더보기',
-                                                  style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 14,
-                                                      fontFamily: 'Pretendard',
-                                                      fontWeight: FontWeight.w700,
-                                                      height: 1.50,
-                                                  ),
-                                              ),
-                                          ],
-                                      ),
-                                  ),
-                              ),
-                          ],
-                      ),
-                  )
-                ),
+                child: CircularProgressIndicator(),
               ),
             ),
         ],
