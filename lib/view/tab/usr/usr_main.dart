@@ -17,7 +17,6 @@ class UsrMain extends ConsumerWidget {
     final tokenVerificationResult = ref.watch(jwtTokenVerificationProvider);
     return tokenVerificationResult.when(
       data: (response) {
-        debugPrint('멍뭉 ? : ${response.isValid}');
         if (response.isValid) {
           return const UsrInfoScreen();
         } else {

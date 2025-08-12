@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/view/tab/usr/management/doc_backup_and_restore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsrInfoScreen extends ConsumerStatefulWidget {
@@ -24,6 +25,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
 
+    debugPrint('_loadJwtToken 토큰 : $token');
     setState(() {
       _jwtToken = token;
     });
@@ -33,18 +35,22 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   Widget build(BuildContext context) {
     // final badgeResult = ref.watch(userBadgeListProvider(30));
 
-    final latestWeightAsyncValue = ref.watch(getLatestWeightProvider);
+    // final latestWeightAsyncValue = ref.watch(getLatestWeightProvider);
 
-    return latestWeightAsyncValue.when(
-      loading: () => const CircularProgressIndicator(),
-      error: (err, stack) => Text('Error: $err'),
-      data: (weight) {
-        if (weight != null) {
-          return Text('가장 최근 체중: $weight kg');
-        } else {
-          return const Text('아직 체중 기록이 없습니다.');
-        }
-      },
+    // return latestWeightAsyncValue.when(
+    //   loading: () => const CircularProgressIndicator(),
+    //   error: (err, stack) => Text('Error: $err'),
+    //   data: (weight) {
+    //     if (weight != null) {
+    //       return Text('가장 최근 체중: $weight kg');
+    //     } else {
+    //       return const Text('아직 체중 기록이 없습니다.');
+    //     }
+    //   },
+    // );
+
+    return const Scaffold(
+      body: DocBackupAndRestore(),
     );
 
     // return badgeResult.when(
