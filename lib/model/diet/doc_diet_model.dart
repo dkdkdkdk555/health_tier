@@ -28,6 +28,28 @@ class DayDietModel {
     );
   }
 
+  factory DayDietModel.fromJson(Map<String, dynamic> json) {
+    return DayDietModel(
+      id: json['id'] as int,
+      day: json['day'] as String,
+      title: json['title'] as String?,
+      diet: json['diet'] as String?,
+      calorie: (json['calorie'] as num?)?.toDouble(),
+      protein: (json['protein'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'day': day,
+      'title': title,
+      'diet': diet,
+      'calorie': calorie,
+      'protein': protein,
+    };
+  }
+
   String get formattedCalorie {
     if (calorie == null) return '';
     return calorie!.truncateToDouble() == calorie ? calorie!.toInt().toString() : calorie!.toString();

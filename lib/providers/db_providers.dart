@@ -491,3 +491,98 @@ final getLatestWeightProvider = FutureProvider<double?>((ref) async {
   // 조회된 데이터가 있다면 체중 값을, 없다면 null을 반환
   return latestBody?.weight;
 });
+
+/*
+  4-2-1. 내 정보관리 > 데이터 백업 시 모든 식단기록 가져오기
+*/
+final getAllHtDayDietProvider = FutureProvider<List<DayDietModel>>((ref) async {
+  final db = ref.watch(databaseProvider);
+
+  final rows = await db.select(db.htDayDiet).get();
+
+  return rows.map((row) => DayDietModel(
+    id: row.id,
+    day: row.day,
+    title: row.title,
+    diet: row.diet,
+    calorie: row.calorie,
+    protein: row.protein,
+  )).toList();
+});
+
+/*
+  4-2-1. 내 정보관리 > 데이터 백업 시 모든 체중기록 가져오기
+*/
+final getAllHtDayBodyProvider = FutureProvider<List<DocDayDetail>>((ref) async {
+  final db = ref.watch(databaseProvider);
+
+  final rows = await db.select(db.htDayBody).get();
+
+  return rows.map((row) => DocDayDetail(
+    id: row.id,
+    day: row.day,
+    workYn: row.wkoutYn,
+    drunYn: row.drunkYn,
+    weight: row.weight,
+    muscle: row.muscle,
+    fat: row.fat,
+    stamp: row.stamp,
+    memo: row.memo,
+  )).toList();
+});
+
+
+/*
+  4-2-1. 내 정보관리 > 체중 데이터 복원
+*/
+Future<void> insertRestoreDayDetailList({
+  required WidgetRef ref,
+  required List<DocDayDetail> list,
+}) async {
+  final db = ref.read(databaseProvider);
+
+  // 1. 기존 데이터 삭제
+  await db.delete(db.htDayBody).go();
+
+  // 2. 새 데이터 insert (id는 auto increment이므로 제외하고 삽입)
+  for (final item in list) {
+    await db.into(db.htDayBody).insert(
+      HtDayBodyCompanion.insert(
+        day: item.day,
+        weight: Value(item.weight),
+        muscle: Value(item.muscle),
+        fat: Value(item.fat),
+        memo: Value(item.memo),
+        wkoutYn: Value(item.workYn ?? 0),
+        drunkYn: Value(item.drunYn ?? 0),
+        stamp: Value(item.stamp),
+      ),
+    );
+  }
+}
+
+/*
+  4-2-1. 내 정보관리 > 식단 데이터 복원
+*/
+Future<void> insertRestoreDietList({
+  required WidgetRef ref,
+  required List<DayDietModel> list,
+}) async {
+  final db = ref.read(databaseProvider);
+
+  // 1. 기존 데이터 삭제
+  await db.delete(db.htDayDiet).go();
+
+  // 2. 새 데이터 insert (id는 auto increment이므로 제외하고 삽입)
+  for (final item in list) {
+    await db.into(db.htDayDiet).insert(
+      HtDayDietCompanion.insert(
+        day: item.day,
+        title: item.title ?? '',
+        diet: Value(item.diet),
+        calorie: Value(item.calorie),
+        protein: Value(item.protein),
+      ),
+    );
+  }
+}

@@ -55,6 +55,9 @@ class UserCudAPI {
   static const base = '/cud/usr';
 
   static const getUserBadges = '$base/badges';
+  static const backupStatusCheck = '$base/backup/status';
+  static const backupRequest = '$base/backup';
+  static const backupRestore = '$base/backup/restore';
 }
 
 

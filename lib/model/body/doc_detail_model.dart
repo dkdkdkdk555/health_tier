@@ -40,6 +40,38 @@ class DocDayDetail {
       totalProtein: row.readNullable<double>('TOTAL_PROTEIN'),
     );
   }
+
+  factory DocDayDetail.fromJson(Map<String, dynamic> json) {
+    return DocDayDetail(
+      id: json['id'] as int,
+      day: json['day'] as String,
+      workYn: json['workYn'] as int?,
+      drunYn: json['drunYn'] as int?,
+      weight: (json['weight'] as num?)?.toDouble(),
+      muscle: (json['muscle'] as num?)?.toDouble(),
+      fat: (json['fat'] as num?)?.toDouble(),
+      stamp: json['stamp'] as String?,
+      memo: json['memo'] as String?,
+      totalCalorie: (json['totalCalorie'] as num?)?.toDouble(),
+      totalProtein: (json['totalProtein'] as num?)?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'day': day,
+      'workYn': workYn,
+      'drunYn': drunYn,
+      'weight': weight,
+      'muscle': muscle,
+      'fat': fat,
+      'stamp': stamp,
+      'memo': memo,
+      'totalCalorie': totalCalorie,
+      'totalProtein': totalProtein,
+    };
+  }
 }
   
 

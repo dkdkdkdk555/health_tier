@@ -21,3 +21,9 @@ final userBadgeListProvider = FutureProvider.family<Result<List<BadgeInfoDto>>, 
   final service = await ref.watch(userCudServiceProvider.future);
   return await service.getUserBadges(userId);
 });
+
+// 백업 상태를 가져오는 Provider
+final backupStatusProvider = FutureProvider<String>((ref) async {
+  final userService = await ref.watch(userCudServiceProvider.future);
+  return userService.getBackupStatus();
+});
