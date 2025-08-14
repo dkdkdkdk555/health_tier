@@ -5,6 +5,7 @@ import 'package:flutter_naver_login/interface/types/naver_account_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:flutter_naver_login/interface/types/naver_token.dart';
+import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
@@ -66,12 +67,20 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
       );
 
       if (response.statusCode == 200) {
-        final jwt = response.data['accessToken'];
+        final tokenResponse = TokenResponse.fromJson(response.data);
+        final jwt = tokenResponse.accessToken;
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', jwt);
+        await prefs.setString('accessToken', jwt);
+        await prefs.setString('refreshToken', tokenResponse.refreshToken!);
+        await prefs.setInt('userId', tokenResponse.userId);
+
+        debugPrint('🎉 회원가입 및 로그인 성공: $jwt');
+        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.refreshToken!}');
+        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.userId}');
+
+
 
         if (!context.mounted) return; 
-
         debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
         Navigator.pushReplacement(
           context,
@@ -118,11 +127,16 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
       );
 
       if (response.statusCode == 200) {
-        final jwt = response.data['accessToken'];
+        final tokenResponse = TokenResponse.fromJson(response.data);
+        final jwt = tokenResponse.accessToken;
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', jwt);
+        await prefs.setString('accessToken', jwt);
+        await prefs.setString('refreshToken', tokenResponse.refreshToken!);
+        await prefs.setInt('userId', tokenResponse.userId);
 
         debugPrint('🎉 회원가입 및 로그인 성공: $jwt');
+        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.refreshToken!}');
+        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.userId}');
 
         if (!mounted) return;
         Navigator.pushReplacement(

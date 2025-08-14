@@ -15,7 +15,7 @@ class UserPrefs {
       return; // 이미 로드되었다면 다시 로드할 필요 없음
     }
     final prefs = await SharedPreferences.getInstance();
-    _myUserId = prefs.getInt('myUserId') ?? 30; //28; //✅임시userId
+    _myUserId = prefs.getInt('userId');
     _isInitialized = true;
     debugPrint('Loaded myUserId from SharedPreferences: $_myUserId');
   }
@@ -25,7 +25,7 @@ class UserPrefs {
   // 사용자 ID를 설정하는 함수 추가
   static Future<void> setMyUserId(int userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('myUserId', userId);
+    await prefs.setInt('userId', userId);
     _myUserId = userId;
     debugPrint('Set myUserId to SharedPreferences: $_myUserId');
   }
@@ -33,7 +33,7 @@ class UserPrefs {
   // 사용자 ID를 제거하는 함수 추가
   static Future<void> clearMyUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('myUserId');
+    await prefs.remove('userId');
     _myUserId = null;
     _isInitialized = false;
     debugPrint('Cleared myUserId from SharedPreferences.');

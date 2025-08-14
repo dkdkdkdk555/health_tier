@@ -7,7 +7,7 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/service/user_api_service.dart';
 
 final authDioProvider = FutureProvider<Dio>((ref) async {
-  return DIOConfig().createAuthDio();
+  return DIOConfig().createAuthDio(ref);
 });
 
 // UserApiService를 provider로 제공

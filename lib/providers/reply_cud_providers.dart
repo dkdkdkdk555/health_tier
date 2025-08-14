@@ -6,7 +6,7 @@ import 'package:my_app/service/reply_cud_api_service.dart';
 
 // 토큰 정보를 헤더에 둔 요청객체
 final authDioProvider = FutureProvider<Dio>((ref){
-  return DIOConfig().createAuthDio();
+  return DIOConfig().createAuthDio(ref);
 });
 
 final replyCudServiceProvider = FutureProvider<ReplyCudService>((ref) async {

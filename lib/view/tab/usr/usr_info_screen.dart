@@ -13,23 +13,23 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
 }
 
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
-  String? _jwtToken;
+  // String? _jwtToken;
 
   @override
   void initState() {
     super.initState();
-    _loadJwtToken();
+    // _loadJwtToken();
   }
 
-  Future<void> _loadJwtToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
+  // Future<void> _loadJwtToken() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final token = prefs.getString('accessToken');
 
-    debugPrint('_loadJwtToken 토큰 : $token');
-    setState(() {
-      _jwtToken = token;
-    });
-  }
+  //   debugPrint('_loadJwtToken 토큰 : $token');
+  //   setState(() {
+  //     _jwtToken = token;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {

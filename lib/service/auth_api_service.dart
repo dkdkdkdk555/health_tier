@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/api/configure_dio.dart';
+import 'package:my_app/exceptions/api_error_exception.dart';
+import 'package:my_app/exceptions/relogin_required_exception.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/model/usr/auth/token_verification_response.dart';
@@ -9,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthApiService {
   final Dio dio;
    AuthApiService() : dio = DIOConfig().createNoneAuthDio();
+   AuthApiService.createAuthDioService(this.dio);
 
   // 네이버 토큰 검증 및 응답 전체 반환
   Future<Response> verifySnsToken({
@@ -68,12 +71,8 @@ class AuthApiService {
    // JWT 토큰 검증 메서드
   Future<TokenVerificationResponse> verifyToken() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('jwt_token');
-
       final response = await dio.post(
         AuthAPI.verifyToken,
-        data: {'token': token},
       );
 
       // 상태 코드 200, 401, 500 등 모두 DioError를 발생시키지 않고 response.data에 결과가 담김
@@ -130,11 +129,10 @@ class AuthApiService {
         try {
           final errorResponse = ErrorResponse.fromJson(e.response!.data);
           if (errorResponse.code == 'RELOGIN_REQUIRED') {
-            // throw ReLoginRequiredException(errorResponse.message);
+            throw ReLoginRequiredException(errorResponse.message);
           } else {
-            // throw ApiErrorException(errorResponse: errorResponse);
+            throw ApiErrorException(errorResponse: errorResponse);
           }
-          throw Exception('refreshAccessToken error');
         } on TypeError {
           throw Exception('Failed to parse error response: ${e.response?.data}');
         } catch (error) {
