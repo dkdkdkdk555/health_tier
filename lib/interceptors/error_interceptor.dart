@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/token_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ErrorInterceptor extends InterceptorsWrapper {
@@ -52,12 +53,14 @@ class ErrorInterceptor extends InterceptorsWrapper {
 
           // 리프레시 토큰이 없거나 userId가 유효하지 않은 경우 재로그인 필요
           debugPrint('리프레시 토큰이 없거나 유효하지 않아 재로그인해주세요.');
-          // TODO: 모든 토큰 삭제 후 로그인 페이지로 이동하는 로직
+          // 모든 토큰 삭제
+          await TokenManager.deleteAllTokens();
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
           debugPrint('리프레시 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
-          // TODO: 모든 토큰 삭제 후 로그인 페이지로 이동하는 로직
+          // 모든 토큰 삭제
+          await TokenManager.deleteAllTokens();
         }
       } on Exception catch (e) {
         debugPrint('Error handling 401 response: $e');

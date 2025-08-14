@@ -105,11 +105,11 @@ class AuthApiService {
     }
   }
 
+  // accessToken 재발급요청 api
   Future<TokenResponse> refreshAccessToken({
     required String refreshToken,
     required int userId,
   }) async {
-    try {
       final response = await dio.post(
         AuthAPI.refreshAccessToken,
         data: {
@@ -117,32 +117,6 @@ class AuthApiService {
           "userId": userId,
         },
       );
-
-      if (response.statusCode == 200) {
-        // 직접 작성한 fromJson 팩토리 메서드 호출
-        return TokenResponse.fromJson(response.data);
-      } else {
-        throw Exception('Unexpected status code: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        try {
-          final errorResponse = ErrorResponse.fromJson(e.response!.data);
-          if (errorResponse.code == 'RELOGIN_REQUIRED') {
-            throw ReLoginRequiredException(errorResponse.message);
-          } else {
-            throw ApiErrorException(errorResponse: errorResponse);
-          }
-        } on TypeError {
-          throw Exception('Failed to parse error response: ${e.response?.data}');
-        } catch (error) {
-          rethrow;
-        }
-      } else {
-        throw Exception('Network error or request failed: ${e.message}');
-      }
-    } catch (e) {
-      rethrow;
-    }
+    return TokenResponse.fromJson(response.data);
   }
 }

@@ -48,21 +48,10 @@ final accessTokenRefreshProvider = FutureProvider.family<TokenResponse, Map<Stri
   final String refreshToken = args['refreshToken'];
   final int userId = args['userId'];
 
-  try {
-    final TokenResponse response = await authService.refreshAccessToken(
-      refreshToken: refreshToken,
-      userId: userId,
-    );
-    debugPrint('액세스 토큰 재발급 성공: ${response.accessToken}');
-    return response;
-  } on ReLoginRequiredException catch (e) {
-    debugPrint('재로그인 필요: ${e.message}');
-    rethrow;
-  } on ApiErrorException catch (e) {
-    debugPrint('API 에러: ${e.errorResponse.code} - ${e.errorResponse.message}');
-    rethrow;
-  } catch (e) {
-    debugPrint('토큰 재발급 중 예상치 못한 에러 발생: $e');
-    rethrow;
-  }
+  final TokenResponse response = await authService.refreshAccessToken(
+    refreshToken: refreshToken,
+    userId: userId,
+  );
+  debugPrint('액세스 토큰 재발급 성공: ${response.accessToken}');
+  return response;
 });
