@@ -64,7 +64,8 @@ class UserCudAPI {
 class AuthAPI {
   static const base = '/auth';
 
-  static const verifyToken = '/verify-token';
+  static const verifyToken = '$base/verify-token';
+  static const refreshAccessToken = '$base/token/refresh';
   static const verifyValidTokenOrSigned = '$base/sns/verify';
   static const joinAndLoginWithSns = '$base/sns/join';
   static const checkNickname = '/check-nickname';

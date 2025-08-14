@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/api/configure_dio.dart';
-import 'package:my_app/model/cmu/auth/token_verification_response.dart';
+import 'package:my_app/model/usr/auth/error_response.dart';
+import 'package:my_app/model/usr/auth/token_response.dart';
+import 'package:my_app/model/usr/auth/token_verification_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthApiService {
@@ -101,6 +103,48 @@ class AuthApiService {
     } catch (e) {
       // 그 외 알 수 없는 에러
       throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  Future<TokenResponse> refreshAccessToken({
+    required String refreshToken,
+    required int userId,
+  }) async {
+    try {
+      final response = await dio.post(
+        AuthAPI.refreshAccessToken,
+        data: {
+          "refreshToken": refreshToken,
+          "userId": userId,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // 직접 작성한 fromJson 팩토리 메서드 호출
+        return TokenResponse.fromJson(response.data);
+      } else {
+        throw Exception('Unexpected status code: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        try {
+          final errorResponse = ErrorResponse.fromJson(e.response!.data);
+          if (errorResponse.code == 'RELOGIN_REQUIRED') {
+            // throw ReLoginRequiredException(errorResponse.message);
+          } else {
+            // throw ApiErrorException(errorResponse: errorResponse);
+          }
+          throw Exception('refreshAccessToken error');
+        } on TypeError {
+          throw Exception('Failed to parse error response: ${e.response?.data}');
+        } catch (error) {
+          rethrow;
+        }
+      } else {
+        throw Exception('Network error or request failed: ${e.message}');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }
