@@ -109,7 +109,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
 
     try {
       final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
-      await feedCudService!.acceptCertification(
+      final response = await feedCudService!.acceptCertification(
         dto: LikeAndCrtifiRequestDto(
           userId: _myUserId,
           feedId: widget.feed.id,
@@ -117,9 +117,10 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         ),
       );
       
-      // 성공적으로 인증 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
-      ref.invalidate(feedDetailProvider(widget.feed.id));
-
+      if(response == 'success') {
+        // 성공적으로 인증 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+        ref.invalidate(feedDetailProvider(widget.feed.id));
+      }
     } catch (e) {
       // 에러 처리: 사용자에게 메시지를 보여주거나 로깅
       ScaffoldMessenger.of(context).showSnackBar(
@@ -145,31 +146,35 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
 
     final feedCudService = ref.read(feedCudServiceProvider).value;
     if (feedCudService == null) return;
-
+    
     try {
       if (widget.feed.isLiked == false) {
         // 좋아요가 아닌 상태에서 누르면 좋아요 요청
-        await feedCudService.likeFeed(
+        final response = await feedCudService.likeFeed(
           LikeAndCrtifiRequestDto(
             userId: _myUserId,
             feedId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
         );
+        if(response == 'success') {
+           // 성공적으로 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+          ref.invalidate(feedDetailProvider(widget.feed.id));
+        }
       } else if (widget.feed.isLiked == true) {
         // 좋아요 상태에서 누르면 좋아요 취소 요청
-        await feedCudService.cancelFeedLike(
+        final response = await feedCudService.cancelFeedLike(
           LikeAndCrtifiRequestDto(
             userId: _myUserId,
             feedId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
         );
+        if(response == 'success') {
+           // 성공적으로 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+          ref.invalidate(feedDetailProvider(widget.feed.id));
+        }
       }
-      
-      // 성공적으로 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
-      ref.invalidate(feedDetailProvider(widget.feed.id));
-
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -219,6 +219,8 @@ void dispose() {
       final service = await ref.read(replyCudServiceProvider.future);
       final resultDto = currentIsUpdate ? await service.updateReply(dto) : await service.writeReply(dto);
 
+      if(resultDto == null) return;
+
       // Notifier를 읽어와서 댓글 상태 직접 업데이트
       final replyNotifier = ref.read(replyPaginationProvider(cmuId).notifier);
       if (currentIsUpdate) {
@@ -239,6 +241,7 @@ void dispose() {
         const SnackBar(content: Text('댓글이 작성됐습니다.')),
       );
     } catch (e) {
+      debugPrint('$e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );

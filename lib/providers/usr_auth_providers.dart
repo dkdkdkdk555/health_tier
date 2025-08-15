@@ -30,13 +30,9 @@ final isUserNicknameDupliateProvider = FutureProvider.family<bool, String>((ref,
 });
 
 // 토큰검증 프로바이더
-final jwtTokenVerificationProvider = FutureProvider<TokenVerificationResponse>((ref) async {
+final jwtTokenVerificationProvider = FutureProvider.autoDispose<TokenVerificationResponse>((ref) async {
   final service = await ref.watch(userAuthServiceAuthDioProvider.future);
-  try {
-    return await service.verifyToken();
-  } catch (e) {
-    return TokenVerificationResponse(isValid: false, error: e.toString());
-  }
+  return await service.verifyToken();
 });
 
 /// 리프레시 토큰으로 액세스 토큰을 재발급하는 프로바이더

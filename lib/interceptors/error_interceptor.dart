@@ -73,9 +73,25 @@ class ErrorInterceptor extends InterceptorsWrapper {
       } on Exception catch (e) {
         debugPrint('Error handling 401 response: $e');
       }
+    }  
+    // 서버응답이 Bad Request 400 인 경우 
+    else if(err.response?.statusCode == 400) {
+      debugPrint(err.response?.data['message']);
+      // 메세지를 받아서 예외발생시킴 -> 다음계층(UI) 에 처리를 위임
+      final message = err.response?.data['message'] ?? '인증 요청 실패';
+      return _showSnackBar(originalRequest, handler, message);
+    }
+    // 서버응답이 Conflict 409 인 경우 
+    else if(err.response?.statusCode == 409) {
+      debugPrint(err.response?.data['message']);
+      // 메세지를 받아서 예외발생시킴 -> 다음계층(UI) 에 처리를 위임
+      final message = err.response?.data['message'] ?? '게시글 신고 요청 실패';
+      return _showSnackBar(originalRequest, handler, message);
     }
 
-    // 401이 아니거나, 401 처리 중 실패한 경우 다음 단계로 에러를 전달
+
+
+    // 위 에러코드들 처리 중 실패한 경우, 다루지 않는 에러코드의 경우 다음 단계로 에러를 전달
     return handler.next(err);
   }
 
@@ -116,6 +132,28 @@ class ErrorInterceptor extends InterceptorsWrapper {
           );
         });
       }
+
+      // UI에서 의미 없는 값 반환
+      handler.resolve(Response(
+        requestOptions: originalRequest,
+        statusCode: 200,
+        data: null,
+      ));
+    }
+  }
+
+  Future<void> _showSnackBar(
+      RequestOptions originalRequest,
+      ErrorInterceptorHandler handler,
+      String message,
+  ) async {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      });
 
       // UI에서 의미 없는 값 반환
       handler.resolve(Response(

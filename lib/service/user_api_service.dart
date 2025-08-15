@@ -19,37 +19,25 @@ class UserApiService {
 
   // 1. 데이터 백업 요청
   Future<String> requestBackup(String backupJson) async {
-    try {
-      final response = await dio.post(
-        UserCudAPI.backupRequest,
-        data: backupJson,
-        options: Options(contentType: Headers.jsonContentType),
-      );
-      return response.data;
-    } on DioException catch (e) {
-      throw Exception('백업요청 실패: $e');
-    }
+    final response = await dio.post(
+      UserCudAPI.backupRequest,
+      data: backupJson,
+      options: Options(contentType: Headers.jsonContentType),
+    );
+    return response.data;
   }
 
   // 2. 데이터 백업 상태 확인
   Future<String> getBackupStatus() async {
-    try {
-      final response = await dio.get(UserCudAPI.backupStatusCheck);
-      return response.data;
-    } on DioException catch (e) {
-      throw Exception('dio에러: $e');
-    }
+    final response = await dio.get(UserCudAPI.backupStatusCheck);
+    return response.data;
   }
   
 
   // 3. 데이터 복원 요청
   Future<String> requestRestore() async {
-    try {
-      final response = await dio.get(UserCudAPI.backupRestore);
-      // 서버에서 JSON 문자열을 반환하므로 바로 처리
-      return response.data;
-    } on DioException catch (e) {
-      throw Exception('백업 데이터 요청 실패: $e');
-    }
+    final response = await dio.get(UserCudAPI.backupRestore);
+    // 서버에서 JSON 문자열을 반환하므로 바로 처리
+    return response.data;
   }
 }

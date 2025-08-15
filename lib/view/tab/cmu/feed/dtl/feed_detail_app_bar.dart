@@ -6,6 +6,7 @@ import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
+import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
@@ -119,7 +120,10 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                           cmuId: widget.feedId,
                           reason: reason,
                         );
-                        message = await feedCudServiceInstance!.reportFeed(reportDto);
+                        final response = await feedCudServiceInstance!.reportFeed(reportDto);
+                        if(response == 'success') {
+                          message = '신고가 정상적으로 접수되었습니다.';
+                        }
                       } catch (e) {
                         errorMessage = e.toString().replaceAll('Exception: ', '');
                       }
@@ -229,18 +233,26 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     leading: const Icon(Icons.delete),
                     title: const Text('삭제하기'),
                     onTap: () {
-                      Navigator.pop(context); // 바텀 시트 닫기
-                      // TODO: 게시글 삭제 로직 실행
-                      debugPrint('게시글 삭제');
+                          Navigator.pop(context); // 바텀 시트 닫기
+                          // TODO: 게시글 삭제 로직 실행
+                          debugPrint('게시글 삭제');
                     },
                   ),
                 if (!isMyPost) // 내 게시글이 아닌 경우
                   ListTile(
                     leading: const Icon(Icons.report),
                     title: const Text('신고하기'),
-                    onTap: () {
-                      Navigator.pop(context); // 바텀 시트 닫기
-                      _showReportDialog(feedCudService);
+                    onTap: () async {
+                      try {
+                        final response = await ref.read(jwtTokenVerificationProvider.future);
+                        if(response.isValid) {
+                          if(!context.mounted)return;
+                          Navigator.pop(context); // 바텀 시트 닫기
+                          _showReportDialog(feedCudService);
+                        }
+                      }catch (e) {
+                        debugPrint('$e');
+                      }
                     },
                   ),
                 // 바텀 시트 하단에 여백을 추가하여 UI를 더 보기 좋게 만들 수 있습니다.

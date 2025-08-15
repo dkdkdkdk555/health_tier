@@ -34,9 +34,6 @@ class FeedCudService {
       } else {
         throw Exception('게시글 생성 실패: ${result.message}');
       }
-    } on DioException catch (e) {
-      // DioError 처리 (네트워크 오류, 4xx/5xx 상태 코드 등)
-      throw Exception('게시글 생성 Dio 에러: ${e.response?.statusCode ?? ''} - ${e.message}');
     } catch (e) {
       // 기타 에러 처리
       throw Exception('게시글 생성 중 알 수 없는 에러: $e');
@@ -57,8 +54,6 @@ class FeedCudService {
       } else {
         throw Exception('게시글 수정 실패: ${response.data}');
       }
-    } on DioException catch (e) {
-      throw Exception('게시글 수정 Dio 에러: ${e.response?.statusCode ?? ''} - ${e.message}');
     } catch (e) {
       throw Exception('게시글 수정 중 알 수 없는 에러: $e');
     }
@@ -115,89 +110,41 @@ class FeedCudService {
 
   // 게시글 신고하기
   Future<String> reportFeed(ReportRequestDto dto) async {
-    try {
       final response = await dio.post(
         FeedCudAPI.reportFeed,
         data: dto.toJson(),
       );
       return response.data.toString(); // "신고가 접수되었습니다."
-    } on DioException catch (e) {
-      // 서버에서 보낸 메시지를 파싱
-      if (e.response?.statusCode == 409) {
-        final message = e.response?.data['message'] ?? '이미 신고된 게시글입니다.';
-        throw Exception(message);
-      } else {
-        throw Exception('신고 실패: ${e.response?.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('알 수 없는 오류: $e');
-    }
   }
 
   // 게시글 인증하기
   Future<String> acceptCertification({
     required LikeAndCrtifiRequestDto dto,
   }) async {
-    try {
-      final response = await dio.post(
-        FeedCudAPI.certificate,
-        data: dto.toJson(),
-      );
+    final response = await dio.post(
+      FeedCudAPI.certificate,
+      data: dto.toJson(),
+    );
 
-      if (response.statusCode == 200) {
-        return response.data.toString(); // 예: "success"
-      } else {
-        throw Exception('인증 실패: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '인증 요청 실패';
-      throw Exception(message);
-    } catch (e) {
-      throw Exception('알 수 없는 에러: $e');
-    }
+    return response.data.toString();
   }
 
   // 좋아요 요청
   Future<String> likeFeed(LikeAndCrtifiRequestDto dto) async {
-    try {
-      final response = await dio.post(
-        FeedCudAPI.like, // 좋아요 API 엔드포인트
-        data: dto.toJson(),
-      );
+    final response = await dio.post(
+      FeedCudAPI.like, // 좋아요 API 엔드포인트
+      data: dto.toJson(),
+    );
 
-      if (response.statusCode == 200) {
-        return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
-      } else {
-        debugPrint('sssSSSsss좋실');
-        throw Exception('좋아요 실패: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      debugPrint('sssSSSsss');
-      final message = e.response?.data['message'] ?? '좋아요 요청 실패';
-      throw Exception(message);
-    } catch (e) {
-      throw Exception('알 수 없는 좋아요 에러: $e');
-    }
+    return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
   }
 
   // 좋아요 취소 요청
   Future<String> cancelFeedLike(LikeAndCrtifiRequestDto dto) async {
-    try {
-      final response = await dio.delete( // DELETE 메소드 사용
-        FeedCudAPI.cancelLike, // 좋아요 취소 API 엔드포인트
-        data: dto.toJson(), // 요청 바디에 DTO 전송 (DELETE 요청도 body를 가질 수 있습니다)
-      );
-
-      if (response.statusCode == 200) {
-        return response.data.toString(); // 서버가 반환하는 "좋아요 취소 완료" 메시지
-      } else {
-        throw Exception('좋아요 취소 실패: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '좋아요 취소 요청 실패';
-      throw Exception(message);
-    } catch (e) {
-      throw Exception('알 수 없는 좋아요 취소 에러: $e');
-    }
+    final response = await dio.delete( // DELETE 메소드 사용
+      FeedCudAPI.cancelLike, // 좋아요 취소 API 엔드포인트
+      data: dto.toJson(), // 요청 바디에 DTO 전송 (DELETE 요청도 body를 가질 수 있습니다)
+    );
+    return response.data.toString(); // 서버가 반환하는 "좋아요 취소 완료" 메시지
   }
 }

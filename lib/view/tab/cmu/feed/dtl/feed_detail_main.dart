@@ -4,6 +4,7 @@ import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
+import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:my_app/providers/notifier_provider.dart';

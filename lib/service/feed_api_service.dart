@@ -61,8 +61,12 @@ class FeedService {
   }
 
   // 피드 상세 조회
-  Future<Result<FeedDetailDto>> getFeedDetail(int id) async{
-    final response = await dio.get('${FeedAPI.getFeed}/$id');
+  Future<Result<FeedDetailDto>> getFeedDetail(int id, int? userId) async{
+    final response = await dio.get('${FeedAPI.getFeed}/$id',
+      queryParameters: {
+        if(userId != null) 'userId' : userId
+      }
+    );
     return Result.fromJson(
       response.data,
       (json) => FeedDetailDto.fromJson(json as Map<String, dynamic>),

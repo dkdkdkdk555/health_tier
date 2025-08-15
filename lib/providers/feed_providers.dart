@@ -18,6 +18,7 @@ import 'package:my_app/notifier/same_category_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/search_result_feed_pagination_notifier.dart';
 import 'package:my_app/notifier/user_create_feed_pagination_notifier.dart';
 import 'package:my_app/service/feed_api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Dio 프로바이더를 전역으로 관리
 final dioProvider = Provider<Dio>((ref){
@@ -59,7 +60,8 @@ final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
 // 피드 상세 조회 프로바이더
 final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
   final service = await ref.watch(feedServiceAuth.future);
-  return await service.getFeedDetail(feedId);
+  final prefs = await SharedPreferences.getInstance();
+  return await service.getFeedDetail(feedId, prefs.getInt('userId'));
 });
 
 // 피드 상세 댓글 조회 프로바이더

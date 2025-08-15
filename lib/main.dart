@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
+import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
@@ -133,21 +134,32 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
               bottom: 42,
               child: SlideTransition(
                 position: _fabSlide,
-                child: Builder(
-                  builder: (context) => FloatingActionButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WriteFeed(),
-                        ),
-                      );
-                    },
-                    backgroundColor: const Color(0xFF0D85E7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                child: FadeTransition(
+                  opacity: _fabOpacity,
+                  child: Builder(
+                    builder: (context) => FloatingActionButton(
+                      onPressed: () async {
+                        try {
+                          final response = await ref.read(jwtTokenVerificationProvider.future);
+                          if(response.isValid) {
+                            if(!context.mounted)return;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WriteFeed(),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint('$e');
+                        }
+                      },
+                      backgroundColor: const Color(0xFF0D85E7),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: SvgPicture.asset('assets/widgets/create_feed.svg'),
                     ),
-                    child: SvgPicture.asset('assets/widgets/create_feed.svg'),
                   ),
                 ),
               ),
@@ -163,13 +175,21 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                   opacity: _fabOpacity,
                   child: Builder(
                     builder: (context) => FloatingActionButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const WriteFeed(),
-                          ),
-                        );
+                      onPressed: () async {
+                       try {
+                          final response = await ref.read(jwtTokenVerificationProvider.future);
+                          if(response.isValid) {
+                            if(!context.mounted)return;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WriteFeed(),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint('$e');
+                        }
                       },
                       backgroundColor: const Color(0xFF0D85E7),
                       shape: RoundedRectangleBorder(

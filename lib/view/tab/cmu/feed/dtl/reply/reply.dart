@@ -88,14 +88,17 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
             final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
             final replyService = replyServiceAsync;
             try {
-              await replyService.deleteReply(widget.reply.id);
+              final response = await replyService.deleteReply(widget.reply.id);
 
-              ref.invalidate(replyPaginationProvider(widget.cmuId));
+              if(response == 'success') {
 
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('댓글이 삭제되었습니다.')),
-                );
+                ref.invalidate(replyPaginationProvider(widget.cmuId));
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('댓글이 삭제되었습니다.')),
+                  );
+                }
               }
             } catch(e) {
               debugPrint('$e');
@@ -247,7 +250,12 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                           replyId: 1,
                           reason: reason,
                         );
-                        message = await replyCudService.reportReply(reportDto);
+
+                        final response = await replyCudService.reportReply(reportDto);
+                        if(response == 'success') {
+                          message = '신고가 접수되었습니다.';
+                        }
+
                       } catch (e) {
                         errorMessage = e.toString().replaceAll('Exception: ', '');
                       }
