@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
+import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/token_manager.dart';
+import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ErrorInterceptor extends InterceptorsWrapper {
@@ -61,6 +64,38 @@ class ErrorInterceptor extends InterceptorsWrapper {
           debugPrint('리프레시 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
           // 모든 토큰 삭제
           await TokenManager.deleteAllTokens();
+          // 팝업 띄우기 (전역 navigatorKey 사용)
+          final context = navigatorKey.currentContext;
+          if (context != null) {
+            final currentPage = ref.read(currentPageProvider);
+            if (currentPage != 3) { // 3 = UsrMain
+              // 다이얼로그는 반드시 main isolate에서 실행
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (ctx) {
+                    return AlertDialog(
+                      title: const Text('로그인 필요'),
+                      content: const Text('세션이 만료되었습니다. 다시 로그인해주세요.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop(); // 팝업 닫기
+                            navigatorKey.currentState?.pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => const GetStartedScreen()),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              });
+            }
+          }
         }
       } on Exception catch (e) {
         debugPrint('Error handling 401 response: $e');

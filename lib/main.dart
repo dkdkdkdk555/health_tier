@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/database/app_database.dart';
+import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
+import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
@@ -35,7 +37,7 @@ void main() async{
   );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   final int mvIndex;
   const MyApp({
     super.key,
@@ -43,11 +45,11 @@ class MyApp extends StatefulWidget {
   });
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  ConsumerState<MyApp> createState() => _MyAppState();
 }
 
  
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   double islandLeftMargin = 75;
 
@@ -100,6 +102,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
+      ref.read(currentPageProvider.notifier).state = index;
       if(index == 2) {
         islandLeftMargin = 14;
         _fabController.forward(); // FAB 슬라이드 인
@@ -114,6 +117,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         extendBody: true,
