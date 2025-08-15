@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -124,46 +125,37 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
    // 좋아요 버튼 클릭 핸들러 (새로 추가)
   Future<void> _onLikeButtonPressed(int? myUserId, BuildContext context, WidgetRef ref) async {
-    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
-    if (myUserId == null || myUserId == 0) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('로그인이 필요합니다.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      return;
-    }
     final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
     final replyService = replyServiceAsync;
-
     try {
       if (widget.reply.isLiked == false) {
         // 좋아요가 아닌 상태에서 누르면 좋아요 요청
-        await replyService.likeReply(
+        final response = await replyService.likeReply(
           ReplyLikeRequestDto(
-            userId: myUserId,
+            userId: myUserId ?? 0,
             replyId: widget.reply.id,
           ),
         );
-        setState(() {
-          widget.reply.isLiked = true;
-          widget.reply.likeCnt += 1;
-        });
+        if(response == 'success') {
+          setState(() {
+            widget.reply.isLiked = true;
+            widget.reply.likeCnt += 1;
+          });
+        }
       } else if (widget.reply.isLiked == true) {
         // 좋아요 상태에서 누르면 좋아요 취소 요청
-        await replyService.cancelReplyLike(
+        final response = await replyService.cancelReplyLike(
           ReplyLikeRequestDto(
-            userId: myUserId,
+            userId: myUserId ?? 0,
             replyId: widget.reply.id
           ),
         );
-        setState(() {
-          widget.reply.isLiked = false;
-          widget.reply.likeCnt -= 1;
-        });
+        if(response == 'success') {
+          setState(() {
+            widget.reply.isLiked = false;
+            widget.reply.likeCnt -= 1;
+          });
+        }
       }
 
     } catch (e) {

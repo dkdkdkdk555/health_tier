@@ -5,7 +5,6 @@ import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/navigator_key.dart';
-import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +13,8 @@ class ErrorInterceptor extends InterceptorsWrapper {
   final Dio dio;
 
   ErrorInterceptor(this.ref, this.dio);
+
+  bool _isReloginDialogVisible = false;
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
@@ -35,6 +36,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
           
           if (refreshToken != null && userId != null) {
 
+            try {
             // userId가 유효한 경우에만 프로바이더 호출
             // 2. accessTokenRefreshProvider를 호출하여 토큰 재발급
             final newTokenResponse = await ref.read(accessTokenRefreshProvider({
@@ -49,49 +51,24 @@ class ErrorInterceptor extends InterceptorsWrapper {
 
             // 4. 원래 요청의 헤더를 새 액세스 토큰으로 업데이트합니다.
             originalRequest.headers['Authorization'] = 'Bearer ${newTokenResponse.accessToken}';
+            // Dio 기본 헤더도 갱신
+            dio.options.headers['Authorization'] = 'Bearer ${newTokenResponse.accessToken}';
 
             // 5. 원래 요청을 다시 보냅니다.
             return handler.resolve(await dio.fetch(originalRequest));
+            } on DioException catch(e) {
+              debugPrint('토큰 재발급 실패: ${e.message}');
+              return _showReloginDialog(originalRequest, handler);
+            }
           }
 
-          // 리프레시 토큰이 없거나 userId가 유효하지 않은 경우 재로그인 필요
-          debugPrint('리프레시 토큰이 없거나 유효하지 않아 재로그인해주세요.');
+          /// refreshToken이나 userId 없음 → 바로 로그인 다이얼로그
+          return _showReloginDialog(originalRequest, handler);
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
           debugPrint('리프레시 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
-          // 팝업 띄우기 (전역 navigatorKey 사용)
-          final context = navigatorKey.currentContext;
-          if (context != null) {
-            final currentPage = ref.read(currentPageProvider);
-            if (currentPage != 3) { // 3 = UsrMain 이미 시작하기 화면인 경우 팝업띄우는걸 막음
-              // 다이얼로그는 반드시 main isolate에서 실행
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (ctx) {
-                    return AlertDialog(
-                      title: const Text('로그인 필요'),
-                      content: const Text('세션이 만료되었습니다. 다시 로그인해주세요.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(ctx).pop(); // 팝업 닫기
-                            navigatorKey.currentState?.pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (_) => const GetStartedScreen()),
-                              (route) => false,
-                            );
-                          },
-                          child: const Text('확인'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              });
-            }
-          }
+          _showReloginDialog(originalRequest, handler);
         }
       } on Exception catch (e) {
         debugPrint('Error handling 401 response: $e');
@@ -101,4 +78,52 @@ class ErrorInterceptor extends InterceptorsWrapper {
     // 401이 아니거나, 401 처리 중 실패한 경우 다음 단계로 에러를 전달
     return handler.next(err);
   }
+
+  Future<void> _showReloginDialog(
+      RequestOptions originalRequest,
+      ErrorInterceptorHandler handler,
+  ) async {
+    if (_isReloginDialogVisible) return;
+    _isReloginDialogVisible = true;
+
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      final currentPage = ref.read(currentPageProvider);
+      if (currentPage != 3) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) {
+              return AlertDialog(
+                title: const Text('로그인 필요'),
+                content: const Text('로그인이 필요한 기능입니다. 로그인해주세요.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      _isReloginDialogVisible = false;
+                      navigatorKey.currentState?.pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const GetStartedScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('확인'),
+                  ),
+                ],
+              );
+            },
+          );
+        });
+      }
+
+      // UI에서 의미 없는 값 반환
+      handler.resolve(Response(
+        requestOptions: originalRequest,
+        statusCode: 200,
+        data: null,
+      ));
+    }
+  }
+
 }
