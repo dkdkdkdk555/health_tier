@@ -12,23 +12,12 @@ class ReplyCudService {
 
   // 댓글 좋아요 요청
   Future<String> likeReply(ReplyLikeRequestDto dto) async {
-    try {
-      final response = await dio.post(
-        ReplyCudAPI.likeReply, // 좋아요 API 엔드포인트
-        data: dto.toJson(),
-      );
+    final response = await dio.post(
+      ReplyCudAPI.likeReply, // 좋아요 API 엔드포인트
+      data: dto.toJson(),
+    );
 
-      if (response.statusCode == 200) {
-        return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
-      } else {
-        throw Exception('댓글좋아요 실패: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '댓글좋아요 요청 실패';
-      throw Exception(message);
-    } catch (e) {
-      throw Exception('알 수 없는 댓글좋아요 에러: $e');
-    }
+    return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
   }
 
   // 댓글 좋아요 취소 요청
@@ -44,9 +33,6 @@ class ReplyCudService {
       } else {
         throw Exception('댓글좋아요 취소 실패: ${response.statusCode}');
       }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '댓글좋아요 취소 요청 실패';
-      throw Exception(message);
     } catch (e) {
       throw Exception('알 수 없는 댓글좋아요 취소 에러: $e');
     }
@@ -64,9 +50,6 @@ class ReplyCudService {
       } else {
         throw Exception('댓글 삭제 취소 실패: ${response.statusCode}');
       }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '댓글 삭제 요청 실패';
-      throw Exception(message);
     } catch (e) {
       throw Exception('알 수 없는 댓글 삭제 에러: $e');
     }
@@ -107,9 +90,6 @@ class ReplyCudService {
       } else {
         throw Exception('댓글 작성 실패: ${response.statusCode}');
       }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '댓글 작성 요청 실패';
-      throw Exception(message);
     } catch (e) {
       throw Exception('알 수 없는 댓글 작성 에러: $e');
     }
@@ -128,9 +108,6 @@ class ReplyCudService {
       } else {
         throw Exception('댓글 수정 실패: ${response.statusCode}');
       }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '댓글 수정 요청 실패';
-      throw Exception(message);
     } catch (e) {
       throw Exception('알 수 없는 댓글 수정 에러: $e');
     }

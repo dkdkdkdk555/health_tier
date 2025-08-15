@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/like_and_crtifi_accept_request_dto.dart';
@@ -167,9 +168,11 @@ class FeedCudService {
       if (response.statusCode == 200) {
         return response.data.toString(); // 서버가 반환하는 "Like!" 메시지
       } else {
+        debugPrint('sssSSSsss좋실');
         throw Exception('좋아요 실패: ${response.statusCode}');
       }
     } on DioException catch (e) {
+      debugPrint('sssSSSsss');
       final message = e.response?.data['message'] ?? '좋아요 요청 실패';
       throw Exception(message);
     } catch (e) {

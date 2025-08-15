@@ -56,19 +56,15 @@ class ErrorInterceptor extends InterceptorsWrapper {
 
           // 리프레시 토큰이 없거나 userId가 유효하지 않은 경우 재로그인 필요
           debugPrint('리프레시 토큰이 없거나 유효하지 않아 재로그인해주세요.');
-          // 모든 토큰 삭제
-          await TokenManager.deleteAllTokens();
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
           debugPrint('리프레시 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
-          // 모든 토큰 삭제
-          await TokenManager.deleteAllTokens();
           // 팝업 띄우기 (전역 navigatorKey 사용)
           final context = navigatorKey.currentContext;
           if (context != null) {
             final currentPage = ref.read(currentPageProvider);
-            if (currentPage != 3) { // 3 = UsrMain
+            if (currentPage != 3) { // 3 = UsrMain 이미 시작하기 화면인 경우 팝업띄우는걸 막음
               // 다이얼로그는 반드시 main isolate에서 실행
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 showDialog(

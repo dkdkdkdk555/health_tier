@@ -1,8 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/api/configure_dio.dart';
-import 'package:my_app/exceptions/api_error_exception.dart';
-import 'package:my_app/exceptions/relogin_required_exception.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/model/usr/auth/token_verification_response.dart';
@@ -110,13 +109,17 @@ class AuthApiService {
     required String refreshToken,
     required int userId,
   }) async {
-      final response = await dio.post(
-        AuthAPI.refreshAccessToken,
-        data: {
-          "refreshToken": refreshToken,
-          "userId": userId,
-        },
-      );
+    final response = await dio.post(
+      AuthAPI.refreshAccessToken,
+      data: {
+        "refreshToken": refreshToken,
+        "userId": userId,
+      },
+    );
+
+    debugPrint('코드 : ${response.statusCode}');
+    debugPrint('${response.data}');
+    
     return TokenResponse.fromJson(response.data);
   }
 }

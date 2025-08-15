@@ -1,11 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/sns_connect/kakao_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/naver_login_button.dart';
-import 'package:my_app/view/tab/usr/usr_info_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
@@ -24,90 +20,91 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   String? refreshToken;
   String? nickname;
 
-  void _showAgreementBottomBar(BuildContext context) async {
-    nickname = await showModalBottomSheet(
+  Future<void> _showAgreementBottomBar(BuildContext context) async {
+    final result = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const AgreementBottomBar(),
     );
 
-    if (nickname != null) {
-      // handleJoinAndLogin();
+    if (result != null) {
+      setState(() {
+        nickname = result;
+      });
+      // handleJoinAndLogin(); // 로그인/회원가입 처리
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFFFFFFF),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 145.0, bottom: 0, left: 20, right: 20),
-            child: Icon(
-              Icons.accessibility_new,
-              size: 148,
-              color: Colors.amber.shade800,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 140),
-            child: Text(
-              '성장을 눈으로 보는 방법,\n헬스티어',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Pretendard',
-                fontSize: 20,
-                color: Colors.amber.shade800
-              ),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(13.0),
-            child: Text(
-              '- SNS 간편 로그인 -',
-              style: TextStyle(
-                fontWeight: FontWeight.w300,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    final theme = Theme.of(context);
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
             children: [
-              const NaverLoginButton(),
-              const SizedBox(width: 15), // 버튼 사이 간격
-              const KakaoLoginButton(),
-              const SizedBox(width: 15), // 버튼 사이 간격
-
-              GestureDetector(
-                onTap: () => _showAgreementBottomBar(context),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.black, // 검은색
-                  ),
-                   child: const Align(
-                    alignment: Alignment.center,
-                    child: Icon(
-                      Icons.apple_outlined,
-                      color: Color(0xFFFFFFFF),
-                      size: 26,
-                    )
+              const SizedBox(height: 145),
+              Icon(
+                Icons.accessibility_new,
+                size: 148,
+                color: Colors.amber.shade300,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '성장을 눈으로 보는 방법,\n헬스티어',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.amber.shade300,
+                  fontFamily: 'Pretendard',
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 140),
+              const Padding(
+                padding: EdgeInsets.all(13.0),
+                child: Text(
+                  '- SNS 간편 로그인 -',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    fontFamily: 'Pretendard',
+                    color: Colors.black
                   ),
                 ),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const NaverLoginButton(),
+                  const SizedBox(width: 15),
+                  const KakaoLoginButton(),
+                  const SizedBox(width: 15),
+                  GestureDetector(
+                    onTap: () => _showAgreementBottomBar(context),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black,
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.apple_outlined,
+                          color: Colors.white,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 50),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
-

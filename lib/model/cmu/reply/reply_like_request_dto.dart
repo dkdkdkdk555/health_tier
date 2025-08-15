@@ -1,5 +1,5 @@
 class ReplyLikeRequestDto {
-  final int userId;
+  final int? userId;
   final int replyId;
 
   ReplyLikeRequestDto({
