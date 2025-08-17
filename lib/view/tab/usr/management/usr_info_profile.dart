@@ -1,8 +1,15 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
+import 'package:path/path.dart' as path show basename;
 
 class UsrInfoProfile extends ConsumerWidget {
   const UsrInfoProfile({
@@ -58,21 +65,26 @@ class UsrInfoProfile extends ConsumerWidget {
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.grey.shade300,
-                              width: 1,
+                        child: GestureDetector(
+                          onTap: () {
+                             _showProfileImageOptions(context, ref); 
+                          },
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
                             ),
-                          ),
-                          child: Icon(
-                            Icons.camera,
-                            color: Colors.grey.shade600,
-                            size: 20,
+                            child: Icon(
+                              Icons.camera,
+                              color: Colors.grey.shade600,
+                              size: 20,
+                            ),
                           ),
                         ),
                       ),
@@ -173,5 +185,147 @@ class UsrInfoProfile extends ConsumerWidget {
         );
       }
     );
+  }
+
+    // 프로필 이미지 옵션 바텀 시트를 보여주는 함수
+  void _showProfileImageOptions(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)), // 둥근 모서리
+      ),
+      builder: (BuildContext bc) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Material( // 탭 애니메이션을 위해 Material 위젯 사용
+                color: Colors.white, // 하얀색 배경
+                shape:  const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(22)), // 둥근 모서리 유지
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(15), // 탭 효과도 둥글게
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _pickImage(context, ref, ImageSource.gallery);
+                  },
+                  child: Container(
+                    height: 55, // 세로 폭
+                    alignment: Alignment.center,
+                    child: Text(
+                      '갤러리에서 선택',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color:Colors.grey.shade900,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 0.5), // 마진 역할을 하는 간격
+              Material(
+                color: Colors.white,
+                shape:  const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(22)), // 둥근 모서리 유지
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(15), // 탭 효과도 둥글게
+                  onTap: () async {
+                    Navigator.pop(context);
+                     await _deleteProfileImage(context, ref);
+                  },
+                  child: Container(
+                    height: 55, // 세로 폭
+                    alignment: Alignment.center,
+                    child: const Text(
+                      '프로필 이미지 삭제',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color:Colors.red,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+
+  // 갤러리에서 이미지 선택 및 업로드 함수
+  Future<void> _pickImage(BuildContext context, WidgetRef ref, ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: source);
+
+    if (pickedFile != null) {
+      // 로딩 상태 시작 (로딩 프로바이더가 있다고 가정)
+      try {
+        final String? mimeType = lookupMimeType(pickedFile.path);
+        MediaType? contentType;
+        if (mimeType != null) {
+          final List<String> parts = mimeType.split('/');
+          if (parts.length == 2) {
+            contentType = MediaType(parts[0], parts[1]);
+          }
+        }
+        MultipartFile multipartFile = MultipartFile.fromFileSync(
+            pickedFile.path,
+            filename: path.basename(pickedFile.path),
+            contentType: contentType, // 추론된 MediaType을 넘겨줍니다.
+        );
+
+        final service = await ref.read(userCudServiceProvider.future);
+        final response = await service.createOrUpdateProfileImage(imageFile: multipartFile);
+
+        // 성공 시 메시지 표시 및 UI 업데이트
+        if (context.mounted && response=='success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('프로필 이미지가 업로드되었습니다.')),
+          );
+          ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
+        }
+      } catch (e) {
+        // 에러 메시지 표시
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('이미지 업로드 실패: $e')),
+          );
+        }
+      } finally {
+      }
+    }
+  }
+
+  // 프로필 이미지 삭제 함수
+  Future<void> _deleteProfileImage(BuildContext context, WidgetRef ref) async {
+    try {
+      final service = await ref.read(userCudServiceProvider.future);
+      final response = await service.deleteProfileImage();
+      // 성공 시 메시지 표시 및 UI 업데이트
+      if (context.mounted && response == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('프로필 이미지가 삭제되었습니다.')),
+        );
+        ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
+      }
+    } catch (e) {
+      // 에러 메시지 표시
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('프로필 이미지 삭제 실패: $e')),
+        );
+      }
+    } finally {
+    }
   }
 }

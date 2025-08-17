@@ -59,4 +59,29 @@ class UserApiService {
     );
     return response.data;
   }
+
+  // 내정보관리 - 프로필 이미지 등록/수정
+  Future<String> createOrUpdateProfileImage({
+    required MultipartFile imageFile,
+  }) async {
+    final formData = FormData.fromMap({
+      'image': imageFile
+    });
+
+    final response = await dio.post(
+      UserCudAPI.createOrUpdateProfileImage,
+      data: formData,
+    );
+
+    return response.data;
+  }
+
+  // 내정보관리 - 프로필 이미지 삭제
+  Future<String> deleteProfileImage() async {
+    final response = await dio.delete(
+      UserCudAPI.deleteProfileImage,
+    );
+
+    return response.data;
+  }
 }
