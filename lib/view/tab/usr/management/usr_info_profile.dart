@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 
 class UsrInfoProfile extends ConsumerWidget {
   const UsrInfoProfile({
@@ -108,15 +109,42 @@ class UsrInfoProfile extends ConsumerWidget {
                                   height: 1.6,
                                 ),
                               ),
-                              SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: SvgPicture.asset(
-                                  'assets/icons/reply/update_feed.svg',
-                                  fit: BoxFit.cover,
-                                  colorFilter: ColorFilter.mode(
-                                    Colors.grey.shade900,        // 적용할 색
-                                    BlendMode.srcIn,    // 원래 svg 색을 덮어씀
+                              GestureDetector(
+                                onTap: () async {
+                                  try {
+                                    final nickname = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const NicknameInputPage()),
+                                    );
+
+                                    if(nickname == null || nickname == '') return;
+
+                                    final service = await ref.read(userCudServiceProvider.future);
+                                    final response = await service.updateNickname(nickname);
+                                    if(response == 'success'){
+                                      if(!context.mounted) return;
+                                      ref.invalidate(usrSimpleInfoProvider);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('닉네임이 수정되었습니다.')),
+                                      );
+                                    }
+                                  }catch(e) {
+                                    if(!context.mounted) return;
+                                     ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('닉네임이 수정에 실패하였습니다. : $e')),
+                                    );
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: SvgPicture.asset(
+                                    'assets/icons/reply/update_feed.svg',
+                                    fit: BoxFit.cover,
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.grey.shade900,        // 적용할 색
+                                      BlendMode.srcIn,    // 원래 svg 색을 덮어씀
+                                    ),
                                   ),
                                 ),
                               ),

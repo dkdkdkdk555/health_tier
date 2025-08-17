@@ -50,4 +50,13 @@ class UserApiService {
       (json) => UserSimpleDto.fromJson(json as Map<String, dynamic>),
     );
   }
+
+  // 내정보관리 - 닉네임 변경
+  Future<String> updateNickname(String newNickname) async {
+    final response = await dio.post(
+      UserCudAPI.updateUserNickname,
+      queryParameters: {'nickname': newNickname},
+    );
+    return response.data;
+  }
 }

@@ -108,6 +108,7 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('닉네임 설정'),
+        foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
       backgroundColor: Colors.black,
