@@ -7,6 +7,7 @@ import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/doc_backup_and_restore.dart';
 import 'package:my_app/view/tab/usr/management/usr_app_bar_preferredsize.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_profile.dart';
+import 'package:my_app/view/tab/usr/management/usr_signout_notice_page.dart';
 
 //내정보관리
 class UsrInfoManagement extends ConsumerStatefulWidget {
@@ -71,14 +72,23 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                   const SizedBox(height: 16,),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      '회원탈퇴',
-                      style: TextStyle(
-                        color: Colors.grey.shade800,
-                        fontSize: 15.3,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.normal,
-                        height: 1.6,
+                    child: GestureDetector(
+                      onTap: () {
+                         Navigator.push(context,
+                          MaterialPageRoute(
+                            builder: (context) => const UsrSignoutNoticePage()
+                            )
+                          );
+                      },
+                      child: Text(
+                        '회원탈퇴',
+                        style: TextStyle(
+                          color: Colors.grey.shade800,
+                          fontSize: 15.3,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.normal,
+                          height: 1.6,
+                        ),
                       ),
                     ),
                   ),

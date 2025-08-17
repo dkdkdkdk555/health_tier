@@ -73,10 +73,6 @@ class UsrInfoProfile extends ConsumerWidget {
                             color: Colors.grey.shade600,
                             size: 20,
                           ),
-          //                   SvgPicture.asset(
-          //   'assets/icons/profile/ico_camera.svg', // 카메라 아이콘 경로
-          //   fit: BoxFit.scaleDown,
-          // ),
                         ),
                       ),
                     ],
