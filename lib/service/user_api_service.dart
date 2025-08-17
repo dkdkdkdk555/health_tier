@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 
 class UserApiService {
 
@@ -39,5 +40,14 @@ class UserApiService {
     final response = await dio.get(UserCudAPI.backupRestore);
     // 서버에서 JSON 문자열을 반환하므로 바로 처리
     return response.data;
+  }
+
+  // 내정보관리 - 유저정보 가져오기
+  Future<Result<UserSimpleDto>> getUserSimpleInfo() async {
+    final response = await dio.get(UserCudAPI.getUserInfoSimple);
+    return Result.fromJson(
+      response.data, 
+      (json) => UserSimpleDto.fromJson(json as Map<String, dynamic>),
+    );
   }
 }

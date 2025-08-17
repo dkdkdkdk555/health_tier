@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/usr/management/doc_backup_and_restore.dart';
-import 'package:my_app/view/tab/usr/usr_info_management.dart';
+import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UsrInfoScreen extends ConsumerStatefulWidget {

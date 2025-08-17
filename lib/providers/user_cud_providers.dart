@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/service/user_api_service.dart';
 
 final authDioProvider = FutureProvider<Dio>((ref) async {
@@ -26,4 +27,10 @@ final userBadgeListProvider = FutureProvider.family<Result<List<BadgeInfoDto>>, 
 final backupStatusProvider = FutureProvider<String>((ref) async {
   final userService = await ref.watch(userCudServiceProvider.future);
   return userService.getBackupStatus();
+});
+
+// 내정보관리에서 사용자정보 공급
+final usrSimpleInfoProvider = FutureProvider<Result<UserSimpleDto>>((ref) async {
+  final service = await ref.watch(userCudServiceProvider.future);
+  return await service.getUserSimpleInfo();
 });

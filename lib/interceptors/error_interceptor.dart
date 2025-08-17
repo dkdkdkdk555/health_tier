@@ -63,12 +63,13 @@ class ErrorInterceptor extends InterceptorsWrapper {
           }
 
           /// refreshToken이나 userId 없음 → 바로 로그인 다이얼로그
-          return _showReloginDialog(originalRequest, handler);
+          // return _showReloginDialog(originalRequest, handler); --> 이 경우는 TOKEN_EXPIRED 경우에 발생할리 없어서 주석처리
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
           debugPrint('리프레시 토큰이 유효하지 않습니다. 다시 로그인해주세요.');
           _showReloginDialog(originalRequest, handler);
+          return;
         }
       } on Exception catch (e) {
         debugPrint('Error handling 401 response: $e');
@@ -78,7 +79,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
     else if(err.response?.statusCode == 400) {
       debugPrint(err.response?.data['message']);
       // 메세지를 받아서 예외발생시킴 -> 다음계층(UI) 에 처리를 위임
-      final message = err.response?.data['message'] ?? '인증 요청 실패';
+      final message = err.response?.data['message'] ?? '인증 요청?? 실패';
       return _showSnackBar(originalRequest, handler, message);
     }
     // 서버응답이 Conflict 409 인 경우 

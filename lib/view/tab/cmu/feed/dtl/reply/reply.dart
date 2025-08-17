@@ -10,6 +10,7 @@ import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/service/reply_cud_api_service.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
@@ -57,29 +58,9 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
           },
           onDelete: () async {
 
-             final bool confirm = await showDialog<bool>(
-              context: context,
-              builder: (BuildContext dialogContext) {
-                return AlertDialog(
-                  content: const Text('댓글을 삭제하시겠습니까?'),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('취소'),
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop(false);
-                      },
-                    ),
-                    TextButton(
-                      child: const Text('확인'),
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop(true);
-                      },
-                    ),
-                  ],
-                );
-              },
-            ) ?? false;
-
+            final confirm = await showConfirmDialog(context, 
+              message: '댓글을 삭제하시겠습니까?'
+            );
             // 사용자가 '확인'을 누르지 않았다면 함수 실행 중단
             if (!confirm) {
               return;

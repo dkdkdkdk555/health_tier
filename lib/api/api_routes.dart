@@ -58,6 +58,10 @@ class UserCudAPI {
   static const backupStatusCheck = '$base/backup/status';
   static const backupRequest = '$base/backup';
   static const backupRestore = '$base/backup/restore';
+  static const getUserInfoSimple = '$base/info';
+  static const createOrUpdateProfileImage = '$base/profile/img'; // POST
+  static const deleteProfileImage = '$base/profile/img'; // DELETE
+  static const updateUserNickname = '$base/nickname';
 }
 
 
