@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 
 class UserApiService {
@@ -81,7 +82,16 @@ class UserApiService {
     final response = await dio.delete(
       UserCudAPI.deleteProfileImage,
     );
-
     return response.data;
   }
+
+  // 회원 탈퇴
+  Future<String> leaveUser(UsrLeaveRequest request) async {
+    final response = await dio.post(
+      UserCudAPI.userLeaveOut,
+      data: request.toJson(),
+    );
+    return response.data;
+  }
+
 }

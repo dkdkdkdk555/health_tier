@@ -62,6 +62,7 @@ class UserCudAPI {
   static const createOrUpdateProfileImage = '$base/profile/img'; // POST
   static const deleteProfileImage = '$base/profile/img'; // DELETE
   static const updateUserNickname = '$base/nickname';
+  static const userLeaveOut = '$base/leave';
 }
 
 
