@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,16 +18,28 @@ import 'package:my_app/view/tab/usr/usr_main.dart';
 import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
 
+// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+//   // 백그라운드에서 수신했을 때 (앱이 완전히 꺼져있을 때 포함)
+//   await Firebase.initializeApp();
+//   debugPrint("백그라운드 메시지 수신: ${message.messageId}");
+// }
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('ko');
-
+  // await initializeDateFormatting('ko');
+  await Firebase.initializeApp(); 
   await UserPrefs.cleanExpiredPostViewCache();
   await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
+
+   // 백그라운드 핸들러 등록
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // 테스트 데이터 삽입 시만 사용
   // final db = AppDatabase();
   // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+
+  debugPrint('fcm토큰 : $fcmToken');
 
   // 카카오sdk 초기화
    KakaoSdk.init(
@@ -92,6 +106,19 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     ));
 
     if(widget.mvIndex!=0) _onTap(widget.mvIndex);
+
+     // ✅ 포그라운드 메시지 수신 리스너
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   debugPrint("포그라운드 메시지 수신: ${message.notification?.title}");
+
+    //   // 여기서 직접 다이얼로그/스낵바/로컬 알림 띄우기 가능
+    // });
+
+    // // ✅ 사용자가 알림 클릭해서 앱을 열었을 때
+    // FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    //   debugPrint("알림 클릭으로 앱 열림: ${message.notification?.title}");
+    //   // 특정 화면으로 이동 등 처리
+    // });
   }
 
   @override

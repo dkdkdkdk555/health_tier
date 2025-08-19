@@ -69,6 +69,8 @@ dependencies:
   kakao_flutter_sdk_user: ^1.9.5 # 카카오 로그인 API 패키지
   http_parser: ^4.1.2
   webview_flutter: ^4.13.0
+  firebase_core: ^4.0.0 
+  firebase_messaging: ^16.0.0
 
 dev_dependencies:
   flutter_test:
