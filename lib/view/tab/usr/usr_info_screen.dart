@@ -14,55 +14,14 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
 }
 
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
-  // String? _jwtToken;
 
   @override
   void initState() {
     super.initState();
-    // _loadJwtToken();
   }
-
-  // Future<void> _loadJwtToken() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final token = prefs.getString('accessToken');
-
-  //   debugPrint('_loadJwtToken 토큰 : $token');
-  //   setState(() {
-  //     _jwtToken = token;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
-    // final badgeResult = ref.watch(userBadgeListProvider(30));
-
-    // final latestWeightAsyncValue = ref.watch(getLatestWeightProvider);
-
-    // return latestWeightAsyncValue.when(
-    //   loading: () => const CircularProgressIndicator(),
-    //   error: (err, stack) => Text('Error: $err'),
-    //   data: (weight) {
-    //     if (weight != null) {
-    //       return Text('가장 최근 체중: $weight kg');
-    //     } else {
-    //       return const Text('아직 체중 기록이 없습니다.');
-    //     }
-    //   },
-    // );
-    // return badgeResult.when(
-    //   data: (result) => ListView.builder(
-    //     itemCount: result.data.length,
-    //     itemBuilder: (context, index) {
-    //       final badge = result.data[index];
-    //       return ListTile(
-    //         title: Text(badge.badgeName),
-    //         subtitle: Text(badge.badgeCtnt!),
-    //       );
-    //     },
-    //   ),
-    //   loading: () => const CircularProgressIndicator(),
-    //   error: (e, st) => Text('에러 발생: $e'),
-    // );
 
     return Scaffold(
       body: Column(
