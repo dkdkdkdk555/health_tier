@@ -50,7 +50,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ukhyeon.healthtier"
-        minSdk = 23
+        minSdk = 21
         targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
