@@ -15,7 +15,7 @@ dependencies {
    // TODO: Add the dependencies for Firebase products you want to use
   // When using the BoM, don't specify versions in Firebase dependencies
   implementation 'com.google.firebase:firebase-analytics'
-
+  implementation 'com.google.firebase:firebase-installations:17.2.0'
 
 
 }
@@ -43,6 +43,10 @@ android {
     compileSdk = 35                  // ✅ 수정됨
     ndkVersion = flutter.ndkVersion
 
+    buildFeatures {
+        buildConfig true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -50,7 +54,7 @@ android {
 
     defaultConfig {
         applicationId = "com.ukhyeon.healthtier"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
