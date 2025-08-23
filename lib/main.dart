@@ -71,6 +71,28 @@ void main() async{
     }
   });
 
+  // 백그라운드 알림 핸들러 등록
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // FCM 알림 리스너 예시
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    // 알림 데이터에 접근
+    final notification = message.notification;
+
+    if (notification != null) {
+      final title = notification.title;
+      final body = notification.body;
+
+      debugPrint('알림 제목: $title');
+      debugPrint('알림 본문: $body');
+    }
+
+    // 데이터 메시지(putAllData)에 접근
+    final data = message.data;
+    debugPrint('데이터 메시지: $data');
+
+  });
+
   // 테스트 데이터 삽입 시만 사용
   // final db = AppDatabase();
   // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
@@ -84,6 +106,13 @@ void main() async{
   runApp(const ProviderScope( // 상태관리 패키지 - Riverpod 설정
     child:MyApp())
   );
+}
+
+// 앱 백그라운드에서 알림 수신 시 호출되는 핸들러
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("message: ${message.messageId}");
+  debugPrint("message: ${message.data['title']}");
+  debugPrint("message: ${message.data['notificationType']}");
 }
 
 class MyApp extends ConsumerStatefulWidget {

@@ -29,7 +29,6 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   Future<void> _getAndSendPushToken(Future<SharedPreferences> prefsFuture) async {
     final prefs = await prefsFuture;
     bool? fcmTokenUploaded = prefs.getBool('fcmTokenUploaded');
-String? fcmToken = await FirebaseMessaging.instance.getToken();
     if(fcmTokenUploaded==null || !fcmTokenUploaded) {
       // 1. FCM 토큰 가져오기
       String? fcmToken = await FirebaseMessaging.instance.getToken();
