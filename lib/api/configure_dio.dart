@@ -38,5 +38,19 @@ class DIOConfig {
     dio.interceptors.add(ErrorInterceptor(ref, dio));
     return dio;
   }
+
+  Dio createDioWithAuth(String? accessToken) {
+    final dio = Dio();
+    dio.options = BaseOptions(
+      baseUrl: APIServer.baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 6),
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ${accessToken ?? ''}',
+      },
+    );
+    return dio;
+  }
   
 }

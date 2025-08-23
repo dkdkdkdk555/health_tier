@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.14:8080';
+  static const baseUrl = 'http://192.168.0.4:8080';
 }
 
 class FeedAPI {
@@ -63,6 +63,7 @@ class UserCudAPI {
   static const deleteProfileImage = '$base/profile/img'; // DELETE
   static const updateUserNickname = '$base/nickname';
   static const userLeaveOut = '$base/leave';
+  static const fcmInfoSave = '$base/push-token';
 }
 
 

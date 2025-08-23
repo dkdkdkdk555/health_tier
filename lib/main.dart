@@ -1,11 +1,20 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart' show BaseOptions, Dio;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_installations/firebase_installations.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
+import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenRequest;
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
@@ -13,14 +22,54 @@ import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
+import '../firebase_options.dart'; // flutterfire configure 하면 생겨나는 설정파일
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko');
   await UserPrefs.cleanExpiredPostViewCache();
   await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
+  await Firebase.initializeApp( // 파이어베이스 초기화
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // FCM 토큰 갱신 리스너 등록
+  FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
+    debugPrint('새토큰 : $fcmToken');
+
+    // SharedPreferences에서 accessToken 가져오기
+    final prefs = await SharedPreferences.getInstance();
+    final jwtToken = prefs.getString('accessToken');
+
+    // installation ID 가져오기
+    String? installationId = await FirebaseInstallations.id;
+    // 현재 디바이스의 OS 타입 가져오기
+    String osType = Platform.isIOS ? 'ios' : 'android';
+
+    // 인증 헤더를 포함한 Dio 인스턴스 생성
+    final dio = DIOConfig().createDioWithAuth(jwtToken);
+    final apiService = UserApiService(dio);
+
+    // 서버저장 요청
+    try {
+      final pushTokenRequest = PushTokenRequest(
+        fcmToken: fcmToken,
+        osType: osType,
+        installationId: installationId,
+      );
+      final response = await apiService.registerPushToken(pushTokenRequest);
+
+      if (response == 'success') {
+        prefs.setBool("fcmTokenUploaded", true);
+        debugPrint('FCM 토큰이 서버에 성공적으로 등록되었습니다.');
+      }
+    } catch (e) {
+      debugPrint('FCM 토큰 전송 실패: $e');
+    }
+  });
 
   // 테스트 데이터 삽입 시만 사용
   // final db = AppDatabase();

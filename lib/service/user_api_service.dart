@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 
@@ -93,5 +94,15 @@ class UserApiService {
     );
     return response.data;
   }
+
+  // 내정보관리 - FCM 푸시 토큰 등록/수정
+  Future<String> registerPushToken(PushTokenRequest request) async {
+    final response = await dio.post(
+      UserCudAPI.fcmInfoSave,
+      data: request.toJson(),
+    );
+    return response.data;
+  }
+
 
 }
