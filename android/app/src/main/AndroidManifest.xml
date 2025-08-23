@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:label="my_app"
@@ -33,6 +34,26 @@
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" /> <!-- heads-up 알림(사용중인 앱 위에 잠시 표시되는 배너 알림) 표시하기 위해 -->
+        <meta-data
+        android:name="com.google.firebase.messaging.default_notification_icon"
+        android:resource="@mipmap/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
+
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -40,7 +61,9 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="false"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues

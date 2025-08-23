@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart' show BaseOptions, Dio;
@@ -5,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,6 +17,7 @@ import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenReq
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
+import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
@@ -71,26 +74,12 @@ void main() async{
     }
   });
 
-  // 백그라운드 알림 핸들러 등록
+  // 백그라운드 알림 핸들러 등록 -> 로컬알림표시
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // FCM 알림 리스너 예시
+  // FCM 알림 리스너 -> 로컬알림표시
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    // 알림 데이터에 접근
-    final notification = message.notification;
-
-    if (notification != null) {
-      final title = notification.title;
-      final body = notification.body;
-
-      debugPrint('알림 제목: $title');
-      debugPrint('알림 본문: $body');
-    }
-
-    // 데이터 메시지(putAllData)에 접근
-    final data = message.data;
-    debugPrint('데이터 메시지: $data');
-
+    FlutterLocalNotification.showNotification(message);
   });
 
   // 테스트 데이터 삽입 시만 사용
@@ -109,11 +98,15 @@ void main() async{
 }
 
 // 앱 백그라운드에서 알림 수신 시 호출되는 핸들러
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint("message: ${message.messageId}");
-  debugPrint("message: ${message.data['title']}");
-  debugPrint("message: ${message.data['notificationType']}");
+  // 백그라운드 isolate에서 Firebase 재초기화
+  await Firebase.initializeApp();
+  debugPrint("Handling a background message: ${message.messageId}");
+  // 메세지 호출
+  FlutterLocalNotification.showNotification(message); 
 }
+
 
 class MyApp extends ConsumerStatefulWidget {
   final int mvIndex;
@@ -144,6 +137,10 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
   @override
   void initState() {
+    // 로컬알림 초기화
+    FlutterLocalNotification.init();
+    // 알림 권한요청
+    Future.delayed(const Duration(seconds: 3), FlutterLocalNotification.requestNotificationPermission());
     super.initState();
 
     _fabController = AnimationController(
