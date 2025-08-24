@@ -8,13 +8,13 @@ import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 
 class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
   final int feedId;
-  final int categoryId;
+  final int? categoryId;
   final bool isFromWriteFeed;
   const FeedDetail(
     {
     super.key,
     required this.feedId,
-    required this.categoryId,
+    this.categoryId,
     this.isFromWriteFeed = false,
     }
   );
@@ -59,8 +59,8 @@ class _FeedDetailState extends State<FeedDetail> {
             // 댓글리스트
             ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
             // 같은 카테고리의 다른 글
-            CategoryAnotherFeedList(categoryId: widget.categoryId,),
-        
+            widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!,) 
+            : const SliverToBoxAdapter(child: SizedBox.shrink()),
             // 하단 여백(필요시)
             const SliverToBoxAdapter(
               child: SizedBox(height: 100),

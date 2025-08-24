@@ -93,8 +93,8 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
             onPressed: () async {
               try {
                 await FirebaseMessaging.instance.deleteToken();
-                // final prefs = await SharedPreferences.getInstance();
-                // await prefs.setBool("fcmTokenUploaded", false); // 플래그 초기화
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool("fcmTokenUploaded", false); // 플래그 초기화
                 debugPrint('FCM 토큰이 삭제되었습니다. onTokenRefresh 리스너가 작동하여 새로운 토큰을 발급하고 서버에 전송할 것입니다.');
                 // 삭제 후 재등록 로직을 바로 호출할 수도 있습니다 (선택 사항)
                 // _getAndSendPushToken(SharedPreferences.getInstance());
