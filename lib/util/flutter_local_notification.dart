@@ -14,7 +14,13 @@ class FlutterLocalNotification {
 
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
+  // 알림 클릭 시 전달된 payload를 임시 저장
+  static String? _pendingPayload;
+
   static init() async {
+     // 앱 라이프사이클 감시자 등록
+    WidgetsBinding.instance.addObserver(_NotificationLifecycleObserver());
+    
     // android 설정
     AndroidInitializationSettings initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
     // ios 설정
@@ -33,29 +39,58 @@ class FlutterLocalNotification {
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotificationResponse,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
     );
   }
 
-  // 알림을 탭했을 때 실행될 콜백 함수
-  static void onDidReceiveNotificationResponse(NotificationResponse notificationResponse) async {
+  /// 포그라운드 상태에서 알림 클릭 시
+  static void onDidReceiveNotificationResponse(
+      NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
     if (payload != null) {
-      debugPrint('notification payload: $payload');
-      try {
-        final Map<String, dynamic> data = json.decode(payload);
-        final String? feedId = data['feedId'];
-        if (feedId != null && navigatorKey.currentState != null) {
-          // 해당 페이지로 이동
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            navigatorKey.currentState?.push(
-              MaterialPageRoute(builder: (context) =>  FeedDetail(feedId: int.parse(feedId), isFromWriteFeed: false,)),
-            );
-          });
-        }
-      } catch (e) {
-        debugPrint("Error decoding notification payload: $e");
+      _handlePayload(payload);
+    }
+  }
+  /// 백그라운드 상태에서 알림 클릭 시 → payload만 저장
+  static void onDidReceiveBackgroundNotificationResponse(
+      NotificationResponse notificationResponse) async {
+    final String? payload = notificationResponse.payload;
+    if (payload != null) {
+      debugPrint('Background notification payload saved: $payload');
+      _pendingPayload = payload;
+    }
+  }
+
+    /// 앱 resume 시, 저장된 payload 있으면 페이지 이동 처리
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _pendingPayload != null) {
+      debugPrint("App resumed. Handling pending notification payload.");
+      _handlePayload(_pendingPayload!);
+      _pendingPayload = null; // 사용 후 초기화
+    }
+  }
+
+  /// 실제 payload 처리 (FeedDetail로 이동)
+  static void _handlePayload(String payload) {
+    try {
+      final Map<String, dynamic> data = json.decode(payload);
+      final String? feedId = data['feedId']?.toString();
+
+      if (feedId != null &&
+          navigatorKey.currentState != null &&
+          navigatorKey.currentState!.mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  FeedDetail(feedId: int.parse(feedId), isFromWriteFeed: false),
+            ),
+          );
+        });
       }
+    } catch (e) {
+      debugPrint("Error decoding notification payload: $e");
     }
   }
 
@@ -92,5 +127,20 @@ class FlutterLocalNotification {
       notificationDetails,
       payload: json.encode(message.data),
     );
+  }
+}
+
+
+/// 앱 라이프사이클을 감시하고, 백그라운드에서 클릭된 알림 처리
+class _NotificationLifecycleObserver with WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        FlutterLocalNotification._pendingPayload != null) {
+      debugPrint("App resumed. Handling pending notification payload.");
+      FlutterLocalNotification._handlePayload(
+          FlutterLocalNotification._pendingPayload!);
+      FlutterLocalNotification._pendingPayload = null;
+    }
   }
 }
