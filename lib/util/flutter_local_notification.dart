@@ -58,9 +58,9 @@ class FlutterLocalNotification with WidgetsBindingObserver{
       NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
     if (payload != null) {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setString('pushPayload', payload);
-      debugPrint('Background notification payload saved: $payload');
+      // final prefs = await SharedPreferences.getInstance();
+      // prefs.setString('pushPayload', payload);
+      // debugPrint('Background notification payload saved: $payload'); --> 안되는듯
       _pendingPayload = payload;
     }
   }
