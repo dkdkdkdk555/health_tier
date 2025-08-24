@@ -8,8 +8,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class FlutterLocalNotification {
+class FlutterLocalNotification with WidgetsBindingObserver{
   FlutterLocalNotification._();
 
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -18,6 +19,7 @@ class FlutterLocalNotification {
   static String? _pendingPayload;
 
   static init() async {
+    debugPrint("=== FlutterLocalNotification.init() 호출됨 ===");
      // 앱 라이프사이클 감시자 등록
     WidgetsBinding.instance.addObserver(_NotificationLifecycleObserver());
     
@@ -48,7 +50,7 @@ class FlutterLocalNotification {
       NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
     if (payload != null) {
-      _handlePayload(payload);
+      handlePayload(payload);
     }
   }
   /// 백그라운드 상태에서 알림 클릭 시 → payload만 저장
@@ -56,23 +58,26 @@ class FlutterLocalNotification {
       NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
     if (payload != null) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('pushPayload', payload);
       debugPrint('Background notification payload saved: $payload');
       _pendingPayload = payload;
     }
   }
 
-    /// 앱 resume 시, 저장된 payload 있으면 페이지 이동 처리
+  /// 앱 resume 시, 저장된 payload 있으면 페이지 이동 처리
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    debugPrint("??didChangeAppLifecycleState??");
     if (state == AppLifecycleState.resumed && _pendingPayload != null) {
       debugPrint("App resumed. Handling pending notification payload.");
-      _handlePayload(_pendingPayload!);
+      handlePayload(_pendingPayload!);
       _pendingPayload = null; // 사용 후 초기화
     }
   }
 
   /// 실제 payload 처리 (FeedDetail로 이동)
-  static void _handlePayload(String payload) {
+  static void handlePayload(String payload) {
     try {
       final Map<String, dynamic> data = json.decode(payload);
       final String? feedId = data['feedId']?.toString();
@@ -138,7 +143,7 @@ class _NotificationLifecycleObserver with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed &&
         FlutterLocalNotification._pendingPayload != null) {
       debugPrint("App resumed. Handling pending notification payload.");
-      FlutterLocalNotification._handlePayload(
+      FlutterLocalNotification.handlePayload(
           FlutterLocalNotification._pendingPayload!);
       FlutterLocalNotification._pendingPayload = null;
     }
