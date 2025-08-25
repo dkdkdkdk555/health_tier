@@ -4,10 +4,16 @@ import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
+import 'package:my_app/view/tab/usr/usr_main/profile_card.dart';
+import 'package:my_app/view/tab/usr/usr_main/usr_info_tab_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
+import 'package:my_app/view/tab/simple_cache.dart' show cachedUsrTabIndex;
 
 class UsrInfoScreen extends ConsumerStatefulWidget {
   const UsrInfoScreen({super.key});
@@ -17,12 +23,22 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
 }
 
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
+  // 어느 하위 탭인지
+  late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
+    _selectedIndex = cachedUsrTabIndex;
     final prefsFuture = SharedPreferences.getInstance();
     _getAndSendPushToken(prefsFuture); // 위젯이 생성될 때 토큰 발급 및 전송 로직 호출
+  }
+
+    void _onTap(int index) { // 하위 탭바에서 받을 함수
+    setState(() {
+      _selectedIndex = index;
+      cachedUsrTabIndex = index;
+    });
   }
 
   // FCM 토큰과 installation ID를 발급받아 서버에 전송하는 비동기 함수
@@ -67,45 +83,59 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          const SizedBox(height: 84,),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-               MaterialPageRoute(
-                builder: (context) => const UsrInfoManagement()
-                )
-              );
-            },
-            child: Text(
-              '내정보관리',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.blue.shade400
+
+    return Container(
+      color: Colors.white,
+      child: CustomScrollView(
+        slivers: [
+          // 상단바 위 여백
+          const TopBlankArea(),
+          // 상단바
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              width: double.infinity,
+              height: 82,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                   const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '마이페이지',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 0.07,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: SvgPicture.asset(
+                        'assets/icons/alram.svg'
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),
-          const SizedBox(height: 20), // 버튼 간 간격 추가
-          // FCM 토큰 삭제 테스트 버튼 추가
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                await FirebaseMessaging.instance.deleteToken();
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.setBool("fcmTokenUploaded", false); // 플래그 초기화
-                debugPrint('FCM 토큰이 삭제되었습니다. onTokenRefresh 리스너가 작동하여 새로운 토큰을 발급하고 서버에 전송할 것입니다.');
-                // 삭제 후 재등록 로직을 바로 호출할 수도 있습니다 (선택 사항)
-                // _getAndSendPushToken(SharedPreferences.getInstance());
-              } catch (e) {
-                debugPrint('FCM 토큰 삭제 중 오류 발생: $e');
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white, backgroundColor: Colors.red, // 텍스트 색상
+          // 프로필 영역
+          const SliverToBoxAdapter(
+            child: ProfileCard(),
+          ),
+          // 탭바 영역
+          SliverToBoxAdapter(
+            child: UsrInfoTabBar(
+              selectedIndex: _selectedIndex,
+              onTap: _onTap,
             ),
-            child: const Text('FCM 토큰 삭제 및 갱신 테스트'),
           ),
         ],
       ),

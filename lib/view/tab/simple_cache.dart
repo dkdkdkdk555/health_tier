@@ -10,6 +10,9 @@ int cachedStcTabIndex = 0;
 // 커뮤탭-하위탭 선택정보 보존을 위한 캐시
 int cachedCmuTabIndex = 0;
 
+// 유저탭-하위탭 선택정보 보존을 위한 캐시
+int cachedUsrTabIndex = 0;
+
 /// 통계탭의 날짜 검색조건 캐싱
 DateTime startDate = DateTime.now().subtract(const Duration(days: 7));
 DateTime endDate = DateTime.now();
