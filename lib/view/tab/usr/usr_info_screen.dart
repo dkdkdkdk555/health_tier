@@ -145,11 +145,25 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
             ),
           ),
           // 탭 영역
-          SliverToBoxAdapter(
-            child: _tabs[_selectedIndex]
+          _buildTabContent(),
+          // 여백
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 100,)
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildTabContent() {
+    final tab = _tabs[_selectedIndex];
+
+    // MyWroteFeed는 Sliver로 직접 반환
+    if (tab is MyWroteFeed) {
+      return tab;
+    }
+
+    // 나머지는 일반 위젯 → SliverToBoxAdapter로 감쌈
+    return SliverToBoxAdapter(child: tab);
   }
 }

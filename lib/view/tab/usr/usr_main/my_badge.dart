@@ -17,13 +17,11 @@ class _MyBadgeState extends State<MyBadge> {
           _buildBadgeList(),
           _buildHeader('오운완 뱃지'),
           _buildBadgeList(),
-          const SizedBox(height: 100,)
         ],
       ),
     );
   }
 
-  // 반복되는 헤더 부분을 함수로 분리
   Widget _buildHeader(String title) {
     return Container(
       width: double.infinity,
@@ -34,17 +32,19 @@ class _MyBadgeState extends State<MyBadge> {
         right: 20,
         bottom: 8,
       ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w700,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontFamily: 'Pretendard',
+              height: 0.07,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

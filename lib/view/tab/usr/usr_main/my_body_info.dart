@@ -59,7 +59,6 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
           _buildExerciseSection(),
           _buildHeader('신체정보', true),
           const BodyInfoSection(),
-          const SizedBox(height: 100,),
         ],
       )
     );
