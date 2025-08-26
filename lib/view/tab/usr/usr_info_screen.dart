@@ -9,6 +9,9 @@ import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
+import 'package:my_app/view/tab/usr/usr_main/my_badge.dart';
+import 'package:my_app/view/tab/usr/usr_main/my_body_info.dart';
+import 'package:my_app/view/tab/usr/usr_main/my_wrote_feed.dart';
 import 'package:my_app/view/tab/usr/usr_main/profile_card.dart';
 import 'package:my_app/view/tab/usr/usr_main/usr_info_tab_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +28,12 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   // 어느 하위 탭인지
   late int _selectedIndex;
+
+  final List<Widget> _tabs = [
+    const MyBadge(),
+    const MyBodyInfo(),
+    const MyWroteFeed()
+  ];
 
   @override
   void initState() {
@@ -136,6 +145,10 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
               selectedIndex: _selectedIndex,
               onTap: _onTap,
             ),
+          ),
+          // 탭 영역
+          SliverToBoxAdapter(
+            child: _tabs[_selectedIndex]
           ),
         ],
       ),
