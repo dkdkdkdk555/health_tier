@@ -8,14 +8,12 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
-import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_badge.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_body_info.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_wrote_feed.dart';
 import 'package:my_app/view/tab/usr/usr_main/profile_card.dart';
 import 'package:my_app/view/tab/usr/usr_main/usr_info_tab_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedUsrTabIndex;
 
 class UsrInfoScreen extends ConsumerStatefulWidget {
