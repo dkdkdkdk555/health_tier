@@ -15,7 +15,7 @@ class UsrInfoTabBar extends StatefulWidget {
 }
 
 class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
-  final List<String> tabs = ['신체 정보', '뱃지', '내가 쓴 글']; // 첫 번째 코드 스타일에 맞춰 탭 순서 변경
+  final List<String> tabs = ['뱃지', '신체 정보', '내가 쓴 글'];
   
   late int selectedIndex;
 
@@ -25,8 +25,7 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
   bool _isFirstBuild = true;
 
   // 탭의 고정 너비와 간격을 정의합니다.
-  final double fixedTabWidth = 80; // 탭의 너비를 동일하게 맞추기 위한 임의의 값
-  final double tabSpacing = 20;
+  final double fixedTabWidth = 111.6; // 탭의 너비를 동일하게 맞추기 위한 임의의 값
 
   @override
   void initState() {
@@ -58,22 +57,22 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
       width: double.infinity,
       child: Container(
         margin: const EdgeInsets.only(top: 20),
-        height: 28,
+        height: 44,
         child: Stack(
           children: [
             // 회색 하단 선
             Positioned.fill(
               child: Container(
-                margin: const EdgeInsets.only(top: 26),
+                margin: const EdgeInsets.only(top: 42),
                 height: 2,
                 color: const Color(0xFFEEEEEE),
               ),
             ),
             _buildUnderline(),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20),
+            Container(
+              padding: const EdgeInsets.only(left: 20, right: 20,),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // 탭 간의 간격을 위해 start로 변경
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(tabs.length, (index) {
                   final isSelected = index == selectedIndex;
                   return GestureDetector(
@@ -89,15 +88,14 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
                     child: Container(
                       width: fixedTabWidth, // 탭의 너비를 고정
                       alignment: Alignment.center,
-                      child: SizedBox(
-                        height: 44,
+                      child: Align(
+                        alignment: Alignment.center,
                         child: Text(
                           tabs[index],
                           style: TextStyle(
                             color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-                            fontSize: 16,
+                            fontSize: 14.5,
                             fontFamily: 'Pretendard',
-                            height: 0.09, // 텍스트 높이 문제 방지를 위해 적정값 유지
                           ),
                         ),
                       ),
@@ -115,7 +113,7 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
   void _updateUnderline() {
     // 탭의 위치를 계산하여 언더라인 위치를 업데이트
     const leftPadding = 20.0;
-    final totalSpacing = selectedIndex * tabSpacing;
+    final totalSpacing = selectedIndex;
     final totalWidth = selectedIndex * fixedTabWidth;
     final newLeft = leftPadding + totalWidth + totalSpacing;
     
@@ -133,12 +131,12 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
     );
     
     return _isFirstBuild
-        ? Positioned(left: underlineLeft, top: 26, child: underline)
+        ? Positioned(left: underlineLeft, top: 42, child: underline)
         : AnimatedPositioned(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeInOut,
             left: underlineLeft,
-            top: 26,
+            top: 42,
             child: underline,
           );
   }
