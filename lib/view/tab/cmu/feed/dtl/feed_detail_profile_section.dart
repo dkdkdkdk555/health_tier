@@ -85,16 +85,6 @@ class FeedDetailProfileSection extends ConsumerWidget {
         height: 44,
         child: Stack(
           children: [
-            if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
-              Positioned.fill(
-                child: SvgPicture.asset(
-                  'assets/widgets/${todayBadge.badgeId}.svg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
             Positioned(
               left: 2,
               top: 2,
@@ -123,6 +113,16 @@ class FeedDetailProfileSection extends ConsumerWidget {
                 ),
               ),
             ),
+            if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
+              Positioned.fill(
+                child: SvgPicture.asset(
+                  'assets/widgets/${todayBadge.badgeId}.svg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
           ],
         ),
       ),

@@ -555,16 +555,6 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
         height: 26,
         child: Stack(
           children: [
-            if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
-              Positioned.fill(
-                child: SvgPicture.asset(
-                  'assets/widgets/${todayBadge.badgeId}.svg',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ),
             Positioned(
               left: 1.09,
               top: 1.09,
@@ -606,6 +596,16 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                         ),
                 ),
               ),
+            ),
+            if (todayBadge.badgeId.isNotEmpty) // .isNotEmpty 대신 != ''
+              Positioned.fill(
+                child: SvgPicture.asset(
+                  'assets/widgets/${todayBadge.badgeId}.svg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const SizedBox.shrink();
+                  },
+                ),
             ),
           ],
         ),
