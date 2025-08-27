@@ -99,39 +99,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           const TopBlankArea(),
           // 상단바
           SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              width: double.infinity,
-              height: 82,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                   const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '마이페이지',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                        height: 0.07,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: SvgPicture.asset(
-                        'assets/icons/alram.svg'
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+            child: _buildTopBar(),
           ),
           // 프로필 영역
           const SliverToBoxAdapter(
@@ -150,6 +118,42 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           const SliverToBoxAdapter(
             child: SizedBox(height: 100,)
           ),
+        ],
+      ),
+    );
+  }
+
+  Container _buildTopBar() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      width: double.infinity,
+      height: 82,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+            const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '마이페이지',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w700,
+                height: 0.07,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {},
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: SvgPicture.asset(
+                'assets/icons/alram.svg'
+              ),
+            ),
+          )
         ],
       ),
     );
