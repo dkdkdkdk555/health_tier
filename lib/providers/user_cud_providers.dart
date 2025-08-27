@@ -18,9 +18,9 @@ final userCudServiceProvider = FutureProvider<UserApiService>((ref) async {
 });
 
 // 사용자 뱃지 조회 provider
-final userBadgeListProvider = FutureProvider.family<Result<List<BadgeInfoDto>>, int>((ref, userId) async {
+final userBadgeListProvider = FutureProvider<Result<List<BadgeInfoDto>>>((ref) async {
   final service = await ref.watch(userCudServiceProvider.future);
-  return await service.getUserBadges(userId);
+  return await service.getUserBadges();
 });
 
 // 백업 상태를 가져오는 Provider

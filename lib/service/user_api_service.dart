@@ -12,8 +12,8 @@ class UserApiService {
   UserApiService(this.dio);
 
   // 사용자 뱃지 조회
-  Future<Result<List<BadgeInfoDto>>> getUserBadges(int userId) async {
-    final response = await dio.get('${UserCudAPI.getUserBadges}/$userId');
+  Future<Result<List<BadgeInfoDto>>> getUserBadges() async {
+    final response = await dio.get(UserCudAPI.getUserBadges);
     return Result.fromJson(
       response.data,
       (obj) => (obj as List).map((e) => BadgeInfoDto.fromJson(e)).toList(),
