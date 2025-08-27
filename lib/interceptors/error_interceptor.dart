@@ -5,6 +5,7 @@ import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/navigator_key.dart';
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,9 +46,11 @@ class ErrorInterceptor extends InterceptorsWrapper {
             }).future);
 
             // 3. 재발급된 토큰을 SharedPreferences에 저장합니다.
-            await prefs.setString('accessToken', newTokenResponse.accessToken);
-            await prefs.setString('refreshToken', newTokenResponse.refreshToken!);
-            await prefs.setInt('userId', newTokenResponse.userId);
+            UserPrefs.settingLoginResponse(newTokenResponse);
+            // await prefs.setString('accessToken', newTokenResponse.accessToken);
+            // await prefs.setString('refreshToken', newTokenResponse.refreshToken!);
+            // await prefs.setInt('userId', newTokenResponse.userId);
+            // await prefs.setString('nickname', newTokenResponse.nickname);
 
             // 4. 원래 요청의 헤더를 새 액세스 토큰으로 업데이트합니다.
             originalRequest.headers['Authorization'] = 'Bearer ${newTokenResponse.accessToken}';

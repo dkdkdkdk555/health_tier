@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -37,6 +38,14 @@ class UserPrefs {
     _myUserId = null;
     _isInitialized = false;
     debugPrint('Cleared myUserId from SharedPreferences.');
+  }
+
+  static Future<void> settingLoginResponse(TokenResponse tokenResponse) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('accessToken', tokenResponse.accessToken);
+    await prefs.setString('refreshToken', tokenResponse.refreshToken!);
+    await prefs.setInt('userId', tokenResponse.userId);
+    _myUserId = tokenResponse.userId;
   }
 
   // 앱 재시작 시 호출될 캐시 정리 함수

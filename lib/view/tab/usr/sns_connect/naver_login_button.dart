@@ -7,6 +7,7 @@ import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:flutter_naver_login/interface/types/naver_token.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,16 +69,9 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
       if (response.statusCode == 200) {
         final tokenResponse = TokenResponse.fromJson(response.data);
-        final jwt = tokenResponse.accessToken;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', jwt);
-        await prefs.setString('refreshToken', tokenResponse.refreshToken!);
-        await prefs.setInt('userId', tokenResponse.userId);
+        UserPrefs.settingLoginResponse(tokenResponse);
 
-        debugPrint('🎉 회원가입 및 로그인 성공: $jwt');
-        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.refreshToken!}');
-        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.userId}');
-
+        debugPrint('🎉 회원가입 및 로그인 성공');
 
 
         if (!context.mounted) return; 
@@ -128,15 +122,9 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
       if (response.statusCode == 200) {
         final tokenResponse = TokenResponse.fromJson(response.data);
-        final jwt = tokenResponse.accessToken;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('accessToken', jwt);
-        await prefs.setString('refreshToken', tokenResponse.refreshToken!);
-        await prefs.setInt('userId', tokenResponse.userId);
+        UserPrefs.settingLoginResponse(tokenResponse);
 
-        debugPrint('🎉 회원가입 및 로그인 성공: $jwt');
-        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.refreshToken!}');
-        debugPrint('🎉 회원가입 및 로그인 성공: ${tokenResponse.userId}');
+        debugPrint('🎉 회원가입 및 로그인 성공');
 
         if (!mounted) return;
         Navigator.pushReplacement(
