@@ -60,7 +60,7 @@ class ProfileCard extends ConsumerWidget {
                           onTap: () {
                             Navigator.push(context,
                             MaterialPageRoute(
-                              builder: (context) => const UsrInfoManagement()
+                              builder: (context) => UsrInfoManagement(userInfo: userInfo,)
                               )
                             );
                           },

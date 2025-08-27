@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/util/dialog_utils.dart' show showConfirmDialog;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/common/webview_page.dart';
@@ -11,7 +12,11 @@ import 'package:my_app/view/tab/usr/management/usr_signout_notice_page.dart';
 
 //내정보관리
 class UsrInfoManagement extends ConsumerStatefulWidget {
-  const UsrInfoManagement({super.key});
+  final UserSimpleDto userInfo;
+  const UsrInfoManagement({
+    super.key,
+    required this.userInfo,
+  });
 
   @override
   ConsumerState<UsrInfoManagement> createState() => _UsrInfoManagementState();
@@ -27,7 +32,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const UsrInfoProfile(),
+            UsrInfoProfile(userInfo: widget.userInfo),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
               child: Column(
