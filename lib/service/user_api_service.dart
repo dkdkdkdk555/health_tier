@@ -5,6 +5,7 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
+import 'package:my_app/model/usr/user/weight_3_info.dart';
 
 class UserApiService {
 
@@ -17,6 +18,15 @@ class UserApiService {
     return Result.fromJson(
       response.data,
       (obj) => (obj as List).map((e) => BadgeInfoDto.fromJson(e)).toList(),
+    );
+  }
+
+  // 사용자 3대운동 중량 조회
+  Future<Result<List<Weight3Info>>> getUserInfoWeight() async {
+    final response = await dio.get(UserCudAPI.getUsrInfoWeight);
+    return Result.fromJson(
+      response.data,
+      (obj) => (obj as List).map((e) => Weight3Info.fromJson(e)).toList()
     );
   }
 

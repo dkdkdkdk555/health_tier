@@ -1,70 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/view/tab/usr/usr_main/body_info_section.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/providers/user_cud_providers.dart';
 
-// 운동 데이터 모델
-class ExerciseData {
-  final String name;
-  final String weight;
-  final Widget icon;
-
-  ExerciseData({
-    required this.name,
-    required this.weight,
-    required this.icon,
-  });
-}
-
-class MyBodyInfo extends StatefulWidget {
+// MyBodyInfo를 ConsumerWidget으로 변경
+class MyBodyInfo extends ConsumerWidget {
   const MyBodyInfo({super.key});
 
-  @override
-  State<MyBodyInfo> createState() => _MyBodyInfoState();
-}
-
-class _MyBodyInfoState extends State<MyBodyInfo> {
-
-  // 운동 데이터 리스트
-  List<ExerciseData> get exercises => [
-    ExerciseData(
-      name: '벤치프레스',
-      weight: '120kg',
-      icon: SvgPicture.asset(
-        'assets/icons/benchpress.svg'
-      ),
-    ),
-    ExerciseData(
-      name: '데드리프트',
-      weight: '300kg',
-      icon: SvgPicture.asset(
-        'assets/icons/deadlift.svg'
-      ),
-    ),
-    ExerciseData(
-      name: '스쿼트',
-      weight: '240kg',
-      icon: SvgPicture.asset(
-        'assets/icons/squat.svg'
-      ),
-    ),
-  ];
-
+  // pose에 따른 아이콘 경로를 매핑
+  static const Map<String, String> _iconPaths = {
+    'BENCH': 'assets/icons/benchpress.svg',
+    'DEAD': 'assets/icons/deadlift.svg',
+    'SQUAT': 'assets/icons/squat.svg',
+  };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // userWeightListProvider를 watch하여 데이터 상태를 감지
+    final userWeightsAsync = ref.watch(userWeightListProvider);
+
     return SingleChildScrollView(
       child: Column(
         children: [
-          _buildHeader('3대 중량', false),
-          _buildExerciseSection(),
-          _buildHeader('신체정보', true),
+          _buildHeader(context, '3대 중량', true,
+            '타이틀',
+            '중량입니다 블라블라'
+          ),
+          userWeightsAsync.when(
+            data: (weightsResult) {
+              final weights = weightsResult.data;
+              return _buildExerciseSection(weights);
+            },
+            loading: () => Container(
+              height: 183,
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator(),
+            ),
+            error: (err, stack) => Container(
+              height: 183,
+              alignment: Alignment.center,
+              child: const Text('3대 중량을 불러오는데 실패했습니다.'),
+            ),
+          ),
+          _buildHeader(context, '신체정보', true,
+            '타이틀',
+            '신체정보입니다 블라블라블라'
+          ),
           const BodyInfoSection(),
         ],
-      )
+      ),
     );
   }
 
-  Widget _buildHeader(String title, bool isThereDescription) {
+  Widget _buildHeader(BuildContext context, String title, bool isThereDescription,
+    String subscriptTitle, String subscription) {
     return Container(
       width: double.infinity,
       height: 86,
@@ -86,14 +77,40 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
               height: 0.07,
             ),
           ),
-          isThereDescription ? 
-          Padding(
-            padding: const EdgeInsets.only(left: 5, top: 1, bottom: 1),
-            child: SizedBox(
-              width: 14,
-              height: 14,
-              child: SvgPicture.asset(
-                'assets/icons/description.svg'
+          isThereDescription ?
+          InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: Text(
+                      subscriptTitle,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    content: Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: Text(
+                        subscription,
+                        style: const TextStyle(fontSize: 14, height: 1.4),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5, top: 1, bottom: 1),
+              child: SizedBox(
+                width: 14,
+                height: 14,
+                child: SvgPicture.asset(
+                  'assets/icons/description.svg',
+                ),
               ),
             ),
           ) : const SizedBox.shrink(),
@@ -101,9 +118,9 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
       ),
     );
   }
-  
+
   // 운동 섹션 위젯
-  Widget _buildExerciseSection() {
+  Widget _buildExerciseSection(List<Weight3Info> weights) {
     return Container(
       width: double.infinity,
       height: 183,
@@ -129,7 +146,7 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: _buildExerciseItems(),
+              children: _buildExerciseItems(weights),
             ),
           ),
         ],
@@ -138,35 +155,54 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
   }
 
   // 운동 아이템들 생성
-  List<Widget> _buildExerciseItems() {
+  List<Widget> _buildExerciseItems(List<Weight3Info> weights) {
     List<Widget> items = [];
+
+    // 'BENCH', 'SQUAT', 'DEAD' 순서로 정렬 (API 결과가 순서를 보장하지 않을 경우)
+    final sortedWeights = <Weight3Info>[];
+    for (var pose in ['BENCH', 'SQUAT', 'DEAD']) {
+      final item = weights.firstWhere((w) => w.pose == pose, orElse: () => Weight3Info(pose: pose, weight: 0));
+      sortedWeights.add(item);
+    }
     
-    for (int i = 0; i < exercises.length; i++) {
-      items.add(_buildExerciseItem(exercises[i]));
+    for (int i = 0; i < sortedWeights.length; i++) {
+      final weightInfo = sortedWeights[i];
+      items.add(_buildExerciseItem(weightInfo.pose, weightInfo.weight));
       
       // 마지막 아이템이 아니면 간격 추가
-      if (i < exercises.length - 1) {
+      if (i < sortedWeights.length - 1) {
         items.add(const SizedBox(width: 40));
       }
     }
     
     return items;
   }
+
   // 개별 운동 아이템 위젯
-  Widget _buildExerciseItem(ExerciseData exercise) {
+  Widget _buildExerciseItem(String pose, int weight) {
+    String name = '';
+    switch(pose) {
+      case 'BENCH': name = '벤치프레스'; break;
+      case 'DEAD': name = '데드리프트'; break;
+      case 'SQUAT': name = '스쿼트'; break;
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           width: 36,
           height: 36,
-          child: exercise.icon,
+          child: SvgPicture.asset(
+            _iconPaths[pose] ?? 'assets/icons/default.svg', // pose에 맞는 아이콘 표시
+          ),
         ),
         const SizedBox(height: 8),
-        _buildExerciseInfo(exercise.name, exercise.weight),
+        _buildExerciseInfo(name, '${weight}kg'),
       ],
     );
   }
+
   // 운동 정보 위젯 (이름과 중량)
   Widget _buildExerciseInfo(String name, String weight) {
     return SizedBox(
@@ -198,5 +234,4 @@ class _MyBodyInfoState extends State<MyBodyInfo> {
       ),
     );
   }
-
 }

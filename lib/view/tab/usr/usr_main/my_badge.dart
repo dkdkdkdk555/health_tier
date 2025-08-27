@@ -146,9 +146,9 @@ class MyBadge extends ConsumerWidget {
             width: 101,
             height: 100,
             fit: BoxFit.contain,
-            colorFilter: isOwned 
-              ? null
-              : const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+            colorFilter: isOwned
+              ? null // 원본 색상 그대로
+              : const ColorFilter.mode(Color(0xFFDDDDDD), BlendMode.saturation), 
           ),
           const SizedBox(height: 16),
           Text(

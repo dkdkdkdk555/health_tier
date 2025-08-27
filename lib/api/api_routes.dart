@@ -64,6 +64,7 @@ class UserCudAPI {
   static const updateUserNickname = '$base/nickname';
   static const userLeaveOut = '$base/leave';
   static const fcmInfoSave = '$base/push-token';
+  static const getUsrInfoWeight = '$base/weight';
 }
 
 
