@@ -8,7 +8,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FlutterLocalNotification with WidgetsBindingObserver{
   FlutterLocalNotification._();
