@@ -25,8 +25,8 @@ class MyBodyInfo extends ConsumerWidget {
       child: Column(
         children: [
           _buildHeader(context, '3대 중량', true,
-            '타이틀',
-            '중량입니다 블라블라'
+            '',
+            '중량인증 카테고리로 피드를 게시하고\n사용자 또는 관리자에게 인증을 받은\n종목별 최대 중량이 보여집니다.'
           ),
           userWeightsAsync.when(
             data: (weightsResult) {
@@ -45,8 +45,8 @@ class MyBodyInfo extends ConsumerWidget {
             ),
           ),
           _buildHeader(context, '신체정보', true,
-            '타이틀',
-            '신체정보입니다 블라블라블라'
+            '',
+            '체중은 바디 캘린더에 기록한 가장 최근 기록을 가져옵니다.\n입력한 키, 성별, 체중 정보를 바탕으로 일일 기초대사량,\n활동대사량을 자동으로 계산해줍니다.'
           ),
           const BodyInfoSection(),
         ],
