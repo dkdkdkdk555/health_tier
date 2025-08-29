@@ -8,6 +8,7 @@ class SelectedReplyInfo {
   final String nickname; // 댓글/답글 작성자의 닉네임
   final bool isUpdate; // 이 댓글 정보가 수정 용도로 사용되는지 여부
   final bool isReReply; // 답글에 답글을 다는 경우 인지
+  final int? fcmRecieveUserId;
 
   const SelectedReplyInfo({
     required this.replyId,
@@ -15,6 +16,7 @@ class SelectedReplyInfo {
     required this.nickname,
     this.isUpdate = false, // 기본값은 false (일반 답글 작성용)
     this.isReReply = false,
+    this.fcmRecieveUserId
   });
 
   // 객체의 동일성(Equality)을 비교하기 위해 operator ==와 hashCode를 오버라이드합니다.
@@ -27,7 +29,8 @@ class SelectedReplyInfo {
         other.comment == comment &&
         other.nickname == nickname &&
         other.isUpdate == isUpdate &&
-        other.isReReply == isReReply;
+        other.isReReply == isReReply &&
+        other.fcmRecieveUserId == fcmRecieveUserId;
   }
 
   @override
