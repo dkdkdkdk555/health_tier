@@ -4,13 +4,15 @@ class ReplyWriteRequestDto {
   final int? userId; // 작성자 ID
   final String ctnt; // 내용
   final int? parentReplyId; // 부모 댓글 ID (null이면 일반 댓글)
+  final int? fcmRecieveUserId;
 
-  ReplyWriteRequestDto({
+   ReplyWriteRequestDto({
     this.id,
     required this.cmuId,
     this.userId,
     required this.ctnt,
     this.parentReplyId,
+    this.fcmRecieveUserId
   });
 
   // JSON 직렬화용 toJson
@@ -21,6 +23,7 @@ class ReplyWriteRequestDto {
       'userId': userId,
       'ctnt': ctnt,
       'parentReplyId': parentReplyId,
+      'fcmRecieveUserId': fcmRecieveUserId,
     };
   }
 
@@ -32,6 +35,7 @@ class ReplyWriteRequestDto {
       userId: json['userId'],
       ctnt: json['ctnt'],
       parentReplyId: json['parentReplyId'],
+      fcmRecieveUserId: json['fcmRecieveUserId'],
     );
   }
 }

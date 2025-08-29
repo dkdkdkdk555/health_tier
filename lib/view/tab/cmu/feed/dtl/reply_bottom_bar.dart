@@ -191,13 +191,14 @@ void dispose() {
     }
     
     // sendComment 함수가 호출될 때마다 최신 상태를 직접 읽어옵니다.
-    final currentIsUpdate = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.isUpdate));
-    final currentReplyId = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.selectedReplyId));
-    final isReReply = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.isReReply));
+    SelectedReplyInfo? pickReplyInfo = ref.read(replySupplyNotifierProvider.select((notifier) => notifier.pickReply));
+
+    final currentIsUpdate = pickReplyInfo?.isUpdate ?? false;
+    final currentReplyId = pickReplyInfo?.replyId ?? 0;
+    final isReReply = pickReplyInfo?.isReReply ?? false;
 
     if(isReReply){
-      final nickNameTag =  '@${ref.read(replySupplyNotifierProvider.select((notifier) => notifier.nickname))}';
-      debugPrint(nickNameTag);
+      final nickNameTag = '@${pickReplyInfo?.nickname ?? ''}';
       commentText = '$nickNameTag $commentText';
     }
 
@@ -213,6 +214,7 @@ void dispose() {
         cmuId: cmuId,
         ctnt: commentText,
         parentReplyId: currentReplyId == 0 ? null : currentReplyId,
+        fcmRecieveUserId: isReReply ? pickReplyInfo?.fcmRecieveUserId : null, // 대대댓글인경우 fcm 메세지 수신대상자를 지정
       );
 
     try {

@@ -501,7 +501,8 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                         widget.reply.parentReplyId==null ? widget.reply.id : widget.reply.parentReplyId!, 
                         widget.reply.ctnt, 
                         widget.reply.nickname,
-                        isReReply: widget.reply.parentReplyId!=null
+                        isReReply: widget.reply.parentReplyId!=null,
+                        fcmRecieveUserId: widget.reply.userId,
                       );
                   },
                   child: const Text(
