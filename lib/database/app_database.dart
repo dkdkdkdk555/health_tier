@@ -7,10 +7,15 @@ import 'package:path/path.dart' as p;
 part 'app_database.g.dart';
 part 'ht_day_diet.dart';
 part 'ht_day_body.dart';
+part 'notifications.dart';
 
-@DriftDatabase(tables: [HtDayBody, HtDayDiet])
+@DriftDatabase(tables: [HtDayBody, HtDayDiet, Notifications])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase._internal() : super(_openConnection());
+
+  static final AppDatabase _instance = AppDatabase._internal();
+
+  factory AppDatabase() => _instance;
 
   @override
   int get schemaVersion => 1;

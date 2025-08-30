@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:my_app/database/app_database.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 
@@ -69,8 +71,11 @@ class FlutterLocalNotification{
   static void handlePayload(String payload) {
     try {
       final Map<String, dynamic> data = json.decode(payload);
+      // db에서 알림 읽음처리
+      final db = AppDatabase();
+      markNotificationRead(data.hashCode, db);
+      // 화면 이동
       final String? feedId = data['feedId']?.toString();
-
       if (feedId != null &&
           navigatorKey.currentState != null &&
           navigatorKey.currentState!.mounted) {
@@ -101,7 +106,11 @@ class FlutterLocalNotification{
   }
 
   // 푸시알림 내용
-  static Future<void> showNotification(RemoteMessage message) async {
+  static Future<void> showNotification(RemoteMessage message, AppDatabase db) async {
+    // db insert
+    await insertNotificationToDB(message, db);
+
+    // 채널 설정
     const AndroidNotificationDetails androidNotificationDetails = 
       AndroidNotificationDetails('high_importance_channel', 'high_importance_notification',
         channelDescription: 'channel description',
@@ -109,19 +118,45 @@ class FlutterLocalNotification{
         priority: Priority.max,
         showWhen: false,
       );
-    
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
       iOS: DarwinNotificationDetails(badgeNumber: 1)
     );
 
+    // 알림 띄우기
     await flutterLocalNotificationsPlugin.show(
-      message.data.hashCode, 
+      message.hashCode,
       message.data['title'] ?? '알림', 
       message.data['body'] ?? '새로운 메시지가 도착했습니다.', 
       notificationDetails,
       payload: json.encode(message.data),
     );
   }
+
+  // 알림 insert (id 반환)
+  static Future<void> insertNotificationToDB(RemoteMessage message, AppDatabase db) async {
+    await db.into(db.notifications).insert(
+      NotificationsCompanion.insert(
+        id : Value(message.data.hashCode),
+        title: message.data['title'] ?? '알림',
+        body: message.data['body'] ?? '새로운 메시지가 도착했습니다.',
+        feedId: Value(int.parse(message.data['feedId'] ?? 0)),
+        type: message.data['type'] ?? 'NOTICE',
+        receivedAt: DateTime.now().toIso8601String(),
+        isRead: Value(message.data['isRead'] ?? 'false'),
+      ),
+    );
+  }
+
+  // 알림 읽음처리
+  static Future<void> markNotificationRead(int id, AppDatabase db) async {
+    debugPrint('$id : 읽음처리 !!!!');
+    await (db.update(db.notifications)..where((tbl) => tbl.id.equals(id))).write(
+      const NotificationsCompanion(
+        isRead: Value('true'),
+      ),
+    );
+  }
+ 
 }
 

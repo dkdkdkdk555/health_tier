@@ -779,16 +779,398 @@ class HtDayDietCompanion extends UpdateCompanion<HtDayDietData> {
   }
 }
 
+class $NotificationsTable extends Notifications
+    with TableInfo<$NotificationsTable, Notification> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotificationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+      'body', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _feedIdMeta = const VerificationMeta('feedId');
+  @override
+  late final GeneratedColumn<int> feedId = GeneratedColumn<int>(
+      'feed_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _receivedAtMeta =
+      const VerificationMeta('receivedAt');
+  @override
+  late final GeneratedColumn<String> receivedAt = GeneratedColumn<String>(
+      'received_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isReadMeta = const VerificationMeta('isRead');
+  @override
+  late final GeneratedColumn<String> isRead = GeneratedColumn<String>(
+      'is_read', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('false'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, title, body, feedId, type, receivedAt, isRead];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notifications';
+  @override
+  VerificationContext validateIntegrity(Insertable<Notification> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+          _bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('feed_id')) {
+      context.handle(_feedIdMeta,
+          feedId.isAcceptableOrUnknown(data['feed_id']!, _feedIdMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('received_at')) {
+      context.handle(
+          _receivedAtMeta,
+          receivedAt.isAcceptableOrUnknown(
+              data['received_at']!, _receivedAtMeta));
+    } else if (isInserting) {
+      context.missing(_receivedAtMeta);
+    }
+    if (data.containsKey('is_read')) {
+      context.handle(_isReadMeta,
+          isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => const {};
+  @override
+  Notification map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Notification(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      body: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}body'])!,
+      feedId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}feed_id']),
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      receivedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}received_at'])!,
+      isRead: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}is_read'])!,
+    );
+  }
+
+  @override
+  $NotificationsTable createAlias(String alias) {
+    return $NotificationsTable(attachedDatabase, alias);
+  }
+}
+
+class Notification extends DataClass implements Insertable<Notification> {
+  final int? id;
+  final String title;
+  final String body;
+  final int? feedId;
+  final String type;
+  final String receivedAt;
+  final String isRead;
+  const Notification(
+      {this.id,
+      required this.title,
+      required this.body,
+      this.feedId,
+      required this.type,
+      required this.receivedAt,
+      required this.isRead});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['title'] = Variable<String>(title);
+    map['body'] = Variable<String>(body);
+    if (!nullToAbsent || feedId != null) {
+      map['feed_id'] = Variable<int>(feedId);
+    }
+    map['type'] = Variable<String>(type);
+    map['received_at'] = Variable<String>(receivedAt);
+    map['is_read'] = Variable<String>(isRead);
+    return map;
+  }
+
+  NotificationsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationsCompanion(
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      title: Value(title),
+      body: Value(body),
+      feedId:
+          feedId == null && nullToAbsent ? const Value.absent() : Value(feedId),
+      type: Value(type),
+      receivedAt: Value(receivedAt),
+      isRead: Value(isRead),
+    );
+  }
+
+  factory Notification.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Notification(
+      id: serializer.fromJson<int?>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      body: serializer.fromJson<String>(json['body']),
+      feedId: serializer.fromJson<int?>(json['feedId']),
+      type: serializer.fromJson<String>(json['type']),
+      receivedAt: serializer.fromJson<String>(json['receivedAt']),
+      isRead: serializer.fromJson<String>(json['isRead']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int?>(id),
+      'title': serializer.toJson<String>(title),
+      'body': serializer.toJson<String>(body),
+      'feedId': serializer.toJson<int?>(feedId),
+      'type': serializer.toJson<String>(type),
+      'receivedAt': serializer.toJson<String>(receivedAt),
+      'isRead': serializer.toJson<String>(isRead),
+    };
+  }
+
+  Notification copyWith(
+          {Value<int?> id = const Value.absent(),
+          String? title,
+          String? body,
+          Value<int?> feedId = const Value.absent(),
+          String? type,
+          String? receivedAt,
+          String? isRead}) =>
+      Notification(
+        id: id.present ? id.value : this.id,
+        title: title ?? this.title,
+        body: body ?? this.body,
+        feedId: feedId.present ? feedId.value : this.feedId,
+        type: type ?? this.type,
+        receivedAt: receivedAt ?? this.receivedAt,
+        isRead: isRead ?? this.isRead,
+      );
+  Notification copyWithCompanion(NotificationsCompanion data) {
+    return Notification(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      body: data.body.present ? data.body.value : this.body,
+      feedId: data.feedId.present ? data.feedId.value : this.feedId,
+      type: data.type.present ? data.type.value : this.type,
+      receivedAt:
+          data.receivedAt.present ? data.receivedAt.value : this.receivedAt,
+      isRead: data.isRead.present ? data.isRead.value : this.isRead,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Notification(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('feedId: $feedId, ')
+          ..write('type: $type, ')
+          ..write('receivedAt: $receivedAt, ')
+          ..write('isRead: $isRead')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, body, feedId, type, receivedAt, isRead);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Notification &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.body == this.body &&
+          other.feedId == this.feedId &&
+          other.type == this.type &&
+          other.receivedAt == this.receivedAt &&
+          other.isRead == this.isRead);
+}
+
+class NotificationsCompanion extends UpdateCompanion<Notification> {
+  final Value<int?> id;
+  final Value<String> title;
+  final Value<String> body;
+  final Value<int?> feedId;
+  final Value<String> type;
+  final Value<String> receivedAt;
+  final Value<String> isRead;
+  final Value<int> rowid;
+  const NotificationsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.body = const Value.absent(),
+    this.feedId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.receivedAt = const Value.absent(),
+    this.isRead = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String body,
+    this.feedId = const Value.absent(),
+    required String type,
+    required String receivedAt,
+    this.isRead = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : title = Value(title),
+        body = Value(body),
+        type = Value(type),
+        receivedAt = Value(receivedAt);
+  static Insertable<Notification> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? body,
+    Expression<int>? feedId,
+    Expression<String>? type,
+    Expression<String>? receivedAt,
+    Expression<String>? isRead,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (feedId != null) 'feed_id': feedId,
+      if (type != null) 'type': type,
+      if (receivedAt != null) 'received_at': receivedAt,
+      if (isRead != null) 'is_read': isRead,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationsCompanion copyWith(
+      {Value<int?>? id,
+      Value<String>? title,
+      Value<String>? body,
+      Value<int?>? feedId,
+      Value<String>? type,
+      Value<String>? receivedAt,
+      Value<String>? isRead,
+      Value<int>? rowid}) {
+    return NotificationsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      feedId: feedId ?? this.feedId,
+      type: type ?? this.type,
+      receivedAt: receivedAt ?? this.receivedAt,
+      isRead: isRead ?? this.isRead,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (feedId.present) {
+      map['feed_id'] = Variable<int>(feedId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (receivedAt.present) {
+      map['received_at'] = Variable<String>(receivedAt.value);
+    }
+    if (isRead.present) {
+      map['is_read'] = Variable<String>(isRead.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('feedId: $feedId, ')
+          ..write('type: $type, ')
+          ..write('receivedAt: $receivedAt, ')
+          ..write('isRead: $isRead, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $HtDayBodyTable htDayBody = $HtDayBodyTable(this);
   late final $HtDayDietTable htDayDiet = $HtDayDietTable(this);
+  late final $NotificationsTable notifications = $NotificationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [htDayBody, htDayDiet];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [htDayBody, htDayDiet, notifications];
 }
 
 typedef $$HtDayBodyTableCreateCompanionBuilder = HtDayBodyCompanion Function({
@@ -1196,6 +1578,209 @@ typedef $$HtDayDietTableProcessedTableManager = ProcessedTableManager<
     ),
     HtDayDietData,
     PrefetchHooks Function()>;
+typedef $$NotificationsTableCreateCompanionBuilder = NotificationsCompanion
+    Function({
+  Value<int?> id,
+  required String title,
+  required String body,
+  Value<int?> feedId,
+  required String type,
+  required String receivedAt,
+  Value<String> isRead,
+  Value<int> rowid,
+});
+typedef $$NotificationsTableUpdateCompanionBuilder = NotificationsCompanion
+    Function({
+  Value<int?> id,
+  Value<String> title,
+  Value<String> body,
+  Value<int?> feedId,
+  Value<String> type,
+  Value<String> receivedAt,
+  Value<String> isRead,
+  Value<int> rowid,
+});
+
+class $$NotificationsTableFilterComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get feedId => $composableBuilder(
+      column: $table.feedId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get receivedAt => $composableBuilder(
+      column: $table.receivedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get isRead => $composableBuilder(
+      column: $table.isRead, builder: (column) => ColumnFilters(column));
+}
+
+class $$NotificationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get feedId => $composableBuilder(
+      column: $table.feedId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get receivedAt => $composableBuilder(
+      column: $table.receivedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get isRead => $composableBuilder(
+      column: $table.isRead, builder: (column) => ColumnOrderings(column));
+}
+
+class $$NotificationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<int> get feedId =>
+      $composableBuilder(column: $table.feedId, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get receivedAt => $composableBuilder(
+      column: $table.receivedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get isRead =>
+      $composableBuilder(column: $table.isRead, builder: (column) => column);
+}
+
+class $$NotificationsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $NotificationsTable,
+    Notification,
+    $$NotificationsTableFilterComposer,
+    $$NotificationsTableOrderingComposer,
+    $$NotificationsTableAnnotationComposer,
+    $$NotificationsTableCreateCompanionBuilder,
+    $$NotificationsTableUpdateCompanionBuilder,
+    (
+      Notification,
+      BaseReferences<_$AppDatabase, $NotificationsTable, Notification>
+    ),
+    Notification,
+    PrefetchHooks Function()> {
+  $$NotificationsTableTableManager(_$AppDatabase db, $NotificationsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotificationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotificationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NotificationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int?> id = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> body = const Value.absent(),
+            Value<int?> feedId = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> receivedAt = const Value.absent(),
+            Value<String> isRead = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              NotificationsCompanion(
+            id: id,
+            title: title,
+            body: body,
+            feedId: feedId,
+            type: type,
+            receivedAt: receivedAt,
+            isRead: isRead,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<int?> id = const Value.absent(),
+            required String title,
+            required String body,
+            Value<int?> feedId = const Value.absent(),
+            required String type,
+            required String receivedAt,
+            Value<String> isRead = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              NotificationsCompanion.insert(
+            id: id,
+            title: title,
+            body: body,
+            feedId: feedId,
+            type: type,
+            receivedAt: receivedAt,
+            isRead: isRead,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$NotificationsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $NotificationsTable,
+    Notification,
+    $$NotificationsTableFilterComposer,
+    $$NotificationsTableOrderingComposer,
+    $$NotificationsTableAnnotationComposer,
+    $$NotificationsTableCreateCompanionBuilder,
+    $$NotificationsTableUpdateCompanionBuilder,
+    (
+      Notification,
+      BaseReferences<_$AppDatabase, $NotificationsTable, Notification>
+    ),
+    Notification,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1204,4 +1789,6 @@ class $AppDatabaseManager {
       $$HtDayBodyTableTableManager(_db, _db.htDayBody);
   $$HtDayDietTableTableManager get htDayDiet =>
       $$HtDayDietTableTableManager(_db, _db.htDayDiet);
+  $$NotificationsTableTableManager get notifications =>
+      $$NotificationsTableTableManager(_db, _db.notifications);
 }

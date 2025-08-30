@@ -30,11 +30,19 @@ import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
 import '../firebase_options.dart'; // flutterfire configure 하면 생겨나는 설정파일
 
+// top-level 백그라운드 핸들러
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final db = AppDatabase();
+  await FlutterLocalNotification.insertNotificationToDB(message, db);
+}
+
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko');
   await UserPrefs.cleanExpiredPostViewCache();
   await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
+  final db = AppDatabase();
   await Firebase.initializeApp( // 파이어베이스 초기화
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -74,9 +82,12 @@ void main() async{
     }
   });
 
+  // 백그라운드 알림 : 수신 시 db 저장
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   // 포그라운드 알림: 앱 내 커스텀 알림 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    FlutterLocalNotification.showNotification(message);
+    FlutterLocalNotification.showNotification(message, db);
   });
 
   // 백그라운드 클릭 시: 앱 켜지고 handlePayload 호출 (알림 보여주는건 os에서 알아서 해줌 -> 그 알림 클릭시 여기선 페이로드 저장만해둠)
@@ -87,7 +98,6 @@ void main() async{
   });
 
   // 테스트 데이터 삽입 시만 사용
-  // final db = AppDatabase();
   // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
 
   // 카카오sdk 초기화
@@ -163,8 +173,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   }
 
   void _initNotifications() async {
-  await FlutterLocalNotification.init();
-}
+    await FlutterLocalNotification.init();
+  }
 
   @override
   void dispose() {

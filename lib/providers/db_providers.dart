@@ -11,6 +11,7 @@ import 'package:my_app/model/stc/stc_fat_model.dart';
 import 'package:my_app/model/stc/stc_muscle_model.dart';
 import 'package:my_app/model/stc/stc_stamp_model.dart';
 import 'package:my_app/model/stc/stc_weight_model.dart';
+import 'package:my_app/model/usr/user/notifications_model.dart';
 
 AppDatabase? _dbInstance;
 
@@ -24,7 +25,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 */
 final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, yearMonth) async {
   final db = ref.watch(databaseProvider);
-  final pattern = '$yearMonth%'; //ref.watch(htDayDocOfMonth('2025-04')) // 이렇게만 넘겨주면 됨!
+  final pattern = '$yearMonth%';
 
   final result = await db.customSelect(
     '''
@@ -586,3 +587,61 @@ Future<void> insertRestoreDietList({
     );
   }
 }
+
+/*
+  Notifications 테이블 관련 CRUD & helper
+*/
+
+/// 전체 조회
+final selectAllNotifications = FutureProvider.autoDispose<List<NotificationModel>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final result = await db.select(db.notifications).get();
+
+  return result.map((row) => NotificationModel(
+    id: row.id!,
+    title: row.title,
+    body: row.body,
+    feedId: row.feedId,
+    type: row.type,
+    receivedAt: row.receivedAt,
+    isRead: row.isRead,
+  )).toList();
+});
+
+/// 특정 알림 삭제
+Future<void> deleteNotification({
+  required WidgetRef ref,
+  required int id,
+}) async {
+  final db = ref.read(databaseProvider);
+  await (db.delete(db.notifications)..where((tbl) => tbl.id.equals(id))).go();
+}
+
+/// 전체 삭제
+Future<void> deleteAllNotifications({required WidgetRef ref}) async {
+  final db = ref.read(databaseProvider);
+  await db.delete(db.notifications).go();
+}
+
+/// 읽음 처리 (isRead = 'true')
+Future<void> markNotificationRead({
+  required WidgetRef ref,
+  required int id,
+}) async {
+  final db = ref.read(databaseProvider);
+  await (db.update(db.notifications)..where((tbl) => tbl.id.equals(id))).write(
+    const NotificationsCompanion(
+      isRead: Value('true'),
+    ),
+  );
+}
+
+/// isRead = 'false'인 알림 존재 여부
+final hasUnreadNotification = FutureProvider<bool>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final count = await (db.select(db.notifications)
+        ..where((tbl) => tbl.isRead.equals('false')))
+      .get()
+      .then((rows) => rows.length);
+  return count > 0;
+});

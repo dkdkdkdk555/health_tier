@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
+import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_badge.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_body_info.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_wrote_feed.dart';
@@ -145,7 +146,13 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationManagePage()
+                )
+              );
+            },
             child: SizedBox(
               width: 22,
               height: 22,
