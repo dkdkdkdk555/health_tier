@@ -73,7 +73,7 @@ class FlutterLocalNotification{
       final Map<String, dynamic> data = json.decode(payload);
       // db에서 알림 읽음처리
       final db = AppDatabase();
-      markNotificationRead(data.hashCode, db);
+      markNotificationRead(int.parse(data['id']), db);
       // 화면 이동
       final String? feedId = data['feedId']?.toString();
       if (feedId != null &&
@@ -126,7 +126,7 @@ class FlutterLocalNotification{
     // 알림 띄우기
     await flutterLocalNotificationsPlugin.show(
       message.hashCode,
-      message.data['title'] ?? '알림', 
+      message.data['head'] ?? '알림', 
       message.data['body'] ?? '새로운 메시지가 도착했습니다.', 
       notificationDetails,
       payload: json.encode(message.data),
@@ -137,11 +137,12 @@ class FlutterLocalNotification{
   static Future<void> insertNotificationToDB(RemoteMessage message, AppDatabase db) async {
     await db.into(db.notifications).insert(
       NotificationsCompanion.insert(
-        id : Value(message.data.hashCode),
+        id : Value(int.parse(message.data['id'])),
+        prefix: Value(message.data['prefix']),
         title: message.data['title'] ?? '알림',
         body: message.data['body'] ?? '새로운 메시지가 도착했습니다.',
         feedId: Value(int.parse(message.data['feedId'] ?? 0)),
-        type: message.data['type'] ?? 'NOTICE',
+        type: message.data['type'] ?? 'GENERAL',
         receivedAt: DateTime.now().toIso8601String(),
         isRead: Value(message.data['isRead'] ?? 'false'),
       ),
@@ -150,7 +151,6 @@ class FlutterLocalNotification{
 
   // 알림 읽음처리
   static Future<void> markNotificationRead(int id, AppDatabase db) async {
-    debugPrint('$id : 읽음처리 !!!!');
     await (db.update(db.notifications)..where((tbl) => tbl.id.equals(id))).write(
       const NotificationsCompanion(
         isRead: Value('true'),

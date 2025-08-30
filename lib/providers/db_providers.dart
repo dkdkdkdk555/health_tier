@@ -599,6 +599,7 @@ final selectAllNotifications = FutureProvider.autoDispose<List<NotificationModel
 
   return result.map((row) => NotificationModel(
     id: row.id!,
+    prefix: row.prefix,
     title: row.title,
     body: row.body,
     feedId: row.feedId,

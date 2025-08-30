@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 class NotificationModel {
   final int id;
+  final String? prefix;
   final String title;
   final String body;
   final int? feedId;
@@ -11,6 +12,7 @@ class NotificationModel {
 
   NotificationModel({
     required this.id,
+    required this.prefix,
     required this.title,
     required this.body,
     this.feedId,
@@ -23,6 +25,7 @@ class NotificationModel {
   factory NotificationModel.fromRow(QueryRow row) {
     return NotificationModel(
       id: row.read<int>('id'),
+      prefix: row.read<String?>('prefix'),
       title: row.read<String>('title'),
       body: row.read<String>('body'),
       feedId: row.read<int?>('feed_id'),

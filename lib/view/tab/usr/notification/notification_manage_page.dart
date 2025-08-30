@@ -1,59 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_app/providers/db_providers.dart'; // NotificationModel 포함
+import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
+import 'package:my_app/view/tab/usr/notification/notification_header.dart';
+import 'package:my_app/view/tab/usr/notification/notification_list_sliver.dart';
+import 'package:my_app/view/tab/usr/notification/notification_manage_app_bar_delegatte.dart'; // NotificationModel 포함
 
-class NotificationManagePage extends ConsumerStatefulWidget {
+class NotificationManagePage extends StatefulWidget {
   const NotificationManagePage({super.key});
 
   @override
-  ConsumerState<NotificationManagePage> createState() => _NotificationManagePageState();
+  State<NotificationManagePage> createState() => _NotificationManagePageState();
 }
 
-class _NotificationManagePageState extends ConsumerState<NotificationManagePage> {
+class _NotificationManagePageState extends State<NotificationManagePage> {
   @override
   Widget build(BuildContext context) {
-    final notificationsAsync = ref.watch(selectAllNotifications);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('알림 관리'),
-      ),
-      body: notificationsAsync.when(
-        data: (notifications) {
-          if (notifications.isEmpty) {
-            return const Center(child: Text('알림이 없습니다.'));
-          }
-          return ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (context, index) {
-              final notification = notifications[index];
-
-              // 각 필드별 출력
-              debugPrint('--- Notification ${index + 1} ---');
-              debugPrint('ID: ${notification.id}');
-              debugPrint('Title: ${notification.title}');
-              debugPrint('Body: ${notification.body}');
-              debugPrint('FeedId: ${notification.feedId}');
-              debugPrint('Type: ${notification.type}');
-              debugPrint('ReceivedAt: ${notification.receivedAt}');
-              debugPrint('IsRead: ${notification.isRead}');
-              debugPrint('-----------------------');
-
-              return ListTile(
-                title: Text(notification.title),
-                subtitle: Text(notification.body),
-                trailing: Text(
-                  notification.isRead == 'true' ? '읽음' : '안읽음',
-                  style: TextStyle(
-                    color: notification.isRead == 'true' ? Colors.grey : Colors.blue,
-                  ),
-                ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('에러: $err')),
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          // 상단바 위 여백
+          const TopBlankArea(),
+          // 상단바
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: NotificationManageAppBarDelegatte(),
+          ),
+          // 알림 헤더
+          const SliverToBoxAdapter(
+            child: NotificationHeader()
+          ),
+          // 알림 목록
+          const NotificationListSliver()
+        ],
       ),
     );
   }
