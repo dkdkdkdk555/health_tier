@@ -74,12 +74,16 @@ void main() async{
     }
   });
 
-  // 백그라운드 알림 핸들러 등록 -> 로컬알림표시
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // FCM 알림 리스너 -> 로컬알림표시
+  // 포그라운드 알림: 앱 내 커스텀 알림 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     FlutterLocalNotification.showNotification(message);
+  });
+
+  // 백그라운드 클릭 시: 앱 켜지고 handlePayload 호출 (알림 보여주는건 os에서 알아서 해줌 -> 그 알림 클릭시 여기선 페이로드 저장만해둠)
+  FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    FlutterLocalNotification.pendingPayload = json.encode(message.data);
+    FlutterLocalNotification.handlePayload(FlutterLocalNotification.pendingPayload!);
+    FlutterLocalNotification.pendingPayload = null;
   });
 
   // 테스트 데이터 삽입 시만 사용
@@ -96,17 +100,6 @@ void main() async{
     child:MyApp())
   );
 }
-
-// 앱 백그라운드에서 알림 수신 시 호출되는 핸들러
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // 백그라운드 isolate에서 Firebase 재초기화
-  await Firebase.initializeApp();
-  debugPrint("Handling a background message: ${message.messageId}");
-  // 메세지 호출
-  FlutterLocalNotification.showNotification(message); 
-}
-
 
 class MyApp extends ConsumerStatefulWidget {
   final int mvIndex;
@@ -138,7 +131,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   @override
   void initState() {
     // 로컬알림 초기화
-    FlutterLocalNotification.init();
+    _initNotifications();
     // 알림 권한요청
     Future.delayed(const Duration(seconds: 3), FlutterLocalNotification.requestNotificationPermission());
     super.initState();
@@ -168,6 +161,10 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     if(widget.mvIndex!=0) _onTap(widget.mvIndex);
 
   }
+
+  void _initNotifications() async {
+  await FlutterLocalNotification.init();
+}
 
   @override
   void dispose() {

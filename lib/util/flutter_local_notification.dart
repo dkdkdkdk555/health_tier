@@ -9,19 +9,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 
-class FlutterLocalNotification with WidgetsBindingObserver{
+class FlutterLocalNotification{
   FlutterLocalNotification._();
 
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   // 알림 클릭 시 전달된 payload를 임시 저장
-  static String? _pendingPayload;
+  static String? pendingPayload;
 
   static init() async {
     debugPrint("=== FlutterLocalNotification.init() 호출됨 ===");
-     // 앱 라이프사이클 감시자 등록
-    WidgetsBinding.instance.addObserver(_NotificationLifecycleObserver());
-    
     // android 설정
     AndroidInitializationSettings initializationSettingsAndroid = const AndroidInitializationSettings('@mipmap/ic_launcher');
     // ios 설정
@@ -40,8 +37,23 @@ class FlutterLocalNotification with WidgetsBindingObserver{
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      onDidReceiveBackgroundNotificationResponse: onDidReceiveBackgroundNotificationResponse,
     );
+
+    // 앱이 완전히 종료된 상태에서 알림 클릭 시: 실행될 때 전달된 메세지를 가져오는 메소드
+    RemoteMessage? message = await FirebaseMessaging.instance.getInitialMessage();
+      if (message != null) {  
+        // 종료 상태에서는 바로 화면 이동 불가 → payload 저장
+        pendingPayload = json.encode(message.data);
+      }
+
+      /// 앱이 초기화 되고 위젯 트리가 mount된 이후
+      /// _pendingPayload가 있으면 화면 이동 처리
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (pendingPayload != null) {
+          handlePayload(pendingPayload!);
+          pendingPayload = null;
+        }
+      });
   }
 
   /// 포그라운드 상태에서 알림 클릭 시
@@ -50,28 +62,6 @@ class FlutterLocalNotification with WidgetsBindingObserver{
     final String? payload = notificationResponse.payload;
     if (payload != null) {
       handlePayload(payload);
-    }
-  }
-  /// 백그라운드 상태에서 알림 클릭 시 → payload만 저장
-  static void onDidReceiveBackgroundNotificationResponse(
-      NotificationResponse notificationResponse) async {
-    final String? payload = notificationResponse.payload;
-    if (payload != null) {
-      // final prefs = await SharedPreferences.getInstance();
-      // prefs.setString('pushPayload', payload);
-      // debugPrint('Background notification payload saved: $payload'); --> 안되는듯
-      _pendingPayload = payload;
-    }
-  }
-
-  /// 앱 resume 시, 저장된 payload 있으면 페이지 이동 처리
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint("??didChangeAppLifecycleState??");
-    if (state == AppLifecycleState.resumed && _pendingPayload != null) {
-      debugPrint("App resumed. Handling pending notification payload.");
-      handlePayload(_pendingPayload!);
-      _pendingPayload = null; // 사용 후 초기화
     }
   }
 
@@ -98,6 +88,7 @@ class FlutterLocalNotification with WidgetsBindingObserver{
     }
   }
 
+  /// 알림 권한 요청
   static requestNotificationPermission() {
     String osType = Platform.isIOS ? 'ios' : 'android';
     if(osType == 'ios') {
@@ -112,7 +103,7 @@ class FlutterLocalNotification with WidgetsBindingObserver{
   // 푸시알림 내용
   static Future<void> showNotification(RemoteMessage message) async {
     const AndroidNotificationDetails androidNotificationDetails = 
-      AndroidNotificationDetails('channelId', 'channelName',
+      AndroidNotificationDetails('high_importance_channel', 'high_importance_notification',
         channelDescription: 'channel description',
         importance: Importance.max,
         priority: Priority.max,
@@ -134,17 +125,3 @@ class FlutterLocalNotification with WidgetsBindingObserver{
   }
 }
 
-
-/// 앱 라이프사이클을 감시하고, 백그라운드에서 클릭된 알림 처리
-class _NotificationLifecycleObserver with WidgetsBindingObserver {
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed &&
-        FlutterLocalNotification._pendingPayload != null) {
-      debugPrint("App resumed. Handling pending notification payload.");
-      FlutterLocalNotification.handlePayload(
-          FlutterLocalNotification._pendingPayload!);
-      FlutterLocalNotification._pendingPayload = null;
-    }
-  }
-}
