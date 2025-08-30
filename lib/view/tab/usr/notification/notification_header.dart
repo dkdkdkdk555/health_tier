@@ -1,14 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/providers/db_providers.dart' show deleteAllNotifications, selectAllNotifications;
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
 
-class NotificationHeader extends ConsumerWidget {
+class NotificationHeader extends ConsumerStatefulWidget {
   const NotificationHeader({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationHeader> createState() => _NotificationHeaderState();
+}
+
+class _NotificationHeaderState extends ConsumerState<NotificationHeader> {
+  bool _isDeleting = false;
+
+
+  /// 전체 삭제
+  Future<void> _deleteAllNotifications() async {
+    setState(() {
+      _isDeleting = true; // 스피너 ON
+    });
+
+    await deleteAllNotifications(ref: ref);
+    // 안읽은 갯수 0으로
+    ref.read(notificationNumsNotifierProvider).changeNum(0);
+    // selectAllNotifications 재빌드
+    ref.invalidate(selectAllNotifications);
+
+    // 잠깐 스피너 표시 후 OFF
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (mounted) {
+      setState(() {
+        _isDeleting = false;
+      });
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     final unreadCount = ref.watch(notificationNumsNotifierProvider.select((notifier) => notifier.num));
     return Container(
       width: 375,
@@ -38,9 +69,16 @@ class NotificationHeader extends ConsumerWidget {
           ),
 
           // 전체 삭제 (밑줄 있는 버튼)
+          _isDeleting ? 
+          const SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ) :
           GestureDetector(
             onTap: () {
               // 전체 삭제 로직
+              _deleteAllNotifications();
             },
             child: Column(
               mainAxisSize: MainAxisSize.min,

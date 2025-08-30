@@ -638,7 +638,7 @@ Future<void> markNotificationRead({
 }
 
 /// isRead = 'false'인 알림 존재 여부
-final hasUnreadNotification = FutureProvider<bool>((ref) async {
+final hasUnreadNotification = FutureProvider.autoDispose<bool>((ref) async {
   final db = ref.watch(databaseProvider);
   final count = await (db.select(db.notifications)
         ..where((tbl) => tbl.isRead.equals('false')))

@@ -46,6 +46,14 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               final notification = reversedNotifications[index];
+
+              // 알림 읽음 처리
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (notification.isRead == 'false') {
+                  markNotificationRead(ref: ref, id: notification.id);
+                }
+              });
+              
               return NotificationItem(notification: notification);
             },
             childCount: notifications.length,
