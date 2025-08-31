@@ -6,7 +6,7 @@ import 'package:my_app/model/cmu/feed/like_and_crtifi_accept_request_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
-import 'package:my_app/util/dialog_utils.dart' show showConfirmDialog;
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/user_prefs.dart';
 
 class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
@@ -79,35 +79,38 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
     if (!_isCertifiBtnActive || _isMyUserCertified) {
       return;
     }
-    
-    final bool confirm =  await showConfirmDialog(context, 
-      message: '인증 처리는 취소가 불가능합니다.\n계속 진행하시겠습니까?'
+    await showAppDialog(
+      context, 
+      message: '인증 처리는 취소가 불가능합니다.\n계속 진행하시겠습니까?',
+      confirmText: '확인',
+      cancelText: '취소',
+      onConfirm: () async {
+        try {
+          final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
+          final response = await feedCudService!.acceptCertification(
+            dto: LikeAndCrtifiRequestDto(
+              userId: _myUserId,
+              feedId: widget.feed.id,
+              feedWriterUserId: widget.feed.userId
+            ),
+          );
+          
+          if(response == 'success') {
+            // 성공적으로 인증 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
+            ref.invalidate(feedDetailProvider(widget.feed.id));
+          }
+        } catch (e) {
+          if(!mounted)return;
+          // 에러 처리: 사용자에게 메시지를 보여주거나 로깅
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('인증 실패: ${e.toString()}')),
+          );
+        }
+      },
+      onCancel: () {
+        return;
+      },
     );
-    // 사용자가 '확인'을 누르지 않았다면 함수 실행 중단
-    if (!confirm) {
-      return;
-    }
-
-    try {
-      final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
-      final response = await feedCudService!.acceptCertification(
-        dto: LikeAndCrtifiRequestDto(
-          userId: _myUserId,
-          feedId: widget.feed.id,
-          feedWriterUserId: widget.feed.userId
-        ),
-      );
-      
-      if(response == 'success') {
-        // 성공적으로 인증 요청을 보냈다면, feedDetailProvider를 무효화하여 데이터를 새로고침합니다.
-        ref.invalidate(feedDetailProvider(widget.feed.id));
-      }
-    } catch (e) {
-      // 에러 처리: 사용자에게 메시지를 보여주거나 로깅
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('인증 실패: ${e.toString()}')),
-      );
-    }
   }
 
   // 좋아요 버튼 클릭 핸들러 (새로 추가)

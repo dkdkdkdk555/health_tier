@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
-import 'package:my_app/util/dialog_utils.dart' show showConfirmDialog;
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
@@ -49,18 +49,24 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () async {
-                        final confirm = await showConfirmDialog(context, message: '로그아웃 하시겠습니까?');
-
-                        if(confirm){
-                          TokenManager.deleteAllTokens();
-                          if(!context.mounted) return;
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const GetStartedScreen()),
-                            (route) => false,
-                          );
-
-                        }
+                         await showAppDialog(
+                          context, 
+                          message: '로그아웃 하시겠습니까?',
+                          confirmText: '확인',
+                          cancelText: '취소',
+                          onConfirm: () {
+                            TokenManager.deleteAllTokens();
+                            if(!context.mounted) return;
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (context) => const GetStartedScreen()),
+                              (route) => false,
+                            );
+                          },
+                          onCancel: () {
+                            return;
+                          },
+                        );
                       },
                       child: Text(
                         '로그아웃',

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
-import 'package:my_app/util/dialog_utils.dart' show showConfirmDialog;
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_app_bar_preferredsize.dart';
@@ -118,29 +118,37 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                               return;
                             }
 
-                            final confirm = await showConfirmDialog(context, message: '정말 회원탈퇴를 하시겠습니까?');
-                            if(!confirm) return;
+                            await showAppDialog(
+                              context, 
+                              message: '정말 회원탈퇴를 하시겠습니까?',
+                              confirmText: '확인',
+                              cancelText: '취소',
+                              onConfirm: () async {
+                                final service = await ref.read(userCudServiceProvider.future);
+                                final response = await service.leaveUser(
+                                  UsrLeaveRequest(
+                                    reason: reasons[selectedIndex!], 
+                                    reasonDetail: reasonDetailController.text)
+                                  );
 
-                            final service = await ref.read(userCudServiceProvider.future);
-                            final response = await service.leaveUser(
-                              UsrLeaveRequest(
-                                reason: reasons[selectedIndex!], 
-                                reasonDetail: reasonDetailController.text)
-                              );
+                                if(response == 'success') {
+                                  TokenManager.deleteAllTokens();
+                                  if(!context.mounted) return;
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const GetStartedScreen()),
+                                    (route) => false,
+                                  );
 
-                              if(response == 'success') {
-                                TokenManager.deleteAllTokens();
-                                if(!context.mounted) return;
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const GetStartedScreen()),
-                                  (route) => false,
-                                );
-
-                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('회원탈퇴를 완료하였습니다. 다시 또 만나요!')),
-                                );
-                              }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('회원탈퇴를 완료하였습니다. 다시 또 만나요!')),
+                                  );
+                                }
+                              },
+                              onCancel: () {
+                                return;
+                              },
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1A1A1A),

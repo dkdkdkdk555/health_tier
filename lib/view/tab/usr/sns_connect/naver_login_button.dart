@@ -8,10 +8,10 @@ import 'package:flutter_naver_login/interface/types/naver_token.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NaverLoginButton extends StatefulWidget {
   const NaverLoginButton({
@@ -101,13 +101,7 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
         debugPrint('error: ${e.error}');
         debugPrint('response: ${e.response?.statusCode}');
 
-        showDialog(
-          context: context,
-          builder: (_) => const AlertDialog(
-            content: Text('로그인 중 서버와의 통신에 실패했습니다.'),
-          ),
-        );
-
+        showAppDialog(context, message: '로그인 중 서버와의 통신에 실패했습니다.\n반복될 경우 관리자에게 문의 바랍니다.', confirmText: '확인');
     }
   }
 

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/providers/db_providers.dart';
-import 'package:my_app/util/date_picker.dart';
+import 'package:my_app/util/dialog_utils.dart' show showDayPicker;
 import 'package:table_calendar/table_calendar.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 

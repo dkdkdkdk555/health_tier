@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/view/tab/usr/usr_main/body_info_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
@@ -80,27 +81,10 @@ class MyBodyInfo extends ConsumerWidget {
           isThereDescription ?
           InkWell(
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    backgroundColor: Colors.white,
-                    title: Text(
-                      subscriptTitle,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    content: Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: Text(
-                        subscription,
-                        style: const TextStyle(fontSize: 14, height: 1.4),
-                      ),
-                    ),
-                  );
-                },
+              showAppDialog(
+                context, 
+                title: subscriptTitle,
+                message: subscription
               );
             },
             child: Padding(

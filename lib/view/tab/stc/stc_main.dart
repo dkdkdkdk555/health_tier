@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
-import 'package:my_app/util/date_picker.dart';
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog, showDayPicker;
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
 import 'package:my_app/view/tab/stc/stc_graph_line.dart';
@@ -172,19 +172,8 @@ class _StcMainState extends ConsumerState<StcMain> {
             final diff = newEnd.difference(newStart).inDays;
 
             if (diff > 365) {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('기간 제한'),
-                  content: const Text('조회 기간은 최대 1년까지 선택할 수 있습니다.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('확인'),
-                    ),
-                  ],
-                ),
-              );
+              if(!context.mounted)return;
+              showAppDialog(context, message: '조회 기간은 최대 1년까지 선택할 수 있습니다.', confirmText: '확인');
               return; // 선택 무시
             }
 

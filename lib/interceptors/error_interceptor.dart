@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
@@ -111,32 +112,23 @@ class ErrorInterceptor extends InterceptorsWrapper {
       final currentPage = ref.read(currentPageProvider);
       if (currentPage != 3) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) {
-              return AlertDialog(
-                title: const Text('로그인 필요'),
-                content: const Text('로그인이 필요한 기능입니다. 로그인해주세요.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                      _isReloginDialogVisible = false;
-                      navigatorKey.currentState?.pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const GetStartedScreen()),
-                        (route) => false,
-                      );
-                    },
-                    child: const Text('확인'),
-                  ),
-                ],
+          showAppDialog(
+            context, 
+            barrierDismiss: false,
+            title: '로그인 필요',
+            message: '로그인이 필요한 기능입니다. 로그인해주세요.',
+            confirmText: '확인',
+            onConfirm: () {
+              Navigator.of(context).pop();
+              _isReloginDialogVisible = false;
+              navigatorKey.currentState?.pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const GetStartedScreen()),
+                (route) => false,
               );
             },
           );
         });
       }
-
       // UI에서 의미 없는 값 반환
       handler.resolve(Response(
         requestOptions: originalRequest,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
 import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
@@ -25,19 +26,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
 
   void _goToPreviousMonth({DateTime? selectedDay}) {
     if(selectedDay == null && _focusedDay.isBefore(DateTime.utc(2022, 1, 1))){
-      showDialog(
-        context: context,
-        builder: (_) => const AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.error, color: Colors.amber, size: 48),
-              SizedBox(height: 16),
-              Text('2022년 1월 1일 부터\n조회 가능합니다.'),
-            ],
-          ),
-        ),
-      );
+      showAppDialog(context, message: '2022년 1월 1일 부터\n조회 가능합니다.', confirmText: '확인');
       return;
     }
     setState(() {

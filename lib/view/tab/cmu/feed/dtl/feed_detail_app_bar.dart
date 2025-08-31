@@ -4,10 +4,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/main.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
-import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 
@@ -40,156 +40,32 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
     _myUserId = UserPrefs.myUserId;
   }
 
-   void _showReportDialog(FeedCudService? feedCudServiceInstance) {
-    final TextEditingController reasonController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0), // 제목 패딩 조정
-          contentPadding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 0.0), // 내용 패딩 조정
-
-          title: const Text(
-            '신고 사유를 입력해주세요', // 제목 문구 변경
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center, // 제목 중앙 정렬
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 10), // 제목과 텍스트 필드 사이 여백
-              TextField(
-                controller: reasonController,
-                maxLines: 5, // 여러 줄 입력 가능하도록 maxLines 늘림
-                minLines: 3, // 최소 3줄 보이도록 설정
-                maxLength: 200, // 최대 글자 수 제한 (선택 사항)
-                decoration: InputDecoration(
-                  hintText: '자세한 신고 사유를 작성해주세요.', // 힌트 텍스트 변경
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  filled: true,
-                  fillColor: Colors.grey[50], // 배경색 추가
-                  border: OutlineInputBorder( // 얇은 테두리
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none, // 테두리 없음
-                  ),
-                  focusedBorder: OutlineInputBorder( // 포커스 시 테두리 색상
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 1.5),
-                  ),
-                  enabledBorder: OutlineInputBorder( // 기본 테두리 색상
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(color: Colors.grey[200]!, width: 1.0),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12), // 내부 패딩
-                ),
-                cursorColor: Theme.of(context).primaryColor, // 커서 색상
-              ),
-            ],
-          ),
-          actionsPadding: const EdgeInsets.all(15), // 액션 버튼 패딩
-          actions: [
-            Row( // 버튼들을 가로로 정렬
-              mainAxisAlignment: MainAxisAlignment.spaceAround, // 버튼들 사이 공간 균등 분배
-              children: [
-
-                const SizedBox(width: 10), // 버튼 사이 간격
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final reason = reasonController.text.trim();
-                      if (reason.isEmpty) {
-                        ScaffoldMessenger.of(dialogContext).showSnackBar(
-                          const SnackBar(content: Text('신고 사유를 입력해주세요.')),
-                        );
-                        return;
-                      }
-
-                      String? message;
-                      String? errorMessage;
-
-                      try {
-                        final reportDto = ReportRequestDto(
-                          cmuId: widget.feedId,
-                          reason: reason,
-                        );
-                        final response = await feedCudServiceInstance!.reportFeed(reportDto);
-                        if(response == 'success') {
-                          message = '신고가 정상적으로 접수되었습니다.';
-                        }
-                      } catch (e) {
-                        errorMessage = e.toString().replaceAll('Exception: ', '');
-                      }
-
-                      if (!dialogContext.mounted) return;
-                      Navigator.pop(dialogContext);
-
-                      if (!context.mounted) return;
-
-                      if (message != null) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            title: const Text('신고 완료', style: TextStyle(fontWeight: FontWeight.bold)),
-                            content: Text(message.toString()),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('확인'),
-                              ),
-                            ],
-                          ),
-                        );
-                      } else if (errorMessage != null) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                            title: const Text('신고 실패', style: TextStyle(fontWeight: FontWeight.bold)),
-                            content: Text(errorMessage.toString()),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('닫기'),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor, // 버튼 배경색
-                      foregroundColor: Colors.white, // 텍스트 색상
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0), // 버튼 모서리 둥글게
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      elevation: 0, // 그림자 제거
-                    ),
-                    child: const Text(
-                      '신고하기', // 버튼 텍스트 변경
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      },
+  void _showReportDialog(FeedCudService? feedCudServiceInstance) async {
+    final reason = await showInputDialog(
+      context,
+      title: "신고 사유를 입력해주세요",
+      hintText: "자세한 신고 사유를 작성해주세요.",
+      confirmText: "신고하기",
+      cancelText: "취소",
+      minLines: 3,
+      maxLines: 5,
+      maxLength: 200,
     );
+
+    if (reason != null) {
+      try {
+        final reportDto = ReportRequestDto(cmuId: widget.feedId, reason: reason);
+        final response = await feedCudServiceInstance!.reportFeed(reportDto);
+
+        if (!mounted) return;
+        if (response == 'success') {
+          showAppDialog(context, message: "신고가 접수되었습니다.", confirmText: "확인");
+        }
+      } catch (e) {
+        if (!mounted) return;
+        showAppDialog(context,message: "신고에 실패했습니다.\n관리자에게 문의하세요.",confirmText: "확인",);
+      }
+    }
   }
 
   // 햄버거 아이콘 클릭 시 바텀 시트를 보여주는 함수
