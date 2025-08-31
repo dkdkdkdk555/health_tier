@@ -19,6 +19,15 @@ class NotificationItem extends StatelessWidget {
       'PROMOTION': 'assets/widgets/notifi_doc.svg',
       'GENERAL':'assets/widgets/notifi_doc.svg',
     };
+            debugPrint('-----------------------');
+              debugPrint('ID: ${notification.id}');
+              debugPrint('Title: ${notification.title}');
+              debugPrint('Body: ${notification.body}');
+              debugPrint('FeedId: ${notification.feedId}');
+              debugPrint('Type: ${notification.type}');
+              debugPrint('ReceivedAt: ${notification.receivedAt}');
+              debugPrint('IsRead: ${notification.isRead}');
+              debugPrint('-----------------------');
 
     return Container(
       color: notification.isRead == 'true' ? Colors.white : const Color(0xFFFFF4E9), // 배경색

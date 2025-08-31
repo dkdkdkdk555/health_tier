@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
+import 'package:my_app/providers/db_providers.dart' show hasUnreadNotification;
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
@@ -91,7 +92,6 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       color: Colors.white,
       child: CustomScrollView(
@@ -147,18 +147,39 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
+              Navigator.push(
+                context,
                 MaterialPageRoute(
-                  builder: (context) => const NotificationManagePage()
-                )
+                  builder: (context) => const NotificationManagePage(),
+                ),
               );
             },
-            child: SizedBox(
-              width: 22,
-              height: 22,
-              child: SvgPicture.asset(
-                'assets/icons/alram.svg'
-              ),
+            child: Stack(
+              clipBehavior: Clip.none, // Stack 밖으로 배치 허용
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: SvgPicture.asset(
+                    'assets/icons/alram.svg',
+                  ),
+                ),
+                  if (ref.watch(hasUnreadNotification).maybeWhen(
+                    data: (value) => value,
+                    orElse: () => false,
+                  ))
+                  Positioned(
+                    right: 2,
+                    top: 0,
+                    child: SizedBox(
+                      width: 6,
+                      height: 6,
+                      child: SvgPicture.asset(
+                        'assets/icons/on.svg',
+                      ),
+                    ),
+                  ),
+              ],
             ),
           )
         ],

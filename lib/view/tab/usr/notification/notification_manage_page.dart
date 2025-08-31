@@ -12,6 +12,14 @@ class NotificationManagePage extends StatefulWidget {
 }
 
 class _NotificationManagePageState extends State<NotificationManagePage> {
+  bool _isLoading = false;
+
+  void _setLoading(bool value) {
+    setState(() {
+      _isLoading = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,11 +34,16 @@ class _NotificationManagePageState extends State<NotificationManagePage> {
             delegate: NotificationManageAppBarDelegatte(),
           ),
           // 알림 헤더
-          const SliverToBoxAdapter(
-            child: NotificationHeader()
+           SliverToBoxAdapter(
+            child: NotificationHeader(onLoading: _setLoading)
           ),
           // 알림 목록
-          const NotificationListSliver()
+          if(_isLoading)
+            const SliverToBoxAdapter(
+              child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator()),),
+            )
+          else
+            const NotificationListSliver()
         ],
       ),
     );

@@ -4,8 +4,10 @@ import 'package:my_app/providers/db_providers.dart' show deleteAllNotifications,
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
 
 class NotificationHeader extends ConsumerStatefulWidget {
+  final void Function(bool) onLoading;
   const NotificationHeader({
     super.key,
+    required this.onLoading
   });
 
   @override
@@ -13,14 +15,10 @@ class NotificationHeader extends ConsumerStatefulWidget {
 }
 
 class _NotificationHeaderState extends ConsumerState<NotificationHeader> {
-  bool _isDeleting = false;
-
 
   /// 전체 삭제
   Future<void> _deleteAllNotifications() async {
-    setState(() {
-      _isDeleting = true; // 스피너 ON
-    });
+    widget.onLoading(true);
 
     await deleteAllNotifications(ref: ref);
     // 안읽은 갯수 0으로
@@ -31,9 +29,7 @@ class _NotificationHeaderState extends ConsumerState<NotificationHeader> {
     // 잠깐 스피너 표시 후 OFF
     await Future.delayed(const Duration(milliseconds: 500));
     if (mounted) {
-      setState(() {
-        _isDeleting = false;
-      });
+      widget.onLoading(false);
     }
   }
 
@@ -69,12 +65,6 @@ class _NotificationHeaderState extends ConsumerState<NotificationHeader> {
           ),
 
           // 전체 삭제 (밑줄 있는 버튼)
-          _isDeleting ? 
-          const SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          ) :
           GestureDetector(
             onTap: () {
               // 전체 삭제 로직

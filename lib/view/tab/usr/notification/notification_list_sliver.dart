@@ -4,7 +4,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
+import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/usr/notification/notification_item.dart';
+import 'package:my_app/view/tab/usr/usr_main.dart';
 
 class NotificationListSliver extends ConsumerStatefulWidget {
   const NotificationListSliver({super.key});
@@ -57,6 +59,7 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (notification.isRead == 'false') {
                   markNotificationRead(ref: ref, id: notification.id);
+                  ref.invalidate(hasUnreadNotification);
                 }
               });
               
@@ -83,7 +86,24 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                     ),
                   ],
                 ),
-                child: NotificationItem(notification: notification),
+                child: GestureDetector(
+                  onTap: () {
+                    final notifiType = notification.type;
+                    if(notifiType != null && 
+                        (notifiType == 'COMMUNITY' || notifiType == 'CRTIFI')
+                    ) {
+                      Navigator.push(context,
+                        MaterialPageRoute(
+                          builder: (context) => 
+                            FeedDetail(feedId: notification.feedId!, isFromWriteFeed: false)
+                        )
+                      );
+                    } else if(notifiType == 'BADGE') {
+                      // Navigator.pop(context); -->  걍 뒤로가기 하는 느낌,,
+                    }
+                  },
+                  child: NotificationItem(notification: notification)
+                ),
               );
             },
             childCount: _notifications.length,
