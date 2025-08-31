@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
@@ -59,31 +60,29 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                 }
               });
               
-              return Dismissible(
+              return Slidable(
                 key: ValueKey(notification.id),
-                direction: DismissDirection.endToStart,
-                background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  color: Colors.red,
-                  child: const Icon(Icons.delete, color: Colors.white),
+                endActionPane: ActionPane(
+                  motion: const ScrollMotion(),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) async {
+                        await deleteNotification(ref: ref, id: notification.id);
+                        
+                        if (!mounted) return;
+                        setState(() {
+                          _notifications.removeAt(index);
+                        });
+
+                        ref.invalidate(selectAllNotifications);
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      label: '삭제',
+                    ),
+                  ],
                 ),
-                onDismissed: (_) async {
-                    // DB에서 삭제
-                    await deleteNotification(ref: ref, id: notification.id,);
-
-                    // 로컬 리스트에서 즉시 제거
-                    setState(() {
-                      _notifications.removeAt(index);
-                    });
-
-                    // unreadCount 갱신
-                    final unreadCount = _notifications.where((n) => n.isRead == 'false').length;
-                    ref.read(notificationNumsNotifierProvider).changeNum(unreadCount);
-
-                    // selectAllNotifications 재빌드
-                    ref.invalidate(selectAllNotifications);
-                },
                 child: NotificationItem(notification: notification),
               );
             },
