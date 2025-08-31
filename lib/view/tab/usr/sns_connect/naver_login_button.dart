@@ -5,6 +5,7 @@ import 'package:flutter_naver_login/interface/types/naver_account_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:flutter_naver_login/interface/types/naver_token.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/user_prefs.dart';
@@ -13,7 +14,9 @@ import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NaverLoginButton extends StatefulWidget {
-  const NaverLoginButton({super.key});
+  const NaverLoginButton({
+    super.key
+  });
 
   @override
   State<NaverLoginButton> createState() => _NaverLoginButtonState();
@@ -158,25 +161,26 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
       onTap: () {
         naverLoginButton(context);
       },
-      child: Container(
-        width: 50, // 버튼의 지름
-        height: 50, // 버튼의 지름
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle, // 원형 모양
-          color: Colors.green, // 초록색
-        ),
-        child: const Align(
-          alignment: Alignment.center,
-          child: Text(
-            'N',
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFFFFFFF),
-            ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/widgets/login_btn_naver.svg',
+            width: 54,
+            height: 54,
+            fit: BoxFit.cover,
           ),
-        ),
-      ),
+          const SizedBox(height: 10,),
+          const Text(
+            '네이버',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontFamily: 'Pretendard',
+            ),
+          )
+        ],
+      )
     );
   }
 }

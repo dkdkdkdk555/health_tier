@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
@@ -156,23 +157,25 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
       onTap: () {
         kakaoLoginButton(context);
       },
-      child: Container(
-        width: 50,
-        height: 50,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.yellow, // 노란색
-        ),
-        child: const Align(
-          alignment: Alignment.center,
-          child: Text(
-            'Kakao',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-            ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/widgets/login_btn_kakao.svg',
+            width: 54,
+            height: 54,
+            fit: BoxFit.cover,
           ),
-        ),
+          const SizedBox(height: 10,),
+          const Text(
+            '카카오톡',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontFamily: 'Pretendard',
+            ),
+          )
+        ],
       ),
     );
   }
