@@ -1,5 +1,6 @@
 import 'dart:io' as io; // File을 사용하기 위해 필요
 import 'package:flutter/material.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
 
@@ -131,7 +132,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
     if (widget.youtubeVideoId != null) {
       // 유튜브 영상인 경우
       if (_youtubePlayerController == null) {
-        return const Center(child: CircularProgressIndicator()); // 컨트롤러 준비 중
+        return const Center(child: AppLoadingIndicator()); // 컨트롤러 준비 중
       }
       return YoutubePlayer(
         controller: _youtubePlayerController!,
@@ -144,7 +145,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
     } else if (widget.videoUrl != null) {
       // 로컬/네트워크 영상인 경우
       if (_videoController == null || _initializeVideoPlayerFuture == null) {
-        return const Center(child: CircularProgressIndicator()); // 컨트롤러 또는 퓨처 준비 중
+        return const Center(child: AppLoadingIndicator()); // 컨트롤러 또는 퓨처 준비 중
       }
       return FutureBuilder(
         future: _initializeVideoPlayerFuture,
@@ -206,7 +207,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
             );
           } else {
             // 비디오가 아직 로드 중이면 로딩 인디케이터를 표시합니다.
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: AppLoadingIndicator());
           }
         },
       );

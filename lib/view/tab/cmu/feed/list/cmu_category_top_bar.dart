@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class CategoryTopBar extends ConsumerStatefulWidget {
   final double htio;
@@ -100,7 +101,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) => Center(child: Text('에러 발생: $err')),
     );
   }
@@ -134,7 +135,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) => const Center(child: Text('오류: \$err')),
     );
   }

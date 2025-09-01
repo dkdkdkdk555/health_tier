@@ -17,6 +17,7 @@ import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
@@ -556,7 +557,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     // 수정 모드이고 데이터가 아직 로드되지 않았다면 로딩 인디케이터를 보여줍니다.
     if (widget.feedId != null && (feedDetailAsyncValue == null || feedDetailAsyncValue.isLoading || !_isEditDataLoaded)) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: AppLoadingIndicator()),
       );
     }
 

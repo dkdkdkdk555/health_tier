@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/user_profile/usr_create_feed_item.dart';
 
 class UsrCreateFeedsSliver extends ConsumerStatefulWidget {
@@ -114,7 +115,7 @@ class _UsrCreateFeedsSliverState extends ConsumerState<UsrCreateFeedsSliver> {
                   // 다음 페이지 로딩 중
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 20.0),
-                    child: Center(child: CircularProgressIndicator()),
+                    child: Center(child: AppLoadingIndicator()),
                   );
                 }
               },
@@ -123,7 +124,7 @@ class _UsrCreateFeedsSliverState extends ConsumerState<UsrCreateFeedsSliver> {
           loading: () => const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 50.0), // 로딩 인디케이터 중앙 정렬
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: AppLoadingIndicator()),
             ),
           ),
           error: (error, stackTrace) {

@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/usr/notification/notification_item.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
@@ -114,7 +115,7 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
         child: Center(
           child: Padding(
             padding: EdgeInsets.all(20),
-            child: CircularProgressIndicator(),
+            child: AppLoadingIndicator(),
           ),
         ),
       ),

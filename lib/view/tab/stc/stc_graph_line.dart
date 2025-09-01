@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class StcGraphLine extends ConsumerStatefulWidget {
   final DayRange dayRange;
@@ -50,7 +51,7 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
           final chartWidth = constraints.maxWidth;
 
           return stcList.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: AppLoadingIndicator()),
             error: (err, stack) => Center(child: Text('에러 발생: $err')),
             data: (list) {
               if (list.isEmpty) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class UsrProfile extends ConsumerWidget {
   final int userId;
@@ -112,7 +113,7 @@ class UsrProfile extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) {
         debugPrint('$err');
         debugPrint('$stack');

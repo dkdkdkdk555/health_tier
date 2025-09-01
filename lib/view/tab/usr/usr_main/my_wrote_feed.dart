@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/usr_create_feed_item.dart';
 
@@ -95,14 +96,14 @@ class _MyWroteFeedState extends ConsumerState<MyWroteFeed> {
                   if (data.hasNext)
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20.0),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: AppLoadingIndicator()),
                     ),
                 ],
               );
             },
             loading: () => const Padding(
               padding: EdgeInsets.symmetric(vertical: 50.0),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: AppLoadingIndicator()),
             ),
             error: (error, stackTrace) {
               debugPrint('Error fetching user feeds: $error');

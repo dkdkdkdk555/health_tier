@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class MyBadge extends ConsumerWidget {
   const MyBadge({super.key});
@@ -33,7 +34,7 @@ class MyBadge extends ConsumerWidget {
         return const Center(child: Text("뱃지를 불러오는 중 오류가 발생했습니다."));
       },
       loading: () {
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: AppLoadingIndicator());
       },
     );
   }

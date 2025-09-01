@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class NicknameInputPage extends ConsumerStatefulWidget { // StatefulWidget 대신 ConsumerStatefulWidget 사용
   const NicknameInputPage({super.key});
@@ -141,7 +142,7 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
             if (_isCheckingNickname)
               const Padding(
                 padding: EdgeInsets.only(top: 10.0),
-                child: CircularProgressIndicator(color: Colors.white),
+                child: AppLoadingIndicator(),
               )
             else
               const SizedBox(height: 10), // 로딩 인디케이터가 없을 때도 적절한 간격 유지

@@ -7,6 +7,7 @@ import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class DocBackupAndRestore extends ConsumerStatefulWidget {
   const DocBackupAndRestore({
@@ -80,7 +81,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (_) => const Center(child: CircularProgressIndicator()),
+                            builder: (_) => const Center(child: AppLoadingIndicator()),
                           );
                           try {
                             // 1. 서버에서 JSON 문자열 요청
@@ -144,7 +145,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                           showDialog(
                             context: context,
                             barrierDismissible: false,
-                            builder: (_) => const Center(child: CircularProgressIndicator()),
+                            builder: (_) => const Center(child: AppLoadingIndicator()),
                           );
           
                           try {
@@ -221,7 +222,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                   return const Text("알 수 없는 상태입니다.");
                 }
               },
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: AppLoadingIndicator()),
               error: (err, stack) => Text('오류 발생: $err'),
             ),
           ],

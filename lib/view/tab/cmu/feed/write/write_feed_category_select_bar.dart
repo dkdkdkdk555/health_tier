@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
-import 'package:flutter/services.dart'; // TextInputFormatter를 위해 추가
+import 'package:flutter/services.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator; // TextInputFormatter를 위해 추가
 
 // ✅ 운동 항목 데이터를 위한 모델 정의
 class ExerciseEntry {
@@ -378,7 +379,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) => const Center(child: Text('오류: \$err')),
     );
   }

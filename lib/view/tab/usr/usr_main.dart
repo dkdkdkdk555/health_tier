@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 
@@ -25,7 +26,7 @@ class UsrMain extends ConsumerWidget {
       },
       loading: () => const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: AppLoadingIndicator(),
         ),
       ),
       error: (error, stackTrace) {

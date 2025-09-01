@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class SuccessAfterLoadingDialog extends StatefulWidget {
   const SuccessAfterLoadingDialog({super.key});
@@ -33,8 +34,8 @@ class _SuccessAfterLoadingDialogState extends State<SuccessAfterLoadingDialog> {
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         child: _showCheckIcon
-            ? const Icon(Icons.check_circle, color: Color(0xFF95D33E), size: 64)
-            : const CircularProgressIndicator(color: Color(0xFF95D33E)),
+            ? const Icon(Icons.check_circle, color: Color(0xFF0D86E7), size: 44)
+            : const AppLoadingIndicator(),
       ),
     );
   }

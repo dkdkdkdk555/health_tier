@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
 
 class ProfileCard extends ConsumerWidget {
@@ -127,7 +128,7 @@ class ProfileCard extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) {
         debugPrint('$err');
         debugPrint('$stack');

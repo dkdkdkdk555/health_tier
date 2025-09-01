@@ -6,6 +6,7 @@ import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/responsive_scrollable_textbox.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/up_arrow.dart';
 
 class DocDietDetail extends ConsumerWidget {
@@ -91,7 +92,7 @@ class DocDietDetail extends ConsumerWidget {
                               return makeDietList(dietListAsync);
                             }
                           },
-                          loading: () => const Center(child: CircularProgressIndicator()),
+                          loading: () => const Center(child: AppLoadingIndicator()),
                           error: (e, st) => Center(child: Text('불러오기 실패: $e')),
                         ),
                       ),
@@ -196,7 +197,7 @@ class DocDietDetail extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (e, st) => Center(child: Text('불러오기 실패: $e')),
     );
   }

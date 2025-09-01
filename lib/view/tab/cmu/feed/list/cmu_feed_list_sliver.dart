@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_item.dart';
 
 class FeedListSliver extends ConsumerWidget {
@@ -25,7 +26,7 @@ class FeedListSliver extends ConsumerWidget {
                 return scrollData.hasNext
                     ? const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Center(child: CircularProgressIndicator()),
+                        child: Center(child: AppLoadingIndicator()),
                       )
                     : const SizedBox.shrink();
               }
@@ -36,7 +37,7 @@ class FeedListSliver extends ConsumerWidget {
         );
       },
       loading: () => const SliverToBoxAdapter(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: AppLoadingIndicator()),
       ),
       error: (err, stack) => SliverToBoxAdapter(
         child: Center(child: Text('에러 발생: $err')),

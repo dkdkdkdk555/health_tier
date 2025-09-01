@@ -12,6 +12,7 @@ import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_like_and_certifi_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -254,7 +255,7 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
           ]
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) => Center(child: Text('에러: $err')),
     );
   }

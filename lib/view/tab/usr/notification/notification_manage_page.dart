@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/usr/notification/notification_header.dart';
 import 'package:my_app/view/tab/usr/notification/notification_list_sliver.dart';
@@ -40,7 +41,7 @@ class _NotificationManagePageState extends State<NotificationManagePage> {
           // 알림 목록
           if(_isLoading)
             const SliverToBoxAdapter(
-              child: Padding(padding: EdgeInsets.all(40), child: Center(child: CircularProgressIndicator()),),
+              child: Padding(padding: EdgeInsets.all(40), child: Center(child: AppLoadingIndicator()),),
             )
           else
             const NotificationListSliver()

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:cached_network_image/cached_network_image.dart'; // import 추가
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator; // import 추가
 
 class CustomImageEmbedBuilder implements quill.EmbedBuilder {
   @override
@@ -15,7 +16,7 @@ class CustomImageEmbedBuilder implements quill.EmbedBuilder {
       imageUrl: imageUrl,
       fit: BoxFit.cover,
       placeholder: (context, url) => const Center(
-        child: CircularProgressIndicator(), // 로딩 중 표시
+        child: AppLoadingIndicator(), // 로딩 중 표시
       ),
       errorWidget: (context, url, error) {
         // SocketException 등 이미지 로딩 실패 시 호출

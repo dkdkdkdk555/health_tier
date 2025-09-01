@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends StatefulWidget {
@@ -55,7 +56,7 @@ class _WebViewPageState extends State<WebViewPage> {
           WebViewWidget(controller: _controller),
           if (_isLoading)
             const Center(
-              child: CircularProgressIndicator(),
+              child: AppLoadingIndicator(),
             ),
         ],
       ),

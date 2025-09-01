@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply.dart';
 
 class ReplyListSliver extends ConsumerStatefulWidget {
@@ -61,7 +62,7 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
         // 초기 로딩 중이고, 아직 데이터가 없을 때만 전체 로딩 인디케이터 표시
         if (isInitialLoading) {
           return const SliverToBoxAdapter(
-            child: Center(child: CircularProgressIndicator()),
+            child: Center(child: AppLoadingIndicator()),
           );
         }
         // 이미 데이터가 있다면, 기존 데이터 표시
@@ -136,7 +137,7 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Center(
-                child: CircularProgressIndicator(),
+                child: AppLoadingIndicator(),
               ),
             ),
         ],

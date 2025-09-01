@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart'; // feed_providers.dart 경로 확인
 
 class FeedDetailProfileSection extends ConsumerWidget {
@@ -58,7 +59,7 @@ class FeedDetailProfileSection extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) => Center(child: Text('에러: $err')),
     );
   }
