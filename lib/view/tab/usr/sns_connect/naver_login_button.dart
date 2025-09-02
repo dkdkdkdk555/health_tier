@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
@@ -49,6 +50,8 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
       debugPrint('${userInfo?.name}');
     } catch (error) {
       debugPrint(error.toString());
+      if(!context.mounted)return;
+      showAppMessage(context, message: '네이버 계정으로 로그인 중 오류가 발생했습니다.');
     }
 
     // 안드로이드에서는 .logIn 에서 accessToken을 응답받지 못해서 추가
@@ -59,6 +62,8 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
           accessToken = res.accessToken;
         });
       } catch (error) {
+        if(!context.mounted)return;
+        showAppMessage(context, message: '네이버 계정으로 로그인 중 오류가 발생했습니다.');
         debugPrint('$error');
       }
     }
@@ -129,9 +134,13 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
           MaterialPageRoute(builder: (_) => const UsrInfoScreen()),
         );
       } else {
+        if(!mounted)return;
+        showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);
         debugPrint('⚠️ 회원가입 실패: ${response.statusCode}');
       }
     } catch (e) {
+      if(!mounted)return;
+      showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);
       debugPrint('❌ 예외 발생: $e');
     }
   }

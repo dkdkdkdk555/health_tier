@@ -1,5 +1,6 @@
 import 'dart:io' as io; // File을 사용하기 위해 필요
 import 'package:flutter/material.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
@@ -67,6 +68,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
       Uri? uri = Uri.tryParse(widget.videoUrl!);
       if (uri == null) {
         debugPrint('유효하지 않은 비디오 URL: ${widget.videoUrl}');
+        showAppMessage(context, message: '영상 URL이 유효하지 않습니다.}');
         return; // 유효하지 않은 URL이면 초기화하지 않음
       }
 
@@ -84,9 +86,7 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
         debugPrint('VideoPlayerController 초기화 오류: $error');
         if (mounted) {
           // 오류 발생 시 사용자에게 알림
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('비디오 로드 실패: ${error.toString()}')),
-          );
+          showAppMessage(context, message: '영상 플레이어를 로드하지 못했습니다.');
         }
       });
     }

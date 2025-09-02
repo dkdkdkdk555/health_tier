@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/reply/selected_reply_info.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/styled_text_controller.dart'; // replyCommentSupplyNotifierProvider 경로 확인
 
 class ReplyBottomBar extends ConsumerStatefulWidget {
@@ -184,9 +185,7 @@ void dispose() {
   Future<void> sendComment(int cmuId, WidgetRef ref) async {
     String commentText = _textEditingController.text.trim();
     if (commentText.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글을 입력해주세요')),
-      );
+      showAppMessage(context, message: '댓글을 입력해주세요');
       return;
     }
     
@@ -239,14 +238,10 @@ void dispose() {
       ref.invalidate(feedDetailProvider(cmuId));
 
       if(!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('댓글이 작성됐습니다.')),
-      );
+      showAppMessage(context, message:'댓글이 작성됐습니다.');
     } catch (e) {
       debugPrint('$e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      showAppMessage(context, message:'댓글이 작성 중 오류가 발생했습니다.');
     } finally {
       setState(() {
         _barHeight = 106;

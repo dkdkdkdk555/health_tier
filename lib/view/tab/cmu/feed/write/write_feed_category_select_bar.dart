@@ -4,6 +4,7 @@ import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter/services.dart';
+import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator; // TextInputFormatter를 위해 추가
 
 // ✅ 운동 항목 데이터를 위한 모델 정의
@@ -111,9 +112,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
       _notifyExerciseEntriesChange(); 
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('운동 항목은 최대 3개까지 추가할 수 있습니다.')),
-      );
+      showAppMessage(context, message: '운동 항목은 최대 3개까지 추가할 수 있습니다.');
     }
   }
 

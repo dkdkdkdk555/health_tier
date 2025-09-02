@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/feed/feed_detail.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 
 class FeedLikeAndCertifiSection extends ConsumerStatefulWidget {
@@ -63,22 +64,12 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
 
   // 인증 버튼 클릭 핸들러
   Future<void> _onCertifyButtonPressed() async {
-    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
-    if (_myUserId == null || _myUserId == 0) {
-      if (context.mounted) { // context가 마운트된 상태인지 확인
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('로그인이 필요합니다.'),
-            behavior: SnackBarBehavior.floating, // 원하는 경우 floating으로 설정
-          ),
-        );
-      }
-      return; // 함수 실행 중단
-    }
 
     if (!_isCertifiBtnActive || _isMyUserCertified) {
       return;
     }
+
+    try {
     await showAppDialog(
       context, 
       message: '인증 처리는 취소가 불가능합니다.\n계속 진행하시겠습니까?',
@@ -89,7 +80,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
           final feedCudService = ref.read(feedCudServiceProvider).value; // notifier를 통해 인스턴스 접근
           final response = await feedCudService!.acceptCertification(
             dto: LikeAndCrtifiRequestDto(
-              userId: _myUserId,
+              userId: _myUserId ?? 0,
               feedId: widget.feed.id,
               feedWriterUserId: widget.feed.userId
             ),
@@ -102,31 +93,22 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         } catch (e) {
           if(!mounted)return;
           // 에러 처리: 사용자에게 메시지를 보여주거나 로깅
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('인증 실패: ${e.toString()}')),
-          );
+          showAppMessage(context, message: "인증처리 중에 오류가 발생하였습니다.");
         }
       },
       onCancel: () {
         return;
       },
     );
+    } catch (e) {
+      if (mounted) {
+        showAppMessage(context);
+      }
+    } 
   }
 
   // 좋아요 버튼 클릭 핸들러 (새로 추가)
   Future<void> _onLikeButtonPressed() async {
-    // _myUserId가 null이거나 0이면 로그인 요청 메시지 띄우기
-    if (_myUserId == null || _myUserId == 0) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('로그인이 필요합니다.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      return; // 함수 실행 중단
-    }
 
     final feedCudService = ref.read(feedCudServiceProvider).value;
     if (feedCudService == null) return;
@@ -136,7 +118,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         // 좋아요가 아닌 상태에서 누르면 좋아요 요청
         final response = await feedCudService.likeFeed(
           LikeAndCrtifiRequestDto(
-            userId: _myUserId,
+            userId: _myUserId ?? 0,
             feedId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
@@ -149,7 +131,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         // 좋아요 상태에서 누르면 좋아요 취소 요청
         final response = await feedCudService.cancelFeedLike(
           LikeAndCrtifiRequestDto(
-            userId: _myUserId,
+            userId: _myUserId ?? 0,
             feedId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
@@ -160,10 +142,8 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         }
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('좋아요 처리 실패: ${e.toString()}')),
-        );
+      if (mounted) {
+        showAppMessage(context);
       }
     }
   }

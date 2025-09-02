@@ -17,6 +17,7 @@ import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenReq
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
@@ -224,6 +225,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                         try {
                           final response = await ref.read(jwtTokenVerificationProvider.future);
                           if(response.isValid) {
+                            debugPrint('${response.isValid}');
                             if(!context.mounted)return;
                             Navigator.push(
                               context,
@@ -231,6 +233,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                                 builder: (context) => const WriteFeed(),
                               ),
                             );
+                          } else {
+                            showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
                           }
                         } catch (e) {
                           debugPrint('$e');
@@ -268,6 +272,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                                 builder: (context) => const WriteFeed(),
                               ),
                             );
+                          } else {
+                            showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
                           }
                         } catch (e) {
                           debugPrint('$e');

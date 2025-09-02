@@ -16,6 +16,7 @@ import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
@@ -147,6 +148,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             debugPrint('Initial Server Media URLs: $_initialServerMediaUrls');
           } catch (e) {
             debugPrint('Error parsing Quill content JSON: $e');
+            showAppMessage(context, message: 'Error parsing Quill content JSON: $e');
             // 파싱 실패 시 기본 문서로 초기화하거나 에러 처리
             _controller.document = Document.fromDelta(Delta()..insert('\n'));
           }
@@ -157,9 +159,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         } else if (next.hasError) {
           debugPrint('수정할 피드 데이터 로드 실패: ${next.error}');
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('게시글 정보를 불러오는데 실패했습니다: ${next.error}')),
-            );
+            showAppMessage(context, message: '게시글 정보를 불러오는데 실패했습니다');
           }
         }
       });
@@ -266,9 +266,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
      // 유효성검증
     if (!_isFeedContentValid()) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('카테고리, 제목을 모두 입력해주세요.')),
-      );
+      showAppMessage(context, message: '카테고리, 제목을 모두 입력해주세요.');
+      
       return; // 유효성 검증 실패 시 함수 종료
     }
 
@@ -486,9 +485,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
       // 성공 메시지 표시 및 화면 이동 등
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시글이 성공적으로 등록되었습니다.')),
-      );
+      showAppMessage(context, message: '피드가 성공적으로 등록되었습니다.');
       
       Navigator.of(context).pushAndRemoveUntil(
         PageRouteBuilder(
@@ -500,9 +497,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     } catch (e) {
       debugPrint('게시글 등록 중 오류 발생: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시글 등록 실패: ${e.toString()}')),
-      );
+      showAppMessage(context, message: '피드 등록 중 오류가 발생했습니다.', type: AppMessageType.dialog);
     } finally {
       setState(() {
         _isSubmitting = false; // 로딩 상태 종료
@@ -847,9 +842,7 @@ Future<void> _handleVideoInsert(String videoPathFromPicker, QuillController cont
       debugPrint('[_handleVideoInsert] Original video file does not exist at path: $videoPathFromPicker');
       // 사용자가 갤러리에서 선택했지만, 파일이 존재하지 않는 극히 드문 경우를 대비
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('선택된 비디오 파일을 찾을 수 없습니다.')),
-      );
+      showAppMessage(context, message: '선택된 비디오 파일을 찾을 수 없습니다.', type: AppMessageType.dialog);
       return;
     }
 
@@ -873,9 +866,7 @@ Future<void> _handleVideoInsert(String videoPathFromPicker, QuillController cont
   } catch (e) {
     debugPrint('[_handleVideoInsert] !!! Error processing/inserting video: $e');
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('비디오 처리 및 삽입 중 오류가 발생했습니다: ${e.toString()}')),
-    );
+    showAppMessage(context, message: '비디오 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
   } finally {
     
   }

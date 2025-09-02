@@ -7,6 +7,7 @@ import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class DocBackupAndRestore extends ConsumerStatefulWidget {
@@ -104,9 +105,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
           
                             if (!context.mounted) return;
                             Navigator.of(context).pop(); // 로딩 닫기
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('데이터 복원이 완료되었습니다.')),
-                            );
+                            showAppMessage(context, message: '데이터 복원이 완료되었습니다.');
                             
           
                             // 필요시 provider 새로고침 등 추가 처리
@@ -116,9 +115,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                           } catch (e, st) {
                             debugPrint('데이터 복원 실패: $e\n$st');
                             if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('데이터 복원 중 오류가 발생했습니다.')),
-                            );
+                            showAppMessage(context, title: '데이터 복원 실패', message: '데이터 복원 중 오류가 발생했습니다.\n관리자에게 문의 하세요.', type: AppMessageType.dialog);
                           }
                         },
                         onCancel: () {
@@ -156,10 +153,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                             // 2. 데이터가 비어있으면 안내 후 종료
                             if (diets.isEmpty && bodies.isEmpty) {
                               if (!context.mounted) return;
-                              Navigator.of(context).pop(); // 로딩 닫기
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('백업할 데이터가 없습니다.')),
-                              );
+                              showAppMessage(context, message: '백업할 데이터가 없습니다.', type: AppMessageType.dialog);
                               return;
                             }
           
@@ -180,22 +174,16 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                             Navigator.of(context).pop(); // 로딩 닫기
           
                             if (message == 'success') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('백업 데이터가 준비되었습니다.')),
-                              );
+                              showAppMessage(context, message: '백업 데이터가 준비되었습니다.', type: AppMessageType.dialog);
                               ref.invalidate(backupStatusProvider); // 상태 갱신
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('데이터 백업이 실패하였습니다.')),
-                              );
+                              showAppMessage(context, title: '데이터 백업 실패', message: '데이터 백업 중 오류가 발생했습니다.\n관리자에게 문의 하세요.', type: AppMessageType.dialog);
                             }
                           } catch (e, st) {
                             debugPrint('백업 데이터 생성 실패: $e\n$st');
                             if (context.mounted) {
                               Navigator.of(context).pop(); // 로딩 닫기
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('백업 중 오류가 발생했습니다.')),
-                              );
+                              showAppMessage(context, title: '데이터 백업 실패', message: '데이터 백업 중 오류가 발생했습니다.\n관리자에게 문의 하세요.', type: AppMessageType.dialog);
                             }
                           }
                         },

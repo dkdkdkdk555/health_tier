@@ -92,20 +92,15 @@ class FeedCudService {
       }
     }
 
-    try {
-      final response = await dio.post(FeedCudAPI.uploadImages, data: formData);
+    final response = await dio.post(FeedCudAPI.uploadImages, data: formData);
 
-      // 서버 응답을 Result<List<String>> 형태로 파싱하여 반환합니다.
-      // Result.fromJson의 두 번째 인자는 `(json) => (json as List).map((e) => e.toString()).toList()`와 같이
-      // JSON 리스트를 Dart List<String>으로 변환하는 함수입니다.
-      return Result.fromJson(
-        response.data,
-        (json) => (json as List).map((e) => e.toString()).toList(),
-      );
-    } on DioException catch (e) {
-      // Dio 에러 발생 시 예외를 다시 던져 상위 계층에서 처리하도록 합니다.
-      throw Exception('이미지 업로드 실패: ${e.response?.data ?? e.message}');
-    }
+    // 서버 응답을 Result<List<String>> 형태로 파싱하여 반환합니다.
+    // Result.fromJson의 두 번째 인자는 `(json) => (json as List).map((e) => e.toString()).toList()`와 같이
+    // JSON 리스트를 Dart List<String>으로 변환하는 함수입니다.
+    return Result.fromJson(
+      response.data,
+      (json) => (json as List).map((e) => e.toString()).toList(),
+    );
   }
 
   // 게시글 신고하기

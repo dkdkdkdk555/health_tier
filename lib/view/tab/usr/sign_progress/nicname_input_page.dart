@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
+import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class NicknameInputPage extends ConsumerStatefulWidget { // StatefulWidget 대신 ConsumerStatefulWidget 사용
@@ -48,9 +49,7 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
 
     // 닉네임이 비어있는 경우
     if (nickname.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('닉네임을 입력해주세요')),
-      );
+      showAppMessage(context, message: '닉네임을 입력해주세요');
       return;
     }
 
@@ -88,10 +87,6 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
     } catch (e) {
       // API 호출 중 오류 발생 시 처리
       debugPrint('닉네임 중복 검사 중 오류 발생: $e');
-      if(!context.mounted)return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('닉네임 검사 중 오류가 발생했습니다: $e')),
-      );
       // 오류 발생 시 경고 숨김
       setState(() {
         _showDuplicateWarning = false;

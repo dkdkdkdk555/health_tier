@@ -6,10 +6,10 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class KakaoLoginButton extends StatefulWidget {
   const KakaoLoginButton({super.key});
@@ -35,9 +35,11 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
       } catch (error) {
         debugPrint('카카오톡으로 로그인 실패 $error');
 
+        if(!context.mounted)return;
         // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
         // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
         if (error is PlatformException && error.code == 'CANCELED') {
+            showAppMessage(context, message: '카카오톡 연동 로그인 실패');
             return;
         }
         // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
@@ -45,19 +47,24 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
             token = await UserApi.instance.loginWithKakaoAccount();
             debugPrint('카카오계정으로 로그인 성공');
         } catch (error) {
+          if(!context.mounted)return;
+          showAppMessage(context, message: '카카오톡 연동 로그인 실패');
             debugPrint('카카오계정으로 로그인 실패 $error');
+          return;
         }
       }
     } else {
       try {
         token = await UserApi.instance.loginWithKakaoAccount();
-        debugPrint('카카오계정으로 로그인 성공');
       } catch (error) {
+        if(!context.mounted)return;
+        showAppMessage(context, message: '카카오톡 연동 로그인 실패');
         debugPrint('카카오계정으로 로그인 실패 $error');
+        return;
       }
     }
 
-      accessToken = token!.accessToken;
+      accessToken = token.accessToken;
       if(accessToken != null) {
         kakaoUserInfo = await UserApi.instance.me();
         debugPrint('토큰 : $accessToken}');
@@ -140,9 +147,13 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         );
       } else {
         debugPrint('⚠️ 회원가입 실패: ${response.statusCode}');
+        if(!mounted)return;
+        showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);
       }
     } catch (e) {
       debugPrint('❌ 예외 발생: $e');
+      if(!mounted)return;
+      showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);
     }
   }
 

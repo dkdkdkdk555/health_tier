@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 import 'package:path/path.dart' as path show basename;
 
@@ -135,15 +136,11 @@ class UsrInfoProfile extends ConsumerWidget {
                                 if(response == 'success'){
                                   if(!context.mounted) return;
                                   ref.invalidate(usrSimpleInfoProvider);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('닉네임이 수정되었습니다.')),
-                                  );
+                                  showAppMessage(context, message: '닉네임이 수정되었습니다.');
                                 }
                               }catch(e) {
                                 if(!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('닉네임이 수정에 실패하였습니다. : $e')),
-                                );
+                                showAppMessage(context, message: '닉네임이 수정에 실패하였습니다.', type: AppMessageType.dialog);
                               }
                             },
                             child: SizedBox(
@@ -278,17 +275,13 @@ class UsrInfoProfile extends ConsumerWidget {
 
         // 성공 시 메시지 표시 및 UI 업데이트
         if (context.mounted && response=='success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('프로필 이미지가 업로드되었습니다.')),
-          );
+          showAppMessage(context, message: '프로필 이미지가 업로드되었습니다.');
           ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
         }
       } catch (e) {
         // 에러 메시지 표시
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('이미지 업로드 실패: $e')),
-          );
+          showAppMessage(context, message: '이미지 업로드에 실패하였습니다.');
         }
       } finally {
       }
@@ -302,17 +295,13 @@ class UsrInfoProfile extends ConsumerWidget {
       final response = await service.deleteProfileImage();
       // 성공 시 메시지 표시 및 UI 업데이트
       if (context.mounted && response == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필 이미지가 삭제되었습니다.')),
-        );
+        showAppMessage(context, message: '프로필 이미지가 삭제되었습니다.');
         ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
       }
     } catch (e) {
       // 에러 메시지 표시
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('프로필 이미지 삭제 실패: $e')),
-        );
+        showAppMessage(context, message: '프로필 이미지 삭제에 실패하였습니다.');
       }
     } finally {
     }

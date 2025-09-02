@@ -154,22 +154,13 @@ class FeedService {
   
   // 조회수증가
   Future<String> increaseView(int feedId) async {
-    try {
-      final response = await dio.post(
-        FeedAPI.increaseViewCount(feedId),
-      );
+    final response = await dio.post(FeedAPI.increaseViewCount(feedId));
 
-      if (response.statusCode == 200) {
-        return response.data.toString();
-      } else {
-        debugPrint('조회수 증가 요청 실패: ${response.statusCode}');
-        throw Exception(response.statusCode);
-      }
-    } on DioException catch (e) {
-      final message = e.response?.data['message'] ?? '조회수 증가 요청 실패';
-      throw Exception(message);
-    } catch (e) {
-      throw Exception('알 수 없는 조회수 증가 요청 에러: $e');
+    if (response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('조회수 증가 요청 실패: ${response.statusCode}');
     }
   }
+  
 }

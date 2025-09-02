@@ -8,6 +8,7 @@ import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 
@@ -119,15 +120,14 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     leading: const Icon(Icons.report),
                     title: const Text('신고하기'),
                     onTap: () async {
-                      try {
-                        final response = await ref.read(jwtTokenVerificationProvider.future);
-                        if(response.isValid) {
-                          if(!context.mounted)return;
-                          Navigator.pop(context); // 바텀 시트 닫기
-                          _showReportDialog(feedCudService);
-                        }
-                      }catch (e) {
-                        debugPrint('$e');
+                      final response = await ref.read(jwtTokenVerificationProvider.future);
+                      if(response.isValid) {
+                        if(!context.mounted)return;
+                        Navigator.pop(context); // 바텀 시트 닫기
+                        _showReportDialog(feedCudService);
+                      } else {
+                        if(!context.mounted)return;
+                        showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
                       }
                     },
                   ),

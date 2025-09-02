@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_app_bar_preferredsize.dart';
@@ -80,12 +81,7 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                                 onChanged: (value) {
                                   if (selectedIndex == null) {
                                     // 라디오 버튼 선택이 안된 경우
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('탈퇴 사유를 먼저 선택해주세요.'),
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
+                                    showAppMessage(context, message: '탈퇴 사유를 먼저 선택해주세요.');
                                     return; // 체크 상태 변경 방지
                                   }
                                   setState(() {
@@ -112,9 +108,7 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                         child: ElevatedButton(
                           onPressed:() async {
                             if(!isAgree) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('동의 여부를 체크해주세요.')),
-                              );
+                              showAppMessage(context, message: '동의 여부를 체크해주세요.');
                               return;
                             }
 
@@ -140,9 +134,7 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                                     (route) => false,
                                   );
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('회원탈퇴를 완료하였습니다. 다시 또 만나요!')),
-                                  );
+                                  showAppMessage(context, message: '회원탈퇴를 완료하였습니다. 다시 또 만나요!');
                                 }
                               },
                               onCancel: () {

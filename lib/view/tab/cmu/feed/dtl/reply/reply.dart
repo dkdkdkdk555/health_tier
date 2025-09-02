@@ -10,6 +10,7 @@ import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/service/reply_cud_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog, showInputDialog;
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
@@ -33,9 +34,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
   void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
     if(loginUserId == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('로그인이 필요합니다.')),
-        );
+        showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
         return;
     }
     // 팝업 메뉴가 표시될 위치를 정확하게 계산
@@ -72,17 +71,13 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                     ref.invalidate(replyPaginationProvider(widget.cmuId));
 
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('댓글이 삭제되었습니다.')),
-                      );
+                      showAppMessage(context, message:'댓글이 삭제되었습니다.');
                     }
                   }
                 } catch(e) {
                   debugPrint('$e');
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('댓글 삭제 처리 실패: ${e.toString()}')),
-                    );
+                    showAppMessage(context, message:'댓글 삭제처리 중 오류가 발생했습니다.');
                   }
                 }
               },
@@ -145,9 +140,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('댓글좋아요 처리 실패: ${e.toString()}')),
-        );
+        showAppMessage(context, message: '댓글 좋아요 처리에 실패하였습니다.');
       }
     }
   }
