@@ -41,7 +41,7 @@ class CustomImageEmbedBuilder implements quill.EmbedBuilder {
               ),
               SizedBox(height: 8),
               Text(
-                '이미지 로드 실패\n(네트워크 문제)',
+                '이미지 로드 실패\n(네트워크 문제)', //TODO: 고정 이미지로 교체
                 style: TextStyle(color: Colors.red, fontSize: 12),
                 textAlign: TextAlign.center,
               ),

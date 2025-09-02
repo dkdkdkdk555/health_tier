@@ -70,7 +70,23 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
         return _buildSliverContent(context, currentData.items, currentData.hasNext, replyNotifier);
       },
       error: (err, stack) => SliverToBoxAdapter(
-        child: Center(child: Text('댓글 로딩 실패: $err')),
+        child: Column(
+          children: [
+            Container(
+              height: 2.5,
+              decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 70.0, bottom: 85,  right: 20, left: 20),
+              child: Center(
+                child: Text(
+                  '댓글을 불러올 수 없습니다.',
+                  style: TextStyle(fontSize: 15, color: Colors.grey),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       data: (scrollResponse) {
         final replies = scrollResponse.items;

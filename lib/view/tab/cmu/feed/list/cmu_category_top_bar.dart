@@ -31,6 +31,7 @@ class CategoryTopBar extends ConsumerStatefulWidget {
 class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   bool isBestFeedTap = false;
   late int selectedCategoryId;
+  List modifiedCategoriesCollapse = [];
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           ]else...[
             buildCategoryExpanded(categoriesAsync)
           ]
-          ,spreadBtn()
+          ,if(modifiedCategoriesCollapse.isNotEmpty) spreadBtn()
         ],
       ),
     );
@@ -102,7 +103,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => Center(child: Text('에러 발생: $err')),
+      error: (err, stack) => const Center(child: Text('카테고리 목록 로드 중 오류가 발생했습니다.')),
     );
   }
 
@@ -111,7 +112,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   Widget buildCategoryCollapsed(AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
-        final modifiedCategories = [
+        modifiedCategoriesCollapse = [
           Category(id: 0, name: '전체'), // 원하는 첫 번째 항목 추가
           ...categories.data,
         ];
@@ -120,14 +121,11 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
             height: 34,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: modifiedCategories.length,
+              itemCount: modifiedCategoriesCollapse.length,
               separatorBuilder: (_, __) => const SizedBox(width: 0,),
               itemBuilder: (context, index) {
-                final category = modifiedCategories[index];
+                final category = modifiedCategoriesCollapse[index];
                 return GestureDetector(
-                  onTap: () {
-                    // TODO: 카테고리 선택 처리
-                  },
                   child: makeCategory(category)
                 );
               },
@@ -136,7 +134,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => const Center(child: Text('오류: \$err')),
+      error: (err, stack) => const Center(child: Text('')),
     );
   }
 
@@ -213,6 +211,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           // 먼저 내부 애니메이션이 자연스럽게 줄어들도록 대기
           await Future.delayed(const Duration(milliseconds: 300));
         }
+
         widget.onToggleSpread(); // isSpread 상태 변경
       },
       child: Align(

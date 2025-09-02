@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart' show ErrorContentWidget;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_like_and_certifi_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -256,7 +257,9 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => Center(child: Text('에러: $err')),
+      error:(error, stackTrace) {
+        return const ErrorContentWidget(mainText: '피드를 불러올 수 없습니다.\n(네트워크 환경을 점검해주세요.)', horizontal: 40, vertical: 140, isExistTopLine: true,);
+      },
     );
   }
 

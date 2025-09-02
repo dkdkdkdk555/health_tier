@@ -60,7 +60,13 @@ class FeedDetailProfileSection extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => Center(child: Text('에러: $err')),
+      error:(error, stackTrace) {
+        return const Center(
+          child: Text(
+            '프로필을 불러올 수 없습니다.'
+          )
+        );
+      },
     );
   }
 
