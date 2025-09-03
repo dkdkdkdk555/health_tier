@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/usr/usr_main/body_info_section.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
@@ -40,11 +41,8 @@ class MyBodyInfo extends ConsumerWidget {
               alignment: Alignment.center,
               child: const AppLoadingIndicator(),
             ),
-            error: (err, stack) => Container(
-              height: 183,
-              alignment: Alignment.center,
-              child: const Text('3대 중량을 불러오는데 실패했습니다.'),
-            ),
+            error: (err, stack) => 
+              const ErrorContentWidget(mainText: '3대 중량을 불러오는데 실패했습니다.',)
           ),
           _buildHeader(context, '신체정보', true,
             '',

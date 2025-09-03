@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_result_feed_item.dart';
 
 class SrchResultListSliver extends ConsumerStatefulWidget {
@@ -104,11 +105,8 @@ class _SrchResultListSliverState extends ConsumerState<SrchResultListSliver> {
           error: (error, stackTrace) {
             debugPrint('Error fetching user feeds: $error');
             debugPrint('Stack trace: $stackTrace');
-            return SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(child: Text('데이터 로딩 중 오류가 발생했습니다: $error')),
-              ),
+            return const SliverToBoxAdapter(
+              child: ErrorContentWidget(horizontal: 40, vertical: 40,)
             );
           },
         ),

@@ -234,9 +234,11 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                               ),
                             );
                           } else {
+                            if(!context.mounted)return;
                             showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
                           }
                         } catch (e) {
+                          showAppMessage(context, message: '서버 오류가 발생하였습니다.\n반복될 경우 관리자에게 문의하세요.', type: AppMessageType.dialog);
                           debugPrint('$e');
                         }
                       },
@@ -261,24 +263,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                   opacity: _fabOpacity,
                   child: Builder(
                     builder: (context) => FloatingActionButton(
-                      onPressed: () async {
-                       try {
-                          final response = await ref.read(jwtTokenVerificationProvider.future);
-                          if(response.isValid) {
-                            if(!context.mounted)return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WriteFeed(),
-                              ),
-                            );
-                          } else {
-                            showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
-                          }
-                        } catch (e) {
-                          debugPrint('$e');
-                        }
-                      },
+                      onPressed: () {},
                       backgroundColor: const Color(0xFF0D85E7),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

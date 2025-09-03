@@ -5,6 +5,7 @@ import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_item.dart';
 
 class CategoryAnotherFeedList extends ConsumerStatefulWidget {
@@ -174,9 +175,7 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
                 },
                 loading: () => const Center(child: AppLoadingIndicator()),
                 error: (error, stackTrace) {
-                  debugPrint('$error');
-                  debugPrint('$stackTrace');
-                  return null;
+                  return const ErrorContentWidget(mainText: '다른 글을 불러올 수 없습니다.', horizontal: 20, vertical: 40);
                 }
               ),
             ),

@@ -117,9 +117,7 @@ class UsrProfile extends ConsumerWidget {
       error: (err, stack) {
         debugPrint('$err');
         debugPrint('$stack');
-        return Text(
-          '$err'
-        );
+        return const SizedBox.shrink();
       }
     );
   }

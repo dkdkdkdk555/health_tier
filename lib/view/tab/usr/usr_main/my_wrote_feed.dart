@@ -4,6 +4,7 @@ import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart';
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/usr_create_feed_item.dart';
 
 class MyWroteFeed extends ConsumerStatefulWidget {
@@ -107,12 +108,7 @@ class _MyWroteFeedState extends ConsumerState<MyWroteFeed> {
             ),
             error: (error, stackTrace) {
               debugPrint('Error fetching user feeds: $error');
-              return Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(
-                  child: Text('데이터 로딩 중 오류가 발생했습니다: $error'),
-                ),
-              );
+              return const ErrorContentWidget();
             },
           ),
         ],

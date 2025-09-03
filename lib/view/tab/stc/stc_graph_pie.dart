@@ -5,6 +5,7 @@ import 'package:my_app/model/stc/day_range_param.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 
 class StcStampPieChart extends ConsumerWidget {
   final DayRange dayRange;
@@ -33,7 +34,7 @@ class StcStampPieChart extends ConsumerWidget {
       flex: 124,
       child: stampList.when(
         loading: () => const Center(child: AppLoadingIndicator()),
-        error: (err, _) => Center(child: Text('에러 발생: $err')),
+        error: (err, _) => const ErrorContentWidget(),
         data: (list) {
           if (list.isEmpty) return const Center(child: Text('데이터 없음'));
       

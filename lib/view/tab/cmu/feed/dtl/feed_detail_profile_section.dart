@@ -55,18 +55,12 @@ class FeedDetailProfileSection extends ConsumerWidget {
                   ],
                 ),
               ),
-            ],
+            ], 
           ),
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error:(error, stackTrace) {
-        return const Center(
-          child: Text(
-            '프로필을 불러올 수 없습니다.'
-          )
-        );
-      },
+      error:(error, stackTrace) {return const SizedBox.shrink();},
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/responsive_scrollable_textbox.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/up_arrow.dart';
+import 'package:my_app/view/common/error_widget.dart';
 
 class DocDietDetail extends ConsumerWidget {
   DocDietDetail({
@@ -93,7 +94,7 @@ class DocDietDetail extends ConsumerWidget {
                             }
                           },
                           loading: () => const Center(child: AppLoadingIndicator()),
-                          error: (e, st) => Center(child: Text('불러오기 실패: $e')),
+                          error: (e, st) => const ErrorContentWidget(horizontal: 20, vertical: 25),
                         ),
                       ),
                     ),
@@ -198,7 +199,7 @@ class DocDietDetail extends ConsumerWidget {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (e, st) => Center(child: Text('불러오기 실패: $e')),
+      error: (e, st) => const ErrorContentWidget(mainText: '', horizontal: 20, vertical: 25)
     );
   }
 }

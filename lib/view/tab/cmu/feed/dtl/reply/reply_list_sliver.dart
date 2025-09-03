@@ -4,6 +4,7 @@ import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply.dart';
 
 class ReplyListSliver extends ConsumerStatefulWidget {
@@ -69,25 +70,9 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
         final currentData = repliesAsync.asData!.value;
         return _buildSliverContent(context, currentData.items, currentData.hasNext, replyNotifier);
       },
-      error: (err, stack) => SliverToBoxAdapter(
-        child: Column(
-          children: [
-            Container(
-              height: 2.5,
-              decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 70.0, bottom: 85,  right: 20, left: 20),
-              child: Center(
-                child: Text(
-                  '댓글을 불러올 수 없습니다.',
-                  style: TextStyle(fontSize: 15, color: Colors.grey),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      error: (err, stack) {
+        return const SliverToBoxAdapter(child: ErrorContentWidget(mainText: '', horizontal: 40, vertical: 70, isExistTopLine: true,));
+      },
       data: (scrollResponse) {
         final replies = scrollResponse.items;
         final hasNext = scrollResponse.hasNext;

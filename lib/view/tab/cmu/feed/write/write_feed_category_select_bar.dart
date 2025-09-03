@@ -379,7 +379,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => const Center(child: Text('오류: \$err')),
+      error: (err, stack) => const SizedBox.shrink(),
     );
   }
 

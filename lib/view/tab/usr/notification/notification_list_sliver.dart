@@ -5,6 +5,7 @@ import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/usr/notification/notification_item.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
@@ -119,16 +120,8 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
           ),
         ),
       ),
-      error: (err, stack) => SliverToBoxAdapter(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              '알림을 불러오는 중 오류가 발생했습니다.',
-              style: TextStyle(color: Colors.grey[600],),
-            ),
-          ),
-        ),
+      error: (err, stack) => const SliverToBoxAdapter(
+        child: ErrorContentWidget(mainText: '알림을 불러오는 중 오류가 발생했습니다.',)
       ),
     );
   }

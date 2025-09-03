@@ -9,6 +9,7 @@ import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 
 class DocBackupAndRestore extends ConsumerStatefulWidget {
   const DocBackupAndRestore({
@@ -211,7 +212,11 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                 }
               },
               loading: () => const Center(child: AppLoadingIndicator()),
-              error: (err, stack) => Text('오류 발생: $err'),
+              error: (err, stack) => const ErrorContentWidget(
+                mainText: '데이터 백업 상태를 불러올 수 없습니다.\n재접속 이후에도 지속적으로 발생할 경우 관리자에게 문의하세요',
+                isExistTopLine: true,
+                isExistBottomLine: true,
+              ),
             ),
           ],
         ),

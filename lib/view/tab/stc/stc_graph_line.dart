@@ -6,6 +6,7 @@ import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart';
 
 class StcGraphLine extends ConsumerStatefulWidget {
   final DayRange dayRange;
@@ -52,7 +53,7 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
 
           return stcList.when(
             loading: () => const Center(child: AppLoadingIndicator()),
-            error: (err, stack) => Center(child: Text('에러 발생: $err')),
+            error: (err, stack) => const ErrorContentWidget(),
             data: (list) {
               if (list.isEmpty) {
                 return const Center(child: Text('데이터가 없습니다'));
