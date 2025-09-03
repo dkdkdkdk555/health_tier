@@ -2,6 +2,7 @@ import 'dart:io' as io; // File을 사용하기 위해 필요
 import 'package:flutter/material.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_media_widget.dart';
 import 'package:video_player/video_player.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'; // 유튜브 플레이어 임포트
 
@@ -153,13 +154,13 @@ class QuillVideoPlayerState extends State<QuillVideoPlayer> {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               debugPrint('비디오 로드 에러: ${snapshot.error}');
-              return Center(
-                child: Text('비디오 로드 중 오류 발생: ${snapshot.error}'),
+              return const Center(
+                child: ErrorMediaWidget(width: 150, height: 150, text: '비디오를 불러오지 못했습니다.'),
               );
             }
             if (_videoController == null || !_videoController!.value.isInitialized) {
                debugPrint('비디오 컨트롤러가 초기화되지 않았습니다.');
-               return const Center(child: Text('비디오를 로드할 수 없습니다.'));
+               return const Center(child: ErrorMediaWidget(width: 250, height: 150, text: '비디오를 불러오지 못했습니다.\n(네트워크 문제)'));
             }
             // 비디오가 초기화되면 AspectRatio로 비디오를 표시합니다.
             return AspectRatio(
