@@ -55,7 +55,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
                 final currentPage = ref.read(currentPageProvider);
                 if (currentPage != 3) {
                   if(!context.mounted)return;
-                  showAppMessage(context, title: '로그인 필요', message: '로그인이 필요한 기능입니다. 로그인해주세요.', type: AppMessageType.dialog, loginRequest: true);
+                  showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
                   _returnUiOkStatus(handler, originalRequest);
                 }
               }
@@ -69,7 +69,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
           final currentPage = ref.read(currentPageProvider);
             if (currentPage != 3) {
             if(context!=null){
-              showAppMessage(context, title: '로그인 필요', message: '로그인이 필요한 기능입니다. 로그인해주세요.', type: AppMessageType.dialog, loginRequest: true);
+              showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',type: AppMessageType.dialog, loginRequest: true);
               return _returnUiOkStatus(handler, originalRequest);
             }
           }

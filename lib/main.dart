@@ -235,7 +235,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                             );
                           } else {
                             if(!context.mounted)return;
-                            showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
+                            showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
                           }
                         } catch (e) {
                           showAppMessage(context, message: '서버 오류가 발생하였습니다.\n반복될 경우 관리자에게 문의하세요.', type: AppMessageType.dialog);

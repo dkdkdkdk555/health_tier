@@ -127,7 +127,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                         _showReportDialog(feedCudService);
                       } else {
                         if(!context.mounted)return;
-                        showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
+                        showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
                       }
                     },
                   ),

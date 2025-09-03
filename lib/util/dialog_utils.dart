@@ -87,6 +87,7 @@ Future<void> showAppDialog(
     },
   );
 }
+
 /// 공통 다이얼로그 위젯
 AlertDialog buildAppDialog({
   String? title,
@@ -96,19 +97,61 @@ AlertDialog buildAppDialog({
   VoidCallback? onConfirm,
   VoidCallback? onCancel,
 }) {
+  // 버튼들을 리스트로 준비
+  final List<Widget> buttons = [];
+
+  if (cancelText != null) {
+    buttons.add(
+      Expanded(
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: const Color(0xFFDDDDDD),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: onCancel,
+          child: Text(cancelText),
+        ),
+      ),
+    );
+  }
+
+  if (confirmText != null) {
+    buttons.add(
+      Expanded(
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0D86E7),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: onConfirm,
+          child: Text(confirmText),
+        ),
+      ),
+    );
+  }
+
   return AlertDialog(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
     ),
     backgroundColor: Colors.white,
-    title: title!=null ? Text(
-      title,
-      style: const TextStyle(
-        fontFamily: "Pretendard",
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-      ),
-    ) : null,
+    actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    title: title != null
+        ? Text(
+            title,
+            style: const TextStyle(
+              fontFamily: "Pretendard",
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          )
+        : null,
     content: Text(
       message,
       style: const TextStyle(
@@ -118,14 +161,16 @@ AlertDialog buildAppDialog({
       ),
     ),
     actions: [
-      cancelText != null ? TextButton(
-        onPressed: onCancel,
-        child: Text(cancelText),
-      ) : const SizedBox.shrink(),
-      confirmText != null ? ElevatedButton(
-        onPressed: onConfirm,
-        child: Text(confirmText),
-      ) : const SizedBox.shrink(),
+      Row(
+        children: [
+          ...buttons.expand((btn) sync* {
+            yield btn;
+            if (btn != buttons.last) {
+              yield const SizedBox(width: 8); // 버튼 사이 간격
+            }
+          }),
+        ],
+      ),
     ],
   );
 }
@@ -150,8 +195,10 @@ Future<String?> showInputDialog(
     builder: (dialogContext) {
       return AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
+          borderRadius: BorderRadius.circular(16.0),
         ),
+        backgroundColor: Colors.white,
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         title: title != null
             ? Text(
                 title,
@@ -180,7 +227,9 @@ Future<String?> showInputDialog(
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
               borderSide: BorderSide(
-                  color: Theme.of(context).primaryColor, width: 1.5),
+                color: Theme.of(context).primaryColor,
+                width: 1.5,
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -192,31 +241,47 @@ Future<String?> showInputDialog(
           cursorColor: Theme.of(context).primaryColor,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, null),
-            child: Text(cancelText),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final text = controller.text.trim();
-              if (text.isEmpty) {
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(content: Text("내용을 입력해주세요.")),
-                );
-                return;
-              }
-              Navigator.pop(dialogContext, text);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
+          Row(
+            children: [
+              // 취소 버튼
+              Expanded(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFDDDDDD),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => Navigator.pop(dialogContext, null),
+                  child: Text(cancelText),
+                ),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              elevation: 0,
-            ),
-            child: Text(confirmText),
+              const SizedBox(width: 8),
+              // 확인 버튼
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0D86E7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    final text = controller.text.trim();
+                    if (text.isEmpty) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        const SnackBar(content: Text("내용을 입력해주세요.")),
+                      );
+                      return;
+                    }
+                    Navigator.pop(dialogContext, text);
+                  },
+                  child: Text(confirmText),
+                ),
+              ),
+            ],
           ),
         ],
       );

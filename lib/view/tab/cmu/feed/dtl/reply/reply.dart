@@ -34,7 +34,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
   void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
     if(loginUserId == 0) {
-        showAppMessage(context, message: '로그인이 필요합니다.', type: AppMessageType.dialog, loginRequest: true);
+        showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
         return;
     }
     // 팝업 메뉴가 표시될 위치를 정확하게 계산
