@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/screen_ratio.dart';
 
 class DocBodyDetail extends ConsumerWidget {
   const DocBodyDetail({
@@ -19,8 +19,9 @@ class DocBodyDetail extends ConsumerWidget {
   
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final htio = ScreenRatio(context).heightRatio;
-    final wtio = ScreenRatio(context).widthRatio;
+    final ratio = ScreenRatio(context);
+    final htio = ratio.heightRatio;
+    final wtio = ratio.widthRatio;
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
     final docDtl = ref.watch(htDayDocDetail(searchDay));
     final detail = docDtl.asData?.value;
@@ -44,45 +45,38 @@ class DocBodyDetail extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              const Spacer(flex:2),
-              Expanded(
-                flex:1,
-                child: Container(
-                  width: 40 * wtio,
-                  height: 4 * htio,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFE6E6E6),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                    ),
+              SizedBox(height: 8 * htio,),
+              Container(
+                width: 40 * wtio,
+                height: 4 * htio,
+                decoration: ShapeDecoration(
+                  color: const Color(0xFFE6E6E6),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                   ),
-                )
+                ),
               ),
-              const Spacer(flex:7),
-              Flexible(
-                flex:64,
-                fit: FlexFit.loose,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 0),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 66),
-                      Flexible(
-                        child: Column(
-                          children: [
-                            makeRow1(wtio, today, htio, detail),
-                            const Spacer(flex:9),
-                            makeRow2(detail, numberGroup),
-                            const Spacer(flex:4),
-                            makeRow3(detail, prvsWeight),
-                            const Spacer(flex:9),
-                            makeRow4(detail),
-                          ],
-                        ),
+              SizedBox(height: 28 * htio,),
+              SizedBox(
+                height:256 * htio,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 244 * wtio,
+                      child: Column(
+                        children: [
+                          makeRow1(wtio, today, htio, detail),
+                          SizedBox(height: 18 * htio,),
+                          makeRow2(wtio, htio, detail, numberGroup),
+                          SizedBox(height: 8 * htio,),
+                          makeRow3(detail, prvsWeight),
+                          SizedBox(height: 18 * htio,),
+                          makeRow4(detail),
+                        ],
                       ),
-                      const SizedBox(width: 66),
-                    ],
-                  ),
+                    ),
+                  ],
                 )
               ),
               SizedBox(
@@ -251,121 +245,130 @@ class DocBodyDetail extends ConsumerWidget {
     );
   }
 
-  Flexible makeRow2(DocDayDetail? detail, AutoSizeGroup numberGroup) {
-    return Flexible(
-      flex: 18,
-      fit: FlexFit.loose,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final availableHeight = constraints.maxHeight;
-          final fontSizeBig = availableHeight * 1.13; // 숫자용
-          final fontSizeSmall = availableHeight * 0.75; // 단위용
-          return Row(
-            mainAxisSize: MainAxisSize.min, // 내용 크기만큼만 차지
+  Widget makeRow2(double wtio, double htio, DocDayDetail? detail, AutoSizeGroup numberGroup) {
+   
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: 30 * htio,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Flexible(
-                flex: 78,
-                fit: FlexFit.loose,
-                child: AutoSizeText(
-                  detail?.weight != null ? '${detail?.weight}' : '몸무게',
-                  maxLines: 1,
-                  overflow: TextOverflow.visible,
-                  group: numberGroup,
-                  style: TextStyle(
-                    fontSize: fontSizeBig,
-                    color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.bold,
-                    height: 0.9
-                  ),
+              Text(
+                detail?.weight != null ? '${detail?.weight}' : '몸무게',
+                style: TextStyle(
+                  color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
+                  fontSize: (detail?.weight != null ? 42: 32) * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.04 * htio,
+                  letterSpacing: -1.0 * wtio, 
+                  fontWeight: FontWeight.w600
                 ),
               ),
-              const SizedBox(width: 2),
-              Flexible(
-                flex: 35,
-                fit: FlexFit.loose,
+              SizedBox(width: 4 * wtio),
+              SizedBox(
                 child: Text(
-                  "kg",
-                  maxLines: 1,
-                  overflow: TextOverflow.visible,
+                  'kg',
                   style: TextStyle(
-                    fontSize: fontSizeSmall,
                     color: const Color(0xFF999999),
+                    fontSize: 32 * wtio,
                     fontFamily: 'Pretendard',
-                    height: 1.6
-                  ),
-                ),
-              ),
-              const SizedBox(width: 13),
-              Flexible(
-                flex: 74,
-                fit: FlexFit.loose,
-                child: AutoSizeText(
-                  detail?.totalProtein != null ? '${detail?.totalProtein}' : '단백질\n섭취량',
-                  maxLines: detail?.totalProtein != null ? 1 : 2,
-                  overflow: TextOverflow.visible,
-                  group: detail?.totalProtein != null ? numberGroup : null,
-                  style: TextStyle(
-                    fontSize: fontSizeBig,
-                    color: detail?.totalProtein != null ? Colors.black : Colors.black.withAlpha(30),
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.bold,
-                    height: 0.9
-                  ),
-                ),
-              ),
-              const SizedBox(width: 2),
-              Flexible(
-                flex: 19,
-                fit: FlexFit.loose,
-                child: Text(
-                  "g",
-                  maxLines: 1,
-                  overflow: TextOverflow.visible,
-                  style: TextStyle(
-                    fontSize: fontSizeSmall,
-                    color: const Color(0xFF999999),
-                    fontFamily: 'Pretendard',
-                    height: 1.6
+                    height: 0.05 * htio,
+                    letterSpacing: -1.0 * wtio, 
+                    fontWeight: FontWeight.w400
                   ),
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        ),
+        SizedBox(width:14 * wtio),
+        SizedBox(
+          height: 30 * htio,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                detail?.totalProtein != null ? '${detail?.totalProtein}' : '단백질',
+                maxLines: detail?.totalProtein != null ? 1 : 2,
+                overflow: TextOverflow.visible,
+                style: TextStyle(
+                  color: detail?.totalProtein != null ? Colors.black : Colors.black.withAlpha(30),
+                  fontSize: (detail?.totalProtein != null ? 42: (detail?.weight == null ? 32: 26)) * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.04 * htio,
+                  letterSpacing: -1.0 * wtio, 
+                  fontWeight: FontWeight.w600
+                ),
+              ),
+              SizedBox(width: 4 * wtio),
+              Text(
+                'g',
+                style: TextStyle(
+                  color: const Color(0xFF999999),
+                  fontSize: 32 *  wtio,
+                  letterSpacing: -1.0 * wtio, 
+                  fontFamily: 'Pretendard',
+                  height: 0.05 * htio,
+                  fontWeight: FontWeight.w400
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
     );
   }
 
-  Expanded makeRow1(double wtio, String today, double htio, DocDayDetail? detail) {
-    return Expanded(
-      flex: 9,
+  Widget makeRow1(double wtio, String today, double htio, DocDayDetail? detail) {
+    return SizedBox(
+      height: 18 * htio,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-           Flexible(
-            flex: 87,
-            child: AutoSizeText(
-              today,
-              maxLines: 1,
-              minFontSize: 9,
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
-              style: const TextStyle(
-                fontFamily: 'Pretendard',
-                fontWeight: FontWeight.w600
+          // 날짜
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                today,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
+                ),
               ),
-            ),
+            ],
           ),
+          // 구분선
           boundary(wtio, htio),
-          textYN(wtio, text:"운동 여부", yn:detail?.workYn),
-          const Spacer(flex:4),
-          iconYN(wtio, htio, 'assets/icons/work_out.svg', detail?.workYn),
+          // 운동 여부
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              textYN(wtio, htio, text: '운동여부', yn:detail?.workYn),
+              const SizedBox(width: 4),
+              iconYN(1.0, 1.0, 'assets/icons/work_out.svg', detail?.workYn), // yn = 1이면 활성
+            ],
+          ),
+          // 구분선
           boundary(wtio, htio),
-          textYN(wtio, text:"음주 여부", yn:detail?.drunYn),
-          const Spacer(flex:4),
-          iconYN(wtio, htio, 'assets/icons/drink.svg', detail?.drunYn),
+          // 음주 여부
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              textYN(wtio, htio, text: '음주여부', yn:detail?.drunYn),
+              const SizedBox(width: 4),
+              iconYN(1.0, 1.0, 'assets/icons/drink.svg', detail?.drunYn), // yn = 0이면 비활성
+            ],
+          ),
         ],
       ),
     );
@@ -390,21 +393,19 @@ class DocBodyDetail extends ConsumerWidget {
     );
   } 
 
-  Flexible textYN(double wtio, {required String text, required int? yn}) {
-    return Flexible(
-      flex: 45,
-      child: AutoSizeText(
-        text,
-        maxLines: 1,
-        minFontSize: 10,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: TextStyle(
-          color: yn == 1
-              ? const Color(0xFF333333)
-              : Colors.black.withAlpha(77),
-          fontFamily: 'Pretendard',
-        ),
+  Widget textYN(double wtio, double htio, {required String text, required int? yn}) {
+    return Text(
+      text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      softWrap: false,
+      style: TextStyle(
+        fontSize: 12 * wtio,
+        color: yn == 1
+            ? const Color(0xFF333333)
+            : Colors.black.withAlpha(77),
+        fontFamily: 'Pretendard',
+        height: 0.12 * htio,
       ),
     );
   }

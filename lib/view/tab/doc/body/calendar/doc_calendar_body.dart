@@ -97,8 +97,6 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
           height: bodyHeight,
           child: GestureDetector(
             onVerticalDragUpdate: (details) {
-              debugPrint('이동거리 : ${details.primaryDelta!}');
-              debugPrint('총이동거리 : $_dragDistance');
               setState(() {
                 _dragDistance += details.primaryDelta!;
                 final expandedHeightSize = _minHeightSize - _dragDistance;
