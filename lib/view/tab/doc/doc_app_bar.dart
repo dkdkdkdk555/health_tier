@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart';
 
 class DocAppBar extends StatelessWidget {
   final int selectedIndex;
@@ -13,37 +14,39 @@ class DocAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      flex: 57,
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            const Spacer(flex: 32),
-            Expanded(
-              flex: 17,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(flex:127, child: Container()), // 좌측 여백 (좌우 127px 대체)
-                  buildTab(
-                    title: '체중',
-                    isSelected: selectedIndex == 0,
-                    index: 0,
-                  ),
-                  const Spacer(flex: 52),
-                  buildTab(
-                    title: '식단',
-                    isSelected: selectedIndex == 1,
-                    index: 1,
-                  ),
-                  Expanded(flex:127, child: Container()), // 우측 여백
-                ],
+    final ratio = ScreenRatio(context);
+
+    final heightRatio = ratio.heightRatio;
+    final widthRatio = ratio.widthRatio;
+
+    return Container(
+      color: Colors.white,
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          SizedBox(height: 64 * heightRatio), // 상단 여백
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              buildTab(
+                title: '체중',
+                isSelected: selectedIndex == 0,
+                index: 0,
+                widthRatio: widthRatio,
+                heightRatio: heightRatio,
               ),
-            ),
-            const Spacer(flex: 8)
-          ],
-        ),
+              SizedBox(width: 52 * widthRatio),
+              buildTab(
+                title: '식단',
+                isSelected: selectedIndex == 1,
+                index: 1,
+                widthRatio: widthRatio,
+                heightRatio: heightRatio,
+              ),
+            ],
+          ),
+          SizedBox(height: 16 * heightRatio), // 하단 여백
+        ],
       ),
     );
   }
@@ -52,42 +55,41 @@ class DocAppBar extends StatelessWidget {
     required String title,
     required bool isSelected,
     required int index,
+    required double widthRatio,
+    required double heightRatio,
   }) {
-    return Expanded(
-      flex: 35,
-      child: GestureDetector(
-        onTap: () => onTap(index),
-        behavior: HitTestBehavior.translucent,
-        child: Column(
-            children: [
-              if (isSelected)...[ // ...[] 는 조건문 안에 여러 위젯을 넣을때 사용되는 스프레드 문법 이다.
-                Expanded(
-                  flex: 8,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.black,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.translucent,
+      child: Column(
+        children: [
+          if (isSelected) ...[
+            Container(
+              width: 4 * widthRatio, // 원 크기 비율
+              height: 4 * widthRatio,
+              decoration: const BoxDecoration(
+                color: Colors.black,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ] else
+            SizedBox(height: 4 * heightRatio),
+          SizedBox(
+            height: 30 * heightRatio,
+            child: Center(
+              child: AutoSizeText(
+                title,
+                maxLines: 1,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 20 * widthRatio, // 글자 크기도 가로 기준으로
+                  color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
+                  fontFamily: 'Pretendard',
                 ),
-                const Expanded(flex: 1,child: SizedBox.expand()),
-              ]else
-                const Expanded(flex: 9,child: SizedBox.expand()),
-                Expanded(
-                  flex: 52,
-                  child: AutoSizeText(
-                    title,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20,
-                      color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-                      fontFamily: 'Pretendard',
-                    ),
-                  ),
-                ),
-            ],
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
