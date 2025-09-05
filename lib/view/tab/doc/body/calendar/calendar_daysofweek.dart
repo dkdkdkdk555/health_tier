@@ -1,42 +1,49 @@
-import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 
 class CustomWeekdayRow extends StatelessWidget {
-  const CustomWeekdayRow({super.key});
+  final double heightRatio;
+  final double widthRatio;
+  const CustomWeekdayRow({
+    super.key,
+    required this.heightRatio,
+    required this.widthRatio,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          flex: 17,
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: Row(
-              children: [
-                const Spacer(flex: 36),
-                for (int i = 0; i < 7; i++) ...[
-                  Expanded(
-                    flex: 10,
-                    child: Center(
-                      child: AutoSizeText(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 17.0),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 17 * heightRatio,
+            child: SizedBox(
+              width: 335 * widthRatio,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 38 * widthRatio,
+                  children: [
+                  for (int i = 0; i < 7; i++) ...[
+                    SizedBox(
+                      height: 17 * heightRatio,
+                      width: 10 * widthRatio,
+                      child: Text(
                         ['일', '월', '화', '수', '목', '금', '토'][i],
-                        style: const TextStyle(
+                        style: TextStyle(
+                          fontSize: 11 * widthRatio,
                           fontFamily: 'Pretendard',
-                          color: Color.fromARGB(102, 0, 0, 0),
+                          color: const Color.fromARGB(102, 0, 0, 0),
                         ),
                       ),
                     ),
-                  ),
-                  if (i != 6) const Spacer(flex: 38),
+                  ],
                 ],
-                const Spacer(flex: 36,)
-              ],
+              ),
             ),
           ),
-        ),
-        const Spacer(flex: 29),
-      ],
+          SizedBox(height: 29 * heightRatio,),
+        ],
+      ),
     );
   }
 }

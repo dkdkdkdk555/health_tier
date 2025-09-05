@@ -73,14 +73,12 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
                     onLeftArrow: _goToPreviousMonth,
                     onRightArrow: _goToNextMonth,
                   ),
-                  SizedBox(
-                    height: 338 * heightRatio,
-                    child: CustomCalenderBody(
-                      focusedDay: _focusedDay,
-                      onGoToNextMonth: _goToNextMonth,
-                      onGoToPreviousMonth: _goToPreviousMonth,
-                      onGoToFocusedDay: _goFocusedDay,
-                    ),
+                  CustomCalenderBody(
+                    focusedDay: _focusedDay,
+                    onGoToNextMonth: _goToNextMonth,
+                    onGoToPreviousMonth: _goToPreviousMonth,
+                    onGoToFocusedDay: _goFocusedDay,
+                    ratio: ratio,
                   ),
                 ],
               ),

@@ -2,9 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/body/doc_main_model.dart' show DocDayInfo;
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -14,13 +14,15 @@ class CustomCalenderBody extends ConsumerStatefulWidget{
     required DateTime focusedDay,
     required this.onGoToPreviousMonth,
     required this.onGoToNextMonth,
-    required this.onGoToFocusedDay
+    required this.onGoToFocusedDay,
+    required this.ratio,
   }) : ifocusedDay = focusedDay;
 
   final DateTime ifocusedDay;
   final void Function({DateTime? selectedDay}) onGoToPreviousMonth;
   final void Function({DateTime? selectedDay}) onGoToNextMonth;
   final void Function({required DateTime selectedDay}) onGoToFocusedDay;
+  final ScreenRatio ratio;
   @override
   ConsumerState<CustomCalenderBody> createState() => _CustomCalenderBodyState();
 }
@@ -29,6 +31,8 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
 
   late DateTime _focusedDay;
   DateTime? _selectedDay;
+  late double widthRatio;
+  late double heightRatio;
   
 
   @override
@@ -36,6 +40,8 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
     super.initState();
     _selectedDay = widget.ifocusedDay;
     _focusedDay = widget.ifocusedDay;
+    widthRatio = widget.ratio.widthRatio;
+    heightRatio = widget.ratio.heightRatio;
   }
 
 
@@ -45,58 +51,52 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
     final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
     final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
 
-    return Expanded(
-      flex: 169,
-      child: Column(
-        children: [
-          const Expanded(
-            flex: 23,
-            child: CustomWeekdayRow()
-          ),
-          Expanded(
-            flex: 146,
-            child: Row(
-              children: [
-                const Spacer(flex: 3,),
-                Expanded(
-                  flex: 67,
-                  child: TableCalendar(
-                    headerVisible: false,
-                    daysOfWeekVisible: false,
-                    firstDay: DateTime.utc(2022, 1, 1),
-                    lastDay: DateTime(DateTime.now().year + 5, 12, 31),
-                    rowHeight: 48.25 * ScreenRatio(context).heightRatio,
-                    focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
-                    selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                    calendarFormat: CalendarFormat.month,
-                    onDaySelected: (selectedDay, focusedDay){
-                      setState((){
-                        // outside cell 선택 시 이전/다음 달로 이동
-                        if (selectedDay.month < _focusedDay.month) {
-                          // 이전 달
-                          widget.onGoToPreviousMonth(selectedDay: selectedDay);
-                        } else if (selectedDay.month > _focusedDay.month) {
-                          // 다음 달
-                          widget.onGoToNextMonth(selectedDay: selectedDay);
-                        }
-                        widget.onGoToFocusedDay(selectedDay: selectedDay);
-                        _selectedDay = selectedDay;
-                        _focusedDay = selectedDay;
-                      });
-                    },
-                    calendarBuilders: CalendarBuilders(
-                      todayBuilder:  (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
-                      selectedBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList, isSelected: true),
-                      defaultBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
-                      outsideBuilder: outsideDayForm,
-                    ),
-                  ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20 * widthRatio),
+      child: SizedBox(
+        height: 338 * heightRatio,
+        child: Column(
+          children: [
+            CustomWeekdayRow(heightRatio: heightRatio, widthRatio: widthRatio,),
+            SizedBox(
+              height: 292 * heightRatio,
+              child: TableCalendar(
+                headerVisible: false,
+                daysOfWeekVisible: false,
+                calendarStyle: const CalendarStyle(
+                  cellMargin: EdgeInsets.zero,
                 ),
-                const Spacer(flex: 3,)
-              ],
+                firstDay: DateTime.utc(2022, 1, 1),
+                lastDay: DateTime(DateTime.now().year + 5, 12, 31),
+                rowHeight: 48 * heightRatio, // 48.25
+                focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
+                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                calendarFormat: CalendarFormat.month,
+                onDaySelected: (selectedDay, focusedDay){
+                  setState((){
+                    // outside cell 선택 시 이전/다음 달로 이동
+                    if (selectedDay.month < _focusedDay.month) {
+                      // 이전 달
+                      widget.onGoToPreviousMonth(selectedDay: selectedDay);
+                    } else if (selectedDay.month > _focusedDay.month) {
+                      // 다음 달
+                      widget.onGoToNextMonth(selectedDay: selectedDay);
+                    }
+                    widget.onGoToFocusedDay(selectedDay: selectedDay);
+                    _selectedDay = selectedDay;
+                    _focusedDay = selectedDay;
+                  });
+                },
+                calendarBuilders: CalendarBuilders(
+                  todayBuilder:  (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
+                  selectedBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList, isSelected: true),
+                  defaultBuilder: (context, date, _) => buildDayCell(context, date, dayDocList: dayDocList),
+                  outsideBuilder: outsideDayForm,
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -110,8 +110,6 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
       }
     ) {
     
-    final heightRatio = ScreenRatio(context).heightRatio;
-    final widthRatio = ScreenRatio(context).widthRatio;
     final topPadding = 2.0 * heightRatio;
     final textBoxHeight = 17.0 * heightRatio;
     final bottomPadding = 29.0 * heightRatio;
@@ -149,11 +147,11 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                         margin: EdgeInsets.only(bottom:1 * heightRatio),
                         decoration: isSelected ? const BoxDecoration(shape: BoxShape.circle, color: Colors.white) : null,
                         child: Center(
-                        child: AutoSizeText(
+                        child: Text(
                           '${date.day}',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 11.0 * heightRatio,
+                            fontSize: 11.0 * widthRatio,
                             color: isSelected ? Colors.black : Colors.black.withValues(alpha: 0.5),
                             fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal
                           ),
@@ -168,7 +166,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                         if (matched.weight != null)
                           _infoBox('${matched.weight}', 'kg')
                         else
-                            Container( width: 46 * widthRatio, height: 13 * heightRatio, margin: const EdgeInsets.only(bottom: 1)),
+                            Container( width: 48 * widthRatio, height: 13 * heightRatio, margin: EdgeInsets.only(bottom: 1 * heightRatio)),
                         if (matched.totalCalorie != null)
                           _infoBox('${matched.totalCalorie!.round()}', 'kcal'),
                       ],
@@ -187,7 +185,6 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
 
   Widget? outsideDayForm(context, date, _) {
 
-    final heightRatio = ScreenRatio(context).heightRatio;
     // 실제 높이 계산
     final topPadding = 2.0 * heightRatio;
     final textBoxHeight = 17.0 * heightRatio;
@@ -207,7 +204,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                     '${date.day}',
                     style: TextStyle(
                       fontFamily: 'Pretendard',
-                      fontSize: 11.0 * heightRatio, // 반응형 폰트
+                      fontSize: 11.0 * widthRatio,
                       color: Colors.black.withValues(alpha: 0.1)
                     ),
                   ),
@@ -224,8 +221,6 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
 
 
   Widget _infoBox(String value, String unit) {
-    final heightRatio = ScreenRatio(context).heightRatio;
-    final widthRatio = ScreenRatio(context).widthRatio;
     return Container(
       width: 46 * widthRatio,
       height: 13 * heightRatio,

@@ -82,7 +82,7 @@ class DocAppBar extends StatelessWidget {
                 maxLines: 1,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 20 * widthRatio, // 글자 크기도 가로 기준으로
+                  fontSize: 19 * widthRatio, // 글자 크기도 가로 기준으로
                   color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
                   fontFamily: 'Pretendard',
                 ),

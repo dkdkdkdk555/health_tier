@@ -26,9 +26,9 @@ class CustomCalendarHeader extends StatelessWidget {
     final month = focusedDay.month;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 44 * widthRatio, vertical: 24 * heightRatio),
+      padding: EdgeInsets.symmetric(horizontal: 44 * widthRatio, vertical: 23 * heightRatio),
       child: SizedBox(
-        height: 16 * heightRatio,
+        height: 18 * heightRatio,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
