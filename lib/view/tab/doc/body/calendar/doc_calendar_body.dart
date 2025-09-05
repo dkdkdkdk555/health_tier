@@ -56,8 +56,6 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
     final bodyHeight = _bodyHeightSize * heightRatio;
     final bottomHeight = bodyHeight - (_minHeightSize * heightRatio);
 
-    
-
     return Stack(
       children: [
         // 배경: Calendar 헤더 + 바디

@@ -30,115 +30,113 @@ class DocBodyDetail extends ConsumerWidget {
 
     final numberGroup = AutoSizeGroup();
 
-    return Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFFFFF),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
-            border: Border(
-              left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
-              top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-              right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-              bottom: const BorderSide(color: Color(0xFFEEEEEE)),
+    return SizedBox(
+      height: 296 * htio,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFFFF),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
+              border: Border(
+                left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+                top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+                right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+                bottom: const BorderSide(color: Color(0xFFEEEEEE)),
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              SizedBox(height: 8 * htio,),
-              Container(
-                width: 40 * wtio,
-                height: 4 * htio,
-                decoration: ShapeDecoration(
-                  color: const Color(0xFFE6E6E6),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
+            child: Column(
+              children: [
+                SizedBox(height: 6 * htio,),
+                Container(
+                  width: 40 * wtio,
+                  height: 4 * htio,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFE6E6E6),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 28 * htio,),
-              SizedBox(
-                height:256 * htio,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 244 * wtio,
-                      child: Column(
-                        children: [
-                          makeRow1(wtio, today, htio, detail),
-                          SizedBox(height: 18 * htio,),
-                          makeRow2(wtio, htio, detail, numberGroup),
-                          SizedBox(height: 8 * htio,),
-                          makeRow3(detail, prvsWeight),
-                          SizedBox(height: 18 * htio,),
-                          makeRow4(detail),
-                        ],
+                SizedBox(height: 26 * htio,),
+                SizedBox(
+                  height:256 * htio,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 244 * wtio,
+                        child: Column(
+                          children: [
+                            makeRow1(wtio, today, htio, detail),
+                            SizedBox(height: 18 * htio,),
+                            makeRow2(wtio, htio, detail, numberGroup),
+                            SizedBox(height: 14 * htio,),
+                            makeRow3(wtio, htio, detail, prvsWeight),
+                            SizedBox(height: 18 * htio,),
+                            makeRow4(wtio, htio, detail),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  )
+                ),
+                SizedBox(
+                  height: bottomHeight,
                 )
-              ),
-              SizedBox(
-                height: bottomHeight,
-              )
-            ],
+              ],
+            ),
           ),
-        ),
-        // 도장(하루평가)
-        if (detail?.stamp != null && detail?.stamp != '')
-        Positioned(
-          top: 57 * htio,
-          right: 0 * wtio,
-          child: SizedBox(
-            width: 130 * wtio,
-            height: 130 * htio,
-            child: Transform.rotate(
-              angle: -0.52,
-              child: SvgPicture.asset(
-                'assets/icons/stamp_${detail!.stamp.toString()}.svg',
-                fit: BoxFit.contain,
+          // 도장(하루평가)
+          if (detail?.stamp != null && detail?.stamp != '')
+          Positioned(
+            top: 57 * htio,
+            right: 0 * wtio,
+            child: SizedBox(
+              width: 130 * wtio,
+              height: 130 * htio,
+              child: Transform.rotate(
+                angle: -0.52,
+                child: SvgPicture.asset(
+                  'assets/icons/stamp_${detail!.stamp.toString()}.svg',
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),
-        ),
-      ]
-    );
-  }
-
-  Expanded makeRow4(DocDayDetail? detail) {
-    return Expanded(
-      flex: 66,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(right: 8),
-            child: AutoSizeText(
-              '메모',
-              style: TextStyle(
-                  color: Color(0xFFAAAAAA),
-                  fontSize: 12,
-                  fontFamily: 'Pretendard',
-              ),
-            ),
-          ),
-          Expanded(
-              child: AutoSizeText(
-                  detail?.memo ?? '',
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                  ),
-              ),
-          )
-        ],
+        ]
       ),
     );
   }
 
-  Flexible makeRow3(DocDayDetail? detail, double? prvsWeight) {
+  Widget makeRow4(double wtio, double htio, DocDayDetail? detail) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '메모',
+          style: TextStyle(
+            color: const Color(0xFFAAAAAA),
+            fontSize: 12 * htio,
+            fontFamily: 'Pretendard',
+          ),
+        ),
+        SizedBox(width: 8 * wtio),
+        Expanded(
+          child:Text(
+            detail?.memo ?? '',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 12 * htio,
+              fontFamily: 'Pretendard',
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget makeRow3(double wtio, double htio, DocDayDetail? detail, double? prvsWeight) {
     final diffWeight = (detail?.weight != null && prvsWeight != null) ? detail!.weight! - prvsWeight : null;
     final isNegative = diffWeight != null && diffWeight < 0;
     final isNull = diffWeight == null;
@@ -149,112 +147,126 @@ class DocBodyDetail extends ConsumerWidget {
     // 텍스트 값 (부호 제외)
     final textValue = isNull ? '' : '${diffWeight.abs().toStringAsFixed(1)}kg';
 
-    return Flexible(
-      flex: 6,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final availableHeight = constraints.maxHeight;
-          final fontSize = availableHeight * 0.55; // 단위용
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 12 * htio,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: AutoSizeText(
-                  '이전 대비',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: fontSize,
-                      fontFamily: 'Pretendard',
-                      height: 0.12,
-                  ),
+              Text(
+                '전일 대비',
+                textAlign: TextAlign.right,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
                 ),
               ),
-              SizedBox(
-                width: fontSize,
-                height: fontSize,
+              SizedBox(width: 4 * wtio),
+              Container(
+                width: 12 * wtio,
+                height: 12 * htio,
+                clipBehavior: Clip.none,
+                decoration: const BoxDecoration(),
                 child: SvgPicture.asset(iconPath),
               ),
-              AutoSizeText(
+              SizedBox(width: 2 * wtio),
+              Text(
                 textValue,
                 textAlign: TextAlign.right,
                 style: TextStyle(
-                    color: textColor,
-                    fontSize: fontSize,
-                    fontFamily: 'Pretendard',
-                    height: 0.12,
+                  color: textColor,
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
                 ),
               ),
-              const SizedBox(
-                width: 12,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: AutoSizeText(
-                  'kcal',
-                  style: TextStyle(
-                      color: const Color(0xFFAAAAAA),
-                      fontSize: fontSize,
-                      fontFamily: 'Pretendard',
-                      height: 0.12,
-                  ),
+            ],
+          ),
+        ),
+        SizedBox(width: 12 * wtio),
+        SizedBox(
+          height: 8 * htio,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'kcal',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: const Color(0xFFAAAAAA),
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
                 ),
               ),
-              AutoSizeText(
+              SizedBox(width: 4 * wtio),
+              Text(
                 detail?.totalCalorie != null ? '${detail?.totalCalorie!.toInt()}' : '0',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Colors.black,
-                    fontSize: fontSize,
-                    fontFamily: 'Pretendard',
-                    height: 0.12,
+                  color: Colors.black,
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
                 ),
               ),
-              const SizedBox(
-                width: 12,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: AutoSizeText(
-                  'BMI',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: const Color(0xFFAAAAAA),
-                      fontSize: fontSize,
-                      fontFamily: 'Pretendard',
-                      height: 0.12,
-                  ),
-                ),
-              ),
-              AutoSizeText(
-                //TODO: 동적으로 만들기
-                '23.5',
+            ],
+          ),
+        ),
+        SizedBox(width: 12 * wtio),
+        SizedBox(
+          height: 8 * htio,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'BMI',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Colors.black,
-                    fontSize: fontSize,
-                    fontFamily: 'Pretendard',
-                    height: 0.12,
+                  color: const Color(0xFFAAAAAA),
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
                 ),
-              )
+              ),
+              SizedBox(width: 4 * wtio),
+              Text( //TODO: 동적으로 만들기
+                '23.5', // 소수점 첫번째 자리수까지만 보여주기
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12 * wtio,
+                  fontFamily: 'Pretendard',
+                  height: 0.12 * htio,
+                ),
+              ),
             ],
-          );
-        }
-      )
+          ),
+        ),
+      ],
     );
   }
 
   Widget makeRow2(double wtio, double htio, DocDayDetail? detail, AutoSizeGroup numberGroup) {
    
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(
           height: 30 * htio,
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
@@ -290,7 +302,7 @@ class DocBodyDetail extends ConsumerWidget {
           height: 30 * htio,
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
@@ -330,6 +342,7 @@ class DocBodyDetail extends ConsumerWidget {
       height: 18 * htio,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // 날짜
