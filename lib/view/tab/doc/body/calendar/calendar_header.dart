@@ -1,6 +1,8 @@
 import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:my_app/util/screen_ratio.dart';
 
 class CustomCalendarHeader extends StatelessWidget {
   final DateTime focusedDay;
@@ -16,48 +18,57 @@ class CustomCalendarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ratio = ScreenRatio(context);
+    final widthRatio = ratio.widthRatio;
+    final heightRatio = ratio.heightRatio;
+
     final year = focusedDay.year;
     final month = focusedDay.month;
 
-    return Expanded(
-      flex: 32,
-      child: Center(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 44 * widthRatio, vertical: 24 * heightRatio),
+      child: SizedBox(
+        height: 16 * heightRatio,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(flex:11),
-            Expanded( // 왼쪽 화살표
-              flex: 5,
+            SizedBox(
+              width: 16 * widthRatio, // 화살표 버튼 가로 크기
+              height: 16 * widthRatio, // 화살표 버튼 세로 크기
               child: IconButton(
-                  icon: SvgPicture.asset('assets/icons/ico_left.svg'),
-                  onPressed: onLeftArrow,
-                  padding: EdgeInsets.zero,
+                icon: SvgPicture.asset(
+                  'assets/icons/ico_left.svg',
                 ),
+                onPressed: onLeftArrow,
+                padding: EdgeInsets.zero,
               ),
-            const Spacer(flex:22),
-            Expanded( // 가운데 날짜 텍스트
-              flex: 22,
-              child: AutoSizeText(
-                  '$year년 $month월',
-                  maxLines: 1,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Pretendard',
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: -0.3,
+            ),
+            SizedBox(width: 92 * widthRatio), // 좌우 spacer
+            Expanded(
+              child: Text(
+                '$year년 $month월',
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14 * heightRatio, // 폰트도 반응형
+                  fontFamily: 'Pretendard',
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
-            const Spacer(flex:22),
-            Expanded( // 오른쪽 화살표
-              flex: 5,
+            SizedBox(width: 92 * widthRatio),
+            SizedBox(
+              width: 16 * widthRatio,
+              height: 16 * widthRatio,
               child: IconButton(
-                  icon: SvgPicture.asset('assets/icons/ico_right.svg'),
-                  onPressed: onRightArrow,
-                  padding: EdgeInsets.zero,
+                icon: SvgPicture.asset(
+                  'assets/icons/ico_right.svg',
                 ),
+                onPressed: onRightArrow,
+                padding: EdgeInsets.zero,
               ),
-            const Spacer(flex:11),
+            ),
           ],
         ),
       ),

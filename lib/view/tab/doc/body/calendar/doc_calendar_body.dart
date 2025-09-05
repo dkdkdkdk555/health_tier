@@ -8,6 +8,7 @@ import 'package:my_app/view/tab/doc/body/calendar/calendar_header.dart';
 import 'package:my_app/view/tab/doc/body/doc_body_detail.dart' show DocBodyDetail;
 import 'package:my_app/view/tab/doc/body/doc_body_write.dart';
 import 'package:my_app/extension/stc_invalidate_collect.dart';
+import 'package:my_app/util/screen_ratio.dart';
 
 class DocCalendarBody extends ConsumerStatefulWidget {
   const DocCalendarBody({super.key});
@@ -20,9 +21,10 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
   DateTime _focusedDay = DateTime.now();
 
   double _dragDistance = 0;
-  double _bodyHeightFactor = 0.36453202; // 35% → 65%까지 확장
-  final double _minHeightFactor = 0.36453202;
-  final double _maxHeightFactor = 0.65;
+
+  double _bodyHeightSize = 296; // 기본값 = 최소값
+  final double _minHeightSize = 296; // 바텀영역 최소값
+  final double _maxHeightSize = 543; // 바텀영역 최댓감
 
   void _goToPreviousMonth({DateTime? selectedDay}) {
     if(selectedDay == null && _focusedDay.isBefore(DateTime.utc(2022, 1, 1))){
@@ -48,10 +50,13 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final ratio = ScreenRatio(context);
+    final heightRatio = ratio.heightRatio;
 
-    final bodyHeight = screenHeight * _bodyHeightFactor;
-    final bottomHeight = bodyHeight - (screenHeight * 0.36453202);
+    final bodyHeight = _bodyHeightSize * heightRatio;
+    final bottomHeight = bodyHeight - (_minHeightSize * heightRatio);
+
+    
 
     return Stack(
       children: [
@@ -59,8 +64,8 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
         Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
-              flex: 201,
+            SizedBox(
+              height: 402 * heightRatio,
               child: Column(
                 children: [
                   CustomCalendarHeader(
@@ -68,16 +73,19 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
                     onLeftArrow: _goToPreviousMonth,
                     onRightArrow: _goToNextMonth,
                   ),
-                  CustomCalenderBody(
-                    focusedDay: _focusedDay,
-                    onGoToNextMonth: _goToNextMonth,
-                    onGoToPreviousMonth: _goToPreviousMonth,
-                    onGoToFocusedDay: _goFocusedDay,
+                  SizedBox(
+                    height: 338 * heightRatio,
+                    child: CustomCalenderBody(
+                      focusedDay: _focusedDay,
+                      onGoToNextMonth: _goToNextMonth,
+                      onGoToPreviousMonth: _goToPreviousMonth,
+                      onGoToFocusedDay: _goFocusedDay,
+                    ),
                   ),
                 ],
               ),
             ),
-            const Expanded(flex: 148, child: SizedBox.shrink()),
+            SizedBox(child: SizedBox(height: 296 * heightRatio,)),
           ],
         ),
 
@@ -91,18 +99,20 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
           height: bodyHeight,
           child: GestureDetector(
             onVerticalDragUpdate: (details) {
+              debugPrint('이동거리 : ${details.primaryDelta!}');
+              debugPrint('총이동거리 : $_dragDistance');
               setState(() {
                 _dragDistance += details.primaryDelta!;
-                final expandedRatio = _minHeightFactor - (_dragDistance / screenHeight);
-                _bodyHeightFactor = expandedRatio.clamp(_minHeightFactor, _maxHeightFactor);
+                final expandedHeightSize = _minHeightSize - _dragDistance;
+                _bodyHeightSize = expandedHeightSize.clamp(_minHeightSize, _maxHeightSize);
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightFactor >= 0.60) {
+              if (_bodyHeightSize >= 510) {
                 _showFullModal();
               }
               setState(() {
-                _bodyHeightFactor = _minHeightFactor;
+                _bodyHeightSize = _minHeightSize;
                 _dragDistance = 0;
               });
             },
