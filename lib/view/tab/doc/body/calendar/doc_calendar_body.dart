@@ -61,7 +61,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
         // 배경: Calendar 헤더 + 바디
         Column(
           mainAxisSize: MainAxisSize.max,
-          children: [
+          children: [ 
             SizedBox(
               height: 402 * heightRatio,
               child: Column(
@@ -110,7 +110,18 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
                 _dragDistance = 0;
               });
             },
-            child: DocBodyDetail(focusedDay: _focusedDay, bottomHeight: bottomHeight,),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
+              child: Container(
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  child: DocBodyDetail(
+                    focusedDay: _focusedDay,
+                    bottomHeight: bottomHeight,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ],

@@ -30,82 +30,79 @@ class DocBodyDetail extends ConsumerWidget {
 
     final numberGroup = AutoSizeGroup();
 
-    return SizedBox(
-      height: 296 * htio,
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
-              border: Border(
-                left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
-                top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-                right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-                bottom: const BorderSide(color: Color(0xFFEEEEEE)),
-              ),
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
+            border: Border(
+              left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+              top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+              right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+              bottom: const BorderSide(color: Color(0xFFEEEEEE)),
             ),
-            child: Column(
-              children: [
-                SizedBox(height: 6 * htio,),
-                Container(
-                  width: 40 * wtio,
-                  height: 4 * htio,
-                  decoration: ShapeDecoration(
-                    color: const Color(0xFFE6E6E6),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(100),
-                    ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 6 * htio,),
+              Container(
+                width: 40 * wtio,
+                height: 4 * htio,
+                decoration: ShapeDecoration(
+                  color: const Color(0xFFE6E6E6),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
                   ),
                 ),
-                SizedBox(height: 26 * htio,),
-                SizedBox(
-                  height:256 * htio,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 244 * wtio,
-                        child: Column(
-                          children: [
-                            makeRow1(wtio, today, htio, detail),
-                            SizedBox(height: 18 * htio,),
-                            makeRow2(wtio, htio, detail, numberGroup),
-                            SizedBox(height: 14 * htio,),
-                            makeRow3(wtio, htio, detail, prvsWeight),
-                            SizedBox(height: 18 * htio,),
-                            makeRow4(wtio, htio, detail),
-                          ],
-                        ),
+              ),
+              SizedBox(height: 25 * htio,),
+              SizedBox(
+                height:256 * htio,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 244 * wtio,
+                      child: Column(
+                        children: [
+                          makeRow1(wtio, today, htio, detail),
+                          SizedBox(height: 18 * htio,),
+                          makeRow2(wtio, htio, detail, numberGroup),
+                          SizedBox(height: 14 * htio,),
+                          makeRow3(wtio, htio, detail, prvsWeight),
+                          SizedBox(height: 18 * htio,),
+                          makeRow4(wtio, htio, detail),
+                        ],
                       ),
-                    ],
-                  )
-                ),
-                SizedBox(
-                  height: bottomHeight,
+                    ),
+                  ],
                 )
-              ],
-            ),
+              ),
+              SizedBox(
+                height: bottomHeight,
+              )
+            ],
           ),
-          // 도장(하루평가)
-          if (detail?.stamp != null && detail?.stamp != '')
-          Positioned(
-            top: 57 * htio,
-            right: 0 * wtio,
-            child: SizedBox(
-              width: 130 * wtio,
-              height: 130 * htio,
-              child: Transform.rotate(
-                angle: -0.52,
-                child: SvgPicture.asset(
-                  'assets/icons/stamp_${detail!.stamp.toString()}.svg',
-                  fit: BoxFit.contain,
-                ),
+        ),
+        // 도장(하루평가)
+        if (detail?.stamp != null && detail?.stamp != '')
+        Positioned(
+          top: 57 * htio,
+          right: 0 * wtio,
+          child: SizedBox(
+            width: 130 * wtio,
+            height: 130 * htio,
+            child: Transform.rotate(
+              angle: -0.52,
+              child: SvgPicture.asset(
+                'assets/icons/stamp_${detail!.stamp.toString()}.svg',
+                fit: BoxFit.contain,
               ),
             ),
           ),
-        ]
-      ),
+        ),
+      ]
     );
   }
 
