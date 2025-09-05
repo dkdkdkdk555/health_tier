@@ -4,15 +4,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 class IslandNavigationBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
+  final double wtio;
 
   const IslandNavigationBar({
     super.key,
     required this.selectedIndex,
     required this.onTap,
+    required this.wtio,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 8),
         decoration: BoxDecoration(
@@ -45,8 +48,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index), // main.dart에 onTap 호출 (build될때 _onTap 함수를 인자로 전달받았음)
       child: SizedBox(
-        width: 28,
-        height: 28,
+        width: wtio * 0.0747,
+        height: wtio * 0.0747,
         child: SvgPicture.asset(
         assetPath,
         colorFilter: ColorFilter.mode(
@@ -62,8 +65,8 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        width: 25,
-        height: 25,
+        width: wtio * 0.0667,
+        height: wtio * 0.0667,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
@@ -83,8 +86,8 @@ class IslandNavigationBar extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
       margin: isActive ? const EdgeInsets.symmetric(horizontal: 3) : EdgeInsets.zero,
-      width: isActive ? 1 : 0,
-      height: isActive ? 16 : 0,
+      width: isActive ? wtio * 0.0027 : 0,
+      height: isActive ? wtio * 0.0427 : 0,
       decoration: BoxDecoration(
         color: isActive ? const Color.fromRGBO(0, 0, 0, 0.18) : Colors.transparent,
       ),

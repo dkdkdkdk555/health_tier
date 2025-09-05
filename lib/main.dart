@@ -99,7 +99,7 @@ void main() async{
   });
 
   // 테스트 데이터 삽입 시만 사용
-  // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+  await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
 
   // 카카오sdk 초기화
    KakaoSdk.init(
@@ -199,6 +199,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+     final wtio = MediaQuery.of(context).size.width;
 
     return MaterialApp(
       navigatorKey: navigatorKey,
@@ -212,7 +213,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
             // cmu 작성 버튼
           if (_selectedIndex == 2)
             Positioned(
-              height: 52,
+              height: wtio * 0.14,
+              width: wtio * 0.14,
               right: 38,
               bottom: 42,
               child: SlideTransition(
@@ -251,38 +253,22 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
                   ),
                 ),
               ),
-            )
-          else
-            Positioned(
-              height: 52,
-              right: 38,
-              bottom: 42,
-              child: SlideTransition(
-                position: _fabSlide,
-                child: FadeTransition(
-                  opacity: _fabOpacity,
-                  child: Builder(
-                    builder: (context) => FloatingActionButton(
-                      onPressed: () {},
-                      backgroundColor: const Color(0xFF0D85E7),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SvgPicture.asset('assets/widgets/create_feed.svg'),
-                    ),
-                  ),
-                ),
-              ),
             ),
-            AnimatedContainer( 
+             // 네비게이션 바
+            AnimatedAlign(
               duration: const Duration(milliseconds: 350),
-              margin: EdgeInsets.only(left: islandLeftMargin, right: 75, bottom: 42),
-              height: 52,
-              width: 234,
-              curve: Curves.easeInOut,
-              child: IslandNavigationBar(
-                selectedIndex: _selectedIndex,
-                onTap: _onTap,
+              alignment: _selectedIndex == 2 
+                ? const Alignment(-0.45, 1.0)   // cmu 탭일 때 살짝 왼쪽으로
+                : Alignment.bottomCenter, // 기본은 가운데
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 42),
+                height: wtio * 0.14, // 원래 고정값은 52 인데 gpt추천 비율로 반응형 구현
+                width: wtio * 0.624, // 반응형 너비
+                child: IslandNavigationBar(
+                  selectedIndex: _selectedIndex,
+                  onTap: _onTap,
+                  wtio: wtio,
+                ),
               ),
             ),
           ],
