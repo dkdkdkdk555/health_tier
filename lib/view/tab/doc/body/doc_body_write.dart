@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
 import 'package:my_app/util/saving_success_dialog.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class DocBodyWrite extends ConsumerStatefulWidget {
   const DocBodyWrite({
@@ -81,12 +81,14 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
   @override
   Widget build(BuildContext context) {
-    htio = ScreenRatio(context).heightRatio;
-    wtio = ScreenRatio(context).widthRatio;    
+    final ratio = ScreenRatio(context);
+    htio = ratio.heightRatio;
+    wtio = ratio.widthRatio;    
 
     final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
@@ -99,77 +101,60 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
       ),
       child: Column(
         children: [
-          const Spacer(flex:2),
-          Expanded(
-            flex:1,
-            child: Container(
-              width: 40 * wtio,
-              height: 4 * htio,
-              decoration: ShapeDecoration(
-                color: const Color(0xFFE6E6E6),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(100),
-                ),
+          SizedBox(height: 8 * htio,),
+          Container(
+            width: 40 * wtio,
+            height: 4 * htio,
+            decoration: ShapeDecoration(
+              color: const Color(0xFFE6E6E6),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100),
               ),
-            )
+            ),
           ),
-          const Spacer(flex:4),
-          Expanded(
-            flex: 180,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
-              child: Row(
-                children: [
-                  const Spacer(flex:4),
-                  Expanded(
-                    flex: 67,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 15,
-                          child: Align(
-                            alignment: Alignment.topLeft,
-                            child: 
-                              Text(
-                                displayDay,
-                                style: TextStyle(
-                                  color: const Color(0xFF777777),
-                                  fontSize: 13.7 * htio,
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w500
-                                ),
-                              ),
-                          ),
-                        ),
-                        makeBorder(),
-                        const Spacer(flex: 12),
-                        inputArea('체중', 'kg', weightEditor),
-                        const Spacer(flex: 12),
-                        inputArea('골격근', 'kg', muscleEditor),
-                        const Spacer(flex: 12),
-                        inputArea('체지방률', '%', bodyFatEditor),
-                        const Spacer(flex: 12),
-                        textArea(memoEditor),
-                        const Spacer(flex: 12),
-                        buttonArea(),
-                        const Spacer(flex: 16),
-                        makeBorder(),
-                        const Spacer(flex: 16),
-                        const InfoText(flex: 9),
-                        const Spacer(flex: 8),
-                        setStampCollection(),
-                        const Spacer(flex: 20),
-                        requestBtn(),
-                        const Spacer(flex: 18),
-                      ],
+          SizedBox(height: 16 * htio),
+          Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: 
+                    Text(
+                      displayDay,
+                      style: TextStyle(
+                        color: const Color(0xFF777777),
+                        fontSize: 12.6 * wtio,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400
+                      ),
                     ),
-                  ),
-                  const Spacer(flex:4),
-                ],
-              ),
+                ),
+                SizedBox(height: 8 * htio,),
+                makeBorder(),
+                SizedBox(height: 24 * htio,),
+                inputArea('체중', 'kg', weightEditor),
+                SizedBox(height: 24 * htio,),
+                inputArea('골격근', 'kg', muscleEditor),
+                SizedBox(height: 24 * htio,),
+                inputArea('체지방률', '%', bodyFatEditor),
+                SizedBox(height: 24 * htio,),
+                textArea(memoEditor),
+                SizedBox(height: 24 * htio,),
+                buttonArea(),
+                SizedBox(height: 32 * htio,),
+                makeBorder(),
+                SizedBox(height: 32 * htio,),
+                SizedBox(height: 18 * htio, child: const InfoText()),
+                SizedBox(height: 16 * htio,),
+                setStampCollection(),
+                SizedBox(height: 39.43 * htio,),
+                requestBtn(),
+              ],
             ),
           )
         ],
@@ -177,119 +162,113 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     );
   }
 
-  Expanded requestBtn() {
-    return Expanded(
-      flex: 27,
-      child: Align(
-        alignment: Alignment.center,
-        child: FractionallySizedBox(
-          widthFactor: 1, // 부모(Row)의 width만큼 가로로 꽉 채움
-          child: GestureDetector(
-            onTapDown: (_) {
-              setState(() {
-                _isPressed = true;
-              });
-            },
-            onTapUp: (_) {
-              setState(() {
-                _isPressed = false;
-              });
-            },
-            onTapCancel: () {
-              setState(() {
-                _isPressed = false;
-              });
-            },
-            onTap: () async {
-
-              final day = DateFormat('yyyy-MM-dd').format(focusedDay);
-              final weight = double.tryParse(weightEditor.text);
-              final muscle = double.tryParse(muscleEditor.text);
-              final fat = double.tryParse(bodyFatEditor.text);
-              final memo = memoEditor.text;
-
-              if(weight == 0 && muscle == 0 && fat == 0 && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) return;
-
-              try {
-                if (docId == -1) {
-                  await insertHtDayDoc(
-                    ref: ref,
-                    doc: DocDayDetail(id: -1, day: day, weight: weight, muscle: muscle,
-                          fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
-                  );
-                } else {
-                  await updateHtDayDoc(
-                    ref: ref,
-                    doc: DocDayDetail(id: docId, day: day, weight: weight, muscle: muscle,
-                          fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
-                  );
-                }
-
-                // 저장 성공 시 메시지
-                if (mounted) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) {
-                      return const SuccessAfterLoadingDialog();
-                    },
-                  );
-                  widget.onSaved();
-                }
-              } catch (e) {
-                if (mounted) {
-                  Navigator.of(context).pop(); // 로딩 닫기
-
-                  showDialog( // 실패 시
-                    context: context,
-                    builder: (_) => const AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.error, color: Colors.red, size: 48),
-                          SizedBox(height: 16),
-                          Text('저장 중 오류 발생/n'),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-              } 
-          },
-          child: AnimatedContainer(
-            height: double.infinity, // 세로는 flex: 27 높이 채우기
-            duration: const Duration(milliseconds: 300), // 300ms 부드럽게 변화
-            curve: Curves.easeInOut, // 자연스러운 곡선 사용
-            decoration: ShapeDecoration(
-              color:  _isPressed 
-                ? const Color.fromARGB(255, 81, 172, 230) // 눌렀을 때 더 연한 색 (원래색보다 밝은 블루)
-                : const Color(0xFF0D85E7), // 기본 색
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Center(
-              child: Text(
-                  '확인',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16 * htio,
-                    fontFamily: 'Pretendard',
+  Widget requestBtn() {
+    return SizedBox(
+      height: 54 * htio,
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() {
+            _isPressed = true;
+          });
+        },
+        onTapUp: (_) {
+          setState(() {
+            _isPressed = false;
+          });
+        },
+        onTapCancel: () {
+          setState(() {
+            _isPressed = false;
+          });
+        },
+        onTap: () async {
+            
+          final day = DateFormat('yyyy-MM-dd').format(focusedDay);
+          final weight = double.tryParse(weightEditor.text);
+          final muscle = double.tryParse(muscleEditor.text);
+          final fat = double.tryParse(bodyFatEditor.text);
+          final memo = memoEditor.text;
+            
+          if(weight == 0 && muscle == 0 && fat == 0 && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) return;
+            
+          try {
+            if (docId == -1) {
+              await insertHtDayDoc(
+                ref: ref,
+                doc: DocDayDetail(id: -1, day: day, weight: weight, muscle: muscle,
+                      fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
+              );
+            } else {
+              await updateHtDayDoc(
+                ref: ref,
+                doc: DocDayDetail(id: docId, day: day, weight: weight, muscle: muscle,
+                      fat: fat, memo: memo, workYn: wkoutYn ? 1 : 0, drunYn: drunkYn ? 1 : 0, stamp: selectedStamp)
+              );
+            }
+            
+            // 저장 성공 시 메시지
+            if (mounted) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) {
+                  return const SuccessAfterLoadingDialog();
+                },
+              );
+              widget.onSaved();
+            }
+          } catch (e) {
+            if (mounted) {
+              Navigator.of(context).pop(); // 로딩 닫기
+            
+              showDialog( // 실패 시
+                context: context,
+                builder: (_) => const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.error, color: Colors.red, size: 48),
+                      SizedBox(height: 16),
+                      Text('저장 중 오류 발생/n'),
+                    ],
                   ),
                 ),
-            ),
-          ),
+              );
+            }
+          } 
+      },
+      child: AnimatedContainer(
+        height: double.infinity, // 세로는 flex: 27 높이 채우기
+        duration: const Duration(milliseconds: 300), // 300ms 부드럽게 변화
+        curve: Curves.easeInOut, // 자연스러운 곡선 사용
+        decoration: ShapeDecoration(
+          color:  _isPressed 
+            ? const Color.fromARGB(255, 81, 172, 230) // 눌렀을 때 더 연한 색 (원래색보다 밝은 블루)
+            : const Color(0xFF0D85E7), // 기본 색
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
+        child: Center(
+          child: Text(
+              '확인',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16 * htio,
+                fontFamily: 'Pretendard',
+              ),
+            ),
+        ),
+      ),
       ),
     );
   }
 
-  Expanded setStampCollection() {
+  Widget setStampCollection() {
     final stampCollect = ['perfect', 'good', 'normal', 'bad', 'terrible'];
 
-    return Expanded(
-      flex: 31,
+    return SizedBox(
+      height: 62.57 * htio,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: stampCollect.map((stampName) {
@@ -321,34 +300,32 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
   Container makeBorder() {
     return Container(
-      height: 1,
+      height: 1 * htio,
       decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
     );
   }
 
-  Expanded buttonArea() {
-    return Expanded(
-      flex: 17,
+  Widget buttonArea() {
+    return SizedBox(
+      height: 34 * htio,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 78,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '운동/음주',
-                style: TextStyle(
-                    color: const Color(0xFF333333),
-                    fontSize: 14.5 * htio,
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w500,
-                    height: 0.09 * htio,
-                ),
-              )
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '운동/음주',
+              style: TextStyle(
+                  color: const Color(0xFF333333),
+                  fontSize: 14.5 * htio,
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w500,
+                  height: 0.09 * htio,
+              ),
             )
           ),
-          Expanded(
-            flex: 257,
+          SizedBox(
+            width: 257 * wtio,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Row(
@@ -358,7 +335,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                       wkoutYn = !wkoutYn;
                     });
                   }),
-                  const SizedBox(width: 17),
+                  SizedBox(width: 17 * wtio),
                   makeYnButton('음주 여부', 'assets/icons/drink.svg', drunkYn, () {
                     setState(() {
                       drunkYn = !drunkYn;
@@ -377,19 +354,18 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-          width: 89 * wtio,
           height: 34 * htio,
           padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 8 * htio),
           decoration: ShapeDecoration(
           shape: RoundedRectangleBorder(
-          side: BorderSide(width: 1, color: yn == true ? const Color(0xFF333333) : const Color(0xFFAAAAAA),),
+          side: BorderSide(width: 1 * wtio, color: yn == true ? const Color(0xFF333333) : const Color(0xFFAAAAAA),),
           borderRadius: BorderRadius.circular(99),
           ),
         ),
         child: Row(
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 4),
+              padding: EdgeInsets.only(right: 4 * wtio),
               child: Text(
                   text,
                   style: TextStyle(
@@ -400,7 +376,9 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                 ),
               ),
             ),
-            Expanded(
+            SizedBox(
+              width: 14 * wtio,
+              height: 14 * htio,
               child: SvgPicture.asset(
                 iconPath,
                 colorFilter: ColorFilter.mode(
@@ -415,13 +393,14 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
     );
   }
 
-  Expanded textArea(TextEditingController editor) {
-    return Expanded(
-      flex: 48,
+  Widget textArea(TextEditingController editor) {
+    return SizedBox(
+      height: 96 * htio,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 78,
+          SizedBox(
+            width: 28 * wtio,
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
@@ -436,14 +415,14 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               ),
             ),
           ),
-          Expanded(
-            flex: 257,
+          SizedBox(
+            width: 257 * wtio,
             child: TextField(
               controller: editor,
               maxLines: null, // 여러 줄
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
-              expands: true, // 남은 공간 전체 사용 -> 이거 해야 height flex:48 다 차지함
+              expands: true, // 남은 공간 전체 사용
               inputFormatters: [
                 LengthLimitingTextInputFormatter(100), // 최대 100자 제한
               ],
@@ -460,19 +439,19 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                   fontFamily: 'Pretendard',
                   height: 4 * htio,
                 ),
-                contentPadding: const EdgeInsets.all(12), // 여백 추가
+                contentPadding: EdgeInsets.all(12 * htio), // 여백 추가
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDDDDDD),
-                    width: 1,
+                  borderSide: BorderSide(
+                    color: const Color(0xFFDDDDDD),
+                    width: 1 * wtio,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF0D86E7),
-                    width: 1.5,
+                  borderSide: BorderSide(
+                    color: const Color(0xFF0D86E7),
+                    width: 1.5 * wtio,
                   ),
                 ),
               ),
@@ -484,28 +463,26 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
   }
 
   Widget inputArea(String text, String unit, TextEditingController editor) {
-    return Expanded(
-      flex: 24,
+    return SizedBox(
+      height: 48 * htio,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children:[
-          Expanded(
-            flex: 78,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                  text,
-                  style: TextStyle(
-                      color: const Color(0xFF333333),
-                      fontSize: 14.5 * htio,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w500,
-                      height: 0.09 * htio,
-                  ),
-              )
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+                text,
+                style: TextStyle(
+                    color: const Color(0xFF333333),
+                    fontSize: 14.5 * htio,
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w500,
+                    height: 0.09 * htio,
+                ),
             )
           ),
-          Expanded(
-            flex: 257,
+          SizedBox(
+            width: 257 * wtio,
             child: TextField(
               controller: editor,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -514,6 +491,11 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                 LimitValueFormatter(max: 999.9),
                 FilteringTextInputFormatter.allow(RegExp(r'^\d{0,3}(\.\d{0,})?$')),
               ],
+              style: TextStyle(
+                fontSize: 16 * htio,
+                fontFamily: 'Pretendard',
+                color: const Color(0xFF000000),
+              ),
               decoration: InputDecoration(
                 suffixText: unit,
                 suffixStyle: TextStyle(
@@ -523,16 +505,16 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFFDDDDDD),
-                    width: 1,
+                  borderSide: BorderSide(
+                    color: const Color(0xFFDDDDDD),
+                    width: 1 * wtio,
                   )
                 ),
                 focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(
-                    color: Color(0xFF0D86E7), // 클릭 시 파란색 테두리
-                    width: 1.5,
+                  borderSide: BorderSide(
+                    color: const Color(0xFF0D86E7), // 클릭 시 파란색 테두리
+                    width: 1.5 * wtio,
                   ),
                 ),
               ),
@@ -547,29 +529,21 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 class InfoText extends StatelessWidget {
   const InfoText({
     super.key,
-    required this.flex
   });
-
-  final int flex;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded( // Text
-      flex: flex,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '당신의 하루를 평가해주세요.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: const Color(0xFF777777),
-                fontSize: 12 * htio,
-                fontFamily: 'Pretendard',
-            ),
-          )
-        ],
-      ),
+    return Align(
+      alignment: Alignment.center,
+      child:Text(
+          '당신의 하루를 평가해주세요.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: const Color(0xFF777777),
+              fontSize: 12 * htio,
+              fontFamily: 'Pretendard',
+          ),
+        )
     );
   }
 }

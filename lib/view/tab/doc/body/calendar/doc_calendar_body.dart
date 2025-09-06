@@ -131,17 +131,21 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
 
 
   void _showFullModal() {
+    final ratio = ScreenRatio(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(127),
-      builder: (_) {
-        return FractionallySizedBox(
-          heightFactor: 0.92,
-          child: DocBodyWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
-        );
-      },
+      constraints: BoxConstraints(
+        maxHeight: ScreenRatio.baseHeight * ratio.heightRatio * 0.92,
+        maxWidth: ScreenRatio.baseWidth * ratio.widthRatio,
+      ),
+      builder: (_) => DocBodyWrite(
+        focusDay: _focusedDay,
+        onSaved: _onDocSaved,
+      ),
     );
   }
 
