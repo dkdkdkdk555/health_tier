@@ -10,6 +10,7 @@ import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
@@ -35,6 +36,8 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
   NaverAccountResult? userInfo;
   String? nickname;
 
+  var htio = 0.0;
+  var wtio = 0.0;
 
   Future<void> naverLoginButton(BuildContext context) async {
     try {
@@ -160,6 +163,9 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+    
     return GestureDetector(
       onTap: () {
         naverLoginButton(context);
@@ -169,16 +175,16 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
         children: [
           SvgPicture.asset(
             'assets/widgets/login_btn_naver.svg',
-            width: 54,
-            height: 54,
+            width: 54 * wtio,
+            height: 54 * wtio,
             fit: BoxFit.cover,
           ),
-          const SizedBox(height: 10,),
-          const Text(
+          SizedBox(height: 10 * htio,),
+          Text(
             '네이버',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 11,
+              fontSize: 11 * htio,
               fontFamily: 'Pretendard',
             ),
           )

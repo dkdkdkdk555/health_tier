@@ -7,6 +7,7 @@ import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/error_message_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
@@ -24,6 +25,9 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
   String? accessToken;
   User? kakaoUserInfo;
   String? nickname;
+
+  var htio = 0.0;
+  var wtio = 0.0;
   
   Future<void> kakaoLoginButton(BuildContext context) async {
     OAuthToken? token;
@@ -160,6 +164,9 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
 
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+
     return GestureDetector(
       onTap: () {
         kakaoLoginButton(context);
@@ -169,16 +176,16 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         children: [
           SvgPicture.asset(
             'assets/widgets/login_btn_kakao.svg',
-            width: 54,
-            height: 54,
+            width: 54 * wtio,
+            height: 54 * wtio,
             fit: BoxFit.cover,
           ),
-          const SizedBox(height: 10,),
-          const Text(
+          SizedBox(height: 10 * htio,),
+          Text(
             '카카오톡',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 11,
+              fontSize: 11 * htio,
               fontFamily: 'Pretendard',
             ),
           )

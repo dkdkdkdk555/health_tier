@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/usr/sns_connect/kakao_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/naver_login_button.dart';
 
@@ -57,8 +57,14 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
     _welcomeMeant = _welcomes[nextInt];
   }
 
+  var htio = 0.0;
+  var wtio = 0.0;
+
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+    
     return Scaffold(
       body: Stack(
         children: [
@@ -73,81 +79,79 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
           ),
 
           // UI 위젯들
-          SafeArea(
-            child: Stack(
-              children: [
-                Positioned(
-                  top: MediaQuery.of(context).size.height * 0.4, // 화면 상단에서 30% 위치
-                  left: 20,
-                  right: 20,
-                  child: Text(
-                    _welcomeMeant,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'Pretendard',
-                      color: Colors.white,
-                      fontSize: 17,
-                    ),
+          Stack(
+            children: [
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.432, // 화면 상단에서 30% 위치
+                left: 20 * wtio,
+                right: 20 * wtio,
+                child: Text(
+                  _welcomeMeant,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Pretendard',
+                    color: Colors.white,
+                    fontSize: 17 * htio,
                   ),
                 ),
-                Positioned(
-                  bottom: 202, // 화면 하단에서 80px 위
-                  left: 20,
-                  right: 20,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF777777),
-                            ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            '다음으로 로그인',
-                             textAlign: TextAlign.center,
-                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontFamily: 'Pretendard',
-                              height: 0.09,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Container(
-                            height: 1,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF777777),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 60,
-                  left: 20,
-                  right: 20,
+              ),
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.632, // 화면 상단에서 30% 위치
+                left: 20 * wtio,
+                right: 20 * wtio,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 26,
                     children: [
-                      const KakaoLoginButton(),
-                      const NaverLoginButton(),
-                      _makeLoginBtn('assets/widgets/login_btn_apple.svg', '애플'),
+                      Expanded(
+                        child: Container(
+                          height: 1 * htio,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF777777),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+                        child: Text(
+                          '다음으로 로그인',
+                           textAlign: TextAlign.center,
+                           style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14 * htio,
+                            fontFamily: 'Pretendard',
+                            height: 0.09 * htio,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1 * htio,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF777777),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                )
-              ],
-            ),
+                ),
+              ),
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.712, 
+                left: 20 * wtio,
+                right: 20 * wtio,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 26 * wtio,
+                  children: [
+                    const KakaoLoginButton(),
+                    const NaverLoginButton(),
+                    _makeLoginBtn('assets/widgets/login_btn_apple.svg', '애플'),
+                  ],
+                ),
+              )
+            ],
           ),
         ],
       ),
@@ -160,16 +164,16 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
       children: [
         SvgPicture.asset(
           svg,
-          width: 54,
-          height: 54,
+          width: 54 * wtio,
+          height: 54 * wtio,
           fit: BoxFit.cover,
         ),
-        const SizedBox(height: 10,),
+        SizedBox(height: 10 * htio,),
         Text(
           name,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 11,
+            fontSize: 11 * htio,
             fontFamily: 'Pretendard',
           ),
         )
