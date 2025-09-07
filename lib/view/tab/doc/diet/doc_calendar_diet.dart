@@ -1,12 +1,11 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showDayPicker;
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:table_calendar/table_calendar.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class DocCalendarDiet extends ConsumerStatefulWidget {
   const DocCalendarDiet({

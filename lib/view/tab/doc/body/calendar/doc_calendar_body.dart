@@ -102,7 +102,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= (510 * heightRatio)) {
+              if (_bodyHeightSize >= 510) {
                 _showFullModal();
               }
               setState(() {

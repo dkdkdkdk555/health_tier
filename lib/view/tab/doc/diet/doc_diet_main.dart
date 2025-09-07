@@ -16,7 +16,7 @@ class DocDietMain extends ConsumerStatefulWidget {
 
 class _DocDietMainState extends ConsumerState<DocDietMain> {
   DateTime _focusedDay = DateTime.now();
-  
+
   double _dragDistance = 0;
   double _bodyHeightSize = 414; // 기본값 = 최소값
   final double _minHeightSize = 414; // 바텀영역 최소값
@@ -34,6 +34,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
     final heightRatio = ratio.heightRatio;
 
     final bodyHeight = _bodyHeightSize * heightRatio;
+    final bottomHeight = bodyHeight - (_minHeightSize * heightRatio);
 
     return Stack(
       children: [
@@ -42,7 +43,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
             SizedBox(height: 8 * heightRatio,),
             DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, ),
             SizedBox(height: 20 * heightRatio,),
-            SizedBox(height:  414 * heightRatio,)
+            SizedBox(height: 414 * heightRatio,)
           ],
         ),
 
@@ -62,7 +63,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= (550 * heightRatio)) {
+              if (_bodyHeightSize >= 510) {
                 _showFullModal();
               }
               setState(() {
@@ -70,7 +71,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
                 _dragDistance = 0;
               });
             },
-            child: DocDietDetail(focusedDay: _focusedDay, bottomHeight: 414 * heightRatio,),
+            child: DocDietDetail(focusedDay: _focusedDay, bottomHeight: bottomHeight,),
           ),
         ),
       ],
