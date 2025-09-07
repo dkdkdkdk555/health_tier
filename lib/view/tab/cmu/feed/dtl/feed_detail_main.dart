@@ -4,7 +4,6 @@ import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/cmu/feed/feed_detail.dart';
-import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:my_app/providers/notifier_provider.dart';
@@ -12,6 +11,7 @@ import 'dart:convert';
 
 import 'package:my_app/util/quill_image_embed_builder.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart' show ErrorContentWidget;
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_profile_section.dart';
@@ -109,6 +109,9 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     final detailAsync = ref.watch(feedDetailProvider(widget.feedId));
     
     return detailAsync.when(
@@ -221,7 +224,6 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w500,
-                                    height: 1.50,
                                 ),
                             ),
                             Text(
@@ -231,7 +233,7 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w400,
-                                    height: 1.50,
+                                    height: 1.75,
                                 ),
                             ),
                         ],
@@ -243,10 +245,10 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
             if(feed.crtifiId != 0 && feed.crtifiYn == 'Y')...{
               Positioned(
                 top: 0,
-                right: 18,
+                right: 18 * wtio,
                 child: SizedBox(
-                  width: 82,
-                  height: 82,
+                  width: 82 * wtio,
+                  height: 82 * htio,
                   child: Image.asset(
                     'assets/widgets/feed_certifi_${feed.crtifiWho!.toLowerCase()}.png'
                   ),

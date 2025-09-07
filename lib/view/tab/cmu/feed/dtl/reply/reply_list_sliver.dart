@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/notifier/reply_pagination_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply.dart';
@@ -51,6 +52,9 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     final repliesAsync = ref.watch(replyPaginationProvider(widget.cmuId));
     final replyNotifier = ref.read(replyPaginationProvider(widget.cmuId).notifier);
 
@@ -71,7 +75,7 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
         return _buildSliverContent(context, currentData.items, currentData.hasNext, replyNotifier);
       },
       error: (err, stack) {
-        return const SliverToBoxAdapter(child: ErrorContentWidget(mainText: '', horizontal: 40, vertical: 70, isExistTopLine: true,));
+        return SliverToBoxAdapter(child: ErrorContentWidget(mainText: '', horizontal: 40 * wtio, vertical: 70 * htio, isExistTopLine: true,));
       },
       data: (scrollResponse) {
         final replies = scrollResponse.items;
@@ -83,15 +87,15 @@ class _ReplyListSliverState extends ConsumerState<ReplyListSliver> {
             child: Column(
               children: [
                 Container(
-                  height: 2.5,
+                  height: 2.5 * htio,
                   decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 70.0, bottom: 85,  right: 20, left: 20),
+                Padding(
+                  padding: EdgeInsets.only(top: 70.0 * htio, bottom: 85 * htio,  right: 20 * wtio, left: 20 * wtio),
                   child: Center(
                     child: Text(
                       '아직 댓글이 없습니다.\n 댓글을 입력해주세요.',
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                      style: TextStyle(fontSize: 15 * htio, color: Colors.grey),
                     ),
                   ),
                 ),

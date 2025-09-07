@@ -20,7 +20,7 @@ class CategoryAnotherFeedItem extends StatelessWidget {
         ),
         child: Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 12,
             children: [
@@ -36,6 +36,7 @@ class CategoryAnotherFeedItem extends StatelessWidget {
                                 width: 200,
                                 child: Text(
                                     feed.title,
+                                    maxLines: 1,
                                     style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 16,
@@ -47,6 +48,7 @@ class CategoryAnotherFeedItem extends StatelessWidget {
                             ),
                             SizedBox(
                                 width: 200,
+                                height: 48,
                                 child: Text(
                                     '${feed.ctntPreview}',
                                     style: const TextStyle(

@@ -102,37 +102,38 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
                                         ],
                                     ),
                                 ),
-                                Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    spacing: 4,
-                                    children: [
-                                        const Text(
-                                            '전체보기',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 12,
-                                                fontFamily: 'Pretendard',
-                                                fontWeight: FontWeight.w400,
-                                                height: 1.50,
-                                            ),
-                                        ),
-                                        Container(
-                                            width: 16,
-                                            height: 16,
-                                            clipBehavior: Clip.antiAlias,
-                                            decoration: const BoxDecoration(),
-                                            child: IconButton(
-                                              icon: SvgPicture.asset('assets/icons/ico_right.svg'),
-                                              onPressed: (){
+                                //TODO: 전체보기 기능은 정식출시 or 버전업에서
+                                // Row(
+                                //     mainAxisSize: MainAxisSize.min,
+                                //     mainAxisAlignment: MainAxisAlignment.end,
+                                //     crossAxisAlignment: CrossAxisAlignment.center,
+                                //     spacing: 4,
+                                //     children: [
+                                //         const Text(
+                                //             '전체보기',
+                                //             style: TextStyle(
+                                //                 color: Colors.black,
+                                //                 fontSize: 12,
+                                //                 fontFamily: 'Pretendard',
+                                //                 fontWeight: FontWeight.w400,
+                                //                 height: 1.50,
+                                //             ),
+                                //         ),
+                                //         Container(
+                                //             width: 16,
+                                //             height: 16,
+                                //             clipBehavior: Clip.antiAlias,
+                                //             decoration: const BoxDecoration(),
+                                //             child: IconButton(
+                                //               icon: SvgPicture.asset('assets/icons/ico_right.svg'),
+                                //               onPressed: (){
                                                 
-                                              },
-                                              padding: EdgeInsets.zero,
-                                            ),
-                                        ),
-                                    ],
-                                ),
+                                //               },
+                                //               padding: EdgeInsets.zero,
+                                //             ),
+                                //         ),
+                                //     ],
+                                // ),
                             ],
                         ),
                     ),

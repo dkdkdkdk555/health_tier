@@ -8,6 +8,7 @@ import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/styled_text_controller.dart'; // replyCommentSupplyNotifierProvider 경로 확인
 
 class ReplyBottomBar extends ConsumerStatefulWidget {
@@ -25,7 +26,7 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   final FocusNode _focusNode = FocusNode();
   final StyledTextController _textEditingController = StyledTextController(); 
 
-  double _barHeight = 106;
+  double _barHeight = 101;
   bool _showSendButton = false;
 
   Color _textFieldBorderColor = const Color(0xFFDDDDDD);
@@ -284,6 +285,7 @@ void dispose() {
         children: [
           Positioned(
             left: 20,
+            right: 20,
             top: 23,
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -315,133 +317,134 @@ void dispose() {
                   ],
                 ),
                 const SizedBox(width: 8),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 답글 대상 댓글 표시 영역
-                    if (_currentReplyTargetComment.isNotEmpty)
-                      Container(
-                        height: _replyTargetHeight,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        margin: const EdgeInsets.only(bottom: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0F0F0),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              _currentReplyTargetComment,
-                              style: const TextStyle(
-                                color: Color(0xFF555555),
-                                fontSize: 12,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 답글 대상 댓글 표시 영역
+                      if (_currentReplyTargetComment.isNotEmpty)
+                        Container(
+                          height: _replyTargetHeight,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF0F0F0),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _currentReplyTargetComment,
+                                style: const TextStyle(
+                                  color: Color(0xFF555555),
+                                  fontSize: 12,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _currentReplyTargetComment = '';
-                                  ref.read(replySupplyNotifierProvider).disposeReplyState();
-                                  _barHeight = 116;
-                                });
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Color(0xFF888888),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _currentReplyTargetComment = '';
+                                    ref.read(replySupplyNotifierProvider).disposeReplyState();
+                                    _barHeight = 116;
+                                  });
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.all(4.0),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Color(0xFF888888),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    // 댓글 입력 필드
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: 37,
-                        maxHeight: 120, // 텍스트 14px, height 1.5면 1줄 21px + 패딩 16 = 37px
-                                         // 120px면 대략 4~5줄 정도 가능
-                      ),
-                      child: Container(
-                        key: _textFieldKey,
-                        width: 303,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: ShapeDecoration(
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              width: 1,
-                              color: _textFieldBorderColor,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
+                            ],
                           ),
                         ),
-                        child: Row( // 아이콘과 텍스트 필드를 위한 Row
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_currentReplyTargetComment.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4.0, top: 2.0), // 아이콘과 텍스트 필드 사이 간격
-                                child: Icon(
-                                  Icons.subdirectory_arrow_right_sharp,
-                                  size: 16,
-                                  color: Colors.grey.shade600,
-                                ),
+                      // 댓글 입력 필드
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: 37,
+                          maxHeight: 120, // 텍스트 14px, height 1.5면 1줄 21px + 패딩 16 = 37px
+                                           // 120px면 대략 4~5줄 정도 가능
+                        ),
+                        child: Container(
+                          key: _textFieldKey,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: ShapeDecoration(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                width: 1,
+                                color: _textFieldBorderColor,
                               ),
-                            Expanded( // TextField가 남은 공간을 모두 차지하도록
-                              child: TextField(
-                                focusNode: _focusNode,
-                                controller: _textEditingController,
-                                onChanged: (_) => _updateTextFieldHeight(),
-                                keyboardType: TextInputType.multiline,
-                                maxLength: 250,
-                                maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                                buildCounter: (
-                                  BuildContext context, {
-                                  required int currentLength,
-                                  required bool isFocused,
-                                  required int? maxLength,
-                                }) {
-                                  return null;
-                                },
-                                maxLines: null,
-                                minLines: 1,
-                                expands: false,
-                                decoration: const InputDecoration(
-                                  hintText: '댓글 달기',
-                                  border: InputBorder.none,
-                                  isCollapsed: true,
-                                  contentPadding: EdgeInsets.zero,
-                                  hintStyle: TextStyle(
-                                    color: Color(0xFF999999),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Row( // 아이콘과 텍스트 필드를 위한 Row
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_currentReplyTargetComment.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4.0, top: 2.0), // 아이콘과 텍스트 필드 사이 간격
+                                  child: Icon(
+                                    Icons.subdirectory_arrow_right_sharp,
+                                    size: 16,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              Expanded( // TextField가 남은 공간을 모두 차지하도록
+                                child: TextField(
+                                  focusNode: _focusNode,
+                                  controller: _textEditingController,
+                                  onChanged: (_) => _updateTextFieldHeight(),
+                                  keyboardType: TextInputType.multiline,
+                                  maxLength: 250,
+                                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                                  buildCounter: (
+                                    BuildContext context, {
+                                    required int currentLength,
+                                    required bool isFocused,
+                                    required int? maxLength,
+                                  }) {
+                                    return null;
+                                  },
+                                  maxLines: null,
+                                  minLines: 1,
+                                  expands: false,
+                                  decoration: const InputDecoration(
+                                    hintText: '댓글 달기',
+                                    border: InputBorder.none,
+                                    isCollapsed: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    hintStyle: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 14,
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w400,
+                                      height: 1.50,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: Color(0xFF000000),
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
                                     fontWeight: FontWeight.w400,
                                     height: 1.50,
                                   ),
                                 ),
-                                style: const TextStyle(
-                                  color: Color(0xFF000000),
-                                  fontSize: 14,
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.50,
-                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

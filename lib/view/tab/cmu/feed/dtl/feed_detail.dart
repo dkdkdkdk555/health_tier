@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_list.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
@@ -34,6 +35,7 @@ class _FeedDetailState extends State<FeedDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
@@ -62,8 +64,8 @@ class _FeedDetailState extends State<FeedDetail> {
             widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!,) 
             : const SliverToBoxAdapter(child: SizedBox.shrink()),
             // 하단 여백(필요시)
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 100),
+            SliverToBoxAdapter(
+              child: SizedBox(height: 100 * htio),
             ),
           ],
         ),
