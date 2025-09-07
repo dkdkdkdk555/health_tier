@@ -2,9 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 
@@ -44,8 +44,8 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
       _ => throw Exception('Invalid tabIndex')
     };
 
-    return Expanded(
-      flex: 124,
+    return SizedBox(
+      height: 248 * htio,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final chartHeight = constraints.maxHeight;

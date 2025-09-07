@@ -30,8 +30,8 @@ class StcStampPieChart extends ConsumerWidget {
 
     final stampList = ref.watch(selectStampList(dayRange));
 
-    return Expanded(
-      flex: 124,
+    return SizedBox(
+      height: 248 * htio,
       child: stampList.when(
         loading: () => const Center(child: AppLoadingIndicator()),
         error: (err, _) => const ErrorContentWidget(),

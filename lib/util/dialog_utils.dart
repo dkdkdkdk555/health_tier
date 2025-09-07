@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import '../extension/screen_ratio_extension.dart' show ScreenRatio;
 
 // 공통 달력 다이얼로그
 Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate,) {
@@ -13,10 +14,11 @@ Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate,) {
       DateTime selectedDate = initialDate;
 
       return Dialog(
+        backgroundColor: Colors.white,
         child: StatefulBuilder(
           builder: (context, setState) {
             return Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 16 * widthRatio, vertical: 16 * heightRatio),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
