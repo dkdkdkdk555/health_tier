@@ -24,12 +24,10 @@ class _DocMainState extends State<DocMain> {
     _selectedIndex = cachedDocTabIndex; // 캐시된 값 불러오기
   }
 
-
   final List<Widget> _pages = [
     const DocCalendarBody(),
     const DocDietMain(),
   ];
-
 
   void _onTap(int index) {
     setState(() {

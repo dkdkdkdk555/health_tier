@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
@@ -17,9 +18,9 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
   DateTime _focusedDay = DateTime.now();
   
   double _dragDistance = 0;
-  double _bodyHeightFactor = 0.5099; // 35% → 65%까지 확장
-  final double _minHeightFactor = 0.5099;
-  final double _maxHeightFactor = 0.75;
+  double _bodyHeightSize = 414; // 기본값 = 최소값
+  final double _minHeightSize = 414; // 바텀영역 최소값
+  final double _maxHeightSize = 595; // 바텀영역 최댓감
 
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
@@ -29,20 +30,19 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final ratio = ScreenRatio(context);
+    final heightRatio = ratio.heightRatio;
 
-    final bodyHeight = screenHeight * _bodyHeightFactor;
-    final bottomHeight = bodyHeight - (screenHeight * 0.5099);
-
+    final bodyHeight = _bodyHeightSize * heightRatio;
 
     return Stack(
       children: [
         Column(
           children: [
-            const Spacer(flex: 4,),
+            SizedBox(height: 8 * heightRatio,),
             DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, ),
-            const Spacer(flex: 10,),
-            const Expanded(flex: 207, child: SizedBox.shrink())
+            SizedBox(height: 20 * heightRatio,),
+            SizedBox(height:  414 * heightRatio,)
           ],
         ),
 
@@ -57,20 +57,20 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
             onVerticalDragUpdate: (details) {
               setState(() {
                 _dragDistance += details.primaryDelta!;
-                final expandedRatio = _minHeightFactor - (_dragDistance / screenHeight);
-                _bodyHeightFactor = expandedRatio.clamp(_minHeightFactor, _maxHeightFactor);
+                final expandedHeightSize = _minHeightSize - _dragDistance;
+                _bodyHeightSize = expandedHeightSize.clamp(_minHeightSize, _maxHeightSize);
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightFactor >= 0.70) {
+              if (_bodyHeightSize >= (550 * heightRatio)) {
                 _showFullModal();
               }
               setState(() {
-                _bodyHeightFactor = _minHeightFactor;
+                _bodyHeightSize = _minHeightSize;
                 _dragDistance = 0;
               });
             },
-            child: DocDietDetail(focusedDay: _focusedDay, bottomHeight: bottomHeight,),
+            child: DocDietDetail(focusedDay: _focusedDay, bottomHeight: 414 * heightRatio,),
           ),
         ),
       ],
@@ -78,19 +78,21 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
   }
 
   void _showFullModal() {
+    final ratio = ScreenRatio(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withAlpha(127),
-      builder: (_) {
-        return FractionallySizedBox(
-          heightFactor: 0.92,
-          child: DocDietWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
-        );
-      },
+      constraints: BoxConstraints(
+        maxHeight: ScreenRatio.baseHeight * ratio.heightRatio * 0.92,
+        maxWidth: ScreenRatio.baseWidth * ratio.widthRatio,
+      ),
+      builder: (_) => DocDietWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
     );
   }
+
 
   void _onDocSaved() {
     final refreshDay = DateFormat('yyyy-MM-dd').format(_focusedDay);
