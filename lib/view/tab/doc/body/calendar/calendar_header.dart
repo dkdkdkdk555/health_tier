@@ -25,26 +25,30 @@ class CustomCalendarHeader extends StatelessWidget {
     final year = focusedDay.year;
     final month = focusedDay.month;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 44 * widthRatio, vertical: 23 * heightRatio),
-      child: SizedBox(
-        height: 18 * heightRatio,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 16 * widthRatio, // 화살표 버튼 가로 크기
-              height: 16 * widthRatio, // 화살표 버튼 세로 크기
-              child: IconButton(
-                icon: SvgPicture.asset(
-                  'assets/icons/ico_left.svg',
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                width: 30 * widthRatio, // 화살표 버튼 가로 크기
+                height: 30 * widthRatio, // 화살표 버튼 세로 크기
+                child: IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/icons/ico_left.svg',
+                  ),
+                  onPressed: onLeftArrow,
+                  padding: EdgeInsets.zero,
                 ),
-                onPressed: onLeftArrow,
-                padding: EdgeInsets.zero,
               ),
             ),
-            SizedBox(width: 92 * widthRatio), // 좌우 spacer
-            Expanded(
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 23 * heightRatio),
+            child: SizedBox(
+              height: 18 * heightRatio,
               child: Text(
                 '$year년 $month월',
                 maxLines: 1,
@@ -57,21 +61,25 @@ class CustomCalendarHeader extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(width: 92 * widthRatio),
-            SizedBox(
-              width: 16 * widthRatio,
-              height: 16 * widthRatio,
-              child: IconButton(
-                icon: SvgPicture.asset(
-                  'assets/icons/ico_right.svg',
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 30),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                width: 30 * widthRatio,
+                height: 30 * widthRatio,
+                child: IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/icons/ico_right.svg',
+                  ),
+                  onPressed: onRightArrow,
+                  padding: EdgeInsets.zero,
                 ),
-                onPressed: onRightArrow,
-                padding: EdgeInsets.zero,
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ],
+      );
   }
 }

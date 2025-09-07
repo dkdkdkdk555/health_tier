@@ -12,7 +12,7 @@ class CustomWeekdayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 17.0),
+      padding: EdgeInsets.symmetric(horizontal: 17.0 * widthRatio),
       child: Column(
         children: [
           SizedBox(
