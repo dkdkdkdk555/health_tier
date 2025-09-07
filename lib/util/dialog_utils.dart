@@ -4,7 +4,10 @@ import 'package:table_calendar/table_calendar.dart';
 import '../extension/screen_ratio_extension.dart' show ScreenRatio;
 
 // 공통 달력 다이얼로그
-Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate,) {
+Future<DateTime?> showDayPicker(
+  BuildContext context,
+  DateTime initialDate,
+) {
   final double heightRatio = ScreenRatio(context).heightRatio;
   final double widthRatio = ScreenRatio(context).widthRatio;
 
@@ -18,7 +21,8 @@ Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate,) {
         child: StatefulBuilder(
           builder: (context, setState) {
             return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16 * widthRatio, vertical: 16 * heightRatio),
+              padding: EdgeInsets.symmetric(
+                  horizontal: 16 * widthRatio, vertical: 16 * heightRatio),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -34,16 +38,16 @@ Future<DateTime?> showDayPicker(BuildContext context, DateTime initialDate,) {
                       focusedDay: selectedDate,
                       selectedDayPredicate: (day) => isSameDay(day, selectedDate),
                       onDaySelected: (day, _) {
-                        Navigator.of(context).pop(day); // ← day로 수정하는 게 맞음
+                        Navigator.of(context).pop(day);
                       },
                       onPageChanged: (day) => setState(() => selectedDate = day),
                       calendarFormat: CalendarFormat.month,
                       availableCalendarFormats: const {
-                        CalendarFormat.month: '', // ← 드롭다운 제거
+                        CalendarFormat.month: '',
                       },
                       headerStyle: const HeaderStyle(
-                        titleCentered: true, // ← 년월 가운데 정렬
-                        formatButtonVisible: false, // ← format 드롭다운 숨기기
+                        titleCentered: true,
+                        formatButtonVisible: false,
                       ),
                     ),
                   ),
@@ -68,11 +72,16 @@ Future<void> showAppDialog(
   VoidCallback? onConfirm,
   VoidCallback? onCancel,
 }) {
+  final double heightRatio = ScreenRatio(context).heightRatio;
+  final double widthRatio = ScreenRatio(context).widthRatio;
+
   return showDialog(
     context: context,
     barrierDismissible: barrierDismiss,
     builder: (context) {
       return buildAppDialog(
+        widthRatio,
+        heightRatio,
         title: title,
         message: message,
         confirmText: confirmText,
@@ -90,8 +99,11 @@ Future<void> showAppDialog(
   );
 }
 
-/// 공통 다이얼로그 위젯
-AlertDialog buildAppDialog({
+// 공통 다이얼로그 위젯
+AlertDialog buildAppDialog(
+  double widthRatio,
+  double heightRatio,
+  {
   String? title,
   required String message,
   String? confirmText,
@@ -99,6 +111,7 @@ AlertDialog buildAppDialog({
   VoidCallback? onConfirm,
   VoidCallback? onCancel,
 }) {
+
   // 버튼들을 리스트로 준비
   final List<Widget> buttons = [];
 
@@ -110,11 +123,11 @@ AlertDialog buildAppDialog({
             backgroundColor: const Color(0xFFDDDDDD),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12 * widthRatio),
             ),
           ),
           onPressed: onCancel,
-          child: Text(cancelText),
+          child: Text(cancelText, style: TextStyle(fontSize: 14 * heightRatio)),
         ),
       ),
     );
@@ -128,11 +141,11 @@ AlertDialog buildAppDialog({
             backgroundColor: const Color(0xFF0D86E7),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12 * widthRatio),
             ),
           ),
           onPressed: onConfirm,
-          child: Text(confirmText),
+          child: Text(confirmText, style: TextStyle(fontSize: 14 * heightRatio)),
         ),
       ),
     );
@@ -140,25 +153,25 @@ AlertDialog buildAppDialog({
 
   return AlertDialog(
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(16 * widthRatio),
     ),
     backgroundColor: Colors.white,
-    actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+    actionsPadding: EdgeInsets.symmetric(horizontal: 10 * widthRatio, vertical: 10 * heightRatio),
     title: title != null
         ? Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: "Pretendard",
-              fontSize: 18,
+              fontSize: 18 * heightRatio,
               fontWeight: FontWeight.bold,
             ),
           )
         : null,
     content: Text(
       message,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: "Pretendard",
-        fontSize: 14,
+        fontSize: 14 * heightRatio,
         color: Colors.black87,
       ),
     ),
@@ -168,7 +181,7 @@ AlertDialog buildAppDialog({
           ...buttons.expand((btn) sync* {
             yield btn;
             if (btn != buttons.last) {
-              yield const SizedBox(width: 8); // 버튼 사이 간격
+              yield SizedBox(width: 8 * widthRatio); // 버튼 사이 간격
             }
           }),
         ],
@@ -189,24 +202,26 @@ Future<String?> showInputDialog(
   int maxLines = 1,
   int? maxLength,
 }) {
+  final double heightRatio = ScreenRatio(context).heightRatio;
+  final double widthRatio = ScreenRatio(context).widthRatio;
   final TextEditingController controller = TextEditingController();
 
   return showDialog<String>(
     context: context,
-    barrierDismissible: false, // 바깥 터치로 닫히지 않게
+    barrierDismissible: false,
     builder: (dialogContext) {
       return AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(16.0 * widthRatio),
         ),
         backgroundColor: Colors.white,
-        actionsPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        actionsPadding: EdgeInsets.symmetric(horizontal: 10 * widthRatio, vertical: 10 * heightRatio),
         title: title != null
             ? Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: 18 * heightRatio,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -219,28 +234,34 @@ Future<String?> showInputDialog(
           maxLength: maxLength,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey[400]),
+            hintStyle: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14 * heightRatio, // 폰트 크기 반응형
+            ),
             filled: true,
             fillColor: Colors.grey[50],
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(8.0 * widthRatio),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(8.0 * widthRatio),
               borderSide: BorderSide(
                 color: Theme.of(context).primaryColor,
                 width: 1.5,
               ),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: BorderRadius.circular(8.0 * widthRatio),
               borderSide: BorderSide(color: Colors.grey[200]!, width: 1.0),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 15 * widthRatio,
+              vertical: 12 * heightRatio,
+            ),
           ),
           cursorColor: Theme.of(context).primaryColor,
+          style: TextStyle(fontSize: 14 * heightRatio), // 폰트 크기 반응형
         ),
         actions: [
           Row(
@@ -252,14 +273,14 @@ Future<String?> showInputDialog(
                     backgroundColor: const Color(0xFFDDDDDD),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12 * widthRatio),
                     ),
                   ),
                   onPressed: () => Navigator.pop(dialogContext, null),
-                  child: Text(cancelText),
+                  child: Text(cancelText, style: TextStyle(fontSize: 14 * heightRatio)),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8 * widthRatio),
               // 확인 버튼
               Expanded(
                 child: ElevatedButton(
@@ -267,7 +288,7 @@ Future<String?> showInputDialog(
                     backgroundColor: const Color(0xFF0D86E7),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12 * widthRatio),
                     ),
                   ),
                   onPressed: () {
@@ -280,7 +301,7 @@ Future<String?> showInputDialog(
                     }
                     Navigator.pop(dialogContext, text);
                   },
-                  child: Text(confirmText),
+                  child: Text(confirmText, style: TextStyle(fontSize: 14 * heightRatio)),
                 ),
               ),
             ],

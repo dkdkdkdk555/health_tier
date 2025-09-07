@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/db_providers.dart' show hasUnreadNotification;
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_badge.dart';
@@ -25,13 +26,16 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
   ConsumerState<UsrInfoScreen> createState() => _UsrInfoScreenState();
 }
 
+var htio = 0.0;
+var wtio = 0.0;
+
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   // 어느 하위 탭인지
   late int _selectedIndex;
 
   final List<Widget> _tabs = [
     const MyBadge(),
-    const MyBodyInfo(),
+    MyBodyInfo(),
     const MyWroteFeed()
   ];
 
@@ -92,6 +96,9 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+
     return Container(
       color: Colors.white,
       child: CustomScrollView(
@@ -116,8 +123,8 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           // 탭 영역
           _buildTabContent(),
           // 여백
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100,)
+          SliverToBoxAdapter(
+            child: SizedBox(height: 100 *  htio,)
           ),
         ],
       ),
@@ -126,22 +133,22 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   Container _buildTopBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 10 * htio),
       width: double.infinity,
-      height: 82,
+      height: 82 * htio,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-            const Align(
+            Align(
             alignment: Alignment.centerLeft,
             child: Text(
               '마이페이지',
               style: TextStyle(
                 color: Colors.black,
-                fontSize: 20,
+                fontSize: 20 *  htio,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w700,
-                height: 0.07,
+                height: 0.07 * htio,
               ),
             ),
           ),
@@ -158,8 +165,8 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
               clipBehavior: Clip.none, // Stack 밖으로 배치 허용
               children: [
                 SizedBox(
-                  width: 22,
-                  height: 22,
+                  width: 22 * wtio,
+                  height: 22 * htio,
                   child: SvgPicture.asset(
                     'assets/icons/alram.svg',
                   ),
@@ -169,11 +176,11 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
                     orElse: () => false,
                   ))
                   Positioned(
-                    right: 2,
+                    right: 2 * wtio,
                     top: 0,
                     child: SizedBox(
-                      width: 6,
-                      height: 6,
+                      width: 6 * wtio,
+                      height: 6 * htio,
                       child: SvgPicture.asset(
                         'assets/icons/on.svg',
                       ),

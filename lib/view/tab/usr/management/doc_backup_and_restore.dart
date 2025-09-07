@@ -8,6 +8,7 @@ import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 
@@ -21,28 +22,33 @@ class DocBackupAndRestore extends ConsumerStatefulWidget {
 }
 
 class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
-
+ var htio = 0.0;
+  var wtio = 0.0;
+  
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+
     final backupStatusAsync = ref.watch(backupStatusProvider);
       
     return Padding(
-        padding: const EdgeInsets.only(top: 15),
+        padding: EdgeInsets.only(top: 15 * htio),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 정보 아이콘과 텍스트
             Row(
               children: [
-                const Text(
+                Text(
                   '기록을 안전하게 백업하고 복원하세요.',
                   style: TextStyle(
                     fontFamily: 'Pretendard',
-                    fontSize: 16,
+                    fontSize: 16 * htio,
                     color: Colors.black54,
                   ),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6 * wtio),
                 InkWell(
                   onTap: () {
                     showAppDialog(context, 
@@ -55,12 +61,12 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                   child: Icon(
                     Icons.info_outline,
                     color: Colors.grey[600],
-                    size: 20,
+                    size: 20 * htio,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 15 * htio),
       
             // 상태에 따른 UI 변경
             backupStatusAsync.when(
@@ -68,6 +74,8 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                 if (status == "BACKUP_REQUEST") {
                   // 데이터 복원 버튼만
                   return ModernButtonCard(
+                    htio: htio,
+                    wtio: wtio,
                     icon: Icons.cloud_download,
                     title: '데이터 복원',
                     subtitle: '이전에 저장했던 기록을 불러옵니다.',
@@ -128,6 +136,8 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                 } else if (status == "NOT_FOUND") {
                   // 데이터 백업 버튼만
                   return ModernButtonCard(
+                    wtio: wtio,
+                    htio: htio,
                     icon: Icons.cloud_upload,
                     title: '데이터 백업',
                     subtitle: '현재의 기록을 클라우드에 저장합니다.',
@@ -196,14 +206,14 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                   );
                 } else if (status == "RESTORE_COMPLETE") {
                   // 안내 문구만
-                  return const Padding(
-                    padding: EdgeInsets.only(top: 20.0),
+                  return Padding(
+                    padding: EdgeInsets.only(top: 20.0 * htio),
                     child: Text(
                       "데이터 복원을 성공하셨습니다.\n24시간 동안은 기록 옮기기 이용이 불가능합니다.",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16 * htio,
                         color: Colors.black87,
-                        height: 1.4,
+                        height: 1.4 * htio,
                       ),
                     ),
                   );
@@ -232,6 +242,8 @@ class ModernButtonCard extends StatelessWidget {
   final String subtitle;
   final Color color;
   final VoidCallback onTap;
+  final double htio;
+  final double wtio;
 
   const ModernButtonCard({
     super.key,
@@ -240,6 +252,8 @@ class ModernButtonCard extends StatelessWidget {
     required this.subtitle,
     required this.color,
     required this.onTap,
+    required this.htio,
+    required this.wtio,
   });
 
   @override
@@ -248,7 +262,7 @@ class ModernButtonCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 20.0 * wtio, vertical: 20 *htio),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
@@ -263,32 +277,32 @@ class ModernButtonCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.black87, size: 30),
-            const SizedBox(width: 20),
+            Icon(icon, color: Colors.black87, size: 30 * htio),
+            SizedBox(width: 20 * wtio),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: 18 * htio,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4 * htio),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: 14 * htio,
                       color: Colors.black54,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, color: Colors.black45, size: 18),
+            Icon(Icons.arrow_forward_ios, color: Colors.black45, size: 18 * htio),
           ],
         ),
       ),

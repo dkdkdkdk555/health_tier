@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/util/dialog_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/usr/usr_main/body_info_section.dart';
@@ -9,8 +10,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 
 // MyBodyInfo를 ConsumerWidget으로 변경
+// ignore: must_be_immutable
 class MyBodyInfo extends ConsumerWidget {
-  const MyBodyInfo({super.key});
+  MyBodyInfo({
+    super.key
+  });
 
   // pose에 따른 아이콘 경로를 매핑
   static const Map<String, String> _iconPaths = {
@@ -19,8 +23,13 @@ class MyBodyInfo extends ConsumerWidget {
     'SQUAT': 'assets/icons/squat.svg',
   };
 
+  double htio = 0;
+  double wtio = 0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+    
     // userWeightListProvider를 watch하여 데이터 상태를 감지
     final userWeightsAsync = ref.watch(userWeightListProvider);
 
@@ -37,7 +46,7 @@ class MyBodyInfo extends ConsumerWidget {
               return _buildExerciseSection(weights);
             },
             loading: () => Container(
-              height: 183,
+              height: 183 * htio,
               alignment: Alignment.center,
               child: const AppLoadingIndicator(),
             ),
@@ -106,16 +115,16 @@ class MyBodyInfo extends ConsumerWidget {
   Widget _buildExerciseSection(List<Weight3Info> weights) {
     return Container(
       width: double.infinity,
-      height: 183,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      height: 183 * htio,
+      padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 24 * htio),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 28,
+            padding: EdgeInsets.symmetric(
+              horizontal: 28 * wtio,
+              vertical: 28 * htio,
             ),
             decoration: ShapeDecoration(
               gradient: const LinearGradient(
@@ -154,7 +163,7 @@ class MyBodyInfo extends ConsumerWidget {
       
       // 마지막 아이템이 아니면 간격 추가
       if (i < sortedWeights.length - 1) {
-        items.add(const SizedBox(width: 40));
+        items.add(SizedBox(width: 40 * wtio));
       }
     }
     
@@ -174,13 +183,13 @@ class MyBodyInfo extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: 36,
-          height: 36,
+          width: 36 * wtio,
+          height: 36 * htio,
           child: SvgPicture.asset(
             _iconPaths[pose] ?? 'assets/icons/default.svg', // pose에 맞는 아이콘 표시
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8 * htio),
         _buildExerciseInfo(name, '${weight}kg'),
       ],
     );
@@ -189,28 +198,28 @@ class MyBodyInfo extends ConsumerWidget {
   // 운동 정보 위젯 (이름과 중량)
   Widget _buildExerciseInfo(String name, String weight) {
     return SizedBox(
-      width: 66,
+      width: 66 * wtio,
       child: Column(
         children: [
           Text(
             name,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF777777),
-              fontSize: 14,
+            style: TextStyle(
+              color: const Color(0xFF777777),
+              fontSize: 14 * htio,
               fontFamily: 'Pretendard',
-              height: 0.11,
+              height: 0.11 * htio,
             ),
           ),
-          const SizedBox(height: 30),
+          SizedBox(height: 30 * htio),
           Text(
             weight,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.black,
-              fontSize: 20,
+              fontSize: 20 * htio,
               fontFamily: 'Pretendard',
-              height: 0.07,
+              height: 0.07 * htio,
             ),
           ),
         ],

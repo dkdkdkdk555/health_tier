@@ -5,9 +5,10 @@ import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/token_manager.dart';
+import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
-import 'package:my_app/view/tab/usr/management/usr_app_bar_preferredsize.dart';
 
 class UsrSignoutNoticePage extends ConsumerStatefulWidget {
   const UsrSignoutNoticePage({super.key});
@@ -35,15 +36,20 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
   }
 
   bool isAgree = false; // 체크박스 상태
-
+  var htio = 0.0;
+  var wtio = 0.0;
+  
   @override
   Widget build(BuildContext context) {
+     htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
     return Scaffold(
-      appBar: const UsrAppBarPreferredsize(centerText: '회원탈퇴',),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height:44 * htio),
+            const CmuBasicAppBar(centerText: '회원탈퇴',),
             Container(
               height: 1,
               decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),

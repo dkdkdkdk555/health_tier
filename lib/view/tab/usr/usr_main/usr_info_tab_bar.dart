@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class UsrInfoTabBar extends StatefulWidget {
   final int selectedIndex;
@@ -39,6 +40,9 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final double containerWidth = constraints.maxWidth;
@@ -57,14 +61,14 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
         return SizedBox(
           width: double.infinity,
           child: Container(
-            margin: const EdgeInsets.only(top: 20),
-            height: 44,
+            margin: EdgeInsets.only(top: 20 * htio),
+            height: 44 * htio,
             child: Stack(
               children: [
                 Positioned.fill(
                   child: Container(
-                    margin: const EdgeInsets.only(top: 42),
-                    height: 2,
+                    margin: EdgeInsets.only(top: 42 * htio),
+                    height: 2 * htio,
                     color: const Color(0xFFEEEEEE),
                   ),
                 ),
@@ -72,10 +76,10 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
                   duration: duration,
                   curve: Curves.easeInOut,
                   left: underlineLeft,
-                  top: 42,
+                  top: 42 * htio,
                   child: Container(
                     width: underlineWidth,
-                    height: 2,
+                    height: 2 * htio,
                     color: Colors.black,
                   ),
                 ),
@@ -101,7 +105,7 @@ class _UsrInfoTabBarState extends State<UsrInfoTabBar> {
                               tabs[index],
                               style: TextStyle(
                                 color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
-                                fontSize: 14.5,
+                                fontSize: 14.5 * htio,
                                 fontFamily: 'Pretendard',
                               ),
                             ),

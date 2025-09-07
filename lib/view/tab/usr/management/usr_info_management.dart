@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/common/webview_page.dart';
+import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/doc_backup_and_restore.dart';
-import 'package:my_app/view/tab/usr/management/usr_app_bar_preferredsize.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_profile.dart';
 import 'package:my_app/view/tab/usr/management/usr_signout_notice_page.dart';
 
@@ -24,27 +25,34 @@ class UsrInfoManagement extends ConsumerStatefulWidget {
 
 class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
 
+  var htio = 0.0;
+  var wtio = 0.0;
+
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+
     return Scaffold(
-      appBar: const UsrAppBarPreferredsize(centerText: '내 정보 관리',),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height:44 * htio),
+            const CmuBasicAppBar(centerText: '내 정보 관리',),
             UsrInfoProfile(userInfo: widget.userInfo),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+              padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 25 * htio),
               child: Column(
                 children: [
                   makeTitle('동의약관'),
-                  const SizedBox(height: 10,),
+                  SizedBox(height: 10 * htio,),
                   makeItem('이용약관', 'https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link'),
                   makeItem('개인정보처리방침', 'https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link'),
-                  const SizedBox(height: 30,),
+                  SizedBox(height: 30 * htio,),
                   makeTitle('기록 옮기기'),
                   const DocBackupAndRestore(),
-                  const SizedBox(height: 50,),
+                  SizedBox(height: 50 * htio,),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
@@ -72,15 +80,15 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                         '로그아웃',
                         style: TextStyle(
                           color: Colors.grey.shade800,
-                          fontSize: 15.3,
+                          fontSize: 15.3 * htio,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.normal,
-                          height: 1.6,
+                          height: 1.6 * htio,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16,),
+                  SizedBox(height: 16 * htio,),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
@@ -95,10 +103,10 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                         '회원탈퇴',
                         style: TextStyle(
                           color: Colors.grey.shade800,
-                          fontSize: 15.3,
+                          fontSize: 15.3 * htio,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.normal,
-                          height: 1.6,
+                          height: 1.6 * htio,
                         ),
                       ),
                     ),
@@ -117,12 +125,12 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
       alignment: Alignment.centerLeft,
       child: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.black,
-          fontSize: 18,
+          fontSize: 18 * htio,
           fontFamily: 'Pretendard',
           fontWeight: FontWeight.bold,
-          height: 1.6,
+          height: 1.6 * htio,
         ),
       ),
     );
@@ -138,10 +146,10 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
             text,
             style: TextStyle(
               color: Colors.grey.shade800,
-              fontSize: 16,
+              fontSize: 16 * htio,
               fontFamily: 'Pretendard',
               fontWeight: FontWeight.bold,
-              height: 1.6,
+              height: 1.6 * htio,
             ),
           ),
           IconButton(

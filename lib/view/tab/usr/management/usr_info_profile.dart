@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,36 +8,41 @@ import 'package:mime/mime.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 import 'package:path/path.dart' as path show basename;
 
+// ignore: must_be_immutable
 class UsrInfoProfile extends ConsumerWidget {
   final UserSimpleDto userInfo;
-  const UsrInfoProfile({
+  UsrInfoProfile({
     super.key,
     required this.userInfo,
   
   });
-
+  var htio = 0.0;
+  var wtio = 0.0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
 
     return Column(
       children: [
         Container(
-            height: 1,
+            height: 1 * htio,
             decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
         ),
         Container(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 25, bottom: 26),
+          padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, top: 25 * htio, bottom: 26 * htio),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Stack(
                 children: [
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 80 * wtio,
+                    height: 80 * wtio,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                     ),
@@ -70,20 +73,20 @@ class UsrInfoProfile extends ConsumerWidget {
                           _showProfileImageOptions(context, ref); 
                       },
                       child: Container(
-                        width: 28,
-                        height: 28,
+                        width: 28 * wtio,
+                        height: 28 * htio,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: Colors.grey.shade300,
-                            width: 1,
+                            width: 1 * wtio,
                           ),
                         ),
                         child: Icon(
                           Icons.camera,
                           color: Colors.grey.shade600,
-                          size: 20,
+                          size: 20 * wtio,
                         ),
                       ),
                     ),
@@ -93,7 +96,7 @@ class UsrInfoProfile extends ConsumerWidget {
               // 연동 sns + 닉네임
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: EdgeInsets.symmetric(horizontal: 16 * wtio, vertical: 10 * htio),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -101,24 +104,24 @@ class UsrInfoProfile extends ConsumerWidget {
                         userInfo.snsType != null ? '${userInfo.snsType!.displayName} 계정 연결 중' : '',
                         style: TextStyle(
                           color: Colors.grey.shade500,
-                          fontSize: 14,
+                          fontSize: 14 * htio,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w600,
-                          height: 1.5,
+                          height: 1.5 * htio,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4 * htio),
                       Row(
-                        spacing: 6,
+                        spacing: 6 * wtio,
                         children: [
                           Text(
                             userInfo.nickname,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
+                              fontSize: 20 * htio,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.bold,
-                              height: 1.6,
+                              height: 1.6 * htio,
                             ),
                           ),
                           GestureDetector(
@@ -144,8 +147,8 @@ class UsrInfoProfile extends ConsumerWidget {
                               }
                             },
                             child: SizedBox(
-                              width: 18,
-                              height: 18,
+                              width: 18 * wtio,
+                              height: 18 * htio,
                               child: SvgPicture.asset(
                                 'assets/icons/reply/update_feed.svg',
                                 fit: BoxFit.cover,
@@ -166,7 +169,7 @@ class UsrInfoProfile extends ConsumerWidget {
           ),
         ),
         Container(
-            height: 8,
+            height: 8 * htio,
             decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
         ),
       ],
@@ -183,7 +186,7 @@ class UsrInfoProfile extends ConsumerWidget {
       ),
       builder: (BuildContext bc) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 20 * htio),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -199,12 +202,12 @@ class UsrInfoProfile extends ConsumerWidget {
                     await _pickImage(context, ref, ImageSource.gallery);
                   },
                   child: Container(
-                    height: 55, // 세로 폭
+                    height: 55 * htio, // 세로 폭
                     alignment: Alignment.center,
                     child: Text(
                       '갤러리에서 선택',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16 * htio,
                         color:Colors.grey.shade900,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w500,
@@ -213,7 +216,7 @@ class UsrInfoProfile extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 0.5), // 마진 역할을 하는 간격
+              SizedBox(height: 0.5 * htio), // 마진 역할을 하는 간격
               Material(
                 color: Colors.white,
                 shape:  const RoundedRectangleBorder(
@@ -226,12 +229,12 @@ class UsrInfoProfile extends ConsumerWidget {
                      await _deleteProfileImage(context, ref);
                   },
                   child: Container(
-                    height: 55, // 세로 폭
+                    height: 55 * htio, // 세로 폭
                     alignment: Alignment.center,
-                    child: const Text(
+                    child: Text(
                       '프로필 이미지 삭제',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 16 * htio,
                         color:Colors.red,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w500,
