@@ -3,12 +3,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_new_feed_alarm.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedCmuTabIndex;
 import 'package:my_app/view/tab/cmu/feed/list/cmu_app_bar_delegate.dart';
-import 'package:my_app/extension/screen_ratio_extension.dart';
 
 class CmuMain extends ConsumerStatefulWidget {
   const CmuMain({super.key});
@@ -169,9 +169,9 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
         slivers: [
           // 상단바 접혔을때 생기는 여백
           SliverAppBar(
-            pinned: true,
+            pinned: true, 
             primary: false,
-            toolbarHeight: 44,
+            toolbarHeight: 44 * htio,
             flexibleSpace: Container(
               decoration: const BoxDecoration(color: Colors.white),
             )
@@ -189,7 +189,6 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
           // 카테고리바
           SliverPersistentHeader(
             pinned: true,
-            
             delegate: CategoryTopBarDelegate(
               htio: htio,
               isSpread: isSpread,
@@ -263,13 +262,6 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
 
     overlay.insert(_alarmOverlay!);
     animationController.forward();
-
-    // Future.delayed(const Duration(seconds: 10), () async {
-    //   await animationController.reverse();
-    //   _alarmOverlay?.remove();
-    //   _alarmOverlay = null;
-    //   animationController.dispose();
-    // });
 }
 
 

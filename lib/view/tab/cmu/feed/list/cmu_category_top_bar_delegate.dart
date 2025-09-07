@@ -32,7 +32,6 @@ class CategoryTopBarDelegate extends SliverPersistentHeaderDelegate {
         child: CategoryTopBar(
           isSpread: isSpread,
           onToggleSpread: onToggleSpread,
-          htio: htio,
           onCategoryChange: onCategoryChange,
           selectedCategoryId: selectedCategoryId,
           onHotFeedBtnClick: onHotFeedBtnClick,

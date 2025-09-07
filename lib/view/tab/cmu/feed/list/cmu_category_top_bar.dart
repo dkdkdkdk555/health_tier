@@ -4,19 +4,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 
 class CategoryTopBar extends ConsumerStatefulWidget {
-  final double htio;
   final bool isSpread;
   final VoidCallback onToggleSpread;
-  final void Function({required int index})onCategoryChange;
-  final void Function({required bool hotYn})onHotFeedBtnClick;
+  final void Function({required int index}) onCategoryChange;
+  final void Function({required bool hotYn}) onHotFeedBtnClick;
   final int selectedCategoryId;
 
   const CategoryTopBar({
     super.key,
-    required this.htio,
     required this.isSpread,
     required this.onToggleSpread,
     required this.onCategoryChange,
@@ -33,45 +32,57 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
   late int selectedCategoryId;
   List modifiedCategoriesCollapse = [];
 
+  late double htio;
+  late double wtio;
+
   @override
   void initState() {
     super.initState();
-    selectedCategoryId =  widget.selectedCategoryId;
+    selectedCategoryId = widget.selectedCategoryId;
   }
 
   @override
   Widget build(BuildContext context) {
+    htio = ScreenRatio(context).heightRatio;
+    wtio = ScreenRatio(context).widthRatio;
+
     final categoriesAsync = ref.watch(getFeedCategories);
 
     return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
+      padding: EdgeInsets.only(
+        left: 20 * wtio,
+        right: 20 * wtio,
+        top: 16 * htio,
+        bottom: 8 * htio,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-          color: Color(0x1E000000),
-          blurRadius: 8,
-          offset: Offset(0, 2),
-          spreadRadius: 0,
+            color: Color(0x1E000000),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+            spreadRadius: 0,
           )
         ],
       ),
       child: Row(
         children: [
-          if(!widget.isSpread) ...[
+          if (!widget.isSpread) ...[
             bestFeed(),
             borderLine(),
             buildCategoryCollapsed(categoriesAsync)
-          ]else...[
+          ] else ...[
             buildCategoryExpanded(categoriesAsync)
-          ]
-          ,if(modifiedCategoriesCollapse.isNotEmpty) spreadBtn()
+          ],
+          if (modifiedCategoriesCollapse.isNotEmpty) spreadBtn()
         ],
       ),
     );
   }
 
-  Widget buildCategoryExpanded(AsyncValue<Result<List<Category>>> categoriesAsync) {
+  Widget buildCategoryExpanded(
+      AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
         final modifiedCategories = [
@@ -79,8 +90,8 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
           ...categories.data,
         ];
 
-        final firstRowCategories = modifiedCategories.take(3).toList(); // index 0~2
-        final secondRowCategories = modifiedCategories.skip(3).toList(); // index 3~
+        final firstRowCategories = modifiedCategories.take(3).toList();
+        final secondRowCategories = modifiedCategories.skip(3).toList();
 
         return Expanded(
           child: Column(
@@ -93,7 +104,7 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
                   ...firstRowCategories.map(makeCategory),
                 ],
               ),
-              const SizedBox(height: 8), // 줄 간 간격
+              SizedBox(height: 8 * htio),
               if (secondRowCategories.isNotEmpty)
                 Row(
                   children: secondRowCategories.map(makeCategory).toList(),
@@ -103,31 +114,29 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
         );
       },
       loading: () => const Center(child: AppLoadingIndicator()),
-      error: (err, stack) => const Center(child: Text('카테고리 목록 로드 중 오류가 발생했습니다.')),
+      error: (err, stack) =>
+          const Center(child: Text('카테고리 목록 로드 중 오류가 발생했습니다.')),
     );
   }
 
-
-
-  Widget buildCategoryCollapsed(AsyncValue<Result<List<Category>>> categoriesAsync) {
+  Widget buildCategoryCollapsed(
+      AsyncValue<Result<List<Category>>> categoriesAsync) {
     return categoriesAsync.when(
       data: (categories) {
         modifiedCategoriesCollapse = [
-          Category(id: 0, name: '전체'), // 원하는 첫 번째 항목 추가
+          Category(id: 0, name: '전체'),
           ...categories.data,
         ];
         return Expanded(
           child: SizedBox(
-            height: 34,
+            height: 34 * htio,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: modifiedCategoriesCollapse.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 0,),
+              separatorBuilder: (_, __) => SizedBox(width: 0 * wtio),
               itemBuilder: (context, index) {
                 final category = modifiedCategoriesCollapse[index];
-                return GestureDetector(
-                  child: makeCategory(category)
-                );
+                return GestureDetector(child: makeCategory(category));
               },
             ),
           ),
@@ -137,7 +146,6 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
       error: (err, stack) => const Center(child: Text('')),
     );
   }
-
 
   Widget makeCategory(Category category) {
     final isSelected = selectedCategoryId == category.id;
@@ -150,44 +158,34 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
         });
       },
       child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          margin: const EdgeInsets.only(right: 4),
-          decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                      width: 1,
-                      color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFFDDDDDD),
-                  ),
-                  borderRadius: BorderRadius.circular(99),
-              ),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * wtio,
+          vertical: 8 * htio,
+        ),
+        margin: EdgeInsets.only(right: 4 * wtio),
+        decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              width: 1 * wtio,
+              color: isSelected
+                  ? const Color(0xFF0D85E7)
+                  : const Color(0xFFDDDDDD),
+            ),
+            borderRadius: BorderRadius.circular(99 * wtio),
           ),
-          child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 4,
-                      children: [
-                          Text(
-                              category.name,
-                              style: TextStyle(
-                                  color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFF333333),
-                                  fontSize: 12,
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.50,
-                              ),
-                          ),
-                      ],
-                  ),
-              ],
+        ),
+        child: Text(
+          category.name,
+          style: TextStyle(
+            color: isSelected
+                ? const Color(0xFF0D85E7)
+                : const Color(0xFF333333),
+            fontSize: 12 * htio,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w400,
           ),
+        ),
       ),
     );
   }
@@ -196,39 +194,39 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
     return Align(
       alignment: Alignment.center,
       child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          width: 1,
-          height: 24,
-          decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+        margin: EdgeInsets.symmetric(horizontal: 8 * wtio),
+        width: 1 * wtio,
+        height: 24 * htio,
+        decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
       ),
     );
   }
 
-  Widget spreadBtn(){
+  Widget spreadBtn() {
     return GestureDetector(
       onTap: () async {
         if (!widget.isSpread) {
-          // 먼저 내부 애니메이션이 자연스럽게 줄어들도록 대기
           await Future.delayed(const Duration(milliseconds: 300));
         }
-
-        widget.onToggleSpread(); // isSpread 상태 변경
+        widget.onToggleSpread();
       },
       child: Align(
         alignment: Alignment.topCenter,
         child: Container(
-          width: 32,
-          height: 32,
-          margin: const EdgeInsets.only(left: 8, top: 1),
+          width: 32 * wtio,
+          height: 32 * htio,
+          margin: EdgeInsets.only(left: 8 * wtio, top: 1 * htio),
           child: SvgPicture.asset(
-            widget.isSpread ? 'assets/widgets/category_fold_btn.svg' : 'assets/widgets/category_spread_btn.svg',
-          )
+            widget.isSpread
+                ? 'assets/widgets/category_fold_btn.svg'
+                : 'assets/widgets/category_spread_btn.svg',
+          ),
         ),
       ),
     );
   }
 
-  Widget bestFeed(){
+  Widget bestFeed() {
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -237,53 +235,45 @@ class _CategoryTopBarState extends ConsumerState<CategoryTopBar> {
         });
       },
       child: Container(
-          height: 34,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: ShapeDecoration(
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                      width: 1,
-                      color: isBestFeedTap ? const Color(0xFF0D85E7) : const Color(0xFFDDDDDD),
-                  ),
-                  borderRadius: BorderRadius.circular(99),
+        height: 34 * htio,
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * wtio,
+          vertical: 8 * htio,
+        ),
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(
+              width: 1 * wtio,
+              color: isBestFeedTap
+                  ? const Color(0xFF0D85E7)
+                  : const Color(0xFFDDDDDD),
+            ),
+            borderRadius: BorderRadius.circular(99 * wtio),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 14 * wtio,
+              height: 14 * htio,
+              child: SvgPicture.asset('assets/icons/best.svg'),
+            ),
+            SizedBox(width: 2 * wtio),
+            Text(
+              '지금 뜨는',
+              style: TextStyle(
+                color: isBestFeedTap
+                    ? const Color(0xFF0D85E7)
+                    : const Color(0xFF333333),
+                fontSize: 12 * htio,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w400,
               ),
-          ),
-          child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 2,
-                      children: [
-                          SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: SvgPicture.asset(
-                              'assets/icons/best.svg'
-                            )
-                          ),
-                          Text(
-                            '지금 뜨는',
-                            style: TextStyle(
-                                color: isBestFeedTap ? const Color(0xFF0D85E7) : const Color(0xFF333333),
-                                fontSize: 12,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w400,
-                                height: 1.50,
-                            ),
-                          ),
-                      ],
-                  ),
-              ],
-          ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
-

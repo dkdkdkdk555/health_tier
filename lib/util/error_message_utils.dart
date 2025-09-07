@@ -32,7 +32,7 @@ Future<void> showAppMessage(
               ),
             ),
             duration: const Duration(seconds: 3),
-            behavior: SnackBarBehavior.floating,
+            behavior: SnackBarBehavior.fixed,
           ),
         );
       break;
