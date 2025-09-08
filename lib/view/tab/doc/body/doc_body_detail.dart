@@ -270,20 +270,20 @@ class DocBodyDetail extends ConsumerWidget {
                 detail?.weight != null ? '${detail?.weight}' : '몸무게',
                 style: TextStyle(
                   color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
-                  fontSize: (detail?.weight != null ? 42: 32) * wtio,
+                  fontSize: (detail?.weight != null ? 42: 32) * htio,
                   fontFamily: 'Pretendard',
                   height: 0.04 * htio,
                   letterSpacing: -1.0 * wtio, 
                   fontWeight: FontWeight.w600
                 ),
               ),
-              SizedBox(width: 4 * wtio),
+              SizedBox(width: 4 * htio),
               SizedBox(
                 child: Text(
                   'kg',
                   style: TextStyle(
                     color: const Color(0xFF999999),
-                    fontSize: 32 * wtio,
+                    fontSize: 32 * htio,
                     fontFamily: 'Pretendard',
                     height: 0.05 * htio,
                     letterSpacing: -1.0 * wtio, 
@@ -294,7 +294,7 @@ class DocBodyDetail extends ConsumerWidget {
             ],
           ),
         ),
-        SizedBox(width:14 * wtio),
+        SizedBox(width:14 * htio),
         SizedBox(
           height: 30 * htio,
           child: Row(
@@ -308,19 +308,19 @@ class DocBodyDetail extends ConsumerWidget {
                 overflow: TextOverflow.visible,
                 style: TextStyle(
                   color: detail?.totalProtein != null ? Colors.black : Colors.black.withAlpha(30),
-                  fontSize: (detail?.totalProtein != null ? 42: (detail?.weight == null ? 32: 26)) * wtio,
+                  fontSize: (detail?.totalProtein != null ? 42: (detail?.weight == null ? 32: 26)) * htio,
                   fontFamily: 'Pretendard',
                   height: 0.04 * htio,
                   letterSpacing: -1.0 * wtio, 
                   fontWeight: FontWeight.w600
                 ),
               ),
-              SizedBox(width: 4 * wtio),
+              SizedBox(width: 4 * htio),
               Text(
                 'g',
                 style: TextStyle(
                   color: const Color(0xFF999999),
-                  fontSize: 32 *  wtio,
+                  fontSize: 32 *  htio,
                   letterSpacing: -1.0 * wtio, 
                   fontFamily: 'Pretendard',
                   height: 0.05 * htio,

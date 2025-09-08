@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/usr_create_feeds_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/usr_profile.dart';
@@ -27,7 +28,7 @@ class _CmuUsrProfileState extends State<CmuUsrProfile> {
           // 상단바
           SliverPersistentHeader(
             pinned: true,
-            delegate: UsrProfileAppBarDelegate(),
+            delegate: UsrProfileAppBarDelegate(ScreenRatio(context).heightRatio),
           ),
           // 프로필
           SliverToBoxAdapter(

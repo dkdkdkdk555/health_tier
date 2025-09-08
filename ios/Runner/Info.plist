@@ -106,9 +106,7 @@
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortrait</string> <!--  세로방향만 허용 -->
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

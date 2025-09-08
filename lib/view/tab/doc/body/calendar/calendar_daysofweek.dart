@@ -30,7 +30,7 @@ class CustomWeekdayRow extends StatelessWidget {
                       child: Text(
                         ['일', '월', '화', '수', '목', '금', '토'][i],
                         style: TextStyle(
-                          fontSize: 11 * widthRatio,
+                          fontSize: 11 * heightRatio,
                           fontFamily: 'Pretendard',
                           color: const Color.fromARGB(102, 0, 0, 0),
                         ),

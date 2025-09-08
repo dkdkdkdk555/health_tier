@@ -22,12 +22,12 @@ Future<DateTime?> showDayPicker(
           builder: (context, setState) {
             return Padding(
               padding: EdgeInsets.symmetric(
-                  horizontal: 16 * widthRatio, vertical: 16 * heightRatio),
+                  horizontal: 15 * widthRatio, vertical: 16 * heightRatio),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    height: 400 * heightRatio,
+                    height: 409 * heightRatio,
                     width: 350 * widthRatio,
                     child: TableCalendar(
                       locale: 'ko_KR',

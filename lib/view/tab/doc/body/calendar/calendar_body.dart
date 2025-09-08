@@ -151,7 +151,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                           '${date.day}',
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 11.0 * widthRatio,
+                            fontSize: 11.0 * heightRatio,
                             color: isSelected ? Colors.black : Colors.black.withValues(alpha: 0.5),
                             fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal
                           ),
@@ -237,7 +237,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                 text: value,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 10 * widthRatio,
+                  fontSize: 10 * heightRatio,
                   fontFamily: 'Pretendard',
                 ),
               ),
@@ -245,7 +245,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                 text: unit,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.69), // 70% 투명도
-                  fontSize: 10 * widthRatio,
+                  fontSize: 10 * heightRatio,
                   fontFamily: 'Pretendard',
                 ),
               ),
