@@ -22,7 +22,6 @@ import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
-import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
@@ -31,6 +30,7 @@ import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
+import 'package:my_app/view/tab/simple_cache.dart' show navigationBarHide;
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
@@ -145,6 +145,7 @@ class MyApp extends ConsumerStatefulWidget {
 
  
 class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
+
 
   @override
   void initState() {

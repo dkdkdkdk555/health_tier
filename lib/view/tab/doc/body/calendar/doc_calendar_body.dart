@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/main.dart' show navigationBarHideProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/view/tab/doc/body/calendar/calendar_body.dart';
@@ -130,10 +131,11 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
 
 
 
-  void _showFullModal() {
+  void _showFullModal() async{
+    ref.read(navigationBarHideProvider.notifier).state = true;
     final ratio = ScreenRatio(context);
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -147,6 +149,8 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
         onSaved: _onDocSaved,
       ),
     );
+
+    ref.read(navigationBarHideProvider.notifier).state = false;
   }
 
   void _onDocSaved() {

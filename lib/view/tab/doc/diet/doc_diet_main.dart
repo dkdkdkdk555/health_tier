@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/main.dart' show navigationBarHideProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
@@ -78,10 +79,11 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
     );
   }
 
-  void _showFullModal() {
+  void _showFullModal() async{
+    ref.read(navigationBarHideProvider.notifier).state = true;
     final ratio = ScreenRatio(context);
 
-    showModalBottomSheet(
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -92,6 +94,8 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
       ),
       builder: (_) => DocDietWrite(focusDay: _focusedDay, onSaved: _onDocSaved,)
     );
+
+    ref.read(navigationBarHideProvider.notifier).state = false;
   }
 
 
