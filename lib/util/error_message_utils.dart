@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/navigator_key.dart' show navigatorKey;
 import 'package:my_app/view/tab/usr/get_started_screen.dart' show GetStartedScreen;
@@ -45,11 +46,7 @@ Future<void> showAppMessage(
         confirmText: confirmText,
         onConfirm: loginRequest ?
         () {
-          Navigator.of(context).pop();
-          navigatorKey.currentState?.pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const GetStartedScreen()),
-            (route) => false,
-          );
+          context.go('/login');
         } : () {}
       );
       break;

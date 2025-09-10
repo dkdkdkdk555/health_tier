@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 
@@ -102,15 +103,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 ),
                 IconButton(
                    onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WebViewPage(
-                          title: '이용약관',
-                          url: 'https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link',
-                        ),
-                      ),
-                    );
+                    context.push('/agremment?title=${Uri.encodeComponent('이용약관')}&url=${Uri.encodeComponent('https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link')}');
                   },
                   icon: const Icon(Icons.chevron_right, color: Colors.white),
                 ),
@@ -140,15 +133,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const WebViewPage(
-                          title: '개인정보처리방침',
-                          url: 'https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link',
-                        ),
-                      ),
-                    );
+                    context.push('/agremment?title=${Uri.encodeComponent('개인정보처리방침')}&url=${Uri.encodeComponent('https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link')}');
                   },
                   icon: const Icon(Icons.chevron_right, color: Colors.white),
                 ),
@@ -163,14 +148,12 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
               child: ElevatedButton(
                 onPressed: agreeAll
                     ? () async {
-                        final nickname = await Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const NicknameInputPage()),
-                        );
+                        final nickname = await context.push<String>('/usr/nicknameInput');
 
                         if (nickname != null) {
                           debugPrint('✔️ 닉네임 입력 완료: $nickname');
-                           Navigator.pop(context, nickname);
+                          if(!context.mounted) return;
+                          context.pop();
                         }
                       }
                     : null, // 전체 동의 안하면 비활성화

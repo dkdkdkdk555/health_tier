@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/main.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
@@ -96,12 +97,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     title: const Text('수정하기'),
                     onTap: () {
                       Navigator.pop(context); // 바텀 시트 닫기
-                      // WriteFeed 화면으로 이동하며 feedId 전달
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => WriteFeed(feedId: widget.feedId),
-                        ),
-                      );
+                      context.push('/cmu/writeFeed/${widget.feedId}');
                       debugPrint('게시글 수정 화면으로 이동, Feed ID: ${widget.feedId}');
                     },
                   ),
@@ -162,14 +158,10 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
           GestureDetector(
             onTap: () {
               if (widget.isFromWriteFeed) {
-                // WriteFeed에서 왔으면 CmuMain으로 이동하면서 이전 스택 모두 제거
-                // MyApp은 메인 위젯으로, mvIndex를 통해 CmuMain 탭으로 이동시킬 수 있다고 가정
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const MyApp(mvIndex: 2,)),
-                  (Route<dynamic> route) => false, // 이전 모든 라우트 제거
-                );
+                // WriteFeed에서 왔으면 뒤로가기 대신 CmuMain() 으로 보내야 하므로 이전 스택을 날리면서 지정한 라우트로 이동
+                context.go('/cmu');
               } else {
-                Navigator.pop(context);
+                context.pop();
               }
             },
             child: SizedBox(

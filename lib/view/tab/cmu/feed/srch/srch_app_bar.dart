@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 
 class SrchAppBar extends ConsumerStatefulWidget {
@@ -76,7 +77,7 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
                   widget.searchAreaControll();
                   _searchFocusNode.unfocus();
                 } else {
-                  Navigator.pop(context);
+                  context.pop();
                 }
               },
               child: SizedBox(

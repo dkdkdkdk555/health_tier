@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
@@ -127,10 +128,7 @@ class UsrInfoProfile extends ConsumerWidget {
                           GestureDetector(
                             onTap: () async {
                               try {
-                                final nickname = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const NicknameInputPage()),
-                                );
+                                final nickname = await context.push<String>('/usr/nicknameInput');
 
                                 if(nickname == null || nickname == '') return;
 

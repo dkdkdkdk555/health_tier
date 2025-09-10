@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_app/util/dialog_utils.dart';
 
 class CmuWriteAppBar extends StatelessWidget {
   final String centerText;
@@ -23,7 +25,10 @@ class CmuWriteAppBar extends StatelessWidget {
         children: [
           // ← 뒤로가기 버튼
           GestureDetector(
-            onTap: () => Navigator.pop(context), // 취소된다고 얼럴트 띄우기
+            onTap: () {
+              showAppDialog(context, message: '나가기를 누르시면 작성이 취소되고 내용이 삭제됩니다.',
+                confirmText: '나가기', cancelText: '머물기', onConfirm: () => context.pop(),);
+            },
             child: SvgPicture.asset(
               'assets/icons/feed_detail/ico_back.svg',
               width: 24,

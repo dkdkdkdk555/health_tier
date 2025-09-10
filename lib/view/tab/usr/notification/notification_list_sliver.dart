@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
@@ -94,14 +95,9 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                     if(notifiType != null && 
                         (notifiType == 'COMMUNITY' || notifiType == 'CRTIFI')
                     ) {
-                      Navigator.push(context,
-                        MaterialPageRoute(
-                          builder: (context) => 
-                            FeedDetail(feedId: notification.feedId!, isFromWriteFeed: false)
-                        )
-                      );
+                      context.push('/cmu/feed/${notification.feedId!}');
                     } else if(notifiType == 'BADGE') {
-                      // Navigator.pop(context); -->  걍 뒤로가기 하는 느낌,,
+                      context.go('/usr/info');
                     }
                   },
                   child: NotificationItem(notification: notification)

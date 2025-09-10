@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationManageAppBar extends StatefulWidget {
   final String centerText;
@@ -42,7 +43,7 @@ class _CmuBasicAppBarState extends State<NotificationManageAppBar> {
             alignment: Alignment.centerLeft,
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
               },
               child: SizedBox(
                 width: 24,

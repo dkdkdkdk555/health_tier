@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 
@@ -14,26 +15,7 @@ class CmuFeedItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                FeedDetail(feedId: feed.id, categoryId: feed.categoryId),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-              const end = Offset.zero;       // 현재 위치로 이동
-              const curve = Curves.ease;
-
-              final tween = Tween(begin: begin, end: end)
-                  .chain(CurveTween(curve: curve));
-
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: child,
-              );
-            },
-            transitionDuration: const Duration(milliseconds: 300),
-          ),
-        );
+        context.push('/cmu/feed/${feed.id}?categoryId=${feed.categoryId}');
       },
       child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

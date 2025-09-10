@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -65,11 +66,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                           onConfirm: () {
                             TokenManager.deleteAllTokens();
                             if(!context.mounted) return;
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(builder: (context) => const GetStartedScreen()),
-                              (route) => false,
-                            );
+                            context.go('/login'); // 현재 네비게이션 스택을 전부 날리고 이동
                           },
                           onCancel: () {
                             return;
@@ -93,11 +90,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () {
-                         Navigator.push(context,
-                          MaterialPageRoute(
-                            builder: (context) => const UsrSignoutNoticePage()
-                            )
-                          );
+                        context.push('/usr/management/signout');
                       },
                       child: Text(
                         '회원탈퇴',
@@ -153,16 +146,8 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
             ),
           ),
           IconButton(
-              onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => WebViewPage(
-                    title: text,
-                    url: link,
-                  ),
-                ),
-              );
+            onPressed: () {
+              context.push('/agremment?title=${Uri.encodeComponent(text)}&url=${Uri.encodeComponent(link)}');
             },
             icon: Icon(
               Icons.keyboard_arrow_right_rounded,

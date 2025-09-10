@@ -6,6 +6,7 @@ import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:flutter_naver_login/interface/types/naver_token.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
@@ -87,11 +88,7 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
         if (!context.mounted) return; 
         debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const UsrInfoScreen()),
-        );
-
+        context.go('/usr/info');
       } else if (response.statusCode == 204) {
         if (!context.mounted) return; 
         debugPrint('🟡 회원가입 필요 → 회원가입 화면 이동');
@@ -132,10 +129,7 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
         debugPrint('🎉 회원가입 및 로그인 성공');
 
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const UsrInfoScreen()),
-        );
+        context.go('/usr/info');
       } else {
         if(!mounted)return;
         showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
@@ -89,10 +90,7 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
           if (!context.mounted) return; 
 
           debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const UsrInfoScreen()),
-          );
+          context.go('/usr/info');
 
         } else if (response.statusCode == 204) {
           if (!context.mounted) return; 
@@ -145,10 +143,7 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         debugPrint('🎉 회원가입 및 로그인 성공');
 
         if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const UsrInfoScreen()),
-        );
+        context.go('/usr/info');
       } else {
         debugPrint('⚠️ 회원가입 실패: ${response.statusCode}');
         if(!mounted)return;

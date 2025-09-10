@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 
@@ -92,12 +93,7 @@ class _CmuAppBarState extends State<CmuAppBar> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const CmuTotalSrch(),
-                        ),
-                      );
+                      context.push('/cmu/srch');
                     },
                     child: SizedBox(
                       width: 28 * wtio,

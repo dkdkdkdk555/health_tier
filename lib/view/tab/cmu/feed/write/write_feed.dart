@@ -9,6 +9,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
@@ -486,13 +487,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       // 성공 메시지 표시 및 화면 이동 등
       if (!mounted) return;
       showAppMessage(context, message: '피드가 성공적으로 등록되었습니다.');
-      
-      Navigator.of(context).pushAndRemoveUntil(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              FeedDetail(feedId: resultFeedId, categoryId: categoryId, isFromWriteFeed: true,),
-        ), (Route<dynamic> route) => false, // 이전 모든 라우터 제거
-      );
+      context.go('/cmu/feed/$resultFeedId?categoryId=$categoryId&isFromWriteFeed=true');
       
     } catch (e) {
       debugPrint('게시글 등록 중 오류 발생: $e');

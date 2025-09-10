@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
@@ -60,11 +61,7 @@ class ProfileCard extends ConsumerWidget {
                         bottom: 0, // 필요에 따라 조정
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.push(context,
-                            MaterialPageRoute(
-                              builder: (context) => UsrInfoManagement(userInfo: userInfo,)
-                              )
-                            );
+                            context.push('/usr/info/management', extra: userInfo,);
                           },
                           child: Container(
                             width: 130,

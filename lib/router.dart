@@ -29,13 +29,119 @@ final router = GoRouter(
                 return CmuUsrProfile(userId: userId);
               },
               parentNavigatorKey: _rootNavigatorKey,
-            )
+            ),
+            GoRoute( // 통합검색 화면
+              path: 'srch',
+              builder: (context, state) {
+                return const CmuTotalSrch();
+              },
+              parentNavigatorKey: _rootNavigatorKey,
+            ),
+            GoRoute(
+              path: 'feed/:feedId',
+              pageBuilder: (context, state) {
+                final feedId = int.parse(state.pathParameters['feedId']!);
+
+                final categoryId = state.uri.queryParameters['categoryId'] != null
+                    ? int.tryParse(state.uri.queryParameters['categoryId']!)
+                    : null;
+
+                final isFromWriteFeed = state.uri.queryParameters['isFromWriteFeed'] == 'true';
+
+                return CustomTransitionPage(
+                  key: state.pageKey,
+                  child: FeedDetail(
+                    feedId: feedId,
+                    categoryId: categoryId,
+                    isFromWriteFeed: isFromWriteFeed,
+                  ),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
+                    const end = Offset.zero;        // 현재 위치로 이동
+                    const curve = Curves.ease;
+
+                    final tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 300),
+                );
+              },
+              parentNavigatorKey: _rootNavigatorKey,
+            ),
+            GoRoute( // 피드 수정
+              path: 'writeFeed/:feedId',
+              builder: (context, state) {
+                final feedId = int.parse(state.pathParameters['feedId']!);
+                return WriteFeed(feedId: feedId);
+              },
+              parentNavigatorKey: _rootNavigatorKey,
+            ),
           ]
         ),
         GoRoute(path: '/usr', 
-          builder: (context, state) => const UsrMain()
+          builder: (context, state) => const UsrMain(),
+          routes: [
+            GoRoute( // 마이페이지
+              path: 'info',
+              builder: (context, state) {
+                return const UsrInfoScreen();
+              },
+              routes: [
+                GoRoute( // 내 정보 관리
+                  path: 'management',
+                  builder: (context, state) {
+                    final dto = state.extra as UserSimpleDto;
+                    return UsrInfoManagement(userInfo: dto);
+                  },
+                  parentNavigatorKey: _rootNavigatorKey,
+                  routes: [
+                    GoRoute( // 알림목록 조회
+                      path: 'notifications',
+                      builder: (context, state) {
+                        return const NotificationManagePage();
+                      },
+                      parentNavigatorKey: _rootNavigatorKey,
+                    ),
+                    GoRoute( // 회원탈퇴 페이지
+                      path: 'signout',
+                      builder: (context, state) {
+                        return const UsrSignoutNoticePage();
+                      },
+                      parentNavigatorKey: _rootNavigatorKey,
+                    ),
+                  ]
+                ),
+              ]
+            ),
+            GoRoute( // 닉네임 입력 페이지
+              path: 'nicknameInput',
+              builder: (context, state) => const NicknameInputPage(),
+              parentNavigatorKey: _rootNavigatorKey,
+            ),
+          ]
         ),
       ],
+    ),
+    GoRoute( // 시작하기 화면
+      path: '/login',
+      builder: (context, state) {
+        return const GetStartedScreen();
+      },
+      parentNavigatorKey: _shellNavigatorKey,
+    ),
+    GoRoute( // 이용약관, 개인정보처리방침 웹뷰 페이지
+      path: '/agremment',
+      builder: (context, state) {
+        final title = state.uri.queryParameters['title']!;
+        final url = state.uri.queryParameters['url']!;
+        return WebViewPage(title: title, url: url);
+      },
+      parentNavigatorKey: _rootNavigatorKey,
     ),
   ],
 );

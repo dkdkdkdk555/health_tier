@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
@@ -412,12 +413,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
     return GestureDetector(
       onTap: (){
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CmuUsrProfile(userId: widget.reply.userId),
-          ),
-        );
+        context.push('/cmu/profile/${widget.reply.userId}');
       },
       child: SizedBox(
         width: 26,

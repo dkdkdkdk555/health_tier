@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/providers/db_providers.dart' show hasUnreadNotification;
 import 'package:my_app/providers/user_cud_providers.dart';
@@ -154,12 +155,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const NotificationManagePage(),
-                ),
-              );
+              context.push('/usr/management/notifications');
             },
             child: Stack(
               clipBehavior: Clip.none, // Stack 밖으로 배치 허용
