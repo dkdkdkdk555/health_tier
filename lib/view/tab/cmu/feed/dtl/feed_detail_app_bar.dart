@@ -97,7 +97,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     title: const Text('수정하기'),
                     onTap: () {
                       Navigator.pop(context); // 바텀 시트 닫기
-                      context.push('/cmu/writeFeed/${widget.feedId}');
+                      context.push('/cmu/writeFeed', extra: widget.feedId);
                       debugPrint('게시글 수정 화면으로 이동, Feed ID: ${widget.feedId}');
                     },
                   ),

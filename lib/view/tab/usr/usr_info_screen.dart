@@ -155,7 +155,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           ),
           GestureDetector(
             onTap: () {
-              context.push('/usr/management/notifications');
+              context.push('/usr/info/management/notifications');
             },
             child: Stack(
               clipBehavior: Clip.none, // Stack 밖으로 배치 허용

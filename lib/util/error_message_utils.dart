@@ -46,7 +46,7 @@ Future<void> showAppMessage(
         confirmText: confirmText,
         onConfirm: loginRequest ?
         () {
-          context.go('/login');
+          context.go('/usr/login');
         } : () {}
       );
       break;

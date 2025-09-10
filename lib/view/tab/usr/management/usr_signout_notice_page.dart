@@ -135,7 +135,7 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                                 if(response == 'success') {
                                   TokenManager.deleteAllTokens();
                                   if(!context.mounted) return;
-                                  context.go('/login');
+                                  context.go('/usr/login');
                                   showAppMessage(context, message: '회원탈퇴를 완료하였습니다. 다시 또 만나요!');
                                 }
                               },

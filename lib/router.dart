@@ -1,5 +1,8 @@
 part of 'main.dart';
 
+// 네비게이션바 숨김여부 프로바이더
+final navigationBarHideProvider = StateProvider<bool>((ref) => false);
+
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -14,7 +17,7 @@ final router = GoRouter(
       },
       routes: [
         GoRoute(path: '/doc', 
-          builder: (context, state) => const DocMain()
+          builder: (context, state) => const DocMain(),
         ),
         GoRoute(path: '/stc', 
           builder: (context, state) => const StcMain()
@@ -74,9 +77,9 @@ final router = GoRouter(
               parentNavigatorKey: _rootNavigatorKey,
             ),
             GoRoute( // 피드 수정
-              path: 'writeFeed/:feedId',
+              path: 'writeFeed',
               builder: (context, state) {
-                final feedId = int.parse(state.pathParameters['feedId']!);
+                final feedId = state.extra as int?;
                 return WriteFeed(feedId: feedId);
               },
               parentNavigatorKey: _rootNavigatorKey,
@@ -123,25 +126,25 @@ final router = GoRouter(
               builder: (context, state) => const NicknameInputPage(),
               parentNavigatorKey: _rootNavigatorKey,
             ),
+            GoRoute( // 시작하기 화면
+              path: 'login',
+              builder: (context, state) {
+                return const GetStartedScreen();
+              },
+              parentNavigatorKey: _shellNavigatorKey,
+            ),
+            GoRoute( // 이용약관, 개인정보처리방침 웹뷰 페이지
+              path: 'agremment',
+              builder: (context, state) {
+                final title = state.uri.queryParameters['title']!;
+                final url = state.uri.queryParameters['url']!;
+                return WebViewPage(title: title, url: url);
+              },
+              parentNavigatorKey: _rootNavigatorKey,
+            ),
           ]
         ),
       ],
-    ),
-    GoRoute( // 시작하기 화면
-      path: '/login',
-      builder: (context, state) {
-        return const GetStartedScreen();
-      },
-      parentNavigatorKey: _shellNavigatorKey,
-    ),
-    GoRoute( // 이용약관, 개인정보처리방침 웹뷰 페이지
-      path: '/agremment',
-      builder: (context, state) {
-        final title = state.uri.queryParameters['title']!;
-        final url = state.uri.queryParameters['url']!;
-        return WebViewPage(title: title, url: url);
-      },
-      parentNavigatorKey: _rootNavigatorKey,
     ),
   ],
 );
@@ -195,6 +198,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
   Widget build(BuildContext context) {
     final wtio = MediaQuery.of(context).size.width;
     final selectedIndex = _calculateIndex(GoRouterState.of(context));
+    final navigationBarHide = ref.watch(navigationBarHideProvider);
 
     if (selectedIndex == 2) {
       _fabController.forward();
@@ -205,7 +209,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     return Scaffold(
       extendBody: true,
       body: widget.child,
-      bottomNavigationBar: Stack(
+      bottomNavigationBar: navigationBarHide ? null : Stack(
         alignment: Alignment.center,
         children: [
           if (selectedIndex == 2)
@@ -224,7 +228,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
                         final response = await ref.read(jwtTokenVerificationProvider.future);
                         if (response.isValid) {
                           if (!context.mounted) return;
-                          context.push('/writeFeed'); // GoRouter로 이동
+                          context.push('/cmu/writeFeed'); // GoRouter로 이동
                         } else {
                           if (!context.mounted) return;
                           showAppMessage(

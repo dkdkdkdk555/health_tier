@@ -66,7 +66,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                           onConfirm: () {
                             TokenManager.deleteAllTokens();
                             if(!context.mounted) return;
-                            context.go('/login'); // 현재 네비게이션 스택을 전부 날리고 이동
+                            context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
                           },
                           onCancel: () {
                             return;
@@ -90,7 +90,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () {
-                        context.push('/usr/management/signout');
+                        context.push('/usr/info/management/signout');
                       },
                       child: Text(
                         '회원탈퇴',
@@ -147,7 +147,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
           ),
           IconButton(
             onPressed: () {
-              context.push('/agremment?title=${Uri.encodeComponent(text)}&url=${Uri.encodeComponent(link)}');
+              context.push('/usr/agremment?title=${Uri.encodeComponent(text)}&url=${Uri.encodeComponent(link)}');
             },
             icon: Icon(
               Icons.keyboard_arrow_right_rounded,
