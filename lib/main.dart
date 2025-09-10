@@ -11,6 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
@@ -31,6 +32,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'view/navigation_bar.dart';
 import 'package:intl/date_symbol_data_local.dart'; 
 import '../firebase_options.dart'; // flutterfire configure 하면 생겨나는 설정파일
+
+part 'router.dart';
 
 // top-level 백그라운드 핸들러
 @pragma('vm:entry-point')
@@ -131,19 +134,6 @@ class MyApp extends ConsumerStatefulWidget {
 
  
 class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
-  double islandLeftMargin = 75;
-
-  late AnimationController _fabController;
-  late Animation<Offset> _fabSlide;
-  late Animation<double> _fabOpacity;
-  
-  final List<Widget> _pages = [
-      const DocMain(), 
-      const StcMain(),
-      const CmuMain(),
-      const UsrMain()
-  ];
 
   @override
   void initState() {
@@ -152,31 +142,6 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     // 알림 권한요청
     Future.delayed(const Duration(seconds: 3), FlutterLocalNotification.requestNotificationPermission());
     super.initState();
-
-    _fabController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 350),
-    );
-
-    _fabSlide = Tween<Offset>(
-      begin: const Offset(-1.0, 0), // 가운데서 시작
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _fabController,
-      curve: Curves.easeOut,
-    ));
-
-    _fabOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _fabController, 
-        curve: Curves.easeIn
-    ));
-
-    if(widget.mvIndex!=0) _onTap(widget.mvIndex);
-
   }
 
   void _initNotifications() async {
@@ -184,104 +149,12 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   }
 
   @override
-  void dispose() {
-    _fabController.dispose();
-    super.dispose();
-  }
-    
-  void _onTap(int index) {
-    setState(() {
-      _selectedIndex = index;
-      ref.read(currentPageProvider.notifier).state = index;
-      if(index == 2) {
-        islandLeftMargin = 14;
-        _fabController.forward(); // FAB 슬라이드 인
-      } else {
-        islandLeftMargin = 75;
-        _fabController.reverse(); // FAB 슬라이드 아웃
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-     final wtio = MediaQuery.of(context).size.width;
-
-    return MaterialApp(
-      navigatorKey: navigatorKey,
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        extendBody: true,
-        body: _pages[_selectedIndex],
-        bottomNavigationBar: Stack(
-          alignment: Alignment.center,
-          children: [
-            // cmu 작성 버튼
-          if (_selectedIndex == 2)
-            Positioned(
-              height: wtio * 0.14,
-              width: wtio * 0.14,
-              right: 38,
-              bottom: 42,
-              child: SlideTransition(
-                position: _fabSlide,
-                child: FadeTransition(
-                  opacity: _fabOpacity,
-                  child: Builder(
-                    builder: (context) => FloatingActionButton(
-                      onPressed: () async {
-                        try {
-                          final response = await ref.read(jwtTokenVerificationProvider.future);
-                          if(response.isValid) {
-                            debugPrint('${response.isValid}');
-                            if(!context.mounted)return;
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WriteFeed(),
-                              ),
-                            );
-                          } else {
-                            if(!context.mounted)return;
-                            showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
-                          }
-                        } catch (e) {
-                          showAppMessage(context, message: '서버 오류가 발생하였습니다.\n반복될 경우 관리자에게 문의하세요.', type: AppMessageType.dialog);
-                          debugPrint('$e');
-                        }
-                      },
-                      backgroundColor: const Color(0xFF0D85E7),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: SvgPicture.asset('assets/widgets/create_feed.svg'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-             // 네비게이션 바
-            AnimatedAlign(
-              duration: const Duration(milliseconds: 350),
-              alignment: _selectedIndex == 2 
-                ? const Alignment(-0.45, 1.0)   // cmu 탭일 때 살짝 왼쪽으로
-                : Alignment.bottomCenter, // 기본은 가운데
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 42),
-                height: wtio * 0.14, // 원래 고정값은 52 인데 gpt추천 비율로 반응형 구현
-                width: wtio * 0.624, // 반응형 너비
-                child: IslandNavigationBar(
-                  selectedIndex: _selectedIndex,
-                  onTap: _onTap,
-                  wtio: wtio,
-                ),
-              ),
-            ),
-          ],
-        )
-      ),
+      routerConfig: router,
       localizationsDelegates: const [
-       FlutterQuillLocalizations.delegate,
+        FlutterQuillLocalizations.delegate,
       ],
     );
   }
