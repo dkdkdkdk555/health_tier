@@ -24,6 +24,7 @@ import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
+import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/stc/stc_main.dart';

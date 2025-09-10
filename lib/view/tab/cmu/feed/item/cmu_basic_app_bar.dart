@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/util/screen_ratio.dart';
 
 class CmuBasicAppBar extends StatefulWidget {
@@ -44,7 +45,7 @@ class _CmuBasicAppBarState extends State<CmuBasicAppBar> {
             alignment: Alignment.centerLeft,
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(context);
+                context.pop();
               },
               child: SizedBox(
                 width: 24 * wtio,

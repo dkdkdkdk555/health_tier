@@ -20,7 +20,17 @@ final router = GoRouter(
           builder: (context, state) => const StcMain()
         ),
         GoRoute(path: '/cmu', 
-          builder: (context, state) => const CmuMain()
+          builder: (context, state) => const CmuMain(),
+          routes: [
+            GoRoute( // 사용자 프로필 화면
+              path: 'profile/:userId',
+              builder: (context, state) {
+                final userId = int.parse(state.pathParameters['userId']!);
+                return CmuUsrProfile(userId: userId);
+              },
+              parentNavigatorKey: _rootNavigatorKey,
+            )
+          ]
         ),
         GoRoute(path: '/usr', 
           builder: (context, state) => const UsrMain()

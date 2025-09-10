@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
 import 'package:my_app/providers/feed_providers.dart';
@@ -74,12 +75,7 @@ class FeedDetailProfileSection extends ConsumerWidget {
 
     return GestureDetector(
       onTap: (){
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => CmuUsrProfile(userId: userId),
-          ),
-        );
+        context.push('/cmu/profile/$userId');
       },
       child: SizedBox(
         width: 44,
