@@ -98,8 +98,7 @@ final router = GoRouter(
                 GoRoute( // 내 정보 관리
                   path: 'management',
                   builder: (context, state) {
-                    final dto = state.extra as UserSimpleDto;
-                    return UsrInfoManagement(userInfo: dto);
+                    return const UsrInfoManagement();
                   },
                   parentNavigatorKey: rootNavigatorKey,
                   routes: [

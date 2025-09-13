@@ -160,6 +160,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
     ref.invalidate(htDayDocOfMonth(refreshMonth));
     ref.invalidate(selectHtDayDoc(refreshDay));
     ref.invalidate(getPreviousWeight(refreshDay));
+    ref.invalidate(getLatestWeightProvider);
     StcInvalidator().stcInvalidate(ref);
   }
 }

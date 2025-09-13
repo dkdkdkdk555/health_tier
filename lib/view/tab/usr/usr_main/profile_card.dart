@@ -61,7 +61,7 @@ class ProfileCard extends ConsumerWidget {
                         bottom: 0, // 필요에 따라 조정
                         child: GestureDetector(
                           onTap: () {
-                            context.push('/usr/info/management', extra: userInfo,);
+                            context.push('/usr/info/management');
                           },
                           child: Container(
                             width: 130,

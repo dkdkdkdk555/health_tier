@@ -6,171 +6,185 @@ import 'package:go_router/go_router.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-import 'package:my_app/model/usr/user/usr_simple_dto.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
-import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/view/common/error_widget.dart' show ErrorContentWidget;
 import 'package:path/path.dart' as path show basename;
 
 // ignore: must_be_immutable
 class UsrInfoProfile extends ConsumerWidget {
-  final UserSimpleDto userInfo;
   UsrInfoProfile({
     super.key,
-    required this.userInfo,
-  
   });
+
   var htio = 0.0;
   var wtio = 0.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;
 
-    return Column(
-      children: [
-        Container(
-            height: 1 * htio,
-            decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
-        ),
-        Container(
-          padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, top: 25 * htio, bottom: 26 * htio),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
+    final userInfoAsync = ref.watch(usrSimpleInfoProvider);
+
+    return userInfoAsync.when(
+      data: (userInfoResult) {
+        final userInfo = userInfoResult.data;
+
+        return Column(
+          children: [
+            Container(
+                height: 1 * htio,
+                decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, top: 25 * htio, bottom: 26 * htio),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 80 * wtio,
-                    height: 80 * wtio,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: ClipOval(
-                      child: userInfo.imgPath == null
-                      ? SvgPicture.asset(
-                          'assets/widgets/default_user_profile.svg',
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          userInfo.imgPath!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return SvgPicture.asset(
+                  Stack(
+                    children: [
+                      Container(
+                        width: 80 * wtio,
+                        height: 80 * wtio,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: userInfo.imgPath == null
+                          ? SvgPicture.asset(
                               'assets/widgets/default_user_profile.svg',
                               fit: BoxFit.cover,
-                            );
-                          },
-                        ),
-                    ),
-                  ),
-                  // 우측 하단 카메라 아이콘
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: () {
-                          _showProfileImageOptions(context, ref); 
-                      },
-                      child: Container(
-                        width: 28 * wtio,
-                        height: 28 * htio,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1 * wtio,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.camera,
-                          color: Colors.grey.shade600,
-                          size: 20 * wtio,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              // 연동 sns + 닉네임
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16 * wtio, vertical: 10 * htio),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        userInfo.snsType != null ? '${userInfo.snsType!.displayName} 계정 연결 중' : '',
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 14 * htio,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w600,
-                          height: 1.5 * htio,
-                        ),
-                      ),
-                      SizedBox(height: 4 * htio),
-                      Row(
-                        spacing: 6 * wtio,
-                        children: [
-                          Text(
-                            userInfo.nickname,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20 * htio,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.bold,
-                              height: 1.6 * htio,
+                            )
+                          : Image.network(
+                              userInfo.imgPath!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return SvgPicture.asset(
+                                  'assets/widgets/default_user_profile.svg',
+                                  fit: BoxFit.cover,
+                                );
+                              },
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              try {
-                                final nickname = await context.push<String>('/usr/nicknameInput');
-
-                                if(nickname == null || nickname == '') return;
-
-                                final service = await ref.read(userCudServiceProvider.future);
-                                final response = await service.updateNickname(nickname);
-                                if(response == 'success'){
-                                  if(!context.mounted) return;
-                                  ref.invalidate(usrSimpleInfoProvider);
-                                  showAppMessage(context, message: '닉네임이 수정되었습니다.');
-                                }
-                              }catch(e) {
-                                if(!context.mounted) return;
-                                showAppMessage(context, message: '닉네임이 수정에 실패하였습니다.', type: AppMessageType.dialog);
-                              }
-                            },
-                            child: SizedBox(
-                              width: 18 * wtio,
-                              height: 18 * htio,
-                              child: SvgPicture.asset(
-                                'assets/icons/reply/update_feed.svg',
-                                fit: BoxFit.cover,
-                                colorFilter: ColorFilter.mode(
-                                  Colors.grey.shade900,        // 적용할 색
-                                  BlendMode.srcIn,    // 원래 svg 색을 덮어씀
-                                ),
+                        ),
+                      ),
+                      // 우측 하단 카메라 아이콘
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                              _showProfileImageOptions(context, ref); 
+                          },
+                          child: Container(
+                            width: 28 * wtio,
+                            height: 28 * htio,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1 * wtio,
                               ),
                             ),
+                            child: Icon(
+                              Icons.camera,
+                              color: Colors.grey.shade600,
+                              size: 20 * wtio,
+                            ),
                           ),
-                        ],
-                      )
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              )
-            ],
-          ),
-        ),
-        Container(
-            height: 8 * htio,
-            decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
-        ),
-      ],
+                  // 연동 sns + 닉네임
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16 * wtio, vertical: 10 * htio),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userInfo.snsType != null ? '${userInfo.snsType!.displayName} 계정 연결 중' : '',
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 14 * htio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              height: 1.5 * htio,
+                            ),
+                          ),
+                          SizedBox(height: 4 * htio),
+                          Row(
+                            spacing: 6 * wtio,
+                            children: [
+                              Text(
+                                userInfo.nickname,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20 * htio,
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.6 * htio,
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  try {
+                                    final nickname = await context.push<String>('/usr/nicknameInput');
+        
+                                    if(nickname == null || nickname == '') return;
+        
+                                    final service = await ref.read(userCudServiceProvider.future);
+                                    final response = await service.updateNickname(nickname);
+                                    if(response == 'success'){
+                                      if(!context.mounted) return;
+                                      CmuInvalidateCollect().usrInfoUpdateInvalidateCache(ref);
+                                      showAppMessage(context, message: '닉네임이 수정되었습니다.');
+                                    }
+                                  }catch(e) {
+                                    if(!context.mounted) return;
+                                    showAppMessage(context, message: '닉네임이 수정에 실패하였습니다.', type: AppMessageType.dialog);
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: 18 * wtio,
+                                  height: 18 * htio,
+                                  child: SvgPicture.asset(
+                                    'assets/icons/reply/update_feed.svg',
+                                    fit: BoxFit.cover,
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.grey.shade900,        // 적용할 색
+                                      BlendMode.srcIn,    // 원래 svg 색을 덮어씀
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Container(
+                height: 8 * htio,
+                decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
+            ),
+          ],
+        );
+      },
+      loading: () => const Center(child: AppLoadingIndicator()),
+      error: (err, stack) {
+        debugPrint('$err');
+        debugPrint('$stack');
+        return const ErrorContentWidget(mainText: '프포필 정보를 불러오는데 실패했습니다.',);
+      }
     );
   }
 
@@ -277,7 +291,7 @@ class UsrInfoProfile extends ConsumerWidget {
         // 성공 시 메시지 표시 및 UI 업데이트
         if (context.mounted && response=='success') {
           showAppMessage(context, message: '프로필 이미지가 업로드되었습니다.');
-          ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
+          CmuInvalidateCollect().usrInfoUpdateInvalidateCache(ref);
         }
       } catch (e) {
         // 에러 메시지 표시
@@ -297,7 +311,7 @@ class UsrInfoProfile extends ConsumerWidget {
       // 성공 시 메시지 표시 및 UI 업데이트
       if (context.mounted && response == 'success') {
         showAppMessage(context, message: '프로필 이미지가 삭제되었습니다.');
-        ref.invalidate(usrSimpleInfoProvider); // 사용자 정보 프로바이더 새로고침
+        CmuInvalidateCollect().usrInfoUpdateInvalidateCache(ref);
       }
     } catch (e) {
       // 에러 메시지 표시

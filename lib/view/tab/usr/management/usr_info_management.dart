@@ -16,10 +16,8 @@ import 'package:my_app/view/tab/usr/management/usr_signout_notice_page.dart';
 
 //내정보관리
 class UsrInfoManagement extends ConsumerStatefulWidget {
-  final UserSimpleDto userInfo;
   const UsrInfoManagement({
     super.key,
-    required this.userInfo,
   });
 
   @override
@@ -43,7 +41,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
           children: [
             SizedBox(height:44 * htio),
             const CmuBasicAppBar(centerText: '내 정보 관리',),
-            UsrInfoProfile(userInfo: widget.userInfo),
+            UsrInfoProfile(),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 25 * htio),
               child: Column(

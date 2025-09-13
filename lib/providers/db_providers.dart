@@ -478,7 +478,7 @@ final selectStampList = FutureProvider.family<List<StampModel>, DayRange>((ref, 
 /*
   4-2. 가장 최근의 체중을 가져오기
 */
-final getLatestWeightProvider = FutureProvider<double?>((ref) async {
+final getLatestWeightProvider = FutureProvider.autoDispose<double?>((ref) async {
   final db = ref.watch(databaseProvider);
 
   // htDayBody 테이블에서 체중(weight) 기록이 있는 가장 최근의 데이터를 조회

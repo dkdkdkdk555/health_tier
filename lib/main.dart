@@ -30,7 +30,6 @@ import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
-import 'package:my_app/view/tab/simple_cache.dart' show navigationBarHide;
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
