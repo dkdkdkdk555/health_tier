@@ -16,6 +16,7 @@ import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider;
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/quill_video_player.dart';
@@ -477,18 +478,16 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       if (widget.feedId != null) {
         // 수정 모드: updateFeed 호출
         resultFeedId = await feedCudServiceInstance.updateFeed(widget.feedId!, feedDto);
-        debugPrint('게시글 수정 성공! Feed ID: $resultFeedId');
       } else {
         // 생성 모드: createFeed 호출
         resultFeedId = await feedCudServiceInstance.createFeed(feedDto);
-        debugPrint('게시글 생성 성공! Feed ID: $resultFeedId');
       }
 
       // 성공 메시지 표시 및 화면 이동 등
       if (!mounted) return;
       showAppMessage(context, message: '피드가 성공적으로 등록되었습니다.');
       context.go('/cmu/feed/$resultFeedId?categoryId=$categoryId&isFromWriteFeed=true');
-      
+      ref.invalidate(feedPaginationProvider);
     } catch (e) {
       debugPrint('게시글 등록 중 오류 발생: $e');
       if (!mounted) return;

@@ -58,7 +58,7 @@ final feedParamsProvider = StateProvider<FeedQueryParams>((ref) {
 });
 
 // 피드 상세 조회 프로바이더
-final feedDetailProvider = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
+final feedDetailProvider = FutureProvider.autoDispose.family<Result<FeedDetailDto>, int>((ref, feedId) async {
   final service = await ref.watch(feedServiceAuth.future);
   final prefs = await SharedPreferences.getInstance();
   return await service.getFeedDetail(feedId, prefs.getInt('userId'));
@@ -89,7 +89,7 @@ final userCreateFeedsProvider = StateNotifierProvider.family<UserCreateFeedPagin
 });
 
 // 통합검색
-final searchFeedsProvider = StateNotifierProvider.family<SearchResultFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, String>((ref, keyword) {
+final searchFeedsProvider = StateNotifierProvider.autoDispose.family<SearchResultFeedPaginationNotifier, AsyncValue<ScrollResponse<FeedPreviewDto>>, String>((ref, keyword) {
   final service = ref.watch(feedService);
   final params = KeywordSearchParam(keyword: keyword);
   return SearchResultFeedPaginationNotifier(service, params);

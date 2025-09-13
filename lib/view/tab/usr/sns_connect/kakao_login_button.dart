@@ -90,7 +90,7 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
           if (!context.mounted) return; 
 
           debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-          context.go('/usr/info');
+          context.go('/usr');
 
         } else if (response.statusCode == 204) {
           if (!context.mounted) return; 
@@ -143,7 +143,7 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         debugPrint('🎉 회원가입 및 로그인 성공');
 
         if (!mounted) return;
-        context.go('/usr/info');
+        context.go('/usr');
       } else {
         debugPrint('⚠️ 회원가입 실패: ${response.statusCode}');
         if(!mounted)return;
