@@ -159,7 +159,7 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
             onTap: () {
               if (widget.isFromWriteFeed) {
                 // WriteFeed에서 왔으면 뒤로가기 대신 CmuMain() 으로 보내야 하므로 이전 스택을 날리면서 지정한 라우트로 이동
-                context.go('/cmu');
+                context.replace('/cmu');
               } else {
                 context.pop();
               }
