@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
+import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/token_manager.dart';
@@ -65,6 +67,7 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                           cancelText: '취소',
                           onConfirm: () {
                             TokenManager.deleteAllTokens();
+                            CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
                             if(!context.mounted) return;
                             context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
                           },

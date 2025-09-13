@@ -22,20 +22,28 @@ class DIOConfig {
   }
 
   Future<Dio> createAuthDio(Ref ref) async {
-    final dio = Dio();
-    final prefs = await SharedPreferences.getInstance();
-    final jwtToken = prefs.getString('accessToken');
-
-    dio.options = BaseOptions(
+    final dio = Dio(BaseOptions(
       baseUrl: APIServer.baseUrl,
       connectTimeout: const Duration(seconds: 1000),
       receiveTimeout: const Duration(seconds: 600),
       contentType: 'application/json',
-      headers: {
-       'Authorization': 'Bearer ${jwtToken ?? ''}',
-      },
-    );
+      // 초기 Authorization 헤더는 비워두거나 기본값 설정
+      headers: {'Authorization': 'Bearer '},
+    ));
+
+    // ErrorInterceptor 추가 (401 등 에러 처리)
     dio.interceptors.add(ErrorInterceptor(ref, dio));
+
+    // 요청마다 최신 토큰 반영
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final prefs = await SharedPreferences.getInstance();
+        final jwtToken = prefs.getString('accessToken');
+        options.headers['Authorization'] = 'Bearer ${jwtToken ?? ''}';
+        handler.next(options); // 요청 진행
+      },
+    ));
+
     return dio;
   }
 

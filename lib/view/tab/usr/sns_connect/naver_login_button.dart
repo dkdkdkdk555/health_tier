@@ -5,27 +5,29 @@ import 'package:flutter_naver_login/interface/types/naver_account_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
 import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:flutter_naver_login/interface/types/naver_token.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
 import 'package:my_app/model/usr/auth/token_response.dart';
+import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
-import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 
-class NaverLoginButton extends StatefulWidget {
+class NaverLoginButton extends ConsumerStatefulWidget {
   const NaverLoginButton({
     super.key
   });
 
   @override
-  State<NaverLoginButton> createState() => _NaverLoginButtonState();
+  ConsumerState<NaverLoginButton> createState() => _NaverLoginButtonState();
 }
 
-class _NaverLoginButtonState extends State<NaverLoginButton> {
+class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
   final authApi = AuthApiService();
   
   bool isLogin = false;
@@ -84,11 +86,11 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
         UserPrefs.settingLoginResponse(tokenResponse);
 
         debugPrint('🎉 회원가입 및 로그인 성공');
-
+        CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
 
         if (!context.mounted) return; 
         debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-        context.go('/usr');
+        context.go('/usr/info');
       } else if (response.statusCode == 204) {
         if (!context.mounted) return; 
         debugPrint('🟡 회원가입 필요 → 회원가입 화면 이동');
@@ -124,12 +126,13 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
 
       if (response.statusCode == 200) {
         final tokenResponse = TokenResponse.fromJson(response.data);
-        UserPrefs.settingLoginResponse(tokenResponse);
+        await UserPrefs.settingLoginResponse(tokenResponse);
 
         debugPrint('🎉 회원가입 및 로그인 성공');
+        CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
 
         if (!mounted) return;
-        context.go('/usr');
+        context.go('/usr/info');
       } else {
         if(!mounted)return;
         showAppMessage(context, message: '회원가입에 실패하였습니다.', type: AppMessageType.dialog);
@@ -162,7 +165,7 @@ class _NaverLoginButtonState extends State<NaverLoginButton> {
     
     return GestureDetector(
       onTap: () {
-        naverLoginButton(context);
+        naverLoginButton(context,);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
@@ -11,16 +13,15 @@ import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
-import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 
-class KakaoLoginButton extends StatefulWidget {
+class KakaoLoginButton extends ConsumerStatefulWidget {
   const KakaoLoginButton({super.key});
 
   @override
-  State<KakaoLoginButton> createState() => _KakaoLoginButtonState();
+  ConsumerState<KakaoLoginButton> createState() => _KakaoLoginButtonState();
 }
 
-class _KakaoLoginButtonState extends State<KakaoLoginButton> {
+class _KakaoLoginButtonState extends ConsumerState<KakaoLoginButton> {
   final authApi = AuthApiService();
   
   String? accessToken;
@@ -88,10 +89,9 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         UserPrefs.settingLoginResponse(tokenResponse);
 
           if (!context.mounted) return; 
-
+          CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
           debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-          context.go('/usr');
-
+          context.go('/usr/info');
         } else if (response.statusCode == 204) {
           if (!context.mounted) return; 
           debugPrint('🟡 회원가입 필요 → 회원가입 화면 이동');
@@ -140,10 +140,11 @@ class _KakaoLoginButtonState extends State<KakaoLoginButton> {
         final tokenResponse = TokenResponse.fromJson(response.data);
         UserPrefs.settingLoginResponse(tokenResponse);
         
+        CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
         debugPrint('🎉 회원가입 및 로그인 성공');
 
         if (!mounted) return;
-        context.go('/usr');
+        context.go('/usr/info');
       } else {
         debugPrint('⚠️ 회원가입 실패: ${response.statusCode}');
         if(!mounted)return;
