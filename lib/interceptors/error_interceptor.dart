@@ -5,9 +5,9 @@ import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
-import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_app/main.dart' show rootNavigatorKey;
 
 class ErrorInterceptor extends InterceptorsWrapper {
   final Ref ref;
@@ -19,7 +19,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final originalRequest = err.requestOptions;
-    final context = navigatorKey.currentContext;
+    final context = rootNavigatorKey.currentState?.overlay?.context;
 
     if (err.response?.statusCode == 401) { // 401 Unauthorized
       try {
@@ -64,7 +64,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
-
+          
           // _showReloginDialog(originalRequest, handler);
           final currentPage = ref.read(currentPageProvider);
             if (currentPage != 3) {
