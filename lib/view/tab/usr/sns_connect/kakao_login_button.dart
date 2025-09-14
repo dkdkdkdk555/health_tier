@@ -119,6 +119,7 @@ class _KakaoLoginButtonState extends ConsumerState<KakaoLoginButton> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      useRootNavigator: true, // 네비게이션바 가리기
       builder: (_) => const AgreementBottomBar(),
     );
 

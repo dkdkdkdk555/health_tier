@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/tab/usr/sns_connect/apple_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/kakao_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/naver_login_button.dart';
 
@@ -137,10 +138,10 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 26 * wtio,
-                  children: [
-                    const KakaoLoginButton(),
-                    const NaverLoginButton(),
-                    _makeLoginBtn('assets/widgets/login_btn_apple.svg', '애플'),
+                  children: const [
+                    KakaoLoginButton(),
+                    NaverLoginButton(),
+                    AppleLoginButton(),
                   ],
                 ),
               )
@@ -148,29 +149,6 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Column _makeLoginBtn(String svg, String name) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SvgPicture.asset(
-          svg,
-          width: 54 * wtio,
-          height: 54 * wtio,
-          fit: BoxFit.cover,
-        ),
-        SizedBox(height: 10 * htio,),
-        Text(
-          name,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 11 * htio,
-            fontFamily: 'Pretendard',
-          ),
-        )
-      ],
     );
   }
 }

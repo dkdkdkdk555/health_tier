@@ -153,7 +153,7 @@ class _AgreementBottomBarState extends State<AgreementBottomBar> {
                         if (nickname != null) {
                           debugPrint('✔️ 닉네임 입력 완료: $nickname');
                           if(!context.mounted) return;
-                          context.pop();
+                          context.pop(nickname);
                         }
                       }
                     : null, // 전체 동의 안하면 비활성화

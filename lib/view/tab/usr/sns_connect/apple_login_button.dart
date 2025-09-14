@@ -1,10 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_naver_login/interface/types/naver_account_result.dart';
-import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
-import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
-import 'package:flutter_naver_login/interface/types/naver_token.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -17,68 +13,58 @@ import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/usr/sign_progress/agreement_bottom_bar.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-class NaverLoginButton extends ConsumerStatefulWidget {
-  const NaverLoginButton({
+class AppleLoginButton extends ConsumerStatefulWidget {
+  const AppleLoginButton({
     super.key
   });
 
   @override
-  ConsumerState<NaverLoginButton> createState() => _NaverLoginButtonState();
+  ConsumerState<AppleLoginButton> createState() => _AppleLoginButtonState();
 }
 
-class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
+class _AppleLoginButtonState extends ConsumerState<AppleLoginButton> {
   final authApi = AuthApiService();
   
   bool isLogin = false;
-  String? accessToken;
   String? expiresAt;
   String? tokenType;
   String? name;
   String? refreshToken;
-  NaverAccountResult? userInfo;
+  AuthorizationCredentialAppleID? appleUser;
   String? nickname;
 
   var htio = 0.0;
   var wtio = 0.0;
 
-  Future<void> naverLoginButton(BuildContext context) async {
+  Future<void> appleLoginButton(BuildContext context) async {
     try {
-      final NaverLoginResult res = await FlutterNaverLogin.logIn();
-      setState(() {
-        isLogin = res.status == NaverLoginStatus.loggedIn;
-        if (res.account != null) {
-          accessToken = res.accessToken?.accessToken;
-          userInfo = res.account;
-        }
-      });
+      // 애플 로그인 -> 유저정보 가져오기
+      appleUser = await SignInWithApple.getAppleIDCredential(
+                  scopes: [
+                    AppleIDAuthorizationScopes.email,
+                    AppleIDAuthorizationScopes.fullName,
+                  ],);
 
-      debugPrint('${userInfo?.name}');
+      debugPrint('Apple Credential : $appleUser');
+      if(appleUser?.identityToken == null || appleUser?.userIdentifier == null) {
+        if(!context.mounted)return;
+        showAppMessage(context, message: 'Apple 연동 정보를 가져오지 못했습니다.');
+        return;
+      }
+
     } catch (error) {
       debugPrint(error.toString());
       if(!context.mounted)return;
-      showAppMessage(context, message: '네이버 계정으로 로그인 중 오류가 발생했습니다.');
-    }
-
-    // 안드로이드에서는 .logIn 에서 accessToken을 응답받지 못해서 추가
-    if(accessToken == null) {
-       try {
-        final NaverToken res = await FlutterNaverLogin.getCurrentAccessToken();
-        setState(() {
-          accessToken = res.accessToken;
-        });
-      } catch (error) {
-        if(!context.mounted)return;
-        showAppMessage(context, message: '네이버 계정으로 로그인 중 오류가 발생했습니다.');
-        debugPrint('$error');
-      }
+      showAppMessage(context, message: 'Apple 계정으로 로그인 중 오류가 발생했습니다.');
     }
 
     try {
       final response = await authApi.verifySnsToken(
-        accessToken: accessToken!,
-        snsId: userInfo?.id ?? '',
-        snsType: 'naver',
+        accessToken: appleUser?.identityToken ?? '',
+        snsId: appleUser?.userIdentifier ?? '',
+        snsType: 'apple',
       );
 
       if (response.statusCode == 200) {
@@ -112,15 +98,15 @@ class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
     }
   }
 
-   Future<void> handleNaverJoinAndLogin() async {
+   Future<void> handleAppleJoinAndLogin() async {
 
     try {
+
       final response = await authApi.joinAndLoginWithSns(
-        snsId: userInfo?.id ?? '',
-        snsType: 'naver',
-        email: userInfo?.email ?? '',
-        name: userInfo?.name ?? '',
-        birthday: '${userInfo?.birthYear}-${userInfo?.birthday}',
+        snsId: appleUser?.userIdentifier ?? '',
+        snsType: 'apple',
+        email: appleUser?.email ?? '',
+        name: '${appleUser?.familyName ?? ''}${appleUser?.givenName ?? ''}',
         nickname: nickname ?? '',
       );
 
@@ -155,7 +141,7 @@ class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
     );
 
     if (nickname != null) {
-      handleNaverJoinAndLogin();
+      handleAppleJoinAndLogin();
     }
   }
 
@@ -166,20 +152,20 @@ class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
     
     return GestureDetector(
       onTap: () {
-        naverLoginButton(context,);
+        appleLoginButton(context,);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            'assets/widgets/login_btn_naver.svg',
+            'assets/widgets/login_btn_apple.svg',
             width: 54 * wtio,
             height: 54 * wtio,
             fit: BoxFit.cover,
           ),
           SizedBox(height: 10 * htio,),
           Text(
-            '네이버',
+            '애플',
             style: TextStyle(
               color: Colors.white,
               fontSize: 11 * htio,
