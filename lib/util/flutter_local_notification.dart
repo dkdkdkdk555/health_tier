@@ -6,7 +6,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart' show FlutterAppBadger;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
@@ -26,8 +28,8 @@ class FlutterLocalNotification{
     // ios 설정
     DarwinInitializationSettings initializationSettingsIOS =
       const DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
+          requestAlertPermission: true,
+          requestBadgePermission: true,
           requestSoundPermission: false);
 
     //알림 플러그인을 초기화
@@ -79,13 +81,10 @@ class FlutterLocalNotification{
       if (feedId != null &&
           navigatorKey.currentState != null &&
           navigatorKey.currentState!.mounted) {
+        debugPrint("currentContext: $navigatorKey.currentContext");
+        final ctx = navigatorKey.currentContext!;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) =>
-                  FeedDetail(feedId: int.parse(feedId), isFromWriteFeed: false),
-            ),
-          );
+           ctx.push('/cmu/feed/${int.parse(feedId)}');
         });
       }
     } catch (e) {
@@ -118,9 +117,11 @@ class FlutterLocalNotification{
         priority: Priority.max,
         showWhen: false,
       );
+
+    FlutterAppBadger.updateBadgeCount(1);
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
-      iOS: DarwinNotificationDetails(badgeNumber: 1)
+      iOS: DarwinNotificationDetails(badgeNumber: 0) // 알림 페로에는 뱃지갯수를 담지 않는다.
     );
 
     // 알림 띄우기

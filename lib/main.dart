@@ -120,7 +120,7 @@ void main() async{
   });
 
   // 테스트 데이터 삽입 시만 사용
-  await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
+  // await db.insertTestDataIfNeeded(); // ✅ 테스트 데이터 삽입
 
   // 카카오sdk 초기화
    KakaoSdk.init(

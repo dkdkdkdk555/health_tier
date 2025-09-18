@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import NidThirdPartyLogin // 1. NidThirdPartyLogin 모듈 임포트 추가
+import flutter_local_notifications
 
 // @UIApplicationMain은 @main과 함께 사용되지 않으므로 제거합니다.
 @main
@@ -9,6 +10,14 @@ import NidThirdPartyLogin // 1. NidThirdPartyLogin 모듈 임포트 추가
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    
+      FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
+          GeneratedPluginRegistrant.register(with: registry)
+      }
+      if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+      }
+      
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
