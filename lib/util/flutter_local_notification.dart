@@ -10,6 +10,7 @@ import 'package:flutter_app_badger/flutter_app_badger.dart' show FlutterAppBadge
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/database/app_database.dart';
+import 'package:my_app/main.dart' show router;
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 
@@ -48,7 +49,7 @@ class FlutterLocalNotification{
       if (message != null) {  
         // 종료 상태에서는 바로 화면 이동 불가 → payload 저장
         pendingPayload = json.encode(message.data);
-        if(Platform.isIOS){ // ioㄴ
+        if(Platform.isIOS){ // ios는 백그라운드/종료 상태에서 dart코드 실행이 불가해서 클릭한 경우만 넣어주자.
           final db = AppDatabase();
           await FlutterLocalNotification.insertNotificationToDB(message, db);
         }
@@ -82,13 +83,10 @@ class FlutterLocalNotification{
       markNotificationRead(int.parse(data['id']), db);
       // 화면 이동
       final String? feedId = data['feedId']?.toString();
-      if (feedId != null &&
-          navigatorKey.currentState != null &&
-          navigatorKey.currentState!.mounted) {
+      if (feedId != null) {
         debugPrint("currentContext: $navigatorKey.currentContext");
-        final ctx = navigatorKey.currentContext!;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-           ctx.push('/cmu/feed/${int.parse(feedId)}');
+           router.push('/cmu/feed/${int.parse(feedId)}');
         });
       }
     } catch (e) {
