@@ -48,6 +48,10 @@ class FlutterLocalNotification{
       if (message != null) {  
         // 종료 상태에서는 바로 화면 이동 불가 → payload 저장
         pendingPayload = json.encode(message.data);
+        if(Platform.isIOS){ // ioㄴ
+          final db = AppDatabase();
+          await FlutterLocalNotification.insertNotificationToDB(message, db);
+        }
       }
 
       /// 앱이 초기화 되고 위젯 트리가 mount된 이후

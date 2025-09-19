@@ -113,7 +113,11 @@ void main() async{
   });
 
   // 백그라운드 클릭 시: 앱 켜지고 handlePayload 호출 (알림 보여주는건 os에서 알아서 해줌 -> 그 알림 클릭시 여기선 페이로드 저장만해둠)
-  FirebaseMessaging.onMessageOpenedApp.listen((message) {
+  FirebaseMessaging.onMessageOpenedApp.listen((message) async {
+    if(Platform.isIOS){
+      final db = AppDatabase();
+      await FlutterLocalNotification.insertNotificationToDB(message, db);
+    }
     FlutterLocalNotification.pendingPayload = json.encode(message.data);
     FlutterLocalNotification.handlePayload(FlutterLocalNotification.pendingPayload!);
     FlutterLocalNotification.pendingPayload = null;
