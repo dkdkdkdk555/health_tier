@@ -6,6 +6,7 @@ import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueForm
 import 'package:my_app/model/diet/diet_input_data.dart' show DietInputData;
 import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/hoverable_icon.dart';
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -57,227 +58,234 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     final wtio = ScreenRatio(context).widthRatio;
     final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(47 * wtio)),
-        border: Border.all(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-      ),
-      child: Column(
-        children: [
-          SizedBox(height: 12 * htio), // spacer 대체
-          Container(
-            width: 40 * wtio,
-            height: 4 * htio,
-            decoration: ShapeDecoration(
-              color: const Color(0xFFE6E6E6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100 * wtio),
+    return GestureDetector(
+       behavior: HitTestBehavior.opaque, // 빈 영역도 터치 가능
+      onTap: () {
+        FocusScope.of(context).unfocus(); // 키보드 내리기
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(47 * wtio)),
+          border: Border.all(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+        ),
+        child: Column(
+          children: [
+            SizedBox(height: 12 * htio), // spacer 대체
+            Container(
+              width: 40 * wtio,
+              height: 4 * htio,
+              decoration: ShapeDecoration(
+                color: const Color(0xFFE6E6E6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(100 * wtio),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 20 * htio), // spacer 대체
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16 * wtio)
-                .copyWith(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Column(
-                children: [
-                  // 날짜 표시
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Text(
-                      displayDay,
-                      style: TextStyle(
-                        color: const Color(0xFF777777),
-                        fontSize: 13.7 * htio,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
+            SizedBox(height: 20 * htio), // spacer 대체
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16 * wtio)
+                  .copyWith(bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Column(
+                  children: [
+                    // 날짜 표시
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        displayDay,
+                        style: TextStyle(
+                          color: const Color(0xFF777777),
+                          fontSize: 13.7 * htio,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 8 * htio),
-                  makeBorder(),
-                  SizedBox(height: 16 * htio),
-
-                  // 입력 리스트
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ...List.generate(inputList.length, (index) {
-                            final input = inputList[index];
-                            return Padding(
-                              padding: EdgeInsets.only(bottom: 16 * htio),
-                              child: Column(
-                                children: [
-                                  // 식사유형
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 4,
-                                        child: SizedBox(
-                                          height: 48 * htio,
-                                          child: TextField(
-                                            controller: input.mealType,
-                                            inputFormatters: [
-                                              LengthLimitingTextInputFormatter(12),
+                    SizedBox(height: 8 * htio),
+                    makeBorder(),
+                    SizedBox(height: 16 * htio),
+      
+                    // 입력 리스트
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            ...List.generate(inputList.length, (index) {
+                              final input = inputList[index];
+                              return Padding(
+                                padding: EdgeInsets.only(bottom: 16 * htio),
+                                child: Column(
+                                  children: [
+                                    // 식사유형
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 4,
+                                          child: SizedBox(
+                                            height: 48 * htio,
+                                            child: TextField(
+                                              controller: input.mealType,
+                                              inputFormatters: [
+                                                LengthLimitingTextInputFormatter(12),
+                                              ],
+                                              style: TextStyle(
+                                                fontSize: 13.5 * htio,
+                                                fontFamily: 'Pretendard',
+                                              ),
+                                              decoration: getInputDecoration('식사 유형', htio, wtio),
+                                              onChanged: (value) {
+                                                input.isUpdate = true;
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8 * wtio),
+                                        HoverableIcon(
+                                          icon: Icons.remove_circle_outline,
+                                          originColor: Colors.grey,
+                                          changedColor: Colors.red,
+                                          onTap: () async {
+                                            final deleteId = input.id;
+                                            if (deleteId != -1) {
+                                              await deleteHtDietDoc(ref: ref, id: deleteId);
+                                            }
+                                            setState(() {
+                                              inputList.removeAt(index);
+                                            });
+                                            widget.onSaved();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 6 * htio),
+      
+                                    // 식단내용 + 칼로리/단백질
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // 식단내용
+                                        Expanded(
+                                          flex: 8,
+                                          child: Container(
+                                            constraints: BoxConstraints(
+                                              minHeight: 102 * htio, // 기본 높이
+                                              maxHeight: double.infinity,
+                                            ),
+                                            child: TextField(
+                                              controller: input.dietText,
+                                              keyboardType: TextInputType.multiline,
+                                              minLines: 1,     // 최소 1줄
+                                              maxLines: 10,  // 내용에 따라 무제한 확장
+                                              style: TextStyle(
+                                                fontSize: 13.5 * htio,
+                                                fontFamily: 'Pretendard',
+                                              ),
+                                              decoration: getInputDecoration(
+                                                  '식단을 입력해주세요.\n(최대 150자)', htio, wtio),
+                                              onChanged: (value) {
+                                                input.isUpdate = true;
+                                                setState(() {}); // 높이 갱신
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 7 * wtio),
+                                        // 칼로리 + 단백질
+                                        Expanded(
+                                          flex: 4,
+                                          child: Column(
+                                            children: [
+                                              SizedBox(
+                                                height: 48 * htio,
+                                                child: TextField(
+                                                  controller: input.calorie,
+                                                  keyboardType:
+                                                      const TextInputType.numberWithOptions(decimal: true),
+                                                  decoration: getInputDecoration('칼로리', htio, wtio),
+                                                  style: TextStyle(
+                                                    fontSize: 13.5 * htio,
+                                                    fontFamily: 'Pretendard',
+                                                  ),
+                                                  inputFormatters: [
+                                                    LimitValueFormatter(max: 9999.9),
+                                                    FilteringTextInputFormatter.allow(
+                                                        RegExp(r'^(\d{0,4})(\.\d?)?$')),
+                                                  ],
+                                                  onChanged: (value) {
+                                                    input.calorie.text = value;
+                                                    input.isUpdate = true;
+                                                  },
+                                                ),
+                                              ),
+                                              SizedBox(height: 6 * htio),
+                                              SizedBox(
+                                                height: 48 * htio,
+                                                child: TextField(
+                                                  controller: input.protein,
+                                                  decoration: getInputDecoration('단백질', htio, wtio),
+                                                  inputFormatters: [
+                                                    LimitValueFormatter(max: 999.9),
+                                                    FilteringTextInputFormatter.allow(
+                                                        RegExp(r'^\d{0,3}(\.\d{0,})?$')),
+                                                  ],
+                                                  style: TextStyle(
+                                                    fontSize: 13.5 * htio,
+                                                    fontFamily: 'Pretendard',
+                                                  ),
+                                                  keyboardType:
+                                                      const TextInputType.numberWithOptions(decimal: true),
+                                                  onChanged: (value) {
+                                                    input.protein.text = value;
+                                                    input.isUpdate = true;
+                                                  },
+                                                ),
+                                              ),
                                             ],
-                                            style: TextStyle(
-                                              fontSize: 13.5 * htio,
-                                              fontFamily: 'Pretendard',
-                                            ),
-                                            decoration: getInputDecoration('식사 유형', htio, wtio),
-                                            onChanged: (value) {
-                                              input.isUpdate = true;
-                                            },
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(width: 8 * wtio),
-                                      HoverableIcon(
-                                        icon: Icons.remove_circle_outline,
-                                        originColor: Colors.grey,
-                                        changedColor: Colors.red,
-                                        onTap: () async {
-                                          final deleteId = input.id;
-                                          if (deleteId != -1) {
-                                            await deleteHtDietDoc(ref: ref, id: deleteId);
-                                          }
-                                          setState(() {
-                                            inputList.removeAt(index);
-                                          });
-                                          widget.onSaved();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 6 * htio),
-
-                                  // 식단내용 + 칼로리/단백질
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // 식단내용
-                                      Expanded(
-                                        flex: 8,
-                                        child: Container(
-                                          constraints: BoxConstraints(
-                                            minHeight: 102 * htio, // 기본 높이
-                                            maxHeight: double.infinity,
-                                          ),
-                                          child: TextField(
-                                            controller: input.dietText,
-                                            keyboardType: TextInputType.multiline,
-                                            minLines: 1,     // 최소 1줄
-                                            maxLines: 10,  // 내용에 따라 무제한 확장
-                                            style: TextStyle(
-                                              fontSize: 13.5 * htio,
-                                              fontFamily: 'Pretendard',
-                                            ),
-                                            decoration: getInputDecoration(
-                                                '식단을 입력해주세요.\n(최대 150자)', htio, wtio),
-                                            onChanged: (value) {
-                                              input.isUpdate = true;
-                                              setState(() {}); // 높이 갱신
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 7 * wtio),
-                                      // 칼로리 + 단백질
-                                      Expanded(
-                                        flex: 4,
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                              height: 48 * htio,
-                                              child: TextField(
-                                                controller: input.calorie,
-                                                keyboardType:
-                                                    const TextInputType.numberWithOptions(decimal: true),
-                                                decoration: getInputDecoration('칼로리', htio, wtio),
-                                                style: TextStyle(
-                                                  fontSize: 13.5 * htio,
-                                                  fontFamily: 'Pretendard',
-                                                ),
-                                                inputFormatters: [
-                                                  LimitValueFormatter(max: 9999.9),
-                                                  FilteringTextInputFormatter.allow(
-                                                      RegExp(r'^(\d{0,4})(\.\d?)?$')),
-                                                ],
-                                                onChanged: (value) {
-                                                  input.calorie.text = value;
-                                                  input.isUpdate = true;
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(height: 6 * htio),
-                                            SizedBox(
-                                              height: 48 * htio,
-                                              child: TextField(
-                                                controller: input.protein,
-                                                decoration: getInputDecoration('단백질', htio, wtio),
-                                                inputFormatters: [
-                                                  LimitValueFormatter(max: 999.9),
-                                                  FilteringTextInputFormatter.allow(
-                                                      RegExp(r'^\d{0,3}(\.\d{0,})?$')),
-                                                ],
-                                                style: TextStyle(
-                                                  fontSize: 13.5 * htio,
-                                                  fontFamily: 'Pretendard',
-                                                ),
-                                                keyboardType:
-                                                    const TextInputType.numberWithOptions(decimal: true),
-                                                onChanged: (value) {
-                                                  input.protein.text = value;
-                                                  input.isUpdate = true;
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 12 * htio),
-                                  makeBorder(),
-                                ],
+                                      ],
+                                    ),
+                                    SizedBox(height: 12 * htio),
+                                    makeBorder(),
+                                  ],
+                                ),
+                              );
+                            }),
+                          
+                            if(inputList.length < 10)
+                            // 하단 추가 버튼
+                            TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  inputList.add(DietInputData.def());
+                                });
+                              },
+                              icon: Icon(
+                                size: 18 * htio,
+                                Icons.add_circle_outline
                               ),
-                            );
-                          }),
-
-                          // 하단 추가 버튼
-                          TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                inputList.add(DietInputData.def());
-                              });
-                            },
-                            icon: Icon(
-                              size: 18 * htio,
-                              Icons.add_circle_outline
-                            ),
-                            label: Text(
-                              '식단 추가',
-                              style: TextStyle(
-                                fontSize: 14 * htio
+                              label: Text(
+                                '식단 추가',
+                                style: TextStyle(
+                                  fontSize: 14 * htio
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-
-                  SizedBox(height: 16 * htio),
-                  requestBtn(htio, wtio),
-                  SizedBox(height: 18 * htio),
-                ],
+      
+                    SizedBox(height: 16 * htio),
+                    requestBtn(htio, wtio),
+                    SizedBox(height: 18 * htio),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -312,6 +320,16 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   }
 
   Widget requestBtn(double htio, double wtio) {
+    bool isAllNotEmpty = false;
+
+    for(DietInputData dietInput in inputList) {
+      if(dietInput.isEmpty) {
+        isAllNotEmpty = false;
+      } else {
+        isAllNotEmpty = true;
+      }
+    }
+
     return SizedBox(
       height: 48 * htio,
       width: double.infinity,
@@ -320,6 +338,11 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         onTapUp: (_) => setState(() => _isPressed = false),
         onTapCancel: () => setState(() => _isPressed = false),
         onTap: () async {
+          if(!isAllNotEmpty) {
+            showAppMessage(context, message: '추가한 식단의 항목을 한 가지 이상 입력해야 합니다.');
+            return;
+          }
+
           final String day = DateFormat('yyyy-MM-dd').format(focusedDay);
 
           final insertList = <DayDietModel>[];

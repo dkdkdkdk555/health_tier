@@ -90,6 +90,7 @@ final htDayDocDetail = FutureProvider.family<DocDayDetail?, String>((ref, day) a
     weight: body?.weight,
     stamp: body?.stamp,
     memo: body?.memo,
+    muscle: body?.muscle,
     totalCalorie: totalCalorie,
     totalProtein: totalProtein,
   );

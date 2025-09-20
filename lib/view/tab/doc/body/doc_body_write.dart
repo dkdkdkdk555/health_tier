@@ -6,6 +6,7 @@ import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
+import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
@@ -194,15 +195,19 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
           });
         },
         onTap: () async {
-            
           final day = DateFormat('yyyy-MM-dd').format(focusedDay);
           final weight = double.tryParse(weightEditor.text);
           final muscle = double.tryParse(muscleEditor.text);
           final fat = double.tryParse(bodyFatEditor.text);
           final memo = memoEditor.text;
-            
-          if(weight == 0 && muscle == 0 && fat == 0 && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) return;
-            
+
+          if(weight == null && muscle == null && fat == null && memo == '' && selectedStamp == '' && !drunkYn && !wkoutYn) {
+            if(docId == -1){
+              showAppMessage(context, message: '한 가지 항목 이상 입력해야 합니다.');
+              return;
+            }
+          }
+          
           try {
             if (docId == -1) {
               await insertHtDayDoc(
@@ -220,7 +225,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
             
             // 저장 성공 시 메시지
             if (mounted) {
-              showDialog(
+              await showDialog(
                 context: context,
                 barrierDismissible: false,
                 builder: (_) {
@@ -228,6 +233,9 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                 },
               );
               widget.onSaved();
+              if (mounted) {
+                Navigator.of(context).pop(); 
+              }
             }
           } catch (e) {
             if (mounted) {
@@ -235,13 +243,13 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
             
               showDialog( // 실패 시
                 context: context,
-                builder: (_) => const AlertDialog(
+                builder: (_) => AlertDialog(
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.error, color: Colors.red, size: 48),
-                      SizedBox(height: 16),
-                      Text('저장 중 오류 발생/n'),
+                      const Icon(Icons.error, color: Colors.red, size: 48),
+                      const SizedBox(height: 16),
+                      Text('저장 중 오류 발생\n$e'),
                     ],
                   ),
                 ),

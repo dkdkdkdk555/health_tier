@@ -2,7 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart';
@@ -144,6 +144,8 @@ class DocBodyDetail extends ConsumerWidget {
     final textColor = isNull ? null : ( isNegative ? const Color(0xFF0D85E7) : const Color(0xFFF04C4C) );
     // 텍스트 값 (부호 제외)
     final textValue = isNull ? '' : '${diffWeight.abs().toStringAsFixed(1)}kg';
+    
+    debugPrint('골격근 : ${detail?.muscle}');
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -228,7 +230,7 @@ class DocBodyDetail extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'BMI',
+                '골격근',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: const Color(0xFFAAAAAA),
@@ -238,8 +240,8 @@ class DocBodyDetail extends ConsumerWidget {
                 ),
               ),
               SizedBox(width: 4 * wtio),
-              Text( //TODO: 동적으로 만들기
-                '23.5', // 소수점 첫번째 자리수까지만 보여주기
+              Text(
+                detail?.muscle != null ? '${detail!.muscle}kg' : '',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
@@ -256,6 +258,20 @@ class DocBodyDetail extends ConsumerWidget {
   }
 
   Widget makeRow2(double wtio, double htio, DocDayDetail? detail, AutoSizeGroup numberGroup) {
+    final proteinValue = detail?.totalProtein;
+    String proteinText;
+
+    if (proteinValue != null) {
+      if (proteinValue >= 1000) {
+        // 1000 이상이면 정수만
+        proteinText = proteinValue.toInt().toString();
+      } else {
+        // 소수점은 최대 1자리까지 표시 (원하는 대로 조정 가능)
+        proteinText = NumberFormat("#.##").format(proteinValue);
+      }
+    } else {
+      proteinText = '단백질';
+    }
    
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -304,7 +320,7 @@ class DocBodyDetail extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                detail?.totalProtein != null ? '${detail?.totalProtein}' : '단백질',
+                proteinText,
                 maxLines: detail?.totalProtein != null ? 1 : 2,
                 overflow: TextOverflow.visible,
                 style: TextStyle(

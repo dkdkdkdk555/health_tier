@@ -70,7 +70,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                 lastDay: DateTime(DateTime.now().year + 5, 12, 31),
                 rowHeight: 48 * heightRatio, // 48.25
                 focusedDay: _focusedDay.isBefore(DateTime.utc(2022, 1, 1)) ? DateTime.utc(2022, 1, 1) : _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                selectedDayPredicate: (day) => isSameDay(_focusedDay, day),
                 calendarFormat: CalendarFormat.month,
                 onDaySelected: (selectedDay, focusedDay){
                   setState((){
@@ -85,6 +85,17 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                     widget.onGoToFocusedDay(selectedDay: selectedDay);
                     _selectedDay = selectedDay;
                     _focusedDay = selectedDay;
+                  });
+                },
+                onPageChanged: (focusedDay) {
+                  // 달이 증가/감소했는지 판단
+                  if (focusedDay.isBefore(_focusedDay)) {
+                    widget.onGoToPreviousMonth(selectedDay: focusedDay);
+                  } else if (focusedDay.isAfter(_focusedDay)) {
+                    widget.onGoToNextMonth(selectedDay: focusedDay);
+                  }
+                  setState(() {
+                    _focusedDay = focusedDay;
                   });
                 },
                 calendarBuilders: CalendarBuilders(
