@@ -116,6 +116,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
               child: Container(
                 color: Colors.white,
                 child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(), 
                   child: DocBodyDetail(
                     focusedDay: _focusedDay,
                     bottomHeight: bottomHeight,

@@ -40,7 +40,6 @@ class DocBodyDetail extends ConsumerWidget {
               left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
               top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
               right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-              bottom: const BorderSide(color: Color(0xFFEEEEEE)),
             ),
           ),
           child: Column(
@@ -57,27 +56,24 @@ class DocBodyDetail extends ConsumerWidget {
                 ),
               ),
               SizedBox(height: 25 * htio,),
-              SizedBox(
-                height:256 * htio,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 244 * wtio,
-                      child: Column(
-                        children: [
-                          makeRow1(wtio, today, htio, detail),
-                          SizedBox(height: 18 * htio,),
-                          makeRow2(wtio, htio, detail, numberGroup),
-                          SizedBox(height: 14 * htio,),
-                          makeRow3(wtio, htio, detail, prvsWeight),
-                          SizedBox(height: 18 * htio,),
-                          makeRow4(wtio, htio, detail),
-                        ],
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 244 * wtio,
+                    child: Column(
+                      children: [
+                        makeRow1(wtio, today, htio, detail),
+                        SizedBox(height: 18 * htio,),
+                        makeRow2(wtio, htio, detail, numberGroup),
+                        SizedBox(height: 14 * htio,),
+                        makeRow3(wtio, htio, detail, prvsWeight),
+                        SizedBox(height: 18 * htio,),
+                        makeRow4(wtio, htio, detail),
+                      ],
                     ),
-                  ],
-                )
+                  ),
+                ],
               ),
               SizedBox(
                 height: bottomHeight,
@@ -107,29 +103,34 @@ class DocBodyDetail extends ConsumerWidget {
   }
 
   Widget makeRow4(double wtio, double htio, DocDayDetail? detail) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '메모',
-          style: TextStyle(
-            color: const Color(0xFFAAAAAA),
-            fontSize: 12 * htio,
-            fontFamily: 'Pretendard',
-          ),
-        ),
-        SizedBox(width: 8 * wtio),
-        Expanded(
-          child:Text(
-            detail?.memo ?? '',
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: 128 * htio
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '메모',
             style: TextStyle(
-              color: Colors.black,
+              color: const Color(0xFFAAAAAA),
               fontSize: 12 * htio,
               fontFamily: 'Pretendard',
             ),
           ),
-        )
-      ],
+          SizedBox(width: 8 * wtio),
+          Expanded(
+            child:Text(
+              detail?.memo ?? '',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 12 * htio,
+                fontFamily: 'Pretendard',
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 

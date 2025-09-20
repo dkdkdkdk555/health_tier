@@ -87,77 +87,89 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
     final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
-        border: Border(
-          left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
-          top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-          right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
-          bottom: const BorderSide(color: Color(0xFFEEEEEE)),
-        ),
-      ),
-      child: Column(
-        children: [
-          SizedBox(height: 8 * htio,),
-          Container(
-            width: 40 * wtio,
-            height: 4 * htio,
-            decoration: ShapeDecoration(
-              color: const Color(0xFFE6E6E6),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100),
-              ),
-            ),
+    return GestureDetector(
+       behavior: HitTestBehavior.opaque, // 빈 공간도 터치 가능
+      onTap: () {
+        FocusScope.of(context).unfocus(); // 키보드 내리기
+      },
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(47)),
+          border: Border(
+            left: BorderSide(width: 2 * wtio ,color: const Color(0xFFEEEEEE)),
+            top: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+            right: BorderSide(width: 2 * wtio, color: const Color(0xFFEEEEEE)),
+            bottom: const BorderSide(color: Color(0xFFEEEEEE)),
           ),
-          SizedBox(height: 16 * htio),
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 0 * htio,),
+          child: SingleChildScrollView(
             child: Column(
               children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: 
-                    Text(
-                      displayDay,
-                      style: TextStyle(
-                        color: const Color(0xFF777777),
-                        fontSize: 12.6 * wtio,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400
-                      ),
-                    ),
-                ),
                 SizedBox(height: 8 * htio,),
-                makeBorder(),
-                SizedBox(height: 24 * htio,),
-                inputArea('체중', 'kg', weightEditor),
-                SizedBox(height: 24 * htio,),
-                inputArea('골격근', 'kg', muscleEditor),
-                SizedBox(height: 24 * htio,),
-                inputArea('체지방률', '%', bodyFatEditor),
-                SizedBox(height: 24 * htio,),
-                textArea(memoEditor),
-                SizedBox(height: 24 * htio,),
-                buttonArea(),
-                SizedBox(height: 32 * htio,),
-                makeBorder(),
-                SizedBox(height: 32 * htio,),
-                SizedBox(height: 18 * htio, child: const InfoText()),
-                SizedBox(height: 16 * htio,),
-                setStampCollection(),
-                SizedBox(height: 39.43 * htio,),
-                requestBtn(),
+                Container(
+                  width: 40 * wtio,
+                  height: 4 * htio,
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFE6E6E6),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16 * htio),
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: 
+                          Text(
+                            displayDay,
+                            style: TextStyle(
+                              color: const Color(0xFF777777),
+                              fontSize: 12.6 * wtio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400
+                            ),
+                          ),
+                      ),
+                      SizedBox(height: 8 * htio,),
+                      makeBorder(),
+                      SizedBox(height: 24 * htio,),
+                      inputArea('체중', 'kg', weightEditor),
+                      SizedBox(height: 24 * htio,),
+                      inputArea('골격근', 'kg', muscleEditor),
+                      SizedBox(height: 24 * htio,),
+                      inputArea('체지방률', '%', bodyFatEditor),
+                      SizedBox(height: 24 * htio,),
+                      textArea(memoEditor),
+                      SizedBox(height: 24 * htio,),
+                      buttonArea(),
+                      SizedBox(height: 32 * htio,),
+                      makeBorder(),
+                      SizedBox(height: 32 * htio,),
+                      SizedBox(height: 18 * htio, child: const InfoText()),
+                      SizedBox(height: 16 * htio,),
+                      setStampCollection(),
+                      SizedBox(height: 39.43 * htio,),
+                      requestBtn(),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 37 * htio,)
               ],
             ),
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -424,7 +436,7 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
               textInputAction: TextInputAction.newline,
               expands: true, // 남은 공간 전체 사용
               inputFormatters: [
-                LengthLimitingTextInputFormatter(100), // 최대 100자 제한
+                LengthLimitingTextInputFormatter(200), // 최대 200자 제한
               ],
               style: TextStyle(
                 fontSize: 12.5 * htio,
