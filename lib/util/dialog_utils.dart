@@ -49,6 +49,12 @@ Future<DateTime?> showDayPicker(
                         titleCentered: true,
                         formatButtonVisible: false,
                       ),
+                      calendarStyle: const CalendarStyle(
+                        selectedDecoration: BoxDecoration(
+                          color: Color(0xFF0D85E7),
+                          shape: BoxShape.rectangle
+                        )
+                      ),
                     ),
                   ),
                 ],
