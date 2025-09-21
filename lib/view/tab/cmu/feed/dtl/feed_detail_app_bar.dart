@@ -107,9 +107,18 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                   ListTile(
                     leading: const Icon(Icons.delete),
                     title: const Text('삭제하기'),
-                    onTap: () {
-                      Navigator.pop(context); // 바텀 시트 닫기
-                      widget.feedDeleteCallback(feedCudService);
+                    onTap: () async {
+                      await showAppDialog(context, message: '정말 삭제 하시겠습니까?', 
+                        confirmText: '확인',
+                        cancelText: '취소',
+                        onCancel: () {
+                          Navigator.pop(context); // 바텀 시트 닫기
+                        },
+                        onConfirm: () {
+                          Navigator.pop(context); // 바텀 시트 닫기
+                          widget.feedDeleteCallback(feedCudService);
+                        }
+                      );
                     },
                   ),
                 if (!isMyPost) // 내 게시글이 아닌 경우

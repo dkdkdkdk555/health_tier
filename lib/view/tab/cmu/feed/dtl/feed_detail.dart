@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider;
+import 'package:my_app/model/cmu/feed/feed_list_request.dart';
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider;
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
@@ -42,7 +43,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
     await feedCudService!.deleteFeed(widget.feedId);
     if(!mounted)return;
     showAppDialog(context, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
-      ref.invalidate(feedPaginationProvider);
+      ref.read(feedPaginationProvider(ref.read(feedParamsProvider)).notifier).removeFeed(widget.feedId);
       context.pop();
     },);
   }

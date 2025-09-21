@@ -66,5 +66,15 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
       _isFetching = false;
     }
   }
+
+  // 피드 삭제 시 목록에서 제거
+  void removeFeed(int feedId) {
+    _feeds.removeWhere((feed) => feed.id == feedId);
+    state = AsyncData(ScrollResponse(
+      items: List.from(_feeds), // 새로운 리스트로 감싸줘야 리빌드 잘 됨
+      lastCursorId: _params.cursorId,
+      hasNext: _hasNext,
+    ));
+  }
 }
 
