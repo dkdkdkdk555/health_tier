@@ -183,7 +183,14 @@ void dispose() {
     return comment;
   }
 
+  DateTime? _lastClickTime;
+
   Future<void> sendComment(int cmuId, WidgetRef ref) async {
+    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 900)) {
+      return; // 1초 내 중복클릭방지
+    }
+    _lastClickTime = DateTime.now();
+    
     String commentText = _textEditingController.text.trim();
     if (commentText.isEmpty) {
       showAppMessage(context, message: '댓글을 입력해주세요');
@@ -201,8 +208,6 @@ void dispose() {
       final nickNameTag = '@${pickReplyInfo?.nickname ?? ''}';
       commentText = '$nickNameTag $commentText';
     }
-
-    debugPrint(commentText);
 
     final dto = currentIsUpdate ? 
       ReplyWriteRequestDto(
@@ -239,7 +244,7 @@ void dispose() {
       ref.invalidate(feedDetailProvider(cmuId));
 
       if(!mounted) return;
-      showAppMessage(context, message:'댓글이 작성됐습니다.');
+      showAppMessage(context, message:'댓글이 ${currentIsUpdate ? '수정' : '작성'}됐습니다.');
     } catch (e) {
       debugPrint('$e');
       showAppMessage(context, message:'댓글이 작성 중 오류가 발생했습니다.');

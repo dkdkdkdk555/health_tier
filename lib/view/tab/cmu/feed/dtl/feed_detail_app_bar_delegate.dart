@@ -1,12 +1,16 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar.dart';
 
 class FeedDetailAppBarDelegate extends SliverPersistentHeaderDelegate {
   bool isFromWriteFeed;
   final int feedId;
+  final Function feedDeleteCallback;
   FeedDetailAppBarDelegate(
     this.isFromWriteFeed,
-    this.feedId
+    this.feedId,
+    this.feedDeleteCallback,
   );
 
   @override
@@ -14,6 +18,7 @@ class FeedDetailAppBarDelegate extends SliverPersistentHeaderDelegate {
     return FeedDetailAppBar(
       isFromWriteFeed: isFromWriteFeed,
       feedId: feedId,
+      feedDeleteCallback: feedDeleteCallback,
     );
   }
 

@@ -142,4 +142,12 @@ class FeedCudService {
     );
     return response.data.toString(); // 서버가 반환하는 "좋아요 취소 완료" 메시지
   }
+
+  // 게시글 삭제
+  Future<String> deleteFeed(int feedId) async {
+    final response = await dio.delete(
+      '${FeedCudAPI.deleteFeed}/$feedId',
+    );
+    return response.data.toString();
+  }
 }

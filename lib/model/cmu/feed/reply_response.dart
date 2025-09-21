@@ -48,10 +48,11 @@ class ReplyResponseDto {
       children: (json['children'] as List<dynamic>?)
           ?.map((e) => ReplyResponseDto.fromJson(e as Map<String, dynamic>))
           .toList() ?? [],
-      // badges 리스트가 null일 경우를 대비해 `as List<dynamic>?` 추가 및 `e`를 `Map<String, dynamic>`으로 명시적 캐스팅
       badges: (json['badges'] as List<dynamic>?)
-          ?.map((e) => BadgeInfoDto.fromJson(e as Map<String, dynamic>))
-          .toList(),
+        ?.where((e) => e != null) // null 요소 제거
+        .map((e) => BadgeInfoDto.fromJson(e as Map<String, dynamic>))
+        .toList() 
+        ?? [],
     );
   }
 

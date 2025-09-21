@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider;
+import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_list.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
@@ -7,7 +12,7 @@ import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply_bottom_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 
-class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
+class FeedDetail extends ConsumerStatefulWidget { // StatefulWidget으로 변경
   final int feedId;
   final int? categoryId;
   final bool isFromWriteFeed;
@@ -21,16 +26,25 @@ class FeedDetail extends StatefulWidget { // StatefulWidget으로 변경
   );
 
   @override
-  State<FeedDetail> createState() => _FeedDetailState();
+  ConsumerState<FeedDetail> createState() => _FeedDetailState();
 }
 
-class _FeedDetailState extends State<FeedDetail> {
+class _FeedDetailState extends ConsumerState<FeedDetail> {
   final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
     _scrollController.dispose(); // 컨트롤러 해제
     super.dispose();
+  }
+
+  void _deleteFeedCallback(FeedCudService? feedCudService) async {
+    await feedCudService!.deleteFeed(widget.feedId);
+    if(!mounted)return;
+    showAppDialog(context, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
+      ref.invalidate(feedPaginationProvider);
+      context.pop();
+    },);
   }
 
   @override
@@ -52,7 +66,7 @@ class _FeedDetailState extends State<FeedDetail> {
             // 상단 앱바
             SliverPersistentHeader(
               pinned: true,
-              delegate: FeedDetailAppBarDelegate(widget.isFromWriteFeed, widget.feedId),
+              delegate: FeedDetailAppBarDelegate(widget.isFromWriteFeed, widget.feedId, _deleteFeedCallback),
             ),
             // 게시글 본문
             SliverToBoxAdapter(

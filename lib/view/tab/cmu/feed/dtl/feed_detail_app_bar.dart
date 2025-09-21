@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
+import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/feed_cud_api_service.dart';
@@ -12,10 +14,12 @@ import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 
 class FeedDetailAppBar extends ConsumerStatefulWidget {
+  final Function feedDeleteCallback;
   const FeedDetailAppBar({
     super.key,
     required this.feedId,
     this.isFromWriteFeed = false,
+    required this.feedDeleteCallback,
   });
 
   final bool isFromWriteFeed;
@@ -104,9 +108,8 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     leading: const Icon(Icons.delete),
                     title: const Text('삭제하기'),
                     onTap: () {
-                          Navigator.pop(context); // 바텀 시트 닫기
-                          // TODO: 게시글 삭제 로직 실행
-                          debugPrint('게시글 삭제');
+                      Navigator.pop(context); // 바텀 시트 닫기
+                      widget.feedDeleteCallback(feedCudService);
                     },
                   ),
                 if (!isMyPost) // 내 게시글이 아닌 경우
@@ -114,15 +117,8 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     leading: const Icon(Icons.report),
                     title: const Text('신고하기'),
                     onTap: () async {
-                      final response = await ref.read(jwtTokenVerificationProvider.future);
-                      if(response.isValid) {
-                        if(!context.mounted)return;
-                        Navigator.pop(context); // 바텀 시트 닫기
-                        _showReportDialog(feedCudService);
-                      } else {
-                        if(!context.mounted)return;
-                        showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
-                      }
+                      Navigator.pop(context); // 바텀 시트 닫기
+                      _showReportDialog(feedCudService);
                     },
                   ),
                 // 바텀 시트 하단에 여백을 추가하여 UI를 더 보기 좋게 만들 수 있습니다.
@@ -184,8 +180,14 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
               const SizedBox(width: 16),
               // 햄버거 아이콘 클릭 시 _showActionBottomSheet 호출
               GestureDetector(
-                onTap: () {
-                  _showActionBottomSheet(feedCudService);
+                onTap: () async{
+                  final response = await ref.read(jwtTokenVerificationProvider.future);
+                  if(response.isValid) {
+                    _showActionBottomSheet(feedCudService);
+                  } else {
+                    if(!context.mounted)return;
+                    showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
+                  }
                 },
                 child: SvgPicture.asset(
                   'assets/icons/feed_detail/ico_hamberger.svg',
