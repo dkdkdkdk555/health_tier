@@ -36,6 +36,7 @@ class FeedService {
         if (feedQueryParams.hotYn != null) 'hotYn': feedQueryParams.hotYn,
         if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
         'limit': feedQueryParams.limit,
+        'isFeedMainListRequest':1
       },
     );
     return ScrollResponse.fromJson(

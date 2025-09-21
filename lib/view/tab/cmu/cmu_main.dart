@@ -162,7 +162,7 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
-    
+
     return Container(
       color: Colors.white,
       child: CustomScrollView( 
@@ -179,14 +179,14 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
           ),
           // 상단바
           SliverPersistentHeader(
-            pinned: !_scrolledDown,
-            delegate: CmuAppBarDelegate(
-              selectedIndex: _selectedIndex, 
-              onTap: _onTap, 
-              htio: htio,
-              isVisible: !_scrolledDown
-            )
-          ),
+          pinned: !_scrolledDown, // 이 부분을 false로 변경
+          delegate: CmuAppBarDelegate(
+            selectedIndex: _selectedIndex, 
+            onTap: _onTap, 
+            htio: htio,
+            isVisible: !_scrolledDown
+          )
+        ),
           // 카테고리바
           SliverPersistentHeader(
             pinned: true,
@@ -208,7 +208,7 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
   void _showNewFeedAlarmOverlay() {
     var origin = 178;
     var flip = 114;
-    var y = _scrolledDown ? (origin - flip) : origin;
+    var y = (_scrolledDown ? (origin - flip) : origin) * htio;
 
     final overlay = Overlay.of(context);
 

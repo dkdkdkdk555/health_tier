@@ -10,29 +10,35 @@ class CmuAppBarDelegate extends SliverPersistentHeaderDelegate {
   CmuAppBarDelegate({
     required this.selectedIndex,
     required this.onTap,
-    required this.htio, /* SliverPersistentHeaderDelegate 에서는 context를 바로 활용할 수 없기
-     때문에 외부에서 htio를 미리 계산해서 넘겨주는 방식이 안정적이다. <- 처음 페이지 진입시 CmuAppBar
-     안보이는 원인 해결 */
+    required this.htio,
     required this.isVisible,
   });
-  
+
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return isVisible
-        ? CmuAppBar(
-            selectedIndex: selectedIndex,
-            onTap: onTap,
-          )
-        : const SizedBox.shrink();
+    // isVisible 상태가 true일 때만 AppBar를 표시
+    // 애니메이션 효과를 위해 Opacity와 Transform.translate를 사용합니다.
+    return Opacity(
+      opacity: isVisible ? 1.0 : 0.0,
+      child: Transform.translate(
+        // isVisible이 false일 때 헤더를 위로 이동시켜 숨깁니다.
+        offset: Offset(0, isVisible ? 0 : -maxExtent),
+        child: CmuAppBar(
+          selectedIndex: selectedIndex,
+          onTap: onTap,
+        ),
+      ),
+    );
   }
 
   @override
-  double get maxExtent => isVisible ? 110 * htio : 0; // CmuAppBar 높이에 맞게 조정 (예: 100)
+  double get maxExtent => 110 * htio;
+  
   @override
-  double get minExtent => isVisible ? 110 * htio : 0;
+  double get minExtent => isVisible ? 110 * htio : 0; // isVisible이 false일 때 0으로 접힘
 
   @override
   bool shouldRebuild(covariant CmuAppBarDelegate oldDelegate) {
-    return selectedIndex != oldDelegate.selectedIndex;
+    return selectedIndex != oldDelegate.selectedIndex || isVisible != oldDelegate.isVisible;
   }
 }

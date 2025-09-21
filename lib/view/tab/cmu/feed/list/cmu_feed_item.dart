@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
@@ -37,8 +38,8 @@ class CmuFeedItem extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    profileImage(feed.userImgPath, wtio, htio),
-                    feedProfile(htio, wtio)
+                    profileImage(feed.userImgPath, feed.badges, htio, wtio),
+                    feedProfile(feed.badges, htio, wtio)
                   ],
                 ),
               ),
@@ -194,7 +195,13 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Column feedProfile(double htio, double wtio) {
+  Column feedProfile(List<BadgeInfoDto>? badges, double htio, double wtio) {
+    final weightBadge = badges!
+        .firstWhere(
+          (badge) => badge.badgeType == 'weight',
+          orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
+        );
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +212,7 @@ class CmuFeedItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               spacing: 2 * wtio,
               children: [
-                  Text( // nickname
+                  Text(
                     feed.nickName,
                     style: TextStyle(
                         color: Colors.black,
@@ -215,29 +222,17 @@ class CmuFeedItem extends StatelessWidget {
                         height: 1.50 * htio,
                     ),
                   ),
-                  Container( // tier
-                      padding: EdgeInsets.symmetric(horizontal: 6 * wtio, vertical: 1 * htio),
-                      decoration: ShapeDecoration(
-                          color: const Color(0x33FAA131),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                      ),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 10 * wtio,
-                          children: [
-                              Text(
-                                  '${feed.tier}',
-                                  style: TextStyle(
-                                      color: const Color(0xFFFAA131),
-                                      fontSize: 10 * htio,
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w700,
-                                      height: 1.50,
-                                  ),
-                              ),
-                          ],
-                      ),
+                  if (weightBadge.badgeId.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(left: 2 * wtio),
+                    child: SvgPicture.asset(
+                      height: 19 * htio,
+                      'assets/widgets/${weightBadge.badgeId}.svg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ),
               ],
           ),
@@ -297,30 +292,56 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Widget profileImage(String? imageUrl, double wtio, double htio) {
+  Widget profileImage(String? imageUrl, List<BadgeInfoDto>? badges, double htio, double wtio) {
+    final todayBadge = badges!
+        .firstWhere(
+          (badge) => badge.badgeType == 'today',
+          orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
+        );
+    
     return Container(
-      width: 40 * wtio,
+      width: 40 * htio,
       height: 40 * htio,
       margin: EdgeInsets.only(right: 10 *  wtio),
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-      ),
-      clipBehavior: Clip.hardEdge,
-      child: (imageUrl != null && imageUrl.isNotEmpty)
-          ? Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return SvgPicture.asset(
-                  'assets/widgets/default_user_profile.svg',
-                  fit: BoxFit.cover,
-                );
-              },
-            )
-          : SvgPicture.asset(
-              'assets/widgets/default_user_profile.svg',
-              fit: BoxFit.cover,
+      child: Stack(
+        children: [
+          // 프로필 이미지
+          Container(
+            width: 40 * wtio,
+            height: 40 * htio,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
             ),
+            child: ClipOval(
+              child: (imageUrl != null && imageUrl.isNotEmpty)
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return SvgPicture.asset(
+                          'assets/widgets/default_user_profile.svg',
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : SvgPicture.asset(
+                      'assets/widgets/default_user_profile.svg',
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+
+          // 오늘 뱃지 표시
+          if (todayBadge.badgeId.isNotEmpty)
+            Positioned.fill(
+              child: SvgPicture.asset(
+                'assets/widgets/${todayBadge.badgeId}.svg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

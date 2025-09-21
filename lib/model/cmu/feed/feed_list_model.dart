@@ -1,3 +1,5 @@
+import 'package:my_app/model/cmu/feed/badge_info_dto.dart' show BadgeInfoDto;
+
 class FeedPreviewDto {
   final int id;
   final String category;
@@ -11,7 +13,7 @@ class FeedPreviewDto {
   final String viewDttm;
   final String nickName;
   final String? userImgPath;
-  final String? tier;
+  final List<BadgeInfoDto>? badges;
 
   FeedPreviewDto({
     required this.id,
@@ -26,7 +28,7 @@ class FeedPreviewDto {
     required this.viewDttm,
     required this.nickName,
     required this.userImgPath,
-    required this.tier
+    this.badges,
   });
 
   factory FeedPreviewDto.fromJson(Map<String, dynamic> json) {
@@ -43,7 +45,10 @@ class FeedPreviewDto {
       viewDttm: json['viewDttm'] ?? '',
       nickName: json['nickName'] ?? '',
       userImgPath: json['userImgPath'] as String?,
-      tier: json['tier'] as String?,
+      // badges 리스트가 null일 경우를 대비해 `as List<dynamic>?` 추가 및 `e`를 `Map<String, dynamic>`으로 명시적 캐스팅
+      badges: (json['badges'] as List<dynamic>?)
+          ?.map((e) => BadgeInfoDto.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
