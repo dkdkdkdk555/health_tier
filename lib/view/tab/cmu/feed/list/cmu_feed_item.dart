@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
-import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class CmuFeedItem extends StatelessWidget {
   final FeedPreviewDto feed;
@@ -13,6 +13,9 @@ class CmuFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ratio = ScreenRatio(context);
+    final htio = ratio.heightRatio;
+    final wtio = ratio.widthRatio;
     return GestureDetector(
       onTap: () {
         context.push('/cmu/feed/${feed.id}?categoryId=${feed.categoryId}');
@@ -30,12 +33,12 @@ class CmuFeedItem extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(bottom: 12),
+                margin: EdgeInsets.only(bottom: 12 * htio),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    profileImage(feed.userImgPath),
-                    feedProfile()
+                    profileImage(feed.userImgPath, wtio, htio),
+                    feedProfile(htio, wtio)
                   ],
                 ),
               ),
@@ -43,8 +46,8 @@ class CmuFeedItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if(feed.imgPreview == null || feed.imgPreview!.isEmpty)... {
-                    title(),
-                    ctntPreview()
+                    title(htio),
+                    ctntPreview(htio)
                   } else... {
                     Row(
                       children: [
@@ -52,16 +55,16 @@ class CmuFeedItem extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              title(),
-                              ctntPreview(),
+                              title(htio),
+                              ctntPreview(htio),
                             ],
                           ),
                         ),
-                        imagePreview()
+                        imagePreview(htio, wtio)
                       ],
                     ),
                   }
-                  ,likeAndReply()
+                  ,likeAndReply(htio, wtio)
                 ],
               )
             ],
@@ -70,23 +73,23 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Widget likeAndReply() {
+  Widget likeAndReply(double htio, double wtio) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 8,
+          spacing: 8 * wtio,
           children: [
               Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 12,
+                  spacing: 12 * wtio,
                   children: [
                       Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 2,
+                          spacing: 2 * wtio,
                           children: [
                               SvgPicture.asset(
                                 'assets/icons/like.svg',
@@ -94,12 +97,12 @@ class CmuFeedItem extends StatelessWidget {
                               ),
                               Text(
                                   '${feed.likeCnt}',
-                                  style: const TextStyle(
-                                      color: Color(0xFF777777),
-                                      fontSize: 12,
+                                  style: TextStyle(
+                                      color: const Color(0xFF777777),
+                                      fontSize: 12 * htio,
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w500,
-                                      height: 1.50,
+                                      height: 1.50 * htio,
                                   ),
                               ),
                           ],
@@ -132,11 +135,11 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Container imagePreview() {
+  Container imagePreview(double htio, double wtio) {
     return Container(
-      width: 70,
-      height: 70,
-      margin: const EdgeInsets.only(left:16),
+      width: 70 * htio,
+      height: 70 * htio,
+      margin: EdgeInsets.only(left:16 * wtio),
       alignment: Alignment.topCenter,
       decoration: ShapeDecoration(
           image: DecorationImage(
@@ -148,72 +151,72 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Widget ctntPreview() {
+  Widget ctntPreview(double htio) {
     return Container(
-      padding: const EdgeInsets.only(top: 4, bottom: 2),
-      margin: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(top: 4 * htio, bottom: 2 * htio),
+      margin: EdgeInsets.only(bottom: 8 * htio),
       child: SizedBox(
-        height: 44,
+        height: 44 * htio,
         child: Text(
           '${feed.ctntPreview}',
           textAlign: TextAlign.left,
-          style: const TextStyle(
-            color: Color(0xFF777777),
+          style: TextStyle(
+            color: const Color(0xFF777777),
               overflow: TextOverflow.ellipsis,
-            fontSize: 14,
+            fontSize: 14 * htio,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w400,
-            height: 1.40,
+            height: 1.40 * htio,
           ),
         ),
       ),
     );
   }
 
-  ConstrainedBox title() {
+  ConstrainedBox title(double htio) {
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 44, // 두 줄 텍스트의 최대 높이
+      constraints: BoxConstraints(
+        maxHeight: 44 * htio, // 두 줄 텍스트의 최대 높이
       ),
       child: Text(
         feed.title,
         textAlign: TextAlign.left,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.black,
-          fontSize: 16,
+          fontSize: 16 * htio,
           fontFamily: 'Pretendard',
           fontWeight: FontWeight.w700,
-          height: 1.40,
+          height: 1.40 * htio,
         ),
       ),
     );
   }
 
-  Column feedProfile() {
+  Column feedProfile(double htio, double wtio) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 1,
+      spacing: 1 * htio,
       children: [
           Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 2,
+              spacing: 2 * wtio,
               children: [
                   Text( // nickname
                     feed.nickName,
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14,
+                        fontSize: 14 * htio,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w500,
-                        height: 1.50,
+                        height: 1.50 * htio,
                     ),
                   ),
                   Container( // tier
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      padding: EdgeInsets.symmetric(horizontal: 6 * wtio, vertical: 1 * htio),
                       decoration: ShapeDecoration(
                           color: const Color(0x33FAA131),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -221,13 +224,13 @@ class CmuFeedItem extends StatelessWidget {
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          spacing: 10,
+                          spacing: 10 * wtio,
                           children: [
                               Text(
                                   '${feed.tier}',
-                                  style: const TextStyle(
-                                      color: Color(0xFFFAA131),
-                                      fontSize: 10,
+                                  style: TextStyle(
+                                      color: const Color(0xFFFAA131),
+                                      fontSize: 10 * htio,
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w700,
                                       height: 1.50,
@@ -241,38 +244,38 @@ class CmuFeedItem extends StatelessWidget {
           Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 2,
+              spacing: 2 * wtio,
               children: [
                   Text(
                     feed.category,
-                    style: const TextStyle(
-                        color: Color(0xFF777777),
-                        fontSize: 12,
+                    style: TextStyle(
+                        color: const Color(0xFF777777),
+                        fontSize: 12 * htio,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.50,
+                        height: 1.50 * htio,
                     ),
                   ),
-                  dot(),
+                  dot(htio),
                   Text(
                     feed.viewDttm,
-                    style: const TextStyle(
-                        color: Color(0xFF777777),
-                        fontSize: 12,
+                    style: TextStyle(
+                        color: const Color(0xFF777777),
+                        fontSize: 12* htio,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w400,
-                        height: 1.50,
+                        height: 1.50* htio,
                     ),
                   ),
-                  dot(),
+                  dot(htio),
                   Text(
                       '조회수 ${feed.views}',
-                      style: const TextStyle(
-                          color: Color(0xFF777777),
-                          fontSize: 12,
+                      style: TextStyle(
+                          color: const Color(0xFF777777),
+                          fontSize: 12* htio,
                           fontFamily: 'Pretendard',
                           fontWeight: FontWeight.w400,
-                          height: 1.50,
+                          height: 1.50* htio,
                       ),
                   ),
               ],
@@ -281,24 +284,24 @@ class CmuFeedItem extends StatelessWidget {
   );
   }
 
-  Text dot() {
-    return const Text(
+  Text dot(double htio) {
+    return Text(
         '·',
         style: TextStyle(
-            color: Color(0xFF777777),
-            fontSize: 12,
+            color: const Color(0xFF777777),
+            fontSize: 12 * htio,
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w400,
-            height: 1.50,
+            height: 1.50 * htio,
         ),
     );
   }
 
-  Widget profileImage(String? imageUrl) {
+  Widget profileImage(String? imageUrl, double wtio, double htio) {
     return Container(
-      width: 40,
-      height: 40,
-      margin: const EdgeInsets.only(right: 10),
+      width: 40 * wtio,
+      height: 40 * htio,
+      margin: EdgeInsets.only(right: 10 *  wtio),
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
       ),

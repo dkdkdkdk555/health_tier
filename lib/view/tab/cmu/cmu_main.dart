@@ -142,6 +142,7 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
       final hasNew = await service.isThereNewFeed(
         latestId: latestFeedId ?? 0,
         categoryId: categoryId,
+        hotYn: isBestFeedTap ? 1 : 0,
       );
 
       if (hasNew) {

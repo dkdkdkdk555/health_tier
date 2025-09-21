@@ -6,13 +6,15 @@ class ErrorContentWidget extends StatelessWidget {
   final bool isExistBottomLine;
   final double horizontal;
   final double vertical;
+  final bool isIconView;
   const ErrorContentWidget({
     super.key,
     this.mainText = '데이터 로딩 중 오류가 발생했습니다.',
     this.isExistTopLine = false,
     this.isExistBottomLine = false,
     this.horizontal = 10,
-    this.vertical = 10
+    this.vertical = 10,
+    this.isIconView = true,
   });
 
   @override
@@ -29,7 +31,7 @@ class ErrorContentWidget extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
               child: Column(
                 children: [
-                  mainText!='' ? Icon(
+                  isIconView ? Icon(
                     Icons.error,
                     color: Colors.amber.shade200,
                   ) : const SizedBox.shrink(),

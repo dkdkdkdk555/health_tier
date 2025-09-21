@@ -48,12 +48,14 @@ class FeedService {
   Future<bool> isThereNewFeed({
     required int latestId,
     int? categoryId,
+    int? hotYn
   }) async {
     final response = await dio.get(
       FeedAPI.isThereNewFeed,
       queryParameters: {
         'latestId': latestId,
         if (categoryId != null && categoryId != 0) 'category': categoryId,
+        'hotYn': hotYn ?? 0,
       },
     );
     debugPrint(response.data.toString());

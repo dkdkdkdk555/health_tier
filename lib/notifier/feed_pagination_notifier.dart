@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
@@ -9,7 +10,17 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
   final FeedQueryParams _params;
 
   bool _isFetching = false;
-  bool _hasNext = true;
+  bool _hasNext = false; /*
+    FeedListSliver 위젯 build 메서드에서
+    final params = ref.watch(feedParamsProvider);
+    final scrollResponse = ref.watch(feedPaginationProvider(params));
+    params 바뀌면서 feedPaginationProvider가 새로운 인스턴스로 평가됨.
+    이때 목록이 짧아 바닥에 약간의 스크롤로 바닥에 도달하면 fetchNext가 실행됨(이전 feedPaginationProvider 인스턴스에서 실행되는듯?)
+    이때 _hasNext의 기본값을 true로 초기화 해뒀으면
+    그럼 fetchInitial로 인해 _hasNext = false로 바뀌기 전에 fetchNext가 호출되므로
+    fetchNext로 인해 랜더링된 목록 + AsyncData(response) 의 목록(fetchInital 시 _feeds를 리턴하지 않으므로)
+    이 랜더링되어 아이템들이 중복돼 나타나는거임
+   */
   List<FeedPreviewDto> _feeds = [];
 
   FeedPaginationNotifier(this._service, this._params) : super(const AsyncLoading()) {
@@ -17,25 +28,31 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
   }
 
   Future<void> fetchInitial() async {
+    _isFetching = true;
     state = const AsyncLoading();
 
     try {
+      debugPrint('멍멍!');
       final response = await _service.getFeedList(_params);
       _feeds.clear();
       _feeds = response.items;
       _hasNext = response.hasNext;
+      debugPrint('헤즈넥스트 : $_hasNext');
       _params.cursorId = response.lastCursorId;
       state = AsyncData(response);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+    } finally {
+      _isFetching = false;
     }
-  }
+  } 
 
   Future<void> fetchNext() async {
     if (_isFetching || !_hasNext) return;
     _isFetching = true;
 
     try {
+      debugPrint('왈왈!');
       final response = await _service.getFeedList(_params.copyWith(cursorId: _params.cursorId));
       _feeds.addAll(response.items);
       _params.cursorId = response.lastCursorId;
