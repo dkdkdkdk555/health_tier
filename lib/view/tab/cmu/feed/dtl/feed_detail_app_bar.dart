@@ -176,11 +176,11 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
           // 우측 아이콘 묶음
           Row(
             children: [
-              SvgPicture.asset(
-                'assets/icons/feed_detail/ico_share.svg',
-                width: 24,
-                height: 24,
-              ),
+              // SvgPicture.asset(
+              //   'assets/icons/feed_detail/ico_share.svg',
+              //   width: 24,
+              //   height: 24,
+              // ),
               const SizedBox(width: 16),
               // 햄버거 아이콘 클릭 시 _showActionBottomSheet 호출
               GestureDetector(

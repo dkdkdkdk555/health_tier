@@ -107,8 +107,15 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
     } 
   }
 
+
+  DateTime? _lastClickTime; //디바운스/스로틀 : 0.5~1초 정도 클릭 방지(Throttle)하는 로직을 추가하면 네트워크 지연과 무관하게 연속 클릭 방지 가능
+
   // 좋아요 버튼 클릭 핸들러 (새로 추가)
   Future<void> _onLikeButtonPressed() async {
+    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 300)) {
+      return; // 300ms 내 중복클릭방지
+    }
+    _lastClickTime = DateTime.now();
 
     final feedCudService = ref.read(feedCudServiceProvider).value;
     if (feedCudService == null) return;

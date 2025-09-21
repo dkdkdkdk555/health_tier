@@ -103,9 +103,15 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
     });
   }
 
+  DateTime? _lastClickTime;
 
    // 좋아요 버튼 클릭 핸들러 (새로 추가)
   Future<void> _onLikeButtonPressed(int? myUserId, BuildContext context, WidgetRef ref) async {
+    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 300)) {
+      return;
+    }
+    _lastClickTime = DateTime.now();
+
     final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
     final replyService = replyServiceAsync;
     try {

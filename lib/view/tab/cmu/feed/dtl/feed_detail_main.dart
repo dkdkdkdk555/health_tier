@@ -162,6 +162,8 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
                                                 ],
                                             ),
                                         ),
+                                        if (feed.userWeights != null && feed.userWeights!.isNotEmpty)
+                                        renderingCrtifiWeight(feed),
                                         SizedBox(
                                           width: 335,
                                           child: quill.QuillEditor.basic(
@@ -217,23 +219,13 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 4,
                         children: [
-                            const Text(
-                                '댓글',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w500,
-                                ),
-                            ),
                             Text(
-                                '${feed.replyCount}',
+                                '댓글 ${feed.replyCount}',
                                 style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                    height: 1.75,
+                                    fontWeight: FontWeight.w500,
                                 ),
                             ),
                         ],
@@ -265,82 +257,100 @@ class _FeedDetailMainState extends ConsumerState<FeedDetailMain> {
     );
   }
 
-  SizedBox likeWidget(FeedDetailDto feed) {
-    return SizedBox(
-        width: 335,
-        child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-                Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 12,
-                    children: [
-                        Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 4,
-                            children: [
-                                Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: ShapeDecoration(
-                                        shape: RoundedRectangleBorder(
-                                            side: const BorderSide(
-                                                width: 1,
-                                                color: Color(0xFFDDDDDD),
-                                            ),
-                                            borderRadius: BorderRadius.circular(99),
-                                        ),
-                                    ),
-                                    child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        spacing: 10,
-                                        children: [
-                                            Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                spacing: 2,
-                                                children: [
-                                                    SizedBox(
-                                                      width: 16,
-                                                      height: 16,
-                                                      child: SvgPicture.asset(
-                                                        'assets/icons/like.svg',
-                                                        width: 16,
-                                                        height: 16,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      feed.likeCnt == 0 ? '좋아요' : '${feed.likeCnt}',
-                                                      style: const TextStyle(
-                                                        color: Color(0xFF333333),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Pretendard',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.50,
-                                                      ),
-                                                    ),
-                                                ],
-                                            ),
-                                        ],
-                                    ),
-                                ),
-                            ],
-                        ),
-                    ],
-                ),
-            ],
+  Column renderingCrtifiWeight(FeedDetailDto feed) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 5),
+          child: Text(
+            '인증 목표',
+            style: TextStyle(
+              fontSize: 18,
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade800,
+            ),
+          ),
         ),
+        const SizedBox(height: 5),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft, // 그라데이션 시작점
+              end: Alignment.bottomRight, // 그라데이션 끝점
+              colors: [
+                Color.fromARGB(255, 123, 144, 238), // 코발트 블루
+                Color.fromARGB(255, 181, 209, 200), // 라벤더 그레이 (추가)
+                Color(0xFFE4E6F0), // 부드러운 회색
+              ],
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color.fromARGB(5, 166, 83, 83),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+              BoxShadow(
+                color: Color.fromARGB(5, 0, 0, 0),
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                if (feed.userWeights != null)
+                  for (final weight in feed.userWeights!)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              getWeightTypeLabel(weight.weightType),
+                              style: const TextStyle(
+                                color: Colors.black87,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${weight.weightKg?.toString() ?? '-'} kg',
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  // type 변환용 함수
+  String getWeightTypeLabel(String? type) {
+    switch (type) {
+      case 'BENCH':
+        return '벤치프레스';
+      case 'SQUAT':
+        return '스쿼트';
+      case 'DEAD':
+        return '데드리프트';
+      default:
+        return type ?? '-';
+    }
   }
 
   Row feedMetaData(FeedDetailDto feed) {
