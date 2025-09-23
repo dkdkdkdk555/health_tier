@@ -125,11 +125,20 @@ class ErrorInterceptor extends InterceptorsWrapper {
       }
     } 
 
+    else if (err.response?.statusCode == 422) { // Unprocessable Entity
+      // 서버 예외: PsqlException (커스텀, PSOLException 과 다름)
+      // 코드명: UNPROCESSABLE_ENTITY
+      if(context!=null){
+        showAppMessage(context, message: err.response?.data['message'] ?? 'PSQLException 데이터(형식/길이/중복) 오류가 발생했습니다.\n운영환경에서는 불명확한 메세지는 보여주지 않음.', type: AppMessageType.dialog);
+        return _returnUiOkStatus(handler, originalRequest);
+      }
+    } 
+
     else if (err.response?.statusCode == 500) { // Internal Server Error
       // 서버 예외: Exception
       // 코드명: INTERNAL_SERVER_ERROR
       if(context!=null){
-        showAppMessage(context, message: '알 수 없는 오류가 발생했습니다.\n반복될 경우 관리자에게 문의해주세요.', type: AppMessageType.dialog);
+        showAppMessage(context, message: '서버 오류가 발생했습니다.\n반복될 경우 관리자에게 문의해주세요.', type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
     } 
