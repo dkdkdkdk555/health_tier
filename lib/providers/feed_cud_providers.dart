@@ -20,7 +20,7 @@ final feedCudServiceProvider = FutureProvider<FeedCudService>((ref) async {
 });
 
 // 수정하기 피드상세조회
-final feedDetailProviderForUpdate = FutureProvider.family<Result<FeedDetailDto>, int>((ref, feedId) async {
+final feedDetailProviderForUpdate = FutureProvider.autoDispose.family<Result<FeedDetailDto>, int>((ref, feedId) async {
   // feedCudServiceProvider가 준비될 때까지 기다립니다.
   final service = await ref.watch(feedCudServiceProvider.future);
   return await service.getFeedDetail(feedId);
