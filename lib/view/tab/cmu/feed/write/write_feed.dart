@@ -16,7 +16,7 @@ import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
 import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
-import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider;
+import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider, feedPaginationProvider, feedParamsProvider;
 import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/quill_video_player.dart';
@@ -329,6 +329,22 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               } else {
                 debugPrint('Warning: Local image file not found: $filePath');
               }
+            } else if(imageUrl.startsWith('data:image/')) {
+              // 🔥 base64 data:image 처리 추가
+              final base64Data = imageUrl.split(',').last;
+              final bytes = base64Decode(base64Data);
+
+              final newFileName = 'paste-${DateTime.now().millisecondsSinceEpoch}.png';
+              final newPath = path.join(io.Directory.systemTemp.path, newFileName);
+              final file = await io.File(newPath).writeAsBytes(bytes, flush: true);
+
+              filesToUpload.add(file);
+              operationsToUpdate.add({
+                'index': i,
+                'type': 'image',
+                'localPath': imageUrl, // base64 URI 그대로 key로 둠
+              });
+              localPathToIndexMap[imageUrl] = filesToUpload.length - 1;
             } else if(imageUrl.contains(APIServer.baseUrl)) {
               // 기존 서버에 저장된 url추가
               currentServerMediaUrls.add(imageUrl);
@@ -410,7 +426,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         if (uploadResult.count >= 1) {
           uploadedUrls = uploadResult.data;
           // 서버 업로드된 첫 번째 이미지 URL 넣어주기
-          if (imgPreview.startsWith('file://') && uploadedUrls.isNotEmpty) {
+          if ((imgPreview.startsWith('file://') || imgPreview.startsWith('data:image/')) && uploadedUrls.isNotEmpty) {
             imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
           }
         } 
@@ -486,10 +502,17 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       if (!mounted) return;
       showAppMessage(context, message: '피드가 성공적으로 등록되었습니다.');
       context.go('/cmu/feed/$resultFeedId?categoryId=$categoryId&isFromWriteFeed=true');
+      ref.invalidate(feedDetailProvider);
       ref.invalidate(feedPaginationProvider);
       ref.invalidate(feedParamsProvider);
     } catch (e) {
       debugPrint('게시글 등록 중 오류 발생: $e');
+
+      final errorMsg = e.toString();
+      if (errorMsg.contains('422')){
+        debugPrint('차단됨');
+        return; // interceptor에서 이미 처리된 것으로 간주
+      }
       if (!mounted) return;
       showAppMessage(context, message: '피드 등록 중 오류가 발생했습니다.', type: AppMessageType.dialog);
     } finally {
@@ -528,6 +551,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('${widget.key}');
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
      // build 메서드 내에서 ref.watch로 서비스 인스턴스를 가져옵니다.
     final feedCudServiceAsyncValue = ref.watch(feedCudServiceProvider); // <-- FutureProvider를 watch
