@@ -372,6 +372,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
               separatorBuilder: (_, __) => const SizedBox(width: 0,),
               itemBuilder: (context, index) {
                 final category = modifiedCategories[index];
+                if(category.name=='공지') return null;
                 return makeCategory(category);
               },
             ),
