@@ -14,6 +14,7 @@ class FeedPreviewDto {
   final String nickName;
   final String? userImgPath;
   final List<BadgeInfoDto>? badges;
+  final String? videoExist;
 
   FeedPreviewDto({
     required this.id,
@@ -29,6 +30,7 @@ class FeedPreviewDto {
     required this.nickName,
     required this.userImgPath,
     this.badges,
+    this.videoExist,
   });
 
   factory FeedPreviewDto.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class FeedPreviewDto {
       badges: (json['badges'] as List<dynamic>?)
           ?.map((e) => BadgeInfoDto.fromJson(e as Map<String, dynamic>))
           .toList(),
+      videoExist: json['videoExist'] as String?,
     );
   }
 }

@@ -8,6 +8,7 @@ class FeedDto {
   final int? userId; // userId도 백엔드에서 Long 타입일 수 있으므로 Long으로 가정
   final String ctntPreview;
   final String imgPreview;
+  final String? videoExist;
   final List<UserWeightCrtifiDto>? userWeights; // 중량인증시 (최대3개)
 
   FeedDto({
@@ -18,6 +19,7 @@ class FeedDto {
     this.userId,
     required this.ctntPreview,
     required this.imgPreview,
+    this.videoExist,
     this.userWeights,
   });
 
@@ -39,6 +41,7 @@ class FeedDto {
       userId: json['userId'] as int?, // userId가 백엔드에서 null로 올 수도 있다면 int? 로 변경
       ctntPreview: json['ctntPreview'] as String,
       imgPreview: json['imgPreview'] as String,
+      videoExist: json['videoExist'] as String?,
       userWeights: parsedUserWeights,
     );
   }
@@ -53,6 +56,7 @@ class FeedDto {
       'userId': userId,
       'ctntPreview': ctntPreview,
       'imgPreview': imgPreview,
+      'videoExist': videoExist,
       // userWeights 필드 변환: 리스트가 null이 아니면 각 객체를 Map으로 변환
       'userWeights': userWeights?.map((e) => e.toJson()).toList(),
     };

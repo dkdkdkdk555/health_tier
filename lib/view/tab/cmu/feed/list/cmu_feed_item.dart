@@ -46,9 +46,24 @@ class CmuFeedItem extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if(feed.imgPreview == null || feed.imgPreview!.isEmpty)... {
+                  if((feed.imgPreview == null || feed.imgPreview!.isEmpty) && feed.videoExist != 'Y')... {
                     title(htio),
                     ctntPreview(htio)
+                  } else if((feed.imgPreview == null || feed.imgPreview!.isEmpty) && feed.videoExist == 'Y')... {
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              title(htio),
+                              ctntPreview(htio),
+                            ],
+                          ),
+                        ),
+                        videoExist(htio, wtio)
+                      ],
+                    ),
                   } else... {
                     Row(
                       children: [
@@ -148,6 +163,22 @@ class CmuFeedItem extends StatelessWidget {
               fit: BoxFit.cover,
           ),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+    );
+  }
+
+  Container videoExist(double htio, double wtio) {
+    debugPrint('썅?');
+    return Container(
+      width: 70 * htio,
+      height: 70 * htio,
+      margin: EdgeInsets.only(left:16 * wtio),
+      alignment: Alignment.topCenter,
+      decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      ),
+      child: const Icon(
+        Icons.video_library_outlined
       ),
     );
   }

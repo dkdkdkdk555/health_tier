@@ -304,6 +304,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       // 현재 에디터에 있는 서버 이미지/비디오 URL 목록 (수정 후)
       final List<String> currentServerMediaUrls = [];
 
+      bool hasVideo = false;
       for (int i = 0; i < currentDelta.operations.length; i++) {
         final op = currentDelta.operations[i];
         if (op.isInsert && op.data is Map) {
@@ -352,6 +353,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             }
           } else if (insertData.containsKey('video')) {
             final String videoUrl = insertData['video'];
+            hasVideo = true;
             // YouTube URL은 서버에 업로드할 필요가 없으므로 건너뜁니다.
             if (videoUrl.startsWith('file://')) {
               final String filePath = Uri.parse(videoUrl).toFilePath();
@@ -495,6 +497,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         ctntPreview: ctntPreview.replaceAll(RegExp(r'\r?\n'), ''),
         imgPreview: imgPreview,
         userWeights: userWeightsData,
+        videoExist: hasVideo ? 'Y' : 'N',
       );
 
       int resultFeedId;
