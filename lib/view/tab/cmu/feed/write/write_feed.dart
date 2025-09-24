@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
@@ -64,6 +66,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   List<String> _initialServerMediaUrls = [];
   // WriteFeedCategorySelectBar에서 전달받을 운동 항목 데이터
   List<ExerciseEntry> _currentExerciseEntries = [];
+  // 이미지,비디오 업로드 상태관리
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -636,7 +640,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                             ),
                           ),
                         ),
-                  
+                        if(_isUploading)
+                        const Center(child: AppLoadingIndicator()),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
@@ -762,12 +767,22 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                   height: 50.0,
                   width: MediaQuery.of(context).size.width,
                   color: Colors.grey[200],
-                  child: SingleChildScrollView(
+                       child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: QuillSimpleToolbar(
                       controller: _controller,
                       config: QuillSimpleToolbarConfig(
                         customButtons: [
+                          QuillToolbarCustomButtonOptions(
+                            icon: const Icon(Icons.photo_library),
+                            tooltip: '갤러리에서 이미지 가져오기',
+                            onPressed: () => _handleFilePick(context, _controller, 'image'),
+                          ),
+                          QuillToolbarCustomButtonOptions(
+                            icon: const Icon(Icons.videocam),
+                            tooltip: '갤러리에서 비디오 가져오기',
+                            onPressed: () => _handleFilePick(context, _controller, 'video'),
+                          ),
                           QuillToolbarCustomButtonOptions(
                             icon: const Icon(Icons.keyboard_hide_outlined),
                             tooltip: 'Hide Keyboard',
@@ -776,10 +791,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                             },
                           ),
                         ],
-                        showBoldButton: true,
-                        showUnderLineButton: true,
-                        showStrikeThrough: true,
-                        showListBullets: true,
                         showListNumbers: true,
                         showUndo: true,
                         showRedo: true,
@@ -807,39 +818,38 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                         showClipboardCut: false,
                         showClipboardCopy: false,
                         showClipboardPaste: false,
-                        embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                          imageButtonOptions: QuillToolbarImageButtonOptions(
-                            imageButtonConfig: QuillToolbarImageConfig(
-                              onImageInsertCallback: (image, controller) async {
-                                final originalFile = io.File(image);
-                                if (!await originalFile.exists()) return;
+                        // embedButtons: FlutterQuillEmbeds.toolbarButtons(
+                        //   imageButtonOptions: QuillToolbarImageButtonOptions(
+                        //     imageButtonConfig: QuillToolbarImageConfig(
+                        //       onImageInsertCallback: (image, controller) async {
+                        //         final originalFile = io.File(image);
+                        //         if (!await originalFile.exists()) return;
         
-                                final appDir = await getApplicationDocumentsDirectory();
-                                final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
-                                final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-                                final imageUrl = 'file://${savedFile.path}';
+                        //         final appDir = await getApplicationDocumentsDirectory();
+                        //         final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
+                        //         final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+                        //         final imageUrl = 'file://${savedFile.path}';
         
-                                controller.document.insert(
-                                  controller.selection.extentOffset,
-                                  BlockEmbed.image(imageUrl),
-                                );
-                                controller.updateSelection(
-                                  TextSelection.collapsed(
-                                    offset: controller.selection.extentOffset + 1,
-                                  ),
-                                  ChangeSource.local,
-                                );
-                              },
-                            ),
-                          ),
-                          videoButtonOptions: QuillToolbarVideoButtonOptions(
-                            
-                            videoConfig: QuillToolbarVideoConfig(
-                               // onVideoInsertCallback을 커스터마이징합니다.
-                              onVideoInsertCallback: (videoPathFromPicker, controller) => _handleVideoInsert(videoPathFromPicker, controller),
-                            )
-                          )
-                        ),
+                        //         controller.document.insert(
+                        //           controller.selection.extentOffset,
+                        //           BlockEmbed.image(imageUrl),
+                        //         );
+                        //         controller.updateSelection(
+                        //           TextSelection.collapsed(
+                        //             offset: controller.selection.extentOffset + 1,
+                        //           ),
+                        //           ChangeSource.local,
+                        //         );
+                        //       },
+                        //     ),
+                        //   ),
+                        //   videoButtonOptions: QuillToolbarVideoButtonOptions(
+                        //     videoConfig: QuillToolbarVideoConfig(
+                        //        // onVideoInsertCallback을 커스터마이징합니다.
+                        //       onVideoInsertCallback: (videoPathFromPicker, controller) => _handleVideoInsert(videoPathFromPicker, controller),
+                        //     )
+                        //   )
+                        // ),
                         buttonOptions: QuillSimpleToolbarButtonOptions(
                           linkStyle: QuillToolbarLinkStyleButtonOptions(
                             validateLink: (link) {
@@ -859,55 +869,111 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     );
   }
 
-// 비디오 선택시
-Future<void> _handleVideoInsert(String videoPathFromPicker, QuillController controller) async {
-  debugPrint('[_handleVideoInsert] Function called with path: $videoPathFromPicker');
-
-  // _isPickingFile 플래그는 ImagePicker 호출 시점을 제어하는 용도로 사용되었으나,
-  // 이제 ImagePicker 호출은 FlutterQuillEmbeds.toolbarButtons()의 내부 로직이 담당하므로,
-  // 이 함수 내에서는 _isPickingFile 관련 setState 로직은 필요 없습니다.
-  // 다만, 중복 삽입 방지나 UI 상태 관리를 위해 여전히 유용할 수 있습니다.
-  // 이 함수 호출 시점에는 이미 파일이 선택되어 Path가 넘어왔다고 가정합니다.
-
-  if (videoPathFromPicker.isEmpty) {
-    debugPrint('[_handleVideoInsert] Video path from picker is empty. Skipping insertion.');
-    return;
-  }
-
+// _handleFilePick 함수 수정
+Future<void> _handleFilePick(BuildContext context, QuillController controller, String type, {XFile? file}) async {
+  
   try {
-    final originalFile = io.File(videoPathFromPicker);
-    if (!await originalFile.exists()) {
-      debugPrint('[_handleVideoInsert] Original video file does not exist at path: $videoPathFromPicker');
-      // 사용자가 갤러리에서 선택했지만, 파일이 존재하지 않는 극히 드문 경우를 대비
-      if (!mounted) return;
-      showAppMessage(context, message: '선택된 비디오 파일을 찾을 수 없습니다.', type: AppMessageType.dialog);
-      return;
+    setState(() {
+      _isUploading = true;
+    });
+    String? filePath;
+    if (file != null) {
+      filePath = file.path;
+    } else {
+      // file_picker 사용
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: type == 'image' ? FileType.image : FileType.video,
+        allowMultiple: false, //한번에 하나의 파일만 선택하도록
+      );
+      if (result != null && result.files.single.path != null) {
+        filePath = result.files.single.path!;
+      }
     }
-
-    final appDir = await getApplicationDocumentsDirectory();
-    final fileName = 'vid-${DateTime.now().millisecondsSinceEpoch}.mp4';
-    final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-    final videoUrl = 'file://${savedFile.path}';
-    debugPrint('[_handleVideoInsert] Saved video URL: $videoUrl');
-
-    controller.document.insert(
-      controller.selection.extentOffset,
-      BlockEmbed.video(videoUrl),
-    );
-    controller.updateSelection(
-      TextSelection.collapsed(
-        offset: controller.selection.extentOffset + 1,
-      ),
-      ChangeSource.local,
-    );
-    debugPrint('[_handleVideoInsert] Video inserted into Quill editor successfully.');
-  } catch (e) {
-    debugPrint('[_handleVideoInsert] !!! Error processing/inserting video: $e');
-    if (!mounted) return;
-    showAppMessage(context, message: '비디오 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
-  } finally {
     
+    if (filePath != null && filePath.isNotEmpty) {
+      // 파일 경로를 앱 문서 디렉토리에 복사
+      final originalFile = io.File(filePath);
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = '$type-${DateTime.now().millisecondsSinceEpoch}.${path.extension(filePath)}';
+      final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+      final fileUrl = 'file://${savedFile.path}';
+
+      // 삽입된 텍스트에 링크 속성 적용
+      controller.document.insert(
+        controller.selection.extentOffset,
+        type == 'image' ? BlockEmbed.image(fileUrl) : BlockEmbed.video(fileUrl),
+      );
+      // 커서를 링크 끝으로 이동
+      controller.updateSelection(
+        TextSelection.collapsed(
+          offset: controller.selection.extentOffset + 1,
+        ),
+        ChangeSource.local,
+      );
+      
+      debugPrint('[$type] inserted into Quill editor successfully.');
+    }
+  } catch (e) {
+    debugPrint('Error picking or inserting file: $e');
+    if (context.mounted) {
+      showAppMessage(context, message: '파일 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
+    }
+  }finally{
+    setState(() {
+      _isUploading = false;
+    });
   }
 }
+
+// 비디오 선택시 -> image_picker 사용 코드
+// Future<void> _handleVideoInsert(String videoPathFromPicker, QuillController controller) async {
+//   debugPrint('[_handleVideoInsert] Function called with path: $videoPathFromPicker');
+
+//   // _isPickingFile 플래그는 ImagePicker 호출 시점을 제어하는 용도로 사용되었으나,
+//   // 이제 ImagePicker 호출은 FlutterQuillEmbeds.toolbarButtons()의 내부 로직이 담당하므로,
+//   // 이 함수 내에서는 _isPickingFile 관련 setState 로직은 필요 없습니다.
+//   // 다만, 중복 삽입 방지나 UI 상태 관리를 위해 여전히 유용할 수 있습니다.
+//   // 이 함수 호출 시점에는 이미 파일이 선택되어 Path가 넘어왔다고 가정합니다.
+
+//   if (videoPathFromPicker.isEmpty) {
+//     debugPrint('[_handleVideoInsert] Video path from picker is empty. Skipping insertion.');
+//     return;
+//   }
+
+//   try {
+//     final originalFile = io.File(videoPathFromPicker);
+//     if (!await originalFile.exists()) {
+//       debugPrint('[_handleVideoInsert] Original video file does not exist at path: $videoPathFromPicker');
+//       // 사용자가 갤러리에서 선택했지만, 파일이 존재하지 않는 극히 드문 경우를 대비
+//       if (!mounted) return;
+//       showAppMessage(context, message: '선택된 비디오 파일을 찾을 수 없습니다.', type: AppMessageType.dialog);
+//       return;
+//     }
+
+//     final appDir = await getApplicationDocumentsDirectory();
+//     final fileName = 'vid-${DateTime.now().millisecondsSinceEpoch}.mp4';
+//     final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
+//     final videoUrl = 'file://${savedFile.path}';
+//     debugPrint('[_handleVideoInsert] Saved video URL: $videoUrl');
+
+//     controller.document.insert(
+//       controller.selection.extentOffset,
+//       BlockEmbed.video(videoUrl),
+//     );
+//     controller.updateSelection(
+//       TextSelection.collapsed(
+//         offset: controller.selection.extentOffset + 1,
+//       ),
+//       ChangeSource.local,
+//     );
+//     debugPrint('[_handleVideoInsert] Video inserted into Quill editor successfully.');
+//   } catch (e) {
+//     debugPrint('[_handleVideoInsert] !!! Error processing/inserting video: $e');
+//     if (!mounted) return;
+//     showAppMessage(context, message: '비디오 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
+//   } finally {
+    
+//   }
+// }
 
 } 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,20 @@ class ErrorInterceptor extends InterceptorsWrapper {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final originalRequest = err.requestOptions;
     final context = rootNavigatorKey.currentState?.overlay?.context;
+
+    if(err.error is SocketException) {
+      debugPrint('에메 ${err.message}');
+      debugPrint('에메 $err');
+      debugPrint('에메 ${err.response}');
+      debugPrint('에메 ${err.requestOptions}');
+      if(context!=null) {
+        showAppMessage(
+          context,
+          message: '서버와의 연결이 끊어졌습니다.',
+          type: AppMessageType.dialog,
+        );
+      }
+    }
 
     if (err.response?.statusCode == 401) { // 401 Unauthorized
       try {
