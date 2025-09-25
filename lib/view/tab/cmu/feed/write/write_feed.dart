@@ -640,8 +640,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                             ),
                           ),
                         ),
-                        if(_isUploading)
-                        const Center(child: AppLoadingIndicator()),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
@@ -757,7 +755,16 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 ),
               ],
             ),
-        
+            if(_isUploading)
+            Positioned.fill(
+              child: Container(
+                // 배경을 흐릿하게 만들기 위한 반투명 컨테이너
+                color: Colors.black.withValues(alpha: 0.4),
+                child: const Center(
+                  child: AppLoadingIndicator(),
+                ),
+              ),
+            ),
             // 키보드 위에 위치한 툴바
             if (_showToolbar)
               Positioned(
