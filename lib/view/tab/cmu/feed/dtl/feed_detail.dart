@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
-import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider;
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider, sameCategoryFeedPaginationProvider, searchFeedsProvider;
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
@@ -44,6 +44,8 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
     if(!mounted)return;
     showAppDialog(context, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
       ref.read(feedPaginationProvider(ref.read(feedParamsProvider)).notifier).removeFeed(widget.feedId);
+      ref.invalidate(searchFeedsProvider);
+      ref.invalidate(sameCategoryFeedPaginationProvider);
       context.pop();
     },);
   }
@@ -76,7 +78,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
             // 댓글리스트
             ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
             // 같은 카테고리의 다른 글
-            widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!,) 
+            widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!, currentFeedId: widget.feedId) 
             : const SliverToBoxAdapter(child: SizedBox.shrink()),
             // 하단 여백(필요시)
             SliverToBoxAdapter(

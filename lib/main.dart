@@ -81,7 +81,8 @@ void main() async{
     // installation ID 가져오기
     String? installationId = await FirebaseInstallations.id;
     // 현재 디바이스의 OS 타입 가져오기
-    osType = Platform.isIOS ? 'ios' : 'android';
+    final osTypeInit = Platform.isIOS ? 'ios' : 'android';
+    osType = osTypeInit;
 
     // 인증 헤더를 포함한 Dio 인스턴스 생성
     final dio = DIOConfig().createDioWithAuth(jwtToken);

@@ -10,10 +10,12 @@ import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_item
 
 class CategoryAnotherFeedList extends ConsumerStatefulWidget {
   final int categoryId;
+  final int currentFeedId;
 
   const CategoryAnotherFeedList({
     super.key,
     required this.categoryId,
+    required this.currentFeedId,
   });
 
   @override
@@ -150,15 +152,31 @@ class _CategoryAnotherFeedListState extends ConsumerState<CategoryAnotherFeedLis
               child: feedState.when(
                 data: (data) {
                   final items = data.items;
+                   // 자기자신을 제외한 필터링된 목록
+                  final filteredItems = items.where((item) => item.id != widget.currentFeedId).toList();
+
+                  // 필터링된 목록이 비어 있고 더 이상 불러올 데이터가 없다면
+                  if (filteredItems.isEmpty && !data.hasNext) {
+                    return const Center(
+                      child: Text(
+                        '아직 다른 글이 없습니다.',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 14,
+                        ),
+                      ),
+                    );
+                  }
+
                   return ListView.builder(
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
-                    itemCount: items.length + (data.hasNext ? 1 : 0),
+                    itemCount: filteredItems.length + (data.hasNext ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index < items.length) {
+                      if (index < filteredItems.length) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 10, bottom: 20),
-                          child: CategoryAnotherFeedItem(feed: items[index]),
+                          child: CategoryAnotherFeedItem(feed: filteredItems[index]),
                         );
                       } else {
                         // 로딩 인디케이터 표시
