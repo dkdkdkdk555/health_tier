@@ -30,6 +30,7 @@ import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
+import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tab/stc/stc_main.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
@@ -80,7 +81,7 @@ void main() async{
     // installation ID 가져오기
     String? installationId = await FirebaseInstallations.id;
     // 현재 디바이스의 OS 타입 가져오기
-    String osType = Platform.isIOS ? 'ios' : 'android';
+    osType = Platform.isIOS ? 'ios' : 'android';
 
     // 인증 헤더를 포함한 Dio 인스턴스 생성
     final dio = DIOConfig().createDioWithAuth(jwtToken);

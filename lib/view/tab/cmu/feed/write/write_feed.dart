@@ -26,6 +26,7 @@ import 'package:my_app/util/quill_video_player.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
+import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -728,7 +729,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                                         return NetworkImage(imageUrl);
                                       }
                                       return null;
-                                    },                            
+                                    },  
+                                    onImageClicked:(imageSource) {
+                                      // 여기에 이미지 클릭했을때 나오는 메뉴들을 커스텀할 수 있다.
+                                    },                          
                                   ),
                                   videoEmbedConfig: QuillEditorVideoEmbedConfig(
                                     customVideoBuilder: (videoUrl, readOnly) {
@@ -905,6 +909,11 @@ Future<void> _handleFilePick(BuildContext context, QuillController controller, S
       final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
       final fileUrl = 'file://${savedFile.path}';
 
+      debugPrint(originalFile.path);
+      debugPrint(appDir.path);
+      debugPrint(fileName);
+      debugPrint(fileUrl);
+
       // 삽입된 텍스트에 링크 속성 적용
       controller.document.insert(
         controller.selection.extentOffset,
@@ -923,7 +932,15 @@ Future<void> _handleFilePick(BuildContext context, QuillController controller, S
   } catch (e) {
     debugPrint('Error picking or inserting file: $e');
     if (context.mounted) {
-      showAppMessage(context, message: '파일 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
+      if(e.toString().contains('public.')) {
+        if(osType == 'ios') {
+          showAppMessage(context, message: 'icloud 파일은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.', type: AppMessageType.dialog);
+        } else {
+          showAppMessage(context, message: '클라우드에 있는 사진은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.', type: AppMessageType.dialog);
+        }
+      } else {
+        showAppMessage(context, message: '파일 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
+      }
     }
   }finally{
     setState(() {

@@ -18,7 +18,7 @@ import 'package:my_app/view/tab/usr/usr_main/my_wrote_feed.dart';
 import 'package:my_app/view/tab/usr/usr_main/profile_card.dart';
 import 'package:my_app/view/tab/usr/usr_main/usr_info_tab_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:my_app/view/tab/simple_cache.dart' show cachedUsrTabIndex;
+import 'package:my_app/view/tab/simple_cache.dart' show cachedUsrTabIndex, osType;
 
 class UsrInfoScreen extends ConsumerStatefulWidget {
   const UsrInfoScreen({super.key});
@@ -73,8 +73,6 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
       String? installationId = await FirebaseInstallations.id;
 
       // 3. 현재 디바이스의 OS 타입 가져오기
-      String osType = Platform.isIOS ? 'ios' : 'android';
-
       debugPrint('fcm:$fcmToken');
       debugPrint('installation:$installationId');
       debugPrint('os:$osType');

@@ -23,6 +23,8 @@ DayRange cachedDayRange = DayRange(
 
 int cachedStcBtnPushed = 0;
 
+late String osType;
+
 /*
 T #FF5656
 B #FF9900

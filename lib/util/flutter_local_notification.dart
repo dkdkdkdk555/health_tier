@@ -13,6 +13,7 @@ import 'package:my_app/database/app_database.dart';
 import 'package:my_app/main.dart' show router;
 import 'package:my_app/util/navigator_key.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
+import 'package:my_app/view/tab/simple_cache.dart' show osType;
 
 class FlutterLocalNotification{
   FlutterLocalNotification._();
@@ -96,7 +97,6 @@ class FlutterLocalNotification{
 
   /// 알림 권한 요청
   static requestNotificationPermission() {
-    String osType = Platform.isIOS ? 'ios' : 'android';
     if(osType == 'ios') {
       flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
         ?.requestPermissions(alert: true, badge: true, sound: true);
