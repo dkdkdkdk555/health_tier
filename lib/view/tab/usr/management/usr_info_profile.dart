@@ -12,12 +12,15 @@ import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart' show ErrorContentWidget;
+import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:path/path.dart' as path show basename;
 
 // ignore: must_be_immutable
 class UsrInfoProfile extends ConsumerWidget {
+  final Function uploadStateFunc;
   UsrInfoProfile({
     super.key,
+    required this.uploadStateFunc,
   });
 
   var htio = 0.0;
@@ -211,7 +214,22 @@ class UsrInfoProfile extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(15), // 탭 효과도 둥글게
                   onTap: () async {
                     Navigator.pop(context);
-                    await _pickImage(context, ref, ImageSource.gallery);
+                    try {
+                      await _pickImage(context, ref, ImageSource.gallery);
+                    } catch(e) {
+                      debugPrint('Error picking or inserting file: $e');
+                      if (context.mounted) {
+                        if(e.toString().contains('public.')) {
+                          if(osType == 'ios') {
+                            showAppMessage(context, message: 'icloud 파일은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.', type: AppMessageType.dialog);
+                          } else {
+                            showAppMessage(context, message: '클라우드에 있는 사진은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.', type: AppMessageType.dialog);
+                          }
+                        } else {
+                            showAppMessage(context, message: '파일 처리 및 삽입 중 오류가 발생했습니다', type: AppMessageType.dialog);
+                        }
+                      }
+                    }
                   },
                   child: Container(
                     height: 55 * htio, // 세로 폭
@@ -265,6 +283,7 @@ class UsrInfoProfile extends ConsumerWidget {
 
   // 갤러리에서 이미지 선택 및 업로드 함수
   Future<void> _pickImage(BuildContext context, WidgetRef ref, ImageSource source) async {
+    uploadStateFunc(true);
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
 
@@ -299,6 +318,7 @@ class UsrInfoProfile extends ConsumerWidget {
           showAppMessage(context, message: '이미지 업로드에 실패하였습니다.');
         }
       } finally {
+        uploadStateFunc(false);
       }
     }
   }

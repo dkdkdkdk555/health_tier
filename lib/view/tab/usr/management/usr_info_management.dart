@@ -6,6 +6,7 @@ import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/token_manager.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
@@ -28,6 +29,13 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
 
   var htio = 0.0;
   var wtio = 0.0;
+  bool _isUploading = false;
+
+  void _uploadStateChange(bool uploading){
+    setState(() {
+      _isUploading = uploading;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,78 +45,92 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height:44 * htio),
-            const CmuBasicAppBar(centerText: '내 정보 관리',),
-            UsrInfoProfile(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 25 * htio),
-              child: Column(
-                children: [
-                  makeTitle('동의약관'),
-                  SizedBox(height: 10 * htio,),
-                  makeItem('이용약관', 'https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link'),
-                  makeItem('개인정보처리방침', 'https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link'),
-                  SizedBox(height: 30 * htio,),
-                  makeTitle('기록 옮기기'),
-                  const DocBackupAndRestore(),
-                  SizedBox(height: 50 * htio,),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: () async {
-                         await showAppDialog(
-                          context, 
-                          message: '로그아웃 하시겠습니까?',
-                          confirmText: '확인',
-                          cancelText: '취소',
-                          onConfirm: () {
-                            TokenManager.deleteAllTokens();
-                            CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
-                            if(!context.mounted) return;
-                            context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
+        child: Stack(
+          children : [
+            Column(
+              children: [
+                SizedBox(height:44 * htio),
+                const CmuBasicAppBar(centerText: '내 정보 관리',),
+                UsrInfoProfile(uploadStateFunc: _uploadStateChange,),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 25 * htio),
+                  child: Column(
+                    children: [
+                      makeTitle('동의약관'),
+                      SizedBox(height: 10 * htio,),
+                      makeItem('이용약관', 'https://www.notion.so/24b6746954da80e38112eb00d8636e8c?source=copy_link'),
+                      makeItem('개인정보처리방침', 'https://www.notion.so/24b6746954da80179890f7f49aac745d?source=copy_link'),
+                      SizedBox(height: 30 * htio,),
+                      makeTitle('기록 옮기기'),
+                      const DocBackupAndRestore(),
+                      SizedBox(height: 50 * htio,),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () async {
+                            await showAppDialog(
+                              context, 
+                              message: '로그아웃 하시겠습니까?',
+                              confirmText: '확인',
+                              cancelText: '취소',
+                              onConfirm: () {
+                                TokenManager.deleteAllTokens();
+                                CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
+                                if(!context.mounted) return;
+                                context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
+                              },
+                              onCancel: () {
+                                return;
+                              },
+                            );
                           },
-                          onCancel: () {
-                            return;
-                          },
-                        );
-                      },
-                      child: Text(
-                        '로그아웃',
-                        style: TextStyle(
-                          color: Colors.grey.shade800,
-                          fontSize: 15.3 * htio,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.normal,
-                          height: 1.6 * htio,
+                          child: Text(
+                            '로그아웃',
+                            style: TextStyle(
+                              color: Colors.grey.shade800,
+                              fontSize: 15.3 * htio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.normal,
+                              height: 1.6 * htio,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 16 * htio,),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: GestureDetector(
-                      onTap: () {
-                        context.push('/usr/info/management/signout');
-                      },
-                      child: Text(
-                        '회원탈퇴',
-                        style: TextStyle(
-                          color: Colors.grey.shade800,
-                          fontSize: 15.3 * htio,
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.normal,
-                          height: 1.6 * htio,
+                      SizedBox(height: 16 * htio,),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.push('/usr/info/management/signout');
+                          },
+                          child: Text(
+                            '회원탈퇴',
+                            style: TextStyle(
+                              color: Colors.grey.shade800,
+                              fontSize: 15.3 * htio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.normal,
+                              height: 1.6 * htio,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                )
+              ],
+            ),
+            if(_isUploading)
+            Positioned.fill(
+              child: Container(
+                // 배경을 흐릿하게 만들기 위한 반투명 컨테이너
+                color: Colors.black.withValues(alpha: 0.4),
+                child: const Center(
+                  child: AppLoadingIndicator(),
+                ),
               ),
-            )
-          ],
+            ),
+          ]
         ),
       ),
     );
