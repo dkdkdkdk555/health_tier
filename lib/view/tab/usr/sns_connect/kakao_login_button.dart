@@ -78,6 +78,7 @@ class _KakaoLoginButtonState extends ConsumerState<KakaoLoginButton> {
       }
 
       try {
+        if(accessToken == null || accessToken == '') return;
         final response = await authApi.verifySnsToken(
             accessToken: accessToken ?? '', 
             snsId:  kakaoUserInfo!.id.toString(),

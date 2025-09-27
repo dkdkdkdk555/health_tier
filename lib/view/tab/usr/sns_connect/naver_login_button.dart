@@ -75,6 +75,7 @@ class _NaverLoginButtonState extends ConsumerState<NaverLoginButton> {
     }
 
     try {
+      if(accessToken == null || accessToken == '') return;
       final response = await authApi.verifySnsToken(
         accessToken: accessToken!,
         snsId: userInfo?.id ?? '',

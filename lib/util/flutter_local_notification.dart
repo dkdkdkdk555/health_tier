@@ -87,7 +87,7 @@ class FlutterLocalNotification{
       if (feedId != null) {
         debugPrint("currentContext: $navigatorKey.currentContext");
         WidgetsBinding.instance.addPostFrameCallback((_) {
-           router.push('/cmu/feed/${int.parse(feedId)}');
+           router.push('/cmu/feed/${int.parse(feedId)}?isFromNotifi=true');
         });
       }
     } catch (e) {

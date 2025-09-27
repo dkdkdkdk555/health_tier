@@ -88,7 +88,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           prefs.setBool("fcmTokenUploaded", true);
         }
       } catch (e) {
-        debugPrint('Failed tosend push token to server: $e');
+        debugPrint('Failed to send push token to server: $e');
       }
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/usr/sns_connect/apple_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/kakao_login_button.dart';
 import 'package:my_app/view/tab/usr/sns_connect/naver_login_button.dart';
@@ -58,7 +59,10 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;
-    
+
+    final osT = osType;
+    debugPrint('os타입 : $osType');
+
     return Scaffold(
       body: Stack(
         children: [
@@ -138,10 +142,11 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 26 * wtio,
-                  children: const [
-                    KakaoLoginButton(),
-                    NaverLoginButton(),
-                    AppleLoginButton(),
+                  children: [
+                    const KakaoLoginButton(),
+                    const NaverLoginButton(),
+                    if(osT == 'ios')
+                    const AppleLoginButton(),
                   ],
                 ),
               )

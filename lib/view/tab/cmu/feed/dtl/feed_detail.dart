@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
-import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider, sameCategoryFeedPaginationProvider, searchFeedsProvider;
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider, replyPaginationProvider, sameCategoryFeedPaginationProvider, searchFeedsProvider;
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
@@ -17,12 +17,14 @@ class FeedDetail extends ConsumerStatefulWidget { // StatefulWidget으로 변경
   final int feedId;
   final int? categoryId;
   final bool isFromWriteFeed;
+  final bool isFromNotifi;
   const FeedDetail(
     {
     super.key,
     required this.feedId,
     this.categoryId,
     this.isFromWriteFeed = false,
+    this.isFromNotifi = false,
     }
   );
 
@@ -39,6 +41,17 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    if(widget.isFromNotifi) {
+      // initState는 위젯이 처음 생성될 때 단 한 번만 호출됩니다.
+      // 알림클릭해서 온 경우 댓글 캐시 무효
+      Future.microtask(() => ref.invalidate(replyPaginationProvider));
+    }
+  }
+
+
   void _deleteFeedCallback(FeedCudService? feedCudService) async {
     await feedCudService!.deleteFeed(widget.feedId);
     if(!mounted)return;
@@ -52,6 +65,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
 
   @override
   Widget build(BuildContext context) {
+
     final htio = ScreenRatio(context).heightRatio;
     return Scaffold(
       extendBody: true,

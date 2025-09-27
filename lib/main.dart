@@ -70,6 +70,10 @@ void main() async{
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // 현재 디바이스의 OS 타입 가져오기
+  final osTypeInit = Platform.isIOS ? 'ios' : 'android';
+  osType = osTypeInit;
+
   // FCM 토큰 갱신 리스너 등록
   FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
     debugPrint('새토큰 : $fcmToken');
@@ -80,10 +84,7 @@ void main() async{
 
     // installation ID 가져오기
     String? installationId = await FirebaseInstallations.id;
-    // 현재 디바이스의 OS 타입 가져오기
-    final osTypeInit = Platform.isIOS ? 'ios' : 'android';
-    osType = osTypeInit;
-
+    
     // 인증 헤더를 포함한 Dio 인스턴스 생성
     final dio = DIOConfig().createDioWithAuth(jwtToken);
     final apiService = UserApiService(dio);

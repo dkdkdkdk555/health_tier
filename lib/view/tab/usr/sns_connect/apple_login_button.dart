@@ -61,6 +61,7 @@ class _AppleLoginButtonState extends ConsumerState<AppleLoginButton> {
     }
 
     try {
+      if(appleUser?.identityToken == '' || appleUser?.identityToken == null) return;
       final response = await authApi.verifySnsToken(
         accessToken: appleUser?.identityToken ?? '',
         snsId: appleUser?.userIdentifier ?? '',
@@ -94,7 +95,11 @@ class _AppleLoginButtonState extends ConsumerState<AppleLoginButton> {
         debugPrint('error: ${e.error}');
         debugPrint('response: ${e.response?.statusCode}');
 
-        showAppDialog(context, message: '로그인 중 서버와의 통신에 실패했습니다.\n반복될 경우 관리자에게 문의 바랍니다.', confirmText: '확인');
+        if(e.response?.statusCode == 400 && (appleUser?.identityToken == "" || appleUser?.identityToken == null) ){
+
+        } else {
+          showAppDialog(context, message: '로그인 중 서버와의 통신에 실패했습니다.\n반복될 경우 관리자에게 문의 바랍니다.', confirmText: '확인');
+        }
     }
   }
 
