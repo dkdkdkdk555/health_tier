@@ -192,10 +192,12 @@ class MyBodyInfo extends ConsumerWidget {
       final item = weights.firstWhere((w) => w.pose == pose, orElse: () => Weight3Info(pose: pose, weight: 0));
       sortedWeights.add(item);
     }
+
+    int weightSum = 0;
     
     for (int i = 0; i < sortedWeights.length; i++) {
       final weightInfo = sortedWeights[i];
-      totalWeight += weightInfo.weight;
+      weightSum += weightInfo.weight;
       items.add(_buildExerciseItem(weightInfo.pose, weightInfo.weight));
       
       // 마지막 아이템이 아니면 간격 추가
@@ -203,6 +205,8 @@ class MyBodyInfo extends ConsumerWidget {
         items.add(SizedBox(width: 40 * wtio));
       }
     }
+
+    totalWeight = weightSum;
     
     return items;
   }
