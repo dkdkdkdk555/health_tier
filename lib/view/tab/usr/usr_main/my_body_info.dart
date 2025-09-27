@@ -25,8 +25,14 @@ class MyBodyInfo extends ConsumerWidget {
 
   double htio = 0;
   double wtio = 0;
+  final GlobalKey<BodyInfoSectionState> bodyKey = GlobalKey<BodyInfoSectionState>();
+
+  int totalWeight = 0;
+
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;
     
@@ -34,31 +40,38 @@ class MyBodyInfo extends ConsumerWidget {
     final userWeightsAsync = ref.watch(userWeightListProvider);
 
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildHeader(context, '3대 중량', true,
-            '',
-            '중량인증 카테고리로 피드를 게시하고\n사용자 또는 관리자에게 인증을 받은\n종목별 최대 중량이 보여집니다.'
-          ),
-          userWeightsAsync.when(
-            data: (weightsResult) {
-              final weights = weightsResult.data;
-              return _buildExerciseSection(weights);
-            },
-            loading: () => Container(
-              height: 183 * htio,
-              alignment: Alignment.center,
-              child: const AppLoadingIndicator(),
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+           FocusScope.of(context).unfocus(); // 여백 클릭시 키보드 들어가게
+           bodyKey.currentState?.saveHeight(); // 여백 클릭시 키 저장되게 하기
+        },
+        child: Column(
+          children: [
+            _buildHeader(context, '3대 중량', true,
+              '💪🏻 3대 중량',
+              '중량인증 카테고리로 피드를 게시하고\n타 사용자들 또는 관리자에게 인증을 받으면\n여기에 종목별 최대 중량이 보여집니다.'
             ),
-            error: (err, stack) => 
-              const ErrorContentWidget(mainText: '3대 중량을 불러오는데 실패했습니다.',)
-          ),
-          _buildHeader(context, '신체정보', true,
-            '',
-            '체중은 바디 캘린더에 기록한 가장 최근 기록을 가져옵니다.\n입력한 키, 성별, 체중 정보를 바탕으로 일일 기초대사량,\n활동대사량을 자동으로 계산해줍니다.'
-          ),
-          const BodyInfoSection(),
-        ],
+            userWeightsAsync.when(
+              data: (weightsResult) {
+                final weights = weightsResult.data;
+                return _buildExerciseSection(weights);
+              },
+              loading: () => Container(
+                height: 183 * htio,
+                alignment: Alignment.center,
+                child: const AppLoadingIndicator(),
+              ),
+              error: (err, stack) => 
+                const ErrorContentWidget(mainText: '3대 중량을 불러오는데 실패했습니다.',)
+            ),
+            _buildHeader(context, '신체정보', true,
+              '🩻 신체정보',
+              '기록탭에서 가장 최근에 입력한 체중과, 아래에 입력한 키, 성별 정보를 바탕으로 일일 기초대사량, 활동대사량을 자동으로 계산해줍니다.'
+            ),
+            BodyInfoSection(key: bodyKey,),
+          ],
+        ),
       ),
     );
   }
@@ -115,33 +128,56 @@ class MyBodyInfo extends ConsumerWidget {
   Widget _buildExerciseSection(List<Weight3Info> weights) {
     return Container(
       width: double.infinity,
-      height: 183 * htio,
+      height: 326 * htio,
       padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 24 * htio),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 28 * wtio,
-              vertical: 28 * htio,
-            ),
-            decoration: ShapeDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment(0.00, -1.00),
-                end: Alignment(0, 1),
-                colors: [Color(0xFFFFF3E0), Color(0xFFE7F3FF)],
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Row(
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: 24 * wtio,
+          vertical: 32 * htio,
+        ),
+        decoration: ShapeDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment(0.00, -1.00),
+            end: Alignment(0, 1),
+            colors: [Color(0xFFFFF3E0), Color(0xFFE7F3FF)],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: Column(
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _buildExerciseItems(weights),
             ),
-          ),
-        ],
+            SizedBox(height: 40 * htio,),
+            Text(
+              '총 중량',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: const Color(0xFF777777),
+                fontSize: 24 * htio,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w400
+              ),
+            ),
+            SizedBox(height: 2 * htio),
+            SizedBox(
+              width: 200 * wtio,
+              child: Text(
+                '${totalWeight}kg',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 40 * htio,
+                  fontFamily: 'Paperlogy',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -159,6 +195,7 @@ class MyBodyInfo extends ConsumerWidget {
     
     for (int i = 0; i < sortedWeights.length; i++) {
       final weightInfo = sortedWeights[i];
+      totalWeight += weightInfo.weight;
       items.add(_buildExerciseItem(weightInfo.pose, weightInfo.weight));
       
       // 마지막 아이템이 아니면 간격 추가
@@ -209,6 +246,7 @@ class MyBodyInfo extends ConsumerWidget {
               fontSize: 14 * htio,
               fontFamily: 'Pretendard',
               height: 0.11 * htio,
+              fontWeight: FontWeight.w400
             ),
           ),
           SizedBox(height: 30 * htio),
@@ -220,6 +258,7 @@ class MyBodyInfo extends ConsumerWidget {
               fontSize: 20 * htio,
               fontFamily: 'Pretendard',
               height: 0.07 * htio,
+              fontWeight: FontWeight.w600
             ),
           ),
         ],

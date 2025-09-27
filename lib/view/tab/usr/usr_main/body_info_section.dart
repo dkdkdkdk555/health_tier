@@ -87,12 +87,14 @@ class BodyInfoSection extends ConsumerStatefulWidget {
   const BodyInfoSection({super.key});
 
   @override
-  ConsumerState<BodyInfoSection> createState() => _BodyInfoSectionState();
+  ConsumerState<BodyInfoSection> createState() => BodyInfoSectionState();
 }
 
-class _BodyInfoSectionState extends ConsumerState<BodyInfoSection> {
+class BodyInfoSectionState extends ConsumerState<BodyInfoSection> {
   final TextEditingController _heightController = TextEditingController();
   late FocusNode _heightFocusNode;
+
+  double? _lastSavedHeight; // 마지막으로 저장한 값
 
   @override
   void initState() {
@@ -111,6 +113,20 @@ class _BodyInfoSectionState extends ConsumerState<BodyInfoSection> {
     final double? height = double.tryParse(value);
     if (height != null && height > 0) {
       ref.read(heightProvider.notifier).saveHeight(height);
+    }
+  }
+
+  void saveHeight() { // 상위 위젯 호출용
+    final double? height = double.tryParse(_heightController.text);
+    if (height != null && height > 0) {
+      // 이전 값과 같으면 저장하지 않음
+      if (_lastSavedHeight != null && _lastSavedHeight == height) {
+        debugPrint('변경 없음, 저장하지 않음');
+        return;
+      }
+      ref.read(heightProvider.notifier).saveHeight(height);
+      _lastSavedHeight = height;
+      debugPrint('저장 완료: $height');
     }
   }
 
