@@ -17,14 +17,12 @@ class FeedDetail extends ConsumerStatefulWidget { // StatefulWidget으로 변경
   final int feedId;
   final int? categoryId;
   final bool isFromWriteFeed;
-  final bool isFromNotifi;
   const FeedDetail(
     {
     super.key,
     required this.feedId,
     this.categoryId,
     this.isFromWriteFeed = false,
-    this.isFromNotifi = false,
     }
   );
 
@@ -39,16 +37,6 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
   void dispose() {
     _scrollController.dispose(); // 컨트롤러 해제
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    if(widget.isFromNotifi) {
-      // initState는 위젯이 처음 생성될 때 단 한 번만 호출됩니다.
-      // 알림클릭해서 온 경우 댓글 캐시 무효
-      Future.microtask(() => ref.invalidate(replyPaginationProvider));
-    }
   }
 
 

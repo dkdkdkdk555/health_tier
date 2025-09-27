@@ -50,14 +50,12 @@ final router = GoRouter(
                     : null;
 
                 final isFromWriteFeed = state.uri.queryParameters['isFromWriteFeed'] == 'true';
-                final isFromNotifi = state.uri.queryParameters['isFromNotifi'] == 'true';
                 return CustomTransitionPage(
                   key: state.pageKey,
                   child: FeedDetail(
                     feedId: feedId,
                     categoryId: categoryId,
                     isFromWriteFeed: isFromWriteFeed,
-                    isFromNotifi: isFromNotifi,
                   ),
                   transitionsBuilder: (context, animation, secondaryAnimation, child) {
                     const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
