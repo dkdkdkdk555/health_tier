@@ -9,4 +9,5 @@ class Notifications extends Table {
   TextColumn get type => text()();
   TextColumn get receivedAt => text()();
   TextColumn get isRead => text().withDefault(const Constant('false'))();
+  IntColumn get userId => integer()();
 }

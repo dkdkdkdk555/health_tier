@@ -6,6 +6,7 @@ import 'package:my_app/model/usr/user/notifications_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/usr/notification/notification_item.dart';
@@ -21,9 +22,16 @@ class NotificationListSliver extends ConsumerStatefulWidget {
 class _NotificationListSliverState extends ConsumerState<NotificationListSliver> {
   List<NotificationModel> _notifications = [];
 
+  late int loginUserId;
+  @override
+  void initState() {
+    super.initState();
+    loginUserId = UserPrefs.myUserId!;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final notificationsAsync = ref.watch(selectAllNotifications);
+    final notificationsAsync = ref.watch(selectAllNotifications(loginUserId));
 
     return notificationsAsync.when(
       data: (notifications) {

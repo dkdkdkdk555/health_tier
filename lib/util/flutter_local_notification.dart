@@ -148,6 +148,7 @@ class FlutterLocalNotification{
         type: message.data['type'] ?? 'GENERAL',
         receivedAt: DateTime.now().toIso8601String(),
         isRead: Value(message.data['isRead'] ?? 'false'),
+        userId: int.parse(message.data['userId']),
       ),
     );
   }

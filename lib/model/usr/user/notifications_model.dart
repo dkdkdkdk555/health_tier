@@ -9,6 +9,7 @@ class NotificationModel {
   final String? type;
   final String receivedAt;
   final String isRead; // 'true' or 'false'
+  final int userId;
 
   NotificationModel({
     required this.id,
@@ -19,6 +20,7 @@ class NotificationModel {
     this.type,
     required this.receivedAt,
     required this.isRead,
+    required this.userId,
   });
 
   /// Drift QueryRow → Model 매핑
@@ -32,6 +34,7 @@ class NotificationModel {
       type: row.read<String?>('type'),
       receivedAt: row.read<String>('received_at'),
       isRead: row.read<String>('is_read'),
+      userId: row.read<int>('user_id'),
     );
   }
 }

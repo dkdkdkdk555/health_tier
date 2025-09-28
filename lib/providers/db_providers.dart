@@ -594,20 +594,27 @@ Future<void> insertRestoreDietList({
 */
 
 /// 전체 조회
-final selectAllNotifications = FutureProvider.autoDispose<List<NotificationModel>>((ref) async {
+final selectAllNotifications = FutureProvider.autoDispose.family<
+    List<NotificationModel>, int>((ref, userId) async {
   final db = ref.watch(databaseProvider);
-  final result = await db.select(db.notifications).get();
 
-  return result.map((row) => NotificationModel(
-    id: row.id!,
-    prefix: row.prefix,
-    title: row.title,
-    body: row.body,
-    feedId: row.feedId,
-    type: row.type,
-    receivedAt: row.receivedAt,
-    isRead: row.isRead,
-  )).toList();
+  final result = await (db.select(db.notifications)
+        ..where((tbl) => tbl.userId.equals(userId)))
+      .get();
+
+  return result
+      .map((row) => NotificationModel(
+            id: row.id!,
+            prefix: row.prefix,
+            title: row.title,
+            body: row.body,
+            feedId: row.feedId,
+            type: row.type,
+            receivedAt: row.receivedAt,
+            isRead: row.isRead,
+            userId: row.userId,
+          ))
+      .toList();
 });
 
 /// 특정 알림 삭제

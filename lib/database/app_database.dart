@@ -18,13 +18,13 @@ class AppDatabase extends _$AppDatabase {
   factory AppDatabase() => _instance;
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override // HtDayBody, HtDayDiet 만 있는 상태에서 앱을 설치했던 기기는 Notifications 가 생성이 안될 수 있으니 이렇게 추가한 뒤 schemaVersion 도 올려줘야함.
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async => m.createAll(),
     onUpgrade: (m, from, to) async {
-      if (from == 1) {
+      if (from < 3) {
         await m.createTable(notifications);
       }
     },

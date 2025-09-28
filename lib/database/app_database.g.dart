@@ -828,9 +828,14 @@ class $NotificationsTable extends Notifications
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('false'));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, prefix, title, body, feedId, type, receivedAt, isRead];
+      [id, prefix, title, body, feedId, type, receivedAt, isRead, userId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -882,6 +887,12 @@ class $NotificationsTable extends Notifications
       context.handle(_isReadMeta,
           isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
     }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
+    }
     return context;
   }
 
@@ -907,6 +918,8 @@ class $NotificationsTable extends Notifications
           .read(DriftSqlType.string, data['${effectivePrefix}received_at'])!,
       isRead: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}is_read'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}user_id'])!,
     );
   }
 
@@ -925,6 +938,7 @@ class Notification extends DataClass implements Insertable<Notification> {
   final String type;
   final String receivedAt;
   final String isRead;
+  final int userId;
   const Notification(
       {this.id,
       this.prefix,
@@ -933,7 +947,8 @@ class Notification extends DataClass implements Insertable<Notification> {
       this.feedId,
       required this.type,
       required this.receivedAt,
-      required this.isRead});
+      required this.isRead,
+      required this.userId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -951,6 +966,7 @@ class Notification extends DataClass implements Insertable<Notification> {
     map['type'] = Variable<String>(type);
     map['received_at'] = Variable<String>(receivedAt);
     map['is_read'] = Variable<String>(isRead);
+    map['user_id'] = Variable<int>(userId);
     return map;
   }
 
@@ -966,6 +982,7 @@ class Notification extends DataClass implements Insertable<Notification> {
       type: Value(type),
       receivedAt: Value(receivedAt),
       isRead: Value(isRead),
+      userId: Value(userId),
     );
   }
 
@@ -981,6 +998,7 @@ class Notification extends DataClass implements Insertable<Notification> {
       type: serializer.fromJson<String>(json['type']),
       receivedAt: serializer.fromJson<String>(json['receivedAt']),
       isRead: serializer.fromJson<String>(json['isRead']),
+      userId: serializer.fromJson<int>(json['userId']),
     );
   }
   @override
@@ -995,6 +1013,7 @@ class Notification extends DataClass implements Insertable<Notification> {
       'type': serializer.toJson<String>(type),
       'receivedAt': serializer.toJson<String>(receivedAt),
       'isRead': serializer.toJson<String>(isRead),
+      'userId': serializer.toJson<int>(userId),
     };
   }
 
@@ -1006,7 +1025,8 @@ class Notification extends DataClass implements Insertable<Notification> {
           Value<int?> feedId = const Value.absent(),
           String? type,
           String? receivedAt,
-          String? isRead}) =>
+          String? isRead,
+          int? userId}) =>
       Notification(
         id: id.present ? id.value : this.id,
         prefix: prefix.present ? prefix.value : this.prefix,
@@ -1016,6 +1036,7 @@ class Notification extends DataClass implements Insertable<Notification> {
         type: type ?? this.type,
         receivedAt: receivedAt ?? this.receivedAt,
         isRead: isRead ?? this.isRead,
+        userId: userId ?? this.userId,
       );
   Notification copyWithCompanion(NotificationsCompanion data) {
     return Notification(
@@ -1028,6 +1049,7 @@ class Notification extends DataClass implements Insertable<Notification> {
       receivedAt:
           data.receivedAt.present ? data.receivedAt.value : this.receivedAt,
       isRead: data.isRead.present ? data.isRead.value : this.isRead,
+      userId: data.userId.present ? data.userId.value : this.userId,
     );
   }
 
@@ -1041,14 +1063,15 @@ class Notification extends DataClass implements Insertable<Notification> {
           ..write('feedId: $feedId, ')
           ..write('type: $type, ')
           ..write('receivedAt: $receivedAt, ')
-          ..write('isRead: $isRead')
+          ..write('isRead: $isRead, ')
+          ..write('userId: $userId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, prefix, title, body, feedId, type, receivedAt, isRead);
+  int get hashCode => Object.hash(
+      id, prefix, title, body, feedId, type, receivedAt, isRead, userId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1060,7 +1083,8 @@ class Notification extends DataClass implements Insertable<Notification> {
           other.feedId == this.feedId &&
           other.type == this.type &&
           other.receivedAt == this.receivedAt &&
-          other.isRead == this.isRead);
+          other.isRead == this.isRead &&
+          other.userId == this.userId);
 }
 
 class NotificationsCompanion extends UpdateCompanion<Notification> {
@@ -1072,6 +1096,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
   final Value<String> type;
   final Value<String> receivedAt;
   final Value<String> isRead;
+  final Value<int> userId;
   final Value<int> rowid;
   const NotificationsCompanion({
     this.id = const Value.absent(),
@@ -1082,6 +1107,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
     this.type = const Value.absent(),
     this.receivedAt = const Value.absent(),
     this.isRead = const Value.absent(),
+    this.userId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   NotificationsCompanion.insert({
@@ -1093,11 +1119,13 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
     required String type,
     required String receivedAt,
     this.isRead = const Value.absent(),
+    required int userId,
     this.rowid = const Value.absent(),
   })  : title = Value(title),
         body = Value(body),
         type = Value(type),
-        receivedAt = Value(receivedAt);
+        receivedAt = Value(receivedAt),
+        userId = Value(userId);
   static Insertable<Notification> custom({
     Expression<int>? id,
     Expression<String>? prefix,
@@ -1107,6 +1135,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
     Expression<String>? type,
     Expression<String>? receivedAt,
     Expression<String>? isRead,
+    Expression<int>? userId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1118,6 +1147,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
       if (type != null) 'type': type,
       if (receivedAt != null) 'received_at': receivedAt,
       if (isRead != null) 'is_read': isRead,
+      if (userId != null) 'user_id': userId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1131,6 +1161,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
       Value<String>? type,
       Value<String>? receivedAt,
       Value<String>? isRead,
+      Value<int>? userId,
       Value<int>? rowid}) {
     return NotificationsCompanion(
       id: id ?? this.id,
@@ -1141,6 +1172,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
       type: type ?? this.type,
       receivedAt: receivedAt ?? this.receivedAt,
       isRead: isRead ?? this.isRead,
+      userId: userId ?? this.userId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1172,6 +1204,9 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
     if (isRead.present) {
       map['is_read'] = Variable<String>(isRead.value);
     }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1189,6 +1224,7 @@ class NotificationsCompanion extends UpdateCompanion<Notification> {
           ..write('type: $type, ')
           ..write('receivedAt: $receivedAt, ')
           ..write('isRead: $isRead, ')
+          ..write('userId: $userId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1624,6 +1660,7 @@ typedef $$NotificationsTableCreateCompanionBuilder = NotificationsCompanion
   required String type,
   required String receivedAt,
   Value<String> isRead,
+  required int userId,
   Value<int> rowid,
 });
 typedef $$NotificationsTableUpdateCompanionBuilder = NotificationsCompanion
@@ -1636,6 +1673,7 @@ typedef $$NotificationsTableUpdateCompanionBuilder = NotificationsCompanion
   Value<String> type,
   Value<String> receivedAt,
   Value<String> isRead,
+  Value<int> userId,
   Value<int> rowid,
 });
 
@@ -1671,6 +1709,9 @@ class $$NotificationsTableFilterComposer
 
   ColumnFilters<String> get isRead => $composableBuilder(
       column: $table.isRead, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 }
 
 class $$NotificationsTableOrderingComposer
@@ -1705,6 +1746,9 @@ class $$NotificationsTableOrderingComposer
 
   ColumnOrderings<String> get isRead => $composableBuilder(
       column: $table.isRead, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 }
 
 class $$NotificationsTableAnnotationComposer
@@ -1739,6 +1783,9 @@ class $$NotificationsTableAnnotationComposer
 
   GeneratedColumn<String> get isRead =>
       $composableBuilder(column: $table.isRead, builder: (column) => column);
+
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 }
 
 class $$NotificationsTableTableManager extends RootTableManager<
@@ -1775,6 +1822,7 @@ class $$NotificationsTableTableManager extends RootTableManager<
             Value<String> type = const Value.absent(),
             Value<String> receivedAt = const Value.absent(),
             Value<String> isRead = const Value.absent(),
+            Value<int> userId = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               NotificationsCompanion(
@@ -1786,6 +1834,7 @@ class $$NotificationsTableTableManager extends RootTableManager<
             type: type,
             receivedAt: receivedAt,
             isRead: isRead,
+            userId: userId,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -1797,6 +1846,7 @@ class $$NotificationsTableTableManager extends RootTableManager<
             required String type,
             required String receivedAt,
             Value<String> isRead = const Value.absent(),
+            required int userId,
             Value<int> rowid = const Value.absent(),
           }) =>
               NotificationsCompanion.insert(
@@ -1808,6 +1858,7 @@ class $$NotificationsTableTableManager extends RootTableManager<
             type: type,
             receivedAt: receivedAt,
             isRead: isRead,
+            userId: userId,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
