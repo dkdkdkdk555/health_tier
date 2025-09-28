@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
 
-class IslandNavigationBar extends StatelessWidget {
+class IslandNavigationBar extends ConsumerWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
   final double wtio;
@@ -14,7 +16,9 @@ class IslandNavigationBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final profileImg = ref.watch(usrProfileImgProvider);
 
     return Container(
         padding: const EdgeInsets.only(left: 8, right: 8),
@@ -38,7 +42,7 @@ class IslandNavigationBar extends StatelessWidget {
             _buildTabLine([1, 2]),
             _buildTabIcon('assets/icons/commu_tab.svg', 2),
             _buildTabLine([2, 3]),
-            _buildProfileIcon('assets/icons/Ellipse1.png', 3),
+            _buildProfileIcon(profileImg, 3),
           ],
         ),
     );
@@ -65,15 +69,27 @@ class IslandNavigationBar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        width: wtio * 0.0667,
-        height: wtio * 0.0667,
-        decoration: BoxDecoration(
+        width: wtio * 0.0687,
+        height: wtio * 0.0687,
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          image: DecorationImage(
-            // image: NetworkImage(imageUrl), -> 회원이미지를 네트워크에서 가져올때 적용하자
-            image: Image.asset(imageUrl).image,
-            fit: BoxFit.cover,
-          ),
+        ),
+        child:  ClipOval(
+          child: imageUrl == ''
+          ? SvgPicture.asset(
+              'assets/widgets/default_user_profile.svg',
+              fit: BoxFit.cover,
+            )
+          : Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return SvgPicture.asset(
+                  'assets/widgets/default_user_profile.svg',
+                  fit: BoxFit.cover,
+                );
+              },
+            ),
         ),
       ),
     );

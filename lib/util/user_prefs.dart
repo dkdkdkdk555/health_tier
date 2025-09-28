@@ -6,9 +6,12 @@ import 'package:flutter/material.dart';
 
 class UserPrefs {
   static int? _myUserId; // 전역으로 접근 가능한 사용자 ID 저장
-
+  static String? _myUserImgUrl; // 전역으로 접근 가능한 사용자 프로필 이미지url
   // 초기화되었는지 확인하는 플래그 (선택 사항)
   static bool _isInitialized = false;
+
+  static int? get myUserId => _myUserId; // 사용자 ID에 접근하는 getter
+  static String? get myUserImgUrl => _myUserImgUrl;
 
   static Future<void> loadMyUserId() async {
     if (_isInitialized) {
@@ -21,8 +24,6 @@ class UserPrefs {
     debugPrint('Loaded myUserId from SharedPreferences: $_myUserId');
   }
 
-  static int? get myUserId => _myUserId; // 사용자 ID에 접근하는 getter
-
   // 사용자 ID를 설정하는 함수 추가
   static Future<void> setMyUserId(int userId) async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,6 +31,19 @@ class UserPrefs {
     _myUserId = userId;
     debugPrint('Set myUserId to SharedPreferences: $_myUserId');
   }
+
+  // 사용자 프로필이미지 저장
+  static Future<void> setUserImgUrl(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('imgUrl', url);
+  }
+
+  // 사용자 프로필이미지 가져오기
+  static Future<void> loadUserImgUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    _myUserImgUrl = prefs.getString('imgUrl');
+  }
+
 
   // 사용자 ID를 제거하는 함수 추가
   static Future<void> clearMyUserId() async {

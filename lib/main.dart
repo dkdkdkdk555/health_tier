@@ -18,6 +18,7 @@ import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenRequest;
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
+import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
@@ -65,6 +66,9 @@ void main() async{
   await initializeDateFormatting('ko');
   await UserPrefs.cleanExpiredPostViewCache();
   await UserPrefs.loadMyUserId(); // 앱 시작 시 사용자 ID 로드
+  await UserPrefs.loadUserImgUrl();
+  // 초기 프로필 이미지 Provider 업데이트
+  final initialImg = UserPrefs.myUserImgUrl ?? '';
   final db = AppDatabase();
   await Firebase.initializeApp( // 파이어베이스 초기화
     options: DefaultFirebaseOptions.currentPlatform,
@@ -135,8 +139,11 @@ void main() async{
         javaScriptAppKey: 'KAKAO_JAVASCRIPT_APP_KEY_REDACTED',
     );
 
-  runApp(const ProviderScope( // 상태관리 패키지 - Riverpod 설정
-    child:MyApp())
+  runApp(ProviderScope( // 상태관리 패키지 - Riverpod 설정
+    overrides: [
+      usrProfileImgProvider.overrideWith((ref) => initialImg),
+    ],
+    child:const MyApp())
   );
 }
 

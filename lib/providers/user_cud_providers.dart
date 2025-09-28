@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/service/user_api_service.dart';
+import 'package:my_app/util/user_prefs.dart';
 
 final authDioProvider = FutureProvider<Dio>((ref) async {
   return DIOConfig().createAuthDio(ref);
@@ -41,4 +42,9 @@ final backupStatusProvider = FutureProvider<String>((ref) async {
 final usrSimpleInfoProvider = FutureProvider<Result<UserSimpleDto>>((ref) async {
   final service = await ref.watch(userCudServiceProvider.future);
   return await service.getUserSimpleInfo();
+});
+
+// 네비바용 imgurl 상태관리 프로바이더
+final usrProfileImgProvider = StateProvider<String>((ref) {
+  return "";
 });

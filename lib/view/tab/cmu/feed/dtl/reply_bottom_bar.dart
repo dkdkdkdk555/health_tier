@@ -186,8 +186,8 @@ void dispose() {
   DateTime? _lastClickTime;
 
   Future<void> sendComment(int cmuId, WidgetRef ref) async {
-    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 900)) {
-      return; // 1초 내 중복클릭방지
+    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 1500)) {
+      return; // 1.5초 내 중복클릭방지
     }
     _lastClickTime = DateTime.now();
     

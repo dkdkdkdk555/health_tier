@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
@@ -134,6 +135,7 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
 
                                 if(response == 'success') {
                                   TokenManager.deleteAllTokens();
+                                  CmuInvalidateCollect().cmuInvalidateCache(ref);
                                   if(!context.mounted) return;
                                   context.go('/usr/login');
                                   showAppMessage(context, message: '회원탈퇴를 완료하였습니다. 다시 또 만나요!');

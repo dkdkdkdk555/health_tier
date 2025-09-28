@@ -11,6 +11,7 @@ class TokenManager {
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
     await prefs.remove('userId');
+    await prefs.remove('imgUrl');
 
     debugPrint('모든 토큰과 사용자 ID가 삭제되었습니다.');
   }

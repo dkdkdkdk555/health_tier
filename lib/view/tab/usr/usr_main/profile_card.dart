@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/model/cmu/common/result.dart' show Result;
+import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
 
@@ -13,6 +16,18 @@ class ProfileCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userInfoAsync = ref.watch(usrSimpleInfoProvider);
+
+    // 데이터가 들어오면 한 번만 프로필 이미지 갱신
+    ref.listen<AsyncValue<Result<UserSimpleDto>>>(usrSimpleInfoProvider, (previous, next) {
+      next.whenData((userInfoResult) {
+        final imgPath = userInfoResult.data.imgPath;
+        if (imgPath != null && imgPath.isNotEmpty) {
+          ref.read(usrProfileImgProvider.notifier).state = imgPath;
+          UserPrefs.setUserImgUrl(imgPath);
+        }
+      });
+    });
+
     
     return userInfoAsync.when(
       data: (userInfoResult) {
