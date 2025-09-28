@@ -12,22 +12,24 @@ class NotificationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     Map<String, String> notificationTypeIcon = {
       'COMMUNITY':'assets/widgets/notifi_community.svg',
-      'CRTIFI':'assets/widgets/notifi_doc.svg',
-      'BADGE':'assets/widgets/notifi_doc.svg',
-      'PROMOTION': 'assets/widgets/notifi_doc.svg',
+      'CRTIFI':'assets/widgets/notifi_crtifi.svg',
+      'BADGE':'assets/widgets/notifi_badge.svg',
+      'PROMOTION': 'assets/widgets/notifi_promotion.svg',
       'GENERAL':'assets/widgets/notifi_doc.svg',
     };
-            debugPrint('-----------------------');
-              debugPrint('ID: ${notification.id}');
-              debugPrint('Title: ${notification.title}');
-              debugPrint('Body: ${notification.body}');
-              debugPrint('FeedId: ${notification.feedId}');
-              debugPrint('Type: ${notification.type}');
-              debugPrint('ReceivedAt: ${notification.receivedAt}');
-              debugPrint('IsRead: ${notification.isRead}');
-              debugPrint('-----------------------');
+
+    debugPrint('-----------------------');
+    debugPrint('ID: ${notification.id}');
+    debugPrint('Title: ${notification.title}');
+    debugPrint('Body: ${notification.body}');
+    debugPrint('FeedId: ${notification.feedId}');
+    debugPrint('Type: ${notification.type}');
+    debugPrint('ReceivedAt: ${notification.receivedAt}');
+    debugPrint('IsRead: ${notification.isRead}');
+    debugPrint('-----------------------');
 
     return Container(
       color: notification.isRead == 'true' ? Colors.white : const Color(0xFFFFF4E9), // 배경색
