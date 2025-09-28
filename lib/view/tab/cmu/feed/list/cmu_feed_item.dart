@@ -227,7 +227,7 @@ class CmuFeedItem extends StatelessWidget {
   }
 
   Column feedProfile(List<BadgeInfoDto>? badges, double htio, double wtio) {
-    final weightBadge = badges!
+    final weightBadge = badges==null ? BadgeInfoDto(badgeId: '', badgeName: '', badgeType: '') : badges
         .firstWhere(
           (badge) => badge.badgeType == 'weight',
           orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
@@ -324,7 +324,7 @@ class CmuFeedItem extends StatelessWidget {
   }
 
   Widget profileImage(String? imageUrl, List<BadgeInfoDto>? badges, double htio, double wtio) {
-    final todayBadge = badges!
+    final todayBadge = badges==null ? BadgeInfoDto(badgeId: '', badgeName: '', badgeType: '') : badges
         .firstWhere(
           (badge) => badge.badgeType == 'today',
           orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),

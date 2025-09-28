@@ -8,7 +8,6 @@ import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/error_widget.dart';
-import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
 
 class ProfileCard extends ConsumerWidget {
   const ProfileCard({super.key});
@@ -143,9 +142,60 @@ class ProfileCard extends ConsumerWidget {
       },
       loading: () => const Center(child: AppLoadingIndicator()),
       error: (err, stack) {
-        debugPrint('$err');
-        debugPrint('$stack');
-        return const ErrorContentWidget(mainText: '프포필 정보를 불러오는데 실패했습니다.',);
+        debugPrint('프$err');
+        debugPrint('프$stack');
+        return Column(
+          children: [
+            const ErrorContentWidget(mainText: '프포필 정보를 불러오는데 실패했습니다.',),
+            GestureDetector(
+              onTap: () {
+                context.push('/usr/info/management');
+              },
+              child: Container(
+                width: 130,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(
+                    width: 1,
+                    color: const Color(0xFFCCCCCC),
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x28000000),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/reply/update_feed.svg',
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(width: 4),
+                    const Text(
+                      '내 정보 관리',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Pretendard',
+                        height: 0.11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
       }
     );
   }
