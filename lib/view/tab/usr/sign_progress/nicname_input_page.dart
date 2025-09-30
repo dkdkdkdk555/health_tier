@@ -18,6 +18,10 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
   bool _showDuplicateWarning = false; // 닉네임 중복 경고 표시 여부
   bool _isCheckingNickname = false; // 닉네임 중복 검사 API 호출 중인지 여부
 
+   final int _maxLength = 10; // 최대 글자 수 제한
+   bool _showLengthWarning = false;  // 글자 수  제한 경고 표시 여부
+
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +37,21 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
     super.dispose();
   }
 
-  // TextField 텍스트 변경 시 호출될 리스너 메서드
+   // TextField 텍스트 변경 시 호출될 리스너 메서드
   void _onNicknameChanged() {
+    final currentText = _nicknameController.text.trim();
+    bool isTooLong = currentText.length > _maxLength;
+
+    // 1. 글자수 경고 처리
+    if (isTooLong != _showLengthWarning) {
+      setState(() {
+        _showLengthWarning = isTooLong; // 글자수 초과 시 경고 표시
+      });
+    }
+
+    // 2. 중복 경고 처리
     // 현재 입력된 닉네임이 마지막으로 검사했던 닉네임과 다르면 중복 경고 숨김
-    if (_nicknameController.text.trim() != _lastCheckedNickname) {
+    if (currentText != _lastCheckedNickname) {
       if (_showDuplicateWarning) {
         setState(() {
           _showDuplicateWarning = false;
@@ -51,6 +66,13 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
     // 닉네임이 비어있는 경우
     if (nickname.isEmpty) {
       showAppMessage(context, message: '닉네임을 입력해주세요');
+      return;
+    }
+
+    if (nickname.length > _maxLength) {
+      // 닉네임이 16자를 초과하면 경고를 표시하고 API 호출을 중단합니다.
+      // 이미 _onNicknameChanged에서 _showLengthWarning이 true로 설정되었을 것입니다.
+      showAppMessage(context, message: '닉네임은 최대 $_maxLength자까지 입력 가능합니다.');
       return;
     }
 
@@ -102,6 +124,14 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 현재 표시할 에러 메시지 결정
+    String? errorText;
+    if (_showLengthWarning) {
+      errorText = '닉네임은 $_maxLength자까지만 입력 가능합니다.';
+    } else if (_showDuplicateWarning) {
+      errorText = '이미 사용 중인 닉네임입니다.';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('닉네임 설정'),
@@ -120,17 +150,19 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
             const SizedBox(height: 20),
             TextField(
               controller: _nicknameController,
+              maxLength: _maxLength, 
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 filled: true,
                 fillColor: const Color(0xFF2b2b2b),
-                hintText: '닉네임 입력',
+                hintText: '닉네임 입력 (최대 $_maxLength자)',
+                counterText: '',
                 hintStyle: const TextStyle(color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
                 // ✅ 닉네임 중복 경고 메시지 표시
-                errorText: _showDuplicateWarning ? '이미 사용 중인 닉네임입니다.' : null,
+                errorText: errorText,
                 errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 14), // 경고 메시지 스타일
               ),
             ),
