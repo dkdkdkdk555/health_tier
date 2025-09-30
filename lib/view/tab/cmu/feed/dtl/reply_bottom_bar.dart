@@ -7,6 +7,7 @@ import 'package:my_app/model/cmu/reply/selected_reply_info.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
+import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/styled_text_controller.dart'; // replyCommentSupplyNotifierProvider 경로 확인
@@ -39,6 +40,8 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
   // 답글 대상 텍스트가 표시될 높이 (대략 한 줄 높이 + 패딩)
   final double _replyTargetHeight = 30.0; // 답글 대상 텍스트 영역 높이
 
+  String? usrProfileImgUrl = '';
+
   @override
   void initState() {
     super.initState();
@@ -47,6 +50,7 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
 
     // initState에서는 context가 완전히 빌드되지 않았으므로 didChangeDependencies에서 초기 comment 처리
     // 또는 `WidgetsBinding.instance.addPostFrameCallback` 사용
+    usrProfileImgUrl = ref.read(usrProfileImgProvider); 
   }
 
   @override
@@ -310,9 +314,20 @@ void dispose() {
                         decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
-                        child: SvgPicture.asset(
+                        child: usrProfileImgUrl == '' || usrProfileImgUrl == null ? SvgPicture.asset(
                           'assets/widgets/default_user_profile.svg',
                           fit: BoxFit.cover,
+                        ) : ClipOval(
+                          child: Image.network(
+                            usrProfileImgUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return SvgPicture.asset(
+                                'assets/widgets/default_user_profile.svg',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
