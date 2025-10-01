@@ -7,7 +7,6 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/service/user_api_service.dart';
-import 'package:my_app/util/user_prefs.dart';
 
 final authDioProvider = FutureProvider<Dio>((ref) async {
   return DIOConfig().createAuthDio(ref);

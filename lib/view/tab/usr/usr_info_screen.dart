@@ -21,7 +21,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show cachedUsrTabIndex, osType;
 
 class UsrInfoScreen extends ConsumerStatefulWidget {
-  const UsrInfoScreen({super.key});
+  final bool isFromNotifi;
+  const UsrInfoScreen({
+    super.key,
+    this.isFromNotifi = false,
+  });
 
   @override
   ConsumerState<UsrInfoScreen> createState() => _UsrInfoScreenState();
@@ -33,6 +37,7 @@ var wtio = 0.0;
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   // 어느 하위 탭인지
   late int _selectedIndex;
+  bool _initialized = false;
 
   final List<Widget> _tabs = [
     const MyBadge(),
@@ -48,7 +53,18 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
     _getAndSendPushToken(prefsFuture); // 위젯이 생성될 때 토큰 발급 및 전송 로직 호출
   }
 
-    void _onTap(int index) { // 하위 탭바에서 받을 함수
+  @override
+  void didChangeDependencies() {
+  // InheritedWidget 기반 의존성 접근인 initState로 하면 알림클릭했을때 오류발생해서 여기에서 ref 호출
+    super.didChangeDependencies();
+    if (!_initialized && widget.isFromNotifi) {
+      ref.invalidate(userBadgeListProvider);
+      ref.invalidate(userWeightListProvider);
+      _initialized = true;
+    }
+  }
+
+  void _onTap(int index) { // 하위 탭바에서 받을 함수
     setState(() {
       _selectedIndex = index;
       cachedUsrTabIndex = index;

@@ -93,7 +93,10 @@ final router = GoRouter(
             GoRoute( // 마이페이지
               path: 'info',
               builder: (context, state) {
-                return const UsrInfoScreen();
+                final isFromNotifi = state.uri.queryParameters['isFromNotifi'] == 'true';
+                return UsrInfoScreen(
+                  isFromNotifi: isFromNotifi,
+                );
               },
               routes: [
                 GoRoute( // 내 정보 관리

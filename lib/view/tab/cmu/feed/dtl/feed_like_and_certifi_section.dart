@@ -81,7 +81,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
           final response = await feedCudService!.acceptCertification(
             dto: LikeAndCrtifiRequestDto(
               userId: _myUserId ?? 0,
-              feedId: widget.feed.id,
+              cmuId: widget.feed.id,
               feedWriterUserId: widget.feed.userId
             ),
           );
@@ -126,7 +126,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         final response = await feedCudService.likeFeed(
           LikeAndCrtifiRequestDto(
             userId: _myUserId ?? 0,
-            feedId: widget.feed.id,
+            cmuId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
         );
@@ -139,7 +139,7 @@ class _FeedLikeAndCertifiSectionConsumerState extends ConsumerState<FeedLikeAndC
         final response = await feedCudService.cancelFeedLike(
           LikeAndCrtifiRequestDto(
             userId: _myUserId ?? 0,
-            feedId: widget.feed.id,
+            cmuId: widget.feed.id,
             feedWriterUserId: widget.feed.userId,
           ),
         );

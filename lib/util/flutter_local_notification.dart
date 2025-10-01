@@ -89,6 +89,10 @@ class FlutterLocalNotification{
         WidgetsBinding.instance.addPostFrameCallback((_) {
            router.push('/cmu/feed/${int.parse(feedId)}?isFromNotifi=true');
         });
+      } else if(data['type'] == 'BADGE') {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          router.go('/usr/info?isFromNotifi=true');
+        });
       }
     } catch (e) {
       debugPrint("Error decoding notification payload: $e");

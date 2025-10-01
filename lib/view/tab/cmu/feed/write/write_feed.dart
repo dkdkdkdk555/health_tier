@@ -13,7 +13,6 @@ import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
@@ -913,24 +912,16 @@ Future<void> _handleFilePick(BuildContext context, QuillController controller, S
 
       // heic → jpg 변환
       if (filePath.toLowerCase().endsWith(".heic")) {
-        debugPrint('확장자 변환 시도');
         final converted = await convertHeicToJpg(originalFile);
         if (converted != null) {
-          debugPrint('패스 : ${converted.path}');
           originalFile = converted;
         }
       }
 
-      debugPrint('패스2 : ${originalFile.path}');
       final appDir = await getApplicationDocumentsDirectory();
       final fileName = '$type-${DateTime.now().millisecondsSinceEpoch}${path.extension(originalFile.path)}';
       final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
       final fileUrl = 'file://${savedFile.path}';
-
-      debugPrint(originalFile.path);
-      debugPrint(appDir.path);
-      debugPrint(fileName);
-      debugPrint(fileUrl);
 
       // 삽입된 텍스트에 링크 속성 적용
       controller.document.insert(
