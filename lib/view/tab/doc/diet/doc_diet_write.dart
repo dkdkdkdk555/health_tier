@@ -6,6 +6,7 @@ import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueForm
 import 'package:my_app/model/diet/diet_input_data.dart' show DietInputData;
 import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
 import 'package:my_app/util/hoverable_icon.dart';
 import 'package:my_app/util/saving_success_dialog.dart';
@@ -145,15 +146,23 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           icon: Icons.remove_circle_outline,
                                           originColor: Colors.grey,
                                           changedColor: Colors.red,
-                                          onTap: () async {
-                                            final deleteId = input.id;
-                                            if (deleteId != -1) {
-                                              await deleteHtDietDoc(ref: ref, id: deleteId);
-                                            }
-                                            setState(() {
-                                              inputList.removeAt(index);
-                                            });
-                                            widget.onSaved();
+                                          onTap: () {
+                                            showAppDialog(context, message: '목록에서 바로 삭제됩니다.\n삭제하시겠습니까?', confirmText: '확인',
+                                              onConfirm: () async {
+                                                final deleteId = input.id;
+                                                if (deleteId != -1) {
+                                                  await deleteHtDietDoc(ref: ref, id: deleteId);
+                                                }
+                                                setState(() {
+                                                  inputList.removeAt(index);
+                                                });
+                                                widget.onSaved();
+                                              },
+                                              cancelText: '취소',
+                                              onCancel: (){
+                                                return;
+                                              }
+                                            );
                                           },
                                         ),
                                       ],
@@ -342,17 +351,13 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
             showAppMessage(context, message: '추가한 식단의 항목을 한 가지 이상 입력해야 합니다.');
             return;
           }
-
           final String day = DateFormat('yyyy-MM-dd').format(focusedDay);
-
           final insertList = <DayDietModel>[];
           final updateList = <DayDietModel>[];
 
           try {
-
             for (final input in inputList) {
               if(input.isEmpty) {
-                
                 continue;
               }
               final title = input.mealType.text;
@@ -386,7 +391,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
 
             // 저장 성공 시 메시지
             if (mounted) {
-              showDialog(
+              await showDialog(
                 context: context,
                 barrierDismissible: false,
                 builder: (_) {
@@ -394,6 +399,9 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                 },
               );
               widget.onSaved();
+              if (mounted) {
+                Navigator.of(context).pop(); 
+              }
             }
 
           } catch(e) {

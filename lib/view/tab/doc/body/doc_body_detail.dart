@@ -57,11 +57,13 @@ class DocBodyDetail extends ConsumerWidget {
               ),
               SizedBox(height: 25 * htio,),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 244 * wtio,
+                  Container(
+                    margin: EdgeInsets.only(left:65*wtio),
+                    width: 306 * wtio,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         makeRow1(wtio, today, htio, detail),
                         SizedBox(height: 18 * htio,),
@@ -107,29 +109,32 @@ class DocBodyDetail extends ConsumerWidget {
       constraints: BoxConstraints(
         minHeight: 128 * htio
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '메모',
-            style: TextStyle(
-              color: const Color(0xFFAAAAAA),
-              fontSize: 12 * htio,
-              fontFamily: 'Pretendard',
-            ),
-          ),
-          SizedBox(width: 8 * wtio),
-          Expanded(
-            child:Text(
-              detail?.memo ?? '',
+      child: Container(
+        margin: EdgeInsets.only(right: 65 * wtio),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '메모',
               style: TextStyle(
-                color: Colors.black,
+                color: const Color(0xFFAAAAAA),
                 fontSize: 12 * htio,
                 fontFamily: 'Pretendard',
               ),
             ),
-          )
-        ],
+            SizedBox(width: 8 * wtio),
+            Expanded(
+              child:Text(
+                detail?.memo ?? '',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12 * htio,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -145,7 +150,17 @@ class DocBodyDetail extends ConsumerWidget {
     // 텍스트 값 (부호 제외)
     final textValue = isNull ? '' : '${diffWeight.abs().toStringAsFixed(1)}kg';
     
-    debugPrint('골격근 : ${detail?.muscle}');
+    final muscleValue = detail?.muscle;
+    String muscleText = '';
+     if (muscleValue != null) {
+      // 소수점 첫째 자리가 0이면 정수만 표시
+      if (muscleValue % 1 == 0) {
+        muscleText = muscleValue.toInt().toString();
+      } else {
+        // 소수점은 최대 1자리까지 표시
+        muscleText = NumberFormat("#.#").format(muscleValue);
+      }
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -223,7 +238,7 @@ class DocBodyDetail extends ConsumerWidget {
         ),
         SizedBox(width: 12 * wtio),
         SizedBox(
-          height: 8 * htio,
+          height: 9 * htio,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -241,7 +256,7 @@ class DocBodyDetail extends ConsumerWidget {
               ),
               SizedBox(width: 4 * wtio),
               Text(
-                detail?.muscle != null ? '${detail!.muscle}kg' : '',
+                muscleText=='' ? '' : '${muscleText}kg',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
@@ -260,18 +275,33 @@ class DocBodyDetail extends ConsumerWidget {
   Widget makeRow2(double wtio, double htio, DocDayDetail? detail, AutoSizeGroup numberGroup) {
     final proteinValue = detail?.totalProtein;
     String proteinText;
+    final weightValue = detail?.weight;
+    String weightText;
 
     if (proteinValue != null) {
-      if (proteinValue >= 1000) {
-        // 1000 이상이면 정수만
+      // 소수점 첫째 자리가 0이면 정수만 표시
+      if (proteinValue % 1 == 0 || proteinValue >= 1000) {
         proteinText = proteinValue.toInt().toString();
       } else {
-        // 소수점은 최대 1자리까지 표시 (원하는 대로 조정 가능)
-        proteinText = NumberFormat("#.##").format(proteinValue);
+        // 소수점은 최대 1자리까지 표시
+        proteinText = NumberFormat("#.#").format(proteinValue);
       }
     } else {
       proteinText = '단백질';
     }
+
+    if (weightValue != null) {
+      // 소수점 첫째 자리가 0이면 정수만 표시
+      if (weightValue % 1 == 0) {
+        weightText = weightValue.toInt().toString();
+      } else {
+        // 소수점은 최대 1자리까지 표시
+        weightText = NumberFormat("#.#").format(weightValue);
+      }
+    } else {
+      weightText = '몸무게';
+    }
+
    
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -284,7 +314,7 @@ class DocBodyDetail extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                detail?.weight != null ? '${detail?.weight}' : '몸무게',
+                weightText,
                 style: TextStyle(
                   color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
                   fontSize: (detail?.weight != null ? 42: 32) * htio,
@@ -311,7 +341,7 @@ class DocBodyDetail extends ConsumerWidget {
             ],
           ),
         ),
-        SizedBox(width:14 * htio),
+        SizedBox(width:14 * wtio),
         SizedBox(
           height: 30 * htio,
           child: Row(
@@ -325,14 +355,14 @@ class DocBodyDetail extends ConsumerWidget {
                 overflow: TextOverflow.visible,
                 style: TextStyle(
                   color: detail?.totalProtein != null ? Colors.black : Colors.black.withAlpha(30),
-                  fontSize: (detail?.totalProtein != null ? 42: (detail?.weight == null ? 32: 26)) * htio,
+                  fontSize: (detail?.totalProtein != null ? ((proteinValue! >= 1000) ? 38 : 42): 32) * htio,
                   fontFamily: 'Pretendard',
                   height: 0.04 * htio,
                   letterSpacing: -1.0 * wtio, 
                   fontWeight: FontWeight.w600
                 ),
               ),
-              SizedBox(width: 4 * htio),
+              SizedBox(width: 3 * htio),
               Text(
                 'g',
                 style: TextStyle(
@@ -381,7 +411,7 @@ class DocBodyDetail extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               textYN(wtio, htio, text: '운동여부', yn:detail?.workYn),
-              const SizedBox(width: 4),
+              SizedBox(width: 4 * wtio),
               iconYN(1.0, 1.0, 'assets/icons/work_out.svg', detail?.workYn), // yn = 1이면 활성
             ],
           ),
@@ -392,7 +422,7 @@ class DocBodyDetail extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               textYN(wtio, htio, text: '음주여부', yn:detail?.drunYn),
-              const SizedBox(width: 4),
+              SizedBox(width: 4 * wtio),
               iconYN(1.0, 1.0, 'assets/icons/drink.svg', detail?.drunYn), // yn = 0이면 비활성
             ],
           ),
