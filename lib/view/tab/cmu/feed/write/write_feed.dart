@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
 import 'package:flutter_quill_extensions/flutter_quill_extensions.dart';
@@ -216,7 +218,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   }
 
-  // 제목과 카테고리를 선택했는지
+  // 제목과 카테고리를 선택했는지피
   bool _isFeedContentValid() {
     // 1. categoryId가 0이 아닌지 확인
     if (categoryId == 0) {
@@ -621,7 +623,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                         // 제목 입력 섹션
                         GestureDetector(
                           onTap: (){
-                            debugPrint(jsonEncode(_controller.document.toDelta().toJson()));
+                            
                           },
                           child: const Padding(
                             padding: EdgeInsets.only(left: 20, right: 20, top: 15),
@@ -750,9 +752,13 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                               ],
                             ),
                           ),
-                           // 툴바 높이 + 키보드 높이와 동일한 아래쪽 패딩 추가
+                        // 툴바 높이 + 키보드 높이와 동일한 아래쪽 패딩 추가
                         // 이는 콘텐츠가 툴바/키보드 아래에 숨겨지지 않도록 보장
-                          SizedBox(height: _showToolbar ? 50.0 + keyboardHeight : 0),  
+                        if (_showToolbar)
+                        SizedBox(height: 50.0 + keyboardHeight),
+                        // 제목 입력 시에도 키보드 높이만큼 패딩
+                        if (!_showToolbar && keyboardHeight > 0)
+                        SizedBox(height: keyboardHeight),
                       ],
                     )
                   ),
@@ -903,9 +909,21 @@ Future<void> _handleFilePick(BuildContext context, QuillController controller, S
     
     if (filePath != null && filePath.isNotEmpty) {
       // 파일 경로를 앱 문서 디렉토리에 복사
-      final originalFile = io.File(filePath);
+      var originalFile = io.File(filePath);
+
+      // heic → jpg 변환
+      if (filePath.toLowerCase().endsWith(".heic")) {
+        debugPrint('확장자 변환 시도');
+        final converted = await convertHeicToJpg(originalFile);
+        if (converted != null) {
+          debugPrint('패스 : ${converted.path}');
+          originalFile = converted;
+        }
+      }
+
+      debugPrint('패스2 : ${originalFile.path}');
       final appDir = await getApplicationDocumentsDirectory();
-      final fileName = '$type-${DateTime.now().millisecondsSinceEpoch}.${path.extension(filePath)}';
+      final fileName = '$type-${DateTime.now().millisecondsSinceEpoch}${path.extension(originalFile.path)}';
       final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
       final fileUrl = 'file://${savedFile.path}';
 
@@ -947,6 +965,20 @@ Future<void> _handleFilePick(BuildContext context, QuillController controller, S
       _isUploading = false;
     });
   }
+}
+
+Future<File?> convertHeicToJpg(File file) async {
+  final targetPath = file.path.replaceAll(".heic", ".jpg");
+
+  final result = await FlutterImageCompress.compressAndGetFile(
+    file.path,
+    targetPath,
+    format: CompressFormat.jpeg,
+    quality: 95,
+  );
+
+  if (result == null) return null;
+  return File(result.path); // XFile → File 변환
 }
 
 // 비디오 선택시 -> image_picker 사용 코드

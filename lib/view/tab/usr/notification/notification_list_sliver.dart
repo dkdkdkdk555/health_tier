@@ -103,7 +103,7 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                     if(notifiType != null && 
                         (notifiType == 'COMMUNITY' || notifiType == 'CRTIFI')
                     ) {
-                      context.push('/cmu/feed/${notification.feedId!}');
+                      context.push('/cmu/feed/${notification.feedId!}?isFromNotifi=true');
                     } else if(notifiType == 'BADGE') {
                       context.go('/usr/info');
                     }

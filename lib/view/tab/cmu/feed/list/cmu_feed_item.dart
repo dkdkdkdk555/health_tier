@@ -168,7 +168,6 @@ class CmuFeedItem extends StatelessWidget {
   }
 
   Container videoExist(double htio, double wtio) {
-    debugPrint('썅?');
     return Container(
       width: 70 * htio,
       height: 70 * htio,

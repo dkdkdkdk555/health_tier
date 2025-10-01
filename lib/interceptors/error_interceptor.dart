@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
+import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
@@ -110,6 +111,12 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 코드명: NOT_FOUND
       if(context!=null){
         showAppMessage(context, message: err.response?.data['message'] ?? '해당 요청을 찾을 수 없습니다.', type: AppMessageType.dialog);
+        if(err.response?.data['message'] != null) {
+          if(err.response!.data['message'].toString().contains('해당 피드가 존재하지 않습니다.')){
+            ref.invalidate(feedPaginationProvider);
+            ref.invalidate(feedParamsProvider);
+          } 
+        }
         return _returnUiOkStatus(handler, originalRequest);
       }
     } 

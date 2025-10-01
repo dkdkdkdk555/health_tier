@@ -17,12 +17,14 @@ class FeedDetail extends ConsumerStatefulWidget { // StatefulWidget으로 변경
   final int feedId;
   final int? categoryId;
   final bool isFromWriteFeed;
+  final bool isFromNotifi;
   const FeedDetail(
     {
     super.key,
     required this.feedId,
     this.categoryId,
     this.isFromWriteFeed = false,
+    this.isFromNotifi = false,
     }
   );
 
@@ -32,11 +34,22 @@ class FeedDetail extends ConsumerStatefulWidget { // StatefulWidget으로 변경
 
 class _FeedDetailState extends ConsumerState<FeedDetail> {
   final ScrollController _scrollController = ScrollController();
+  bool _initialized = false;
 
   @override
   void dispose() {
     _scrollController.dispose(); // 컨트롤러 해제
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+  // InheritedWidget 기반 의존성 접근인 initState로 하면 알림클릭했을때 오류발생해서 여기에서 ref 호출
+    super.didChangeDependencies();
+    if (!_initialized && widget.isFromNotifi) {
+      ref.invalidate(replyPaginationProvider(widget.feedId));
+      _initialized = true;
+    }
   }
 
 
