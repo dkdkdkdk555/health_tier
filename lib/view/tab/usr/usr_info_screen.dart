@@ -35,6 +35,8 @@ var htio = 0.0;
 var wtio = 0.0;
 
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
+  static bool _pushTokenSent = false; // 앱 전체에서 한 번만 보내도록
+
   // 어느 하위 탭인지
   late int _selectedIndex;
   bool _initialized = false;
@@ -49,8 +51,11 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   void initState() {
     super.initState();
     _selectedIndex = cachedUsrTabIndex;
-    final prefsFuture = SharedPreferences.getInstance();
-    _getAndSendPushToken(prefsFuture); // 위젯이 생성될 때 토큰 발급 및 전송 로직 호출
+    if (!_pushTokenSent) {
+      final prefsFuture = SharedPreferences.getInstance();
+      _getAndSendPushToken(prefsFuture);
+      _pushTokenSent = true;
+    }
   }
 
   @override
