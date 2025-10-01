@@ -25,11 +25,11 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<!-- <key>CFBundleTypeRole</key>
+			<string>Editor</string> -->
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>healthtierscheme</string>
+				<string>kakaoKAKAO_NATIVE_APP_KEY_REDACTED</string>
 			</array>
 		</dict>
 		<dict>
@@ -37,7 +37,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>kakaoKAKAO_NATIVE_APP_KEY_REDACTED</string>
+				<string>healthtierscheme</string>
 			</array>
 		</dict>
 	</array>
