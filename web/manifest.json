@@ -1,6 +1,6 @@
 {
-    "name": "my_app",
-    "short_name": "my_app",
+    "name": "헬스티어",
+    "short_name": "헬스티어",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
