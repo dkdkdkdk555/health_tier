@@ -9,6 +9,17 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/doc',
+  // info.plist 설정을 FlutterDeepLinkingEnabled 하므로서 카카오톡으로 로그인하는 경우
+  // go_router 패키지와 더불어 나타나는 리다이렉트 문제를 임시방편으로 막아둠.
+  // redirect: (context, state) {
+  //   final uri = Uri.tryParse(state.uri.toString());
+  //   if (uri != null && uri.scheme.startsWith('kakao')) {
+  //     debugPrint('외부 카카오 URL 무시: ${state.uri.toString()}');
+  //     return '/usr'; // 카카오톡으로 로그인하는 경우 자꾸 응답링크로 리다이렉트 시키려고함, 
+  //     // return null 이나 '' 해도 응답링크로 보내짐, 
+  //   }
+  //   return null;
+  // },
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,

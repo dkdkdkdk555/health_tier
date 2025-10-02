@@ -86,13 +86,17 @@ class _KakaoLoginButtonState extends ConsumerState<KakaoLoginButton> {
         );
 
         if (response.statusCode == 200) {
-        final tokenResponse = TokenResponse.fromJson(response.data);
-        UserPrefs.settingLoginResponse(tokenResponse);
+          final tokenResponse = TokenResponse.fromJson(response.data);
+          await UserPrefs.settingLoginResponse(tokenResponse);
 
           if (!context.mounted) return; 
           CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
           debugPrint('✅ 로그인 성공 → JWT 저장 및 홈 이동');
-          context.go('/usr/info');
+          // 다음 프레임에서 안전하게 이동
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted) return;
+            context.go('/usr/info');
+          });
         } else if (response.statusCode == 204) {
           if (!context.mounted) return; 
           debugPrint('🟡 회원가입 필요 → 회원가입 화면 이동');
