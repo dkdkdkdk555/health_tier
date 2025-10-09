@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +9,6 @@ import 'package:my_app/providers/db_providers.dart' show hasUnreadNotification;
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
-import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_badge.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_body_info.dart';
 import 'package:my_app/view/tab/usr/usr_main/my_wrote_feed.dart';
