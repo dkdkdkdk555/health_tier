@@ -297,7 +297,11 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
           return GestureDetector(
             onTap: () {
               setState(() {
-                selectedStamp = stampName;
+                if(stampName == selectedStamp){
+                  selectedStamp = '';
+                } else {
+                  selectedStamp = stampName;
+                }
               });
             },
             child: SizedBox(
