@@ -214,6 +214,17 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     final selectedIndex = _calculateIndex(GoRouterState.of(context));
     final navigationBarHide = ref.watch(navigationBarHideProvider);
 
+    // 최대 크기 제한 적용
+    const double maxNavWidth = 420.0;
+    final double navWidth = math.min(wtio * 0.624, maxNavWidth);
+    // FAB 크기 (비율 + 상한)
+    final double fabSize = math.min(wtio * 0.14, 90.0);
+    // FAB와 NavigationBar 사이 간격 (비율 유지)
+    final double bottomMargin = math.min(42.0, wtio * 0.11);
+
+    final isWide = wtio > 600;
+    final double rightPosition = isWide ? 136 : 38;
+
     if (selectedIndex == 2) {
       _fabController.forward();
     } else {
@@ -228,10 +239,10 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
         children: [
           if (selectedIndex == 2)
             Positioned(
-              height: wtio * 0.14,
-              width: wtio * 0.14,
-              right: 38,
-              bottom: 42,
+              height: fabSize,
+              width: fabSize,
+              right: rightPosition,
+              bottom: bottomMargin,
               child: SlideTransition(
                 position: _fabSlide,
                 child: FadeTransition(
@@ -281,8 +292,8 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
                 : Alignment.bottomCenter,
             child: Container(
               margin: const EdgeInsets.only(bottom: 42),
-              height: wtio * 0.14,
-              width: wtio * 0.624,
+              height: fabSize,
+              width: navWidth,
               child: IslandNavigationBar(
                 selectedIndex: selectedIndex,
                 onTap: (index) {
