@@ -33,7 +33,7 @@ final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, ye
       DAY,
       MAX(WEIGHT) AS WEIGHT,
       SUM(CALORIE) AS TOTAL_CALORIE,
-      STAMP
+      MAX(STAMP) AS STAMP
     FROM (
       SELECT
         DAY,
