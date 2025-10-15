@@ -6,6 +6,7 @@ import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
+import 'package:my_app/util/token_manager.dart';
 
 class UserApiService {
 
@@ -56,6 +57,16 @@ class UserApiService {
 
   // 내정보관리 - 유저정보 가져오기
   Future<Result<UserSimpleDto>> getUserSimpleInfo() async {
+    final token = await TokenManager.getAccessToken();
+    if (token == null || token.isEmpty) {
+      // 로그아웃 이후 호출 차단
+      throw DioException(
+        requestOptions: RequestOptions(path: UserCudAPI.getUserInfoSimple),
+        message: 'Access token is missing, skipping request.',
+        type: DioExceptionType.cancel,
+      );
+    }
+
     final response = await dio.get(UserCudAPI.getUserInfoSimple);
     return Result.fromJson(
       response.data, 

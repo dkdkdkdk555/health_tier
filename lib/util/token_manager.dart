@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/user_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TokenManager {
@@ -11,8 +12,21 @@ class TokenManager {
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
     await prefs.remove('userId');
+    UserPrefs.clearMyUserId();
     await prefs.remove('imgUrl');
 
     debugPrint('모든 토큰과 사용자 ID가 삭제되었습니다.');
+  }
+
+  // 없으면 null을 반환
+  static Future<String?> getAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (token == null || token.isEmpty) {
+      return null;
+    }
+
+    return token;
   }
 }

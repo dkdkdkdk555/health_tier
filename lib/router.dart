@@ -223,7 +223,8 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     final double bottomMargin = math.min(42.0, wtio * 0.11);
 
     final isWide = wtio > 600;
-    final double rightPosition = isWide ? 136 : 38;
+    final double ratio = ScreenRatio(context).widthRatio;
+    final double rightPosition = isWide ? 140 : 42 * ratio;
 
     if (selectedIndex == 2) {
       _fabController.forward();

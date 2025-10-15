@@ -21,6 +21,7 @@ import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';

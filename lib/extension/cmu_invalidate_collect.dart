@@ -11,9 +11,8 @@ class CmuInvalidateCollect {
   // 로그인-로그아웃 이후
   void cmuInvalidateCache(WidgetRef ref){
     // usr 관련
-    ref.invalidate(authDioProvider);
-    ref.invalidate(userAuthServiceAuthDioProvider);
     ref.invalidate(jwtTokenVerificationProvider);
+    ref.invalidate(userAuthServiceAuthDioProvider);
     ref.invalidate(usrProfileImgProvider);
     // feed 관련
     ref.invalidate(feedDetailProvider);
