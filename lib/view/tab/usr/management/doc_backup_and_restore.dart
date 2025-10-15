@@ -93,6 +93,7 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                             barrierDismissible: false,
                             builder: (_) => const Center(child: AppLoadingIndicator()),
                           );
+
                           try {
                             // 1. 서버에서 JSON 문자열 요청
                             final service = await ref.read(userCudServiceProvider.future);
@@ -119,12 +120,22 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
           
                             // 필요시 provider 새로고침 등 추가 처리
                             ref.invalidate(backupStatusProvider); // 상태 갱신
-                            ref.invalidate(getAllHtDayBodyProvider);
-                            ref.invalidate(getAllHtDayDietProvider);
+                            ref.invalidate(selectDietDayDoc);
+                            ref.invalidate(selectDayDietTotal);
+                            ref.invalidate(selectDietDocList);
+                            ref.invalidate(selectHtDayDoc);
+                            ref.invalidate(getPreviousWeight);
+                            ref.invalidate(htDayDocDetail);
+                            ref.invalidate(htDayDocOfMonth);
                           } catch (e, st) {
                             debugPrint('데이터 복원 실패: $e\n$st');
                             if (!context.mounted) return;
                             showAppMessage(context, title: '데이터 복원 실패', message: '데이터 복원 중 오류가 발생했습니다.\n관리자에게 문의 하세요.', type: AppMessageType.dialog);
+                          } finally {
+                             // 혹시 ErrorInterceptor에서 예외를 잡지 못해도 강제 pop
+                            if (Navigator.of(context, rootNavigator: true).canPop()) {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            }
                           }
                         },
                         onCancel: () {

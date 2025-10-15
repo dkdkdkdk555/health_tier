@@ -137,8 +137,11 @@ class _UsrSignoutNoticePageState extends ConsumerState<UsrSignoutNoticePage> {
                                   TokenManager.deleteAllTokens();
                                   CmuInvalidateCollect().cmuInvalidateCache(ref);
                                   if(!context.mounted) return;
-                                  context.go('/usr/login');
                                   showAppMessage(context, message: '회원탈퇴를 완료하였습니다. 다시 또 만나요!');
+                                  // SnackBar가 뜰 수 있도록 딜레이
+                                  await Future.delayed(const Duration(milliseconds: 1300));
+                                  if(!context.mounted) return;
+                                  context.go('/usr/login');
                                 }
                               },
                               onCancel: () {

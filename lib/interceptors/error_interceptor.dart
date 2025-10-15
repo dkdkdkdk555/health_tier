@@ -100,6 +100,10 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 서버 예외: NoCreationDataException, IllegalStateException, MultipartException 등
       // 코드명: BAD_REQUEST
       if(context!=null){
+        // 기존 다이얼로그(로딩 포함) 닫기
+        if (Navigator.of(context, rootNavigator: true).canPop()) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
         showAppMessage(context, message: err.response?.data['message'] ?? '잘못된 요청입니다.', type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
