@@ -13,7 +13,6 @@ import 'package:go_router/go_router.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
-import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
 import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenRequest;
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
@@ -164,7 +163,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     });
 
     // 알림 권한 요청은 앱 시작 후 3초 뒤에 실행
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       FlutterLocalNotification.requestNotificationPermission();
     });
   }

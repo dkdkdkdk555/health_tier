@@ -1,9 +1,12 @@
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
 import 'package:my_app/view/tab/doc/body/calendar/doc_calendar_body.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DocMain extends StatefulWidget {
   const DocMain({
@@ -16,13 +19,83 @@ class DocMain extends StatefulWidget {
 
 class _DocMainState extends State<DocMain> {
   late int _selectedIndex;
+  static bool _remoteChecked = false; 
 
   
   @override
   void initState() {
     super.initState();
     _selectedIndex = cachedDocTabIndex; // 캐시된 값 불러오기
+    _initRemoteConfigOnce();
   }
+
+  Future<void> _initRemoteConfigOnce() async {
+    if (_remoteChecked) return; // 이미 체크했으면 스킵
+    _remoteChecked = true;
+
+    await Future.delayed(const Duration(milliseconds: 2000)); // 빌드 안정화
+    await checkRemoteConfig();
+  }
+
+  // 앱이 최신버전인지 확인 -> 아니라면 업데이트 강제
+  Future<void> checkRemoteConfig() async {
+    debugPrint('첵!리모트컨피그');
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(seconds: 10),
+      minimumFetchInterval: const Duration(hours: 3), // 버전확인하는걸 3시간에 한번씩만 하도록
+    ));
+
+    await remoteConfig.fetchAndActivate();
+
+    final latestVersion = remoteConfig.getString('latest_version');
+    final forceUpdate = remoteConfig.getBool('force_update');
+
+    final currentVersion = (await PackageInfo.fromPlatform()).version;
+    debugPrint('최신 앱버전 : $latestVersion');
+    debugPrint('현재 앱버전 : $currentVersion');
+
+    // 현재 버전이 최신버전보다 낮으면서 필수 업데이트 해야하면 강제 업데이트 팝업 띄움
+    if (forceUpdate && compareVersion(currentVersion, latestVersion) < 0) {
+      _showForceUpdateDialog();
+    }
+  }
+
+  // 앱 버전 비교
+  int compareVersion(String v1, String v2) {
+    final a = v1.split('.').map(int.parse).toList(); // 1.0.1 => [1, 0, 1]
+    final b = v2.split('.').map(int.parse).toList(); // 1.1.2 => [1, 1, 2]
+    for (int i = 0; i < 3; i++) {
+      if (a[i] < b[i]) return -1;
+      if (a[i] > b[i]) return 1;
+    }
+    return 0;
+  }
+
+  // 앱 강제 팝업 띄움
+  void _showForceUpdateDialog() {
+    if (!context.mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text("업데이트 필요"),
+        content: const Text("새로운 버전이 출시되었습니다.\n업데이트 후 이용해주세요."),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              const url =
+                  "https://play.google.com/store/apps/details?id=com.ukhyeon.healthtier";
+              await launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication);
+            },
+            child: const Text("업데이트"),
+          )
+        ],
+      ),
+    );
+  }
+
 
   final List<Widget> _pages = [
     const DocCalendarBody(),
