@@ -115,6 +115,7 @@ flutter:
     - assets/icons/
     - assets/widgets/
     - assets/image/
+    - assets/image/badges/
     - assets/icons/feed_detail/
     - assets/icons/reply/
 

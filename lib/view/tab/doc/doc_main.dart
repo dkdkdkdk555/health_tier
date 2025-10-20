@@ -1,5 +1,6 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
 import 'package:my_app/view/tab/doc/body/calendar/doc_calendar_body.dart';
@@ -33,7 +34,7 @@ class _DocMainState extends State<DocMain> {
     if (_remoteChecked) return; // 이미 체크했으면 스킵
     _remoteChecked = true;
 
-    await Future.delayed(const Duration(milliseconds: 2000)); // 빌드 안정화
+    await Future.delayed(const Duration(milliseconds: 1200)); // 빌드 안정화
     await checkRemoteConfig();
   }
 
@@ -75,24 +76,19 @@ class _DocMainState extends State<DocMain> {
   // 앱 강제 팝업 띄움
   void _showForceUpdateDialog() {
     if (!context.mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Text("업데이트 필요"),
-        content: const Text("새로운 버전이 출시되었습니다.\n업데이트 후 이용해주세요."),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              const url =
-                  "https://play.google.com/store/apps/details?id=com.ukhyeon.healthtier";
-              await launchUrl(Uri.parse(url),
-                  mode: LaunchMode.externalApplication);
-            },
-            child: const Text("업데이트"),
-          )
-        ],
-      ),
+
+    showAppDialog(
+      context, 
+      title: '업데이트 필요',
+      message: "새로운 버전이 출시되었습니다.\n업데이트 후 이용해주세요.",
+      barrierDismiss: false,
+      confirmText: '업데이트',
+      onConfirm: () async {
+        const url =
+            "https://play.google.com/store/apps/details?id=com.ukhyeon.healthtier";
+        await launchUrl(Uri.parse(url),
+            mode: LaunchMode.externalApplication);
+      },
     );
   }
 

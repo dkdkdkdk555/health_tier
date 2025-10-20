@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 
@@ -13,6 +13,9 @@ class MyBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     final badgesAsync = ref.watch(userBadgeListProvider);
 
     return badgesAsync.when(
@@ -24,10 +27,10 @@ class MyBadge extends ConsumerWidget {
 
         return Column(
           children: [
-            _buildHeader('오운완 뱃지'),
-            _buildTodayBadgeList(todayBadges),
-            _buildHeader('중량 뱃지'),
-            _buildWeightBadgeList(weightBadges),
+            _buildHeader('중량 뱃지', htio, wtio),
+            _buildWeightBadgeList(weightBadges, htio, wtio),
+            _buildHeader('오운완 뱃지', htio, wtio),
+            _buildTodayBadgeList(todayBadges, htio, wtio),
           ],
         );
       },
@@ -40,26 +43,26 @@ class MyBadge extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(String title) {
+  Widget _buildHeader(String title, double htio, double wtio) {
     return Container(
       width: double.infinity,
-      height: 86,
-      padding: const EdgeInsets.only(
-        top: 48,
-        left: 20,
-        right: 20,
-        bottom: 8,
+      height: 86 * htio,
+      padding: EdgeInsets.only(
+        top: 48 * htio,
+        left: 20 * wtio,
+        right: 20 * wtio,
+        bottom: 8 * htio,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.black,
-              fontSize: 20,
+              fontSize: 20 * htio,
               fontFamily: 'Pretendard',
-              height: 0.07,
+              height: 0.07 * htio,
             ),
           ),
         ],
@@ -68,22 +71,24 @@ class MyBadge extends ConsumerWidget {
   }
 
   // 오운완 뱃지 (today10,30,100,365 항상 표시)
-  Widget _buildTodayBadgeList(List<BadgeInfoDto> owned) {
+  Widget _buildTodayBadgeList(List<BadgeInfoDto> owned, double htio, double wtio) {
     final ownedIds = owned.map((b) => b.badgeId).toSet();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: Wrap(
         alignment: WrapAlignment.center,
-        spacing: 16,
-        runSpacing: 24,
+        spacing: 16 * wtio,
+        runSpacing: 20 * htio,
         children: todayBadgeIds.map((id) {
           final isOwned = ownedIds.contains(id);
           return _buildBadgeItem(
             id: id,
             name: _todayName(id),
             isOwned: isOwned,
+            htio: htio,
+            wtio: wtio,
           );
         }).toList(),
       ),
@@ -91,7 +96,7 @@ class MyBadge extends ConsumerWidget {
   }
 
   // 중량 뱃지
-  Widget _buildWeightBadgeList(List<BadgeInfoDto> owned) {
+  Widget _buildWeightBadgeList(List<BadgeInfoDto> owned, double htio, double wtio) {
     // 획득한 중량 중 최대치
     int maxOwned = 0;
     for (final b in owned) {
@@ -103,64 +108,97 @@ class MyBadge extends ConsumerWidget {
 
     // 전체 weight badge id 리스트가 있다고 가정 (예: 300~800)
     final allWeightIds = ['weight300', 'weight400', 'weight500', 'weight600', 'weight700', 'weight800'];
+    final allWeightTitle = ['삼대삼백', '삼대사백', '삼대오백', '삼대육백', '삼대칠백', '삼대팔백'];
 
     final ownedIds = owned.map((b) => b.badgeId).toSet();
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      padding: EdgeInsets.symmetric(vertical: 24 * htio),
       child: Wrap(
         alignment: WrapAlignment.center,
-        spacing: 16,
-        runSpacing: 24,
+        spacing: 16 * wtio,
+        runSpacing: 20 * htio,
         children: allWeightIds.map((id) {
           final isOwned = ownedIds.contains(id);
-          final weightNum = _parseWeight(id) ?? 0;
+          // final weightNum = _parseWeight(id) ?? 0;
 
-          // 획득 못했지만 최고 뱃지보다 낮은 건 표시 안함
-          if (!isOwned && weightNum <= maxOwned) {
-            return const SizedBox.shrink();
-          }
+          // 획득 못했지만 최고 뱃지보다 낮은 건 표시 안함 -> 걍 다 표시하자
+          // if (!isOwned && weightNum <= maxOwned) {
+          //   return const SizedBox.shrink();
+          // }
 
           return _buildBadgeItem(
             id: id,
-            name: "${weightNum}kg",
+            name: allWeightTitle[allWeightIds.indexOf(id)],
             isOwned: isOwned,
+            htio: htio,
+            wtio: wtio
           );
         }).toList(),
       ),
     );
   }
 
-  // 배지 아이템 (획득 여부에 따라 색/흑백)
+   // 배지 아이템
   Widget _buildBadgeItem({
     required String id,
     required String name,
     required bool isOwned,
+    required double htio,
+    required double wtio,
   }) {
-    return SizedBox(
-      width: 101,
+    return Container(
+      width: 160 * wtio,
+      height: 174 * htio,
+      clipBehavior: Clip.antiAlias,
+      decoration: ShapeDecoration(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(width: 1 * wtio, color: const Color(0xFFEEEEEE)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          SvgPicture.asset(
-            'assets/widgets/$id.svg',
-            width: 101,
-            height: 100,
-            fit: BoxFit.contain,
-            colorFilter: isOwned
-              ? null // 원본 색상 그대로
-              : const ColorFilter.mode(Color(0xFFDDDDDD), BlendMode.saturation), 
+          // 상단 이미지 영역
+          Container(
+            width: 160 * wtio,
+            height: 120 * htio,
+            color: const Color(0xFFF5F5F5),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Opacity(
+                  opacity: isOwned ? 1.0 : 0.2,
+                  child: ColorFiltered(
+                    colorFilter: isOwned
+                        ? const ColorFilter.mode(Colors.transparent, BlendMode.multiply)
+                        : const ColorFilter.mode(Color(0xFFDDDDDD), BlendMode.saturation),
+                    child: Image.asset(
+                      'assets/image/badges/$id.png',
+                      width: 100 * htio,
+                      height: 100 * htio,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
-          Text(
-            name,
-            style: TextStyle(
-              color: isOwned ? Colors.black : Colors.grey,
-              fontSize: 14,
-              fontFamily: 'Pretendard',
-              fontWeight: FontWeight.w500,
-              height: 1.5,
+          // 하단 텍스트 영역
+          Container(
+            width: 160 * wtio,
+            height: 52 * htio,
+            color: Colors.white,
+            alignment: Alignment.center,
+            child: Text(
+              name,
+              style: TextStyle(
+                color: isOwned ? Colors.black : Colors.grey,
+                fontSize: 16 * htio,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
