@@ -23,6 +23,7 @@ import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/webview_page.dart';
+import 'package:my_app/view/intro_screen.dart';
 import 'package:my_app/view/tab/cmu/cmu_main.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
@@ -143,17 +144,16 @@ void main() async {
 }
 
 class MyApp extends ConsumerStatefulWidget {
-  final int mvIndex;
-  const MyApp({
-    super.key,
-    this.mvIndex = 0
-  });
+  const MyApp({super.key,});
 
   @override
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  
   @override
   void initState() {
     super.initState();
@@ -162,10 +162,30 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       await initializeDependencies(ref);
     });
 
-    // 알림 권한 요청은 앱 시작 후 3초 뒤에 실행
+    // Fade out 애니메이션 세팅
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOut,
+    );
+    // 2초 후 인트로 페이드아웃
     Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) _fadeController.forward();
+    });
+
+    // 알림 권한 요청은 앱 시작 후 3초 뒤에 실행
+    Future.delayed(const Duration(seconds: 4), () { // 초 이거 소용없네,,;;
       FlutterLocalNotification.requestNotificationPermission();
     });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -173,9 +193,20 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
-      localizationsDelegates: const [
-        FlutterQuillLocalizations.delegate,
-      ],
+      builder: (context, child) {
+        return Stack(
+          children: [
+            child!,
+            IgnorePointer(
+              ignoring: _fadeController.isCompleted,
+              child: FadeTransition(
+                opacity: Tween(begin: 1.0, end: 0.0).animate(_fadeAnimation),
+                child: const IntroScreen(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

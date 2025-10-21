@@ -87,6 +87,8 @@ dependencies:
   file_picker: ^10.3.3
   # photo_manager: ^3.7.1 # icloud에 있는 미디어를 선택시 로컬에 내려받게 해준다.
   flutter_image_compress: ^2.4.0 # 이미지 변환
+  lottie: ^3.3.0 # 로고 svg 파일의 <path>를 한획씩 그려주는 애니메이션효과를 적용하기위해 의존성추가한 패키지
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
