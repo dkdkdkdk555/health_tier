@@ -44,6 +44,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import '../firebase_options.dart';
 import 'view/navigation_bar.dart';
 import 'dart:math' as math;
+import 'package:flutter_quill/flutter_quill.dart'; 
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 part 'router.dart';
 
@@ -176,6 +178,12 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       if (mounted) _fadeController.forward();
     });
 
+    _fadeController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {});
+      }
+    });
+
     // 알림 권한 요청은 앱 시작 후 3초 뒤에 실행
     Future.delayed(const Duration(seconds: 4), () { // 초 이거 소용없네,,;;
       FlutterLocalNotification.requestNotificationPermission();
@@ -193,6 +201,16 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       routerConfig: router,
+      localizationsDelegates: const [
+        FlutterQuillLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ko'), // 한국어도 함께 지원 가능
+      ],
       builder: (context, child) {
         return Stack(
           children: [
