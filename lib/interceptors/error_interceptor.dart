@@ -144,13 +144,32 @@ class ErrorInterceptor extends InterceptorsWrapper {
     } 
     
     else if (err.response?.statusCode == 413) { // Payload Too Large
-      // 서버 예외: MaxUploadSizeExceededException
-      // 코드명: PAYLOAD_TOO_LARGE
-      if(context!=null){
-        showAppMessage(context, message: err.response?.data['message'] ?? '파일 크기가 제한(20MB)을 초과하였습니다.', type: AppMessageType.dialog);
+      // 서버 예외: MaxUploadSizeExceededException 
+      //// 코드명: PAYLOAD_TOO_LARGE
+      if (context != null) {
+        final data = err.response?.data;
+        String msg = '파일 크기가 제한(20MB)을 초과하였습니다.';
+
+        if (data is Map && data['message'] != null) {
+          final message = data['message'];
+          if (message is String) {
+            msg = message;
+          } else if (message is List && message.isNotEmpty) {
+            msg = message.first.toString();
+          } else {
+            msg = message.toString();
+          }
+        }
+
+        showAppMessage(
+          context,
+          message: msg,
+          type: AppMessageType.dialog,
+        );
+
         return _returnUiOkStatus(handler, originalRequest);
       }
-    } 
+    }
 
     else if (err.response?.statusCode == 422) { // Unprocessable Entity
       // 서버 예외: PsqlException (커스텀, PSOLException 과 다름)
