@@ -1,5 +1,6 @@
 class APIServer{
-  static const baseUrl = 'http://43.203.201.40:8080'; // 'http://34.64.119.157:8080';
+  static const baseUrl = 'http://192.168.0.49:8080';
+  static const s3Url = 's3.health-tier.com';
 }
 
 class FeedAPI {
@@ -14,7 +15,6 @@ class FeedAPI {
   static const getUsersFeeds = '$base/users';
   static const search = '$base/search';
   static increaseViewCount(int id) => '$base/$id/view';
-
 }
  
 class FeedCudAPI {
@@ -77,4 +77,5 @@ class AuthAPI {
   static const verifyValidTokenOrSigned = '$base/sns/verify';
   static const joinAndLoginWithSns = '$base/sns/join';
   static const checkNickname = '/check-nickname';
+  static const getS3PresignedUrl = '$base/s3/presigned';
 }

@@ -85,10 +85,10 @@ class UserApiService {
 
   // 내정보관리 - 프로필 이미지 등록/수정
   Future<String> createOrUpdateProfileImage({
-    required MultipartFile imageFile,
+    required String imagePath,
   }) async {
     final formData = FormData.fromMap({
-      'image': imageFile
+      'image': imagePath
     });
 
     final response = await dio.post(
