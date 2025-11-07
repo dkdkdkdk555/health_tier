@@ -174,7 +174,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       curve: Curves.easeOut,
     );
     // 2초 후 인트로 페이드아웃
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(milliseconds: 2400), () {
       if (mounted) _fadeController.forward();
     });
 
