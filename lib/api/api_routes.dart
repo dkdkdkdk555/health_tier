@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.49:8080';
+  static const baseUrl = 'https://api.health-tier.com';
   static const s3Url = 's3.health-tier.com';
 }
 
