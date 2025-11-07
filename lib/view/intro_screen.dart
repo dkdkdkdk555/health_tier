@@ -1,7 +1,8 @@
 import 'dart:async';
+import 'dart:math' show Random;
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class IntroScreen extends StatefulWidget {
   const IntroScreen({super.key});
@@ -13,10 +14,16 @@ class IntroScreen extends StatefulWidget {
 class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStateMixin {
   late AnimationController _textController;
   late Animation<double> _textWidth;
+  late String _selectedIntro;
 
   @override
   void initState() {
     super.initState();
+
+    // intro1~3 중 랜덤 선택
+    final random = Random();
+    final introIndex = random.nextInt(3) + 1; // 1~3
+    _selectedIntro = 'assets/image/intro$introIndex.json';
 
     // 텍스트 애니메이션 컨트롤러
     _textController = AnimationController(
@@ -43,22 +50,29 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🔹 Lottie 로고
-            Lottie.asset(
-              'assets/image/logo_temp60.json',
-              width: 120,
-              repeat: false,
-              animate: true,
-            ),
-            const SizedBox(height: 18),
+            // Lottie 로고
 
-            // 🔹 텍스트 애니메이션
+            Padding(
+              padding: EdgeInsets.only(left: 35 * wtio),
+              child: Lottie.asset(
+                _selectedIntro,
+                width: 150 * wtio,
+                repeat: false,
+                animate: true,
+              ),
+            ),
+            SizedBox(height: 3*htio),
+
+            // 텍스트 애니메이션
             AnimatedBuilder(
               animation: _textController,
               builder: (context, child) {
@@ -70,16 +84,17 @@ class _IntroScreenState extends State<IntroScreen> with SingleTickerProviderStat
                   ),
                 );
               },
-              child: const Text(
+              child: Text(
                 'HealthTier',
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 22 * htio,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                   fontFamily: 'Pretendard',
                 ),
               ),
             ),
+            SizedBox(height: 150*htio,)
           ],
         ),
       ),
