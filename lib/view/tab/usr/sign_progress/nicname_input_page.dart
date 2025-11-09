@@ -18,7 +18,7 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
   bool _showDuplicateWarning = false; // 닉네임 중복 경고 표시 여부
   bool _isCheckingNickname = false; // 닉네임 중복 검사 API 호출 중인지 여부
 
-   final int _maxLength = 10; // 최대 글자 수 제한
+   final int _maxLength = 14; // 최대 글자 수 제한
    bool _showLengthWarning = false;  // 글자 수  제한 경고 표시 여부
 
 

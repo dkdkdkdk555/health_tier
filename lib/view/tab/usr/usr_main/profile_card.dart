@@ -127,9 +127,9 @@ class ProfileCard extends ConsumerWidget {
                 const SizedBox(height: 40),
                 Text(
                   userInfo.nickname,
-                  style: const TextStyle(
-                    color: Color(0xFF333333),
-                    fontSize: 28,
+                  style: TextStyle(
+                    color: const Color(0xFF333333),
+                    fontSize: userInfo.nickname.length < 10 ? 28 : 22,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w600,
                     height: 0.05,
