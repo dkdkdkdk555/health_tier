@@ -353,7 +353,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 'localPath': imageUrl, // base64 URI 그대로 key로 둠
               });
               localPathToIndexMap[imageUrl] = filesToUpload.length - 1;
-            } else if(imageUrl.contains(APIServer.s3Url)) {
+            } else if(imageUrl.contains(APIServer.baseUrl)) {
               // 기존 서버에 저장된 url추가
               currentServerMediaUrls.add(imageUrl);
             }
@@ -405,53 +405,40 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       }
 
       // 2. 파일들을 MultipartFile로 변환
-      final List<File> rawFiles = [];
-      final List<Map<String, String>> fileMetaList = [];
+      final List<MultipartFile> multipartFiles = [];
       for (var file in filesToUpload) {
-        final String filename = path.basename(file.path);
         // 파일 경로를 기반으로 MIME 타입 자동 추론
         final String? mimeType = lookupMimeType(file.path);
-        // 서버 요청용 파일정보 리스트
-        fileMetaList.add({
-          'fileName': filename,
-          'contentType': mimeType!,
-        });
+        MediaType? contentType;
+        if (mimeType != null) {
+          final List<String> parts = mimeType.split('/');
+          if (parts.length == 2) {
+            contentType = MediaType(parts[0], parts[1]);
+          }
+        }
 
-        rawFiles.add(File(file.path));
+        multipartFiles.add(
+          MultipartFile.fromFileSync(
+            file.path,
+            filename: path.basename(file.path),
+            contentType: contentType, // 추론된 MediaType을 넘겨줍니다.
+          ),
+        );
       }
       
       // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
       List<String> uploadedUrls = [];
-      if (fileMetaList.isNotEmpty || deleteUrls.isNotEmpty) {
-        final presignedUrls = await ref.read(s3PresignedProvider((
-          folder: 'uploads',
-          files: fileMetaList,
-          deleteUrls: deleteUrls,
-        )).future); // FutureProvider 호출
+      if (multipartFiles.isNotEmpty || deleteUrls.isNotEmpty) {
+        final uploadArgs = ImageUploadArgs(images: multipartFiles, deleteUrls: deleteUrls);
+        final uploadResult = await ref.read(imageUploadProvider(uploadArgs).future); // FutureProvider 호출
         
-        final s3Service = await ref.read(s3ApiServiceProvider.future);
-
-        for (int i = 0; i < rawFiles.length; i++) {
-          final presignedUrl = presignedUrls[i];
-          final file = rawFiles[i];
-          final mimeType = fileMetaList[i]['contentType'] ?? 'application/octet-stream';
-
-          await s3Service.uploadFileToS3(
-            presignedUrl: presignedUrl,
-            file: file,
-            contentType: mimeType,
-          );
-
-          // 업로드 후, 실제 S3 퍼블릭 접근 URL 추출
-          final s3PublicUrl = presignedUrl.split('?').first;
-          uploadedUrls.add(s3PublicUrl);
-          debugPrint('✅ 업로드 완료 → $s3PublicUrl');
-        }
-
-        // 서버 업로드된 첫 번째 이미지 URL 넣어주기
-        if ((imgPreview.startsWith('file://') || imgPreview.startsWith('data:image/')) && uploadedUrls.isNotEmpty) {
-          imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
-        }
+        if (uploadResult.count >= 1) {
+          uploadedUrls = uploadResult.data;
+          // 서버 업로드된 첫 번째 이미지 URL 넣어주기
+          if ((imgPreview.startsWith('file://') || imgPreview.startsWith('data:image/')) && uploadedUrls.isNotEmpty) {
+            imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
+          }
+        } 
       }
 
       // 4. Quill Delta 업데이트: file:// 경로를 서버 경로로 치환
@@ -501,7 +488,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       final String content = jsonEncode(_controller.document.toDelta().toJson()); // 최종 Delta JSON
 
       if(categoryId == 2 || categoryId ==3) {
-        if(rawFiles.isEmpty) {
+        if(multipartFiles.isEmpty) {
           if(!mounted)return;
           showAppDialog(context, message: '인증피드는 사진이나 영상이 필수입니다.', confirmText: '확인');
           return;

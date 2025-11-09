@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +7,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/extension/cmu_invalidate_collect.dart';
-import 'package:my_app/providers/feed_cud_providers.dart' show s3ApiServiceProvider, s3PresignedProvider;
 import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -293,35 +290,22 @@ class UsrInfoProfile extends ConsumerWidget {
     if (pickedFile != null) {
       // 로딩 상태 시작 (로딩 프로바이더가 있다고 가정)
       try {
-        final List<Map<String, String>> fileMetaList = [];
-
         final String? mimeType = lookupMimeType(pickedFile.path);
-        fileMetaList.add({
-          'fileName': path.basename(pickedFile.path),
-          'contentType': mimeType!,
-        });
-
-        final presignedUrls = await ref.read(s3PresignedProvider((
-          folder: 'uploads',
-          files: fileMetaList,
-          deleteUrls: [],
-        )).future); // FutureProvider 호출
-
-        final s3Service = await ref.read(s3ApiServiceProvider.future);
-
-        final presignedUrl = presignedUrls[0];
-          final file = File(pickedFile.path);
-          final mimeType2 = fileMetaList[0]['contentType'] ?? 'application/octet-stream';
-
-          await s3Service.uploadFileToS3(
-            presignedUrl: presignedUrl,
-            file: file,
-            contentType: mimeType2,
-          );
-        final s3PublicUrl = presignedUrl.split('?').first;
+        MediaType? contentType;
+        if (mimeType != null) {
+          final List<String> parts = mimeType.split('/');
+          if (parts.length == 2) {
+            contentType = MediaType(parts[0], parts[1]);
+          }
+        }
+        MultipartFile multipartFile = MultipartFile.fromFileSync(
+            pickedFile.path,
+            filename: path.basename(pickedFile.path),
+            contentType: contentType, // 추론된 MediaType을 넘겨줍니다.
+        );
 
         final service = await ref.read(userCudServiceProvider.future);
-        final response = await service.createOrUpdateProfileImage(imagePath: s3PublicUrl);
+        final response = await service.createOrUpdateProfileImage(imageFile: multipartFile);
 
         // 성공 시 메시지 표시 및 UI 업데이트
         if (context.mounted && response=='success') {
