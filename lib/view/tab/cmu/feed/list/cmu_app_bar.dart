@@ -80,16 +80,22 @@ class _CmuAppBarState extends State<CmuAppBar> {
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      '커뮤니티',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20 * htio,
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700,
-                        height: 1.50 * htio,
-                      ),
+                    child: 
+                    SvgPicture.asset(
+                      'assets/icons/icon_svg.svg',
+                      width: 44 * wtio,
+                      fit: BoxFit.contain,
                     ),
+                    // Text(
+                    //   '커뮤니티',
+                    //   style: TextStyle(
+                    //     color: Colors.black,
+                    //     fontSize: 20 * htio,
+                    //     fontFamily: 'Pretendard',
+                    //     fontWeight: FontWeight.w700,
+                    //     height: 1.50 * htio,
+                    //   ),
+                    // ),
                   ),
                   GestureDetector(
                     onTap: () {
