@@ -131,7 +131,7 @@ class UsrInfoProfile extends ConsumerWidget {
                                 userInfo.nickname,
                                 style: TextStyle(
                                   color: Colors.black,
-                                  fontSize: 20 * htio,
+                                  fontSize: userInfo.nickname.length < 10 ? 20 * htio : 15*htio,
                                   fontFamily: 'Pretendard',
                                   fontWeight: FontWeight.bold,
                                   height: 1.6 * htio,
