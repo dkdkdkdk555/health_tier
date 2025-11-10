@@ -78,4 +78,5 @@ class AuthAPI {
   static const joinAndLoginWithSns = '$base/sns/join';
   static const checkNickname = '/check-nickname';
   static const getS3PresignedUrl = '$base/s3/presigned';
+  static const loginWithIdAndPw = '$base/login';
 }
