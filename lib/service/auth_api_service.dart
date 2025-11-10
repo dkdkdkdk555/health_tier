@@ -101,4 +101,23 @@ class AuthApiService {
     
     return TokenResponse.fromJson(response.data);
   }
+
+  // id, pw로 로그인요청
+  Future<Response> loginWithIdAndPw({
+    required String loginId,
+    required String password,
+  }) async {
+    final response = await dio.post(
+      AuthAPI.loginWithIdAndPw,
+      data: {
+        "loginId": loginId,
+        "password": password,
+      },
+    );
+
+    debugPrint('코드 : ${response.statusCode}');
+    debugPrint('${response.data}');
+    
+    return response;
+  }
 }

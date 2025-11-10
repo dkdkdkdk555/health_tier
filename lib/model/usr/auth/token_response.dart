@@ -14,7 +14,7 @@ class TokenResponse {
     return TokenResponse(
       accessToken: json['accessToken'] as String,
       refreshToken: json['refreshToken'] as String?,
-      userId: json['userId'] as int,
+      userId: json['userId'] ?? 0,
     );
   }
 
