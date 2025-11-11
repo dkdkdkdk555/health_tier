@@ -46,7 +46,7 @@ android {
         keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
     }
 
-    namespace = "com.ukhyeon.healthtier"
+    namespace = "com.health.tier"
     compileSdk = 35                  // ✅ 수정됨
     ndkVersion = flutter.ndkVersion
 
@@ -63,7 +63,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ukhyeon.healthtier"
+        applicationId = "com.health.tier"
         minSdk = 24
         targetSdk = 35              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()

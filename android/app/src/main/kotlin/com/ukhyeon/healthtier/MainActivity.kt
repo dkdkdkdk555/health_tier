@@ -1,4 +1,4 @@
-package com.ukhyeon.healthtier
+package com.health.tier
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
