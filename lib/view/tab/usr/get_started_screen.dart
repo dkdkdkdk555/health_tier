@@ -84,7 +84,7 @@ class _GetStartedScreenState extends ConsumerState<GetStartedScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('게스트 로그인'),
+              title: const Text('관리자/게스트 로그인'),
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
@@ -208,7 +208,7 @@ class _GetStartedScreenState extends ConsumerState<GetStartedScreen> {
       _isPressed = true;
     });
     // 2. 4초 타이머 시작
-    _timer = Timer(const Duration(seconds: 3), () {
+    _timer = Timer(const Duration(milliseconds: 3800), () {
       // 4초 후 실행될 때 색상 상태를 다시 흰색으로 변경
       setState(() {
         _isPressed = false;
@@ -287,20 +287,29 @@ class _GetStartedScreenState extends ConsumerState<GetStartedScreen> {
                           ),
                         ),
                       ),
-                      GestureDetector(
-                        onTapDown: _handleTapDown,
-                        onTapUp: (details) => _handleTapUpOrCancel(),
-                        onTapCancel:  _handleTapUpOrCancel,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
-                          child: Text(
-                            '다음으로 로그인',
-                             textAlign: TextAlign.center,
-                             style: TextStyle(
-                              color: _isPressed ? Colors.blue : Colors.white,
-                              fontSize: 14 * htio,
-                              fontFamily: 'Pretendard',
-                              height: 0.09 * htio,
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20 * wtio,),
+                        child: GestureDetector(
+                          onTapDown: _handleTapDown,
+                          onTapUp: (details) => _handleTapUpOrCancel(),
+                          onTapCancel:  _handleTapUpOrCancel,
+                          child: TextButton(
+                            style: ButtonStyle(
+                              tapTargetSize: MaterialTapTargetSize.padded,
+                              padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+                                const EdgeInsets.all(0),
+                              ),
+                            ),
+                            onPressed: (){},
+                            child: Text(
+                              '다음으로 로그인',
+                               textAlign: TextAlign.center,
+                               style: TextStyle(
+                                color: _isPressed ? Colors.blue : Colors.white,
+                                fontSize: 14 * htio,
+                                fontFamily: 'Pretendard',
+                                height: 0.09 * htio,
+                              ),
                             ),
                           ),
                         ),
