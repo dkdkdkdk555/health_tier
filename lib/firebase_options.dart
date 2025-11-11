@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'FIREBASE_ANDROID_API_KEY_REDACTED',
-    appId: 'FIREBASE_ANDROID_APP_ID_REDACTED',
+    appId: '1:37458358225:android:e0d8c3e98635a61720baf0',
     messagingSenderId: '37458358225',
     projectId: 'health-tier-dev',
     storageBucket: 'health-tier-dev.firebasestorage.app',
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'health-tier-dev.firebasestorage.app',
     measurementId: 'FIREBASE_WINDOWS_MEASUREMENT_ID_REDACTED',
   );
+
 }
