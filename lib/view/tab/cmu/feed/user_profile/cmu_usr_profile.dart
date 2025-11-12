@@ -28,7 +28,7 @@ class _CmuUsrProfileState extends State<CmuUsrProfile> {
           // 상단바
           SliverPersistentHeader(
             pinned: true,
-            delegate: UsrProfileAppBarDelegate(ScreenRatio(context).heightRatio),
+            delegate: UsrProfileAppBarDelegate(ScreenRatio(context).heightRatio, widget.userId),
           ),
           // 프로필
           SliverToBoxAdapter(

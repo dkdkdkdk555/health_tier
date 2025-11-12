@@ -131,6 +131,13 @@ final router = GoRouter(
                       },
                       parentNavigatorKey: rootNavigatorKey,
                     ),
+                    GoRoute( // 차단사용자 조회
+                      path: 'blockusers',
+                      builder: (context, state) {
+                        return const BlockManagePage();
+                      },
+                      parentNavigatorKey: rootNavigatorKey,
+                    ),
                   ]
                 ),
               ]

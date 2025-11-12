@@ -63,58 +63,29 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
                       SizedBox(height: 30 * htio,),
                       makeTitle('기록 옮기기'),
                       const DocBackupAndRestore(),
-                      SizedBox(height: 50 * htio,),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () async {
-                            await showAppDialog(
-                              context, 
-                              message: '로그아웃 하시겠습니까?',
-                              confirmText: '확인',
-                              cancelText: '취소',
-                              onConfirm: () {
-                                TokenManager.deleteAllTokens();
-                                CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
-                                if(!context.mounted) return;
-                                context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
-                              },
-                              onCancel: () {
-                                return;
-                              },
-                            );
-                          },
-                          child: Text(
-                            '로그아웃',
-                            style: TextStyle(
-                              color: Colors.grey.shade800,
-                              fontSize: 15.3 * htio,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.normal,
-                              height: 1.6 * htio,
-                            ),
-                          ),
-                        ),
+                      SizedBox(height: 35 * htio,),
+                      makeTextBtn(context, '차단사용자 관리', () {context.push('/usr/info/management/blockusers');}),
+                      SizedBox(height: 16 * htio,),
+                      makeTextBtn(context,  '로그아웃', () async {
+                        await showAppDialog(
+                            context, 
+                            message: '로그아웃 하시겠습니까?',
+                            confirmText: '확인',
+                            cancelText: '취소',
+                            onConfirm: () {
+                              TokenManager.deleteAllTokens();
+                              CmuInvalidateCollect().cmuInvalidateCache(ref); // 캐시 날리기
+                              if(!context.mounted) return;
+                              context.go('/usr/login'); // 현재 네비게이션 스택을 전부 날리고 이동
+                            },
+                            onCancel: () {
+                              return;
+                            },
+                          );
+                        }, 
                       ),
                       SizedBox(height: 16 * htio,),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: GestureDetector(
-                          onTap: () {
-                            context.push('/usr/info/management/signout');
-                          },
-                          child: Text(
-                            '회원탈퇴',
-                            style: TextStyle(
-                              color: Colors.grey.shade800,
-                              fontSize: 15.3 * htio,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.normal,
-                              height: 1.6 * htio,
-                            ),
-                          ),
-                        ),
-                      ),
+                      makeTextBtn(context, '회원탈퇴', () {context.push('/usr/info/management/signout');}),
                     ],
                   ),
                 )
@@ -131,6 +102,28 @@ class _UsrInfoManagementState extends ConsumerState<UsrInfoManagement> {
               ),
             ),
           ]
+        ),
+      ),
+    );
+  }
+
+  Align makeTextBtn(BuildContext context,
+    String text,
+    GestureTapCallback ontap,
+  ) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: ontap,
+        child: Text(
+          text,
+          style: TextStyle(
+            color: Colors.grey.shade800,
+            fontSize: 15.3 * htio,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.normal,
+            height: 1.6 * htio,
+          ),
         ),
       ),
     );
