@@ -49,6 +49,7 @@ class UserAPI {
   static const base = '/cmu/usr';
 
   static const getUserInfo = '$base/';
+  static const getBlockedUsers = '$base/block/list';
 }
 
 
@@ -66,6 +67,9 @@ class UserCudAPI {
   static const userLeaveOut = '$base/leave';
   static const fcmInfoSave = '$base/push-token';
   static const getUsrInfoWeight = '$base/weight';
+
+  static doBlock(int blockUserId) => '$base/block/$blockUserId'; // POST
+  static doBlockCancle(int blockedUserId) => '$base/block/$blockedUserId'; //DELETE
 }
 
 
