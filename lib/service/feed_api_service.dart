@@ -11,6 +11,7 @@ import 'package:my_app/model/cmu/feed/keyword_search_param.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/user_info_response_dto.dart';
 import 'package:my_app/model/cmu/feed/usrs_feed_list_request.dart';
+import 'package:my_app/util/user_prefs.dart';
 
 class FeedService {
   final Dio dio;
@@ -29,6 +30,7 @@ class FeedService {
 
   // 피드목록 조회
   Future<ScrollResponse<FeedPreviewDto>> getFeedList(FeedQueryParams feedQueryParams) async {
+    final int? userId = UserPrefs.myUserId;
     final response = await dio.get(
       FeedAPI.getFeeds,
       queryParameters: {
@@ -36,7 +38,8 @@ class FeedService {
         if (feedQueryParams.hotYn != null) 'hotYn': feedQueryParams.hotYn,
         if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
         'limit': feedQueryParams.limit,
-        'isFeedMainListRequest':1
+        'isFeedMainListRequest':1,
+        if(userId!=null )'userId':userId
       },
     );
     return ScrollResponse.fromJson(
@@ -51,12 +54,14 @@ class FeedService {
     int? categoryId,
     int? hotYn
   }) async {
+    final int? userId = UserPrefs.myUserId;
     final response = await dio.get(
       FeedAPI.isThereNewFeed,
       queryParameters: {
         'latestId': latestId,
         if (categoryId != null && categoryId != 0) 'category': categoryId,
         'hotYn': hotYn ?? 0,
+        if(userId!=null )'userId':userId
       },
     );
     debugPrint(response.data.toString());
@@ -101,12 +106,14 @@ class FeedService {
 
   // 피드 상세 - 같은 카테고리의 다른 글(인기순) 가져오기
   Future<ScrollResponse<FeedPreviewDto>> getSameCategoryFeedList(FeedQueryParams feedQueryParams) async {
+    final int? userId = UserPrefs.myUserId;
     final response = await dio.get(
       FeedAPI.getSameCategoryFeeds,
       queryParameters: {
         if (feedQueryParams.categoryId != null) 'categoryId': feedQueryParams.categoryId == 0 ? null : feedQueryParams.categoryId,
         if (feedQueryParams.cursorId != null) 'cursorId': feedQueryParams.cursorId,
         'limit': 5,// feedQueryParams.limit,
+        if(userId!=null )'userId':userId
       },
     );
     return ScrollResponse.fromJson(
@@ -141,12 +148,14 @@ class FeedService {
 
   // 통합검색
   Future<ScrollResponse<FeedPreviewDto>> getFeedsByKeyword(KeywordSearchParam searchParam) async {
+    final int? userId = UserPrefs.myUserId;
     final response = await dio.get(
       FeedAPI.search,
       queryParameters: {
         'keyword': searchParam.keyword,
         if (searchParam.cursorId != null) 'cursorId': searchParam.cursorId,
         'limit': searchParam.limit,
+        if(userId!=null )'userId':userId
       },
     );
     return ScrollResponse.fromJson(

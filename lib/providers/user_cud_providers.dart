@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/user/ht_user_block_dto.dart' show HtUserBlockDto;
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
 import 'package:my_app/service/user_api_service.dart';
@@ -30,7 +31,6 @@ final userWeightListProvider = FutureProvider<Result<List<Weight3Info>>>((ref) a
   return await service.getUserInfoWeight();
 });
 
-
 // 백업 상태를 가져오는 Provider
 final backupStatusProvider = FutureProvider<String>((ref) async {
   final userService = await ref.watch(userCudServiceProvider.future);
@@ -46,4 +46,10 @@ final usrSimpleInfoProvider = FutureProvider<Result<UserSimpleDto>>((ref) async 
 // 네비바용 imgurl 상태관리 프로바이더
 final usrProfileImgProvider = StateProvider<String>((ref) {
   return "";
+});
+
+// 차단한 사용자 목록
+final userBlockedListProvider = FutureProvider<Result<List<HtUserBlockDto>>>((ref) async {
+  final service = await ref.watch(userCudServiceProvider.future);
+  return await service.getBlockedUsers();
 });
