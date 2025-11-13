@@ -4,7 +4,7 @@ import 'package:my_app/view/tab/usr/notification/notification_manage_app_bar.dar
 class NotificationManageAppBarDelegatte extends SliverPersistentHeaderDelegate {
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return const NotificationManageAppBar(centerText: '차단사용자 관리',);
+    return const NotificationManageAppBar(centerText: '알림',);
   }
 
   @override

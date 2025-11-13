@@ -8,9 +8,7 @@ import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNo
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 import 'package:my_app/view/common/error_widget.dart';
-import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/usr/notification/notification_item.dart';
-import 'package:my_app/view/tab/usr/usr_main.dart';
 
 class BlockListSliver extends ConsumerStatefulWidget {
   const BlockListSliver({super.key});
@@ -50,7 +48,7 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
               child: Padding(
                 padding: const EdgeInsets.all(40),
                 child: Text(
-                  '알림이 없습니다.',
+                  '차단한 사용자가 없습니다.',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
@@ -90,10 +88,10 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
 
                         ref.invalidate(selectAllNotifications);
                       },
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.blue.shade400,
                       foregroundColor: Colors.white,
                       icon: Icons.delete,
-                      label: '삭제',
+                      label: '차단해제',
                     ),
                   ],
                 ),
@@ -125,7 +123,7 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
         ),
       ),
       error: (err, stack) => const SliverToBoxAdapter(
-        child: ErrorContentWidget(mainText: '알림을 불러오는 중 오류가 발생했습니다.',)
+        child: ErrorContentWidget(mainText: '목록을 불러오는 중 오류가 발생했습니다.',)
       ),
     );
   }

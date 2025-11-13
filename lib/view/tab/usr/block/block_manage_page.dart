@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
+import 'package:my_app/view/tab/usr/block/block_header.dart';
+import 'package:my_app/view/tab/usr/block/block_list_sliver.dart';
+import 'package:my_app/view/tab/usr/block/block_manage_app_bar_delegatte.dart';
 import 'package:my_app/view/tab/usr/notification/notification_header.dart';
 import 'package:my_app/view/tab/usr/notification/notification_list_sliver.dart';
 import 'package:my_app/view/tab/usr/notification/notification_manage_app_bar_delegatte.dart'; // NotificationModel 포함
@@ -13,13 +16,6 @@ class BlockManagePage extends StatefulWidget {
 }
 
 class _BlockManagePageState extends State<BlockManagePage> {
-  bool _isLoading = false;
-
-  void _setLoading(bool value) {
-    setState(() {
-      _isLoading = value;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,19 +28,13 @@ class _BlockManagePageState extends State<BlockManagePage> {
           // 상단바
           SliverPersistentHeader(
             pinned: true,
-            delegate: NotificationManageAppBarDelegatte(),
+            delegate: BlockManageAppBarDelegatte(),
           ),
           // 알림 헤더
-           SliverToBoxAdapter(
-            child: NotificationHeader(onLoading: _setLoading)
+           const SliverToBoxAdapter(
+            child: BlockHeader()
           ),
-          // 알림 목록
-          if(_isLoading)
-            const SliverToBoxAdapter(
-              child: Padding(padding: EdgeInsets.all(40), child: Center(child: AppLoadingIndicator()),),
-            )
-          else
-            const NotificationListSliver()
+          const BlockListSliver()
         ],
       ),
     );

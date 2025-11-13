@@ -56,25 +56,6 @@ class _CmuBasicAppBarState extends State<BlockManageAppBar> {
               ),
             ),
           ),
-
-          // 오른쪽 설정 버튼
-          // Align(
-          //   alignment: Alignment.centerRight,
-          //   child: GestureDetector(
-          //     onTap: () {
-          //       // 여기에 설정 화면 이동 로직
-          //     },
-          //     child: SizedBox(
-          //       width: 24,
-          //       height: 24,
-          //       child: SvgPicture.asset(
-          //         'assets/widgets/setting.svg',
-          //         width: 24,
-          //         height: 24,
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
