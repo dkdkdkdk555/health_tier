@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:go_router/go_router.dart';
-import 'package:my_app/model/usr/user/notifications_model.dart';
-import 'package:my_app/providers/db_providers.dart';
-import 'package:my_app/providers/notifier_provider.dart' show notificationNumsNotifierProvider;
+import 'package:flutter_svg/svg.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
+import 'package:my_app/model/usr/user/ht_user_block_dto.dart';
+import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 import 'package:my_app/view/common/error_widget.dart';
-import 'package:my_app/view/tab/usr/notification/notification_item.dart';
 
 class BlockListSliver extends ConsumerStatefulWidget {
   const BlockListSliver({super.key});
@@ -18,9 +17,9 @@ class BlockListSliver extends ConsumerStatefulWidget {
 }
 
 class _BlockListSliverState extends ConsumerState<BlockListSliver> {
-  List<NotificationModel> _notifications = [];
-
   late int loginUserId;
+  List<HtUserBlockDto> _blockList = [];
+
   @override
   void initState() {
     super.initState();
@@ -29,88 +28,61 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
 
   @override
   Widget build(BuildContext context) {
-    final notificationsAsync = ref.watch(selectAllNotifications(loginUserId));
+    final blockListAsync = ref.watch(userBlockedListProvider);
 
-    return notificationsAsync.when(
-      data: (notifications) {
+    return blockListAsync.when(
+      data: (result) {
+        final list = result.data ?? [];
 
-        // 로컬 리스트 초기화
-        if (_notifications.isEmpty) _notifications = notifications.reversed.toList();
+        // 초기 로딩 시 한 번만 저장
+        if (_blockList.isEmpty) {
+          _blockList = List.from(list);
+        }
 
-        final unreadCount = notifications.where((notification) => notification.isRead == 'false').length;
-        Future.microtask((){ // 안 읽은 알림 갯수 알림!
-            ref.read(notificationNumsNotifierProvider).changeNum(unreadCount);
-        });
+        final totalCount = _blockList.length;
 
-        if (_notifications.isEmpty) {
+        // 🔥 차단 사용자가 없는 경우 → SliverToBoxAdapter 직접 반환
+        if (totalCount == 0) {
           return SliverToBoxAdapter(
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.all(40),
                 child: Text(
                   '차단한 사용자가 없습니다.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ),
             ),
           );
         }
 
+        // 🔥 차단 사용자가 있는 경우 → SliverList 반환
         return SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              final notification = _notifications[index];
-
-              // 알림 읽음 처리
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (notification.isRead == 'false') {
-                  markNotificationRead(ref: ref, id: notification.id);
-                  ref.invalidate(hasUnreadNotification);
-                }
-              });
-              
-              return Slidable(
-                key: ValueKey(notification.id),
-                endActionPane: ActionPane(
-                  motion: const ScrollMotion(),
+              if (index == 0) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SlidableAction(
-                      onPressed: (_) async {
-                        await deleteNotification(ref: ref, id: notification.id);
-                        
-                        if (!mounted) return;
-                        setState(() {
-                          _notifications.removeAt(index);
-                        });
-
-                        ref.invalidate(selectAllNotifications);
-                      },
-                      backgroundColor: Colors.blue.shade400,
-                      foregroundColor: Colors.white,
-                      icon: Icons.delete,
-                      label: '차단해제',
+                    // 헤더
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        "총 $totalCount명의 사용자를 차단했어요",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
+
+                    _buildBlockItem(context, _blockList[index]),
                   ],
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    final notifiType = notification.type;
-                    if(notifiType != null && 
-                        (notifiType == 'COMMUNITY' || notifiType == 'CRTIFI')
-                    ) {
-                      context.push('/cmu/feed/${notification.feedId!}?isFromNotifi=true');
-                    } else if(notifiType == 'BADGE') {
-                      context.go('/usr/info');
-                    }
-                  },
-                  child: NotificationItem(notification: notification)
-                ),
-              );
+                );
+              }
+              return _buildBlockItem(context, _blockList[index]);
             },
-            childCount: _notifications.length,
+            childCount: totalCount,
           ),
         );
       },
@@ -123,8 +95,115 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
         ),
       ),
       error: (err, stack) => const SliverToBoxAdapter(
-        child: ErrorContentWidget(mainText: '목록을 불러오는 중 오류가 발생했습니다.',)
+        child: ErrorContentWidget(
+          mainText: '차단 목록을 불러오는 중 오류가 발생했습니다.',
+        ),
       ),
+    );
+  }
+
+  /// 🔹 리스트 아이템 + 구분선 위젯
+  Widget _buildBlockItem(BuildContext context, HtUserBlockDto user) {
+    return Column(
+      children: [
+        Slidable(
+          key: ValueKey(user.id),
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            children: [
+              SlidableAction(
+                onPressed: (_) async {
+                  final service = await ref.read(userCudServiceProvider.future);
+
+                  try {
+                    // 1) 차단 해제 API 호출
+                    final result = await service.doBlockCancle(user.blockedUserId);
+
+                    if (result == "success") {
+                      // 2) UI 목록 즉시 제거
+                      setState(() {
+                        _blockList.removeWhere(
+                          (element) => element.blockedUserId == user.blockedUserId,
+                        );
+                      });
+
+                      // 3) 서버 최신 목록 다시 불러오도록 invalidate
+                      CmuInvalidateCollect().cmuOnlyInvalidateCache(ref);
+
+                      // 4) 사용자에게 안내 메시지
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("차단이 해제되었습니다.")),
+                        );
+                      }
+                    } else {
+                      throw Exception("API returned: $result");
+                    }
+                  } catch (e) {
+                    // 실패 시 안내
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("차단 해제 실패: $e")),
+                      );
+                    }
+                  }
+                },
+                backgroundColor: Colors.blue.shade400,
+                foregroundColor: Colors.white,
+                icon: Icons.cancel,
+                label: '차단 해제',
+              ),
+            ],
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              radius: 22,
+              backgroundColor: Colors.grey.shade300,
+              child: ClipOval(
+                child: user.blockedUserImgPath != null
+                    ? Image.network(
+                        user.blockedUserImgPath!,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return SvgPicture.asset(
+                            'assets/widgets/default_user_profile.svg',
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : SvgPicture.asset(
+                        'assets/widgets/default_user_profile.svg',
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            title: Text(
+              user.blockedUserNickname ?? "알 수 없는 사용자",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              "차단날짜: ${user.createDttm}",
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+        ),
+
+        // 🔹 얇은 구분선 추가
+        Container(
+          height: 0.4,
+          color: Colors.grey.shade300,
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+        ),
+      ],
     );
   }
 }

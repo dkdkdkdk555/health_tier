@@ -3,6 +3,7 @@ import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart';
+import 'package:my_app/model/usr/user/ht_user_block_dto.dart' show HtUserBlockDto;
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
@@ -145,5 +146,14 @@ class UserApiService {
     }
   }
 
+
+  // 차단 사용자 목록 조회
+  Future<Result<List<HtUserBlockDto>>> getBlockedUsers() async {
+    final response = await dio.get(UserAPI.getBlockedUsers,);
+    return Result.fromJson(
+      response.data,
+      (obj) => (obj as List).map((e) => HtUserBlockDto.fromJson(e)).toList(),
+    );
+  }
 
 }

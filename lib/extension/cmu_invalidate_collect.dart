@@ -2,7 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider, feedPaginationProvider, feedParamsProvider, replyPaginationProvider;
-import 'package:my_app/providers/user_cud_providers.dart' show authDioProvider, usrProfileImgProvider, usrSimpleInfoProvider;
+import 'package:my_app/providers/user_cud_providers.dart' show authDioProvider, userBlockedListProvider, usrProfileImgProvider, usrSimpleInfoProvider;
 import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider, userAuthServiceAuthDioProvider;
 
 class CmuInvalidateCollect {
@@ -35,6 +35,7 @@ class CmuInvalidateCollect {
     ref.invalidate(feedDetailProvider);
     ref.invalidate(replyPaginationProvider);
     ref.invalidate(feedParamsProvider);
+    ref.invalidate(userBlockedListProvider);
   }
   
 }
