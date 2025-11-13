@@ -125,5 +125,25 @@ class UserApiService {
     return response.data;
   }
 
+  // 차단하기
+  Future<String> blockUser(int blockUserId) async {
+    final response = await dio.post(UserCudAPI.doBlock(blockUserId));
+    if(response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('차단하기 실패: ${response.statusCode}');
+    }
+  }
+
+  // 차단해제
+  Future<String> doBlockCancle(int blockedUserId) async {
+    final response = await dio.delete(UserCudAPI.doBlockCancle(blockedUserId));
+    if(response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('차단해제 실패: ${response.statusCode}');
+    }
+  }
+
 
 }

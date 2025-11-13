@@ -26,8 +26,8 @@ final dioProvider = Provider<Dio>((ref){
 });
 
 // Dio 프로바이더를 전역으로 관리
-final dioAuthProvider = FutureProvider<Dio>((ref){
-  return DIOConfig().createAuthDio(ref);
+final dioAuthProvider = FutureProvider<Dio>((ref) async{
+  return await DIOConfig().createAuthDio(ref);
 });
 
 // 서비스 객체 의존성 주입 받아 사용

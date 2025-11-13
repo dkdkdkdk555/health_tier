@@ -28,4 +28,13 @@ class CmuInvalidateCollect {
     ref.invalidate(feedParamsProvider);
     ref.invalidate(usrProfileImgProvider);
   }
+
+  // 피드관련만
+  void cmuOnlyInvalidateCache(WidgetRef ref){
+    // feed 관련
+    ref.invalidate(feedDetailProvider);
+    ref.invalidate(replyPaginationProvider);
+    ref.invalidate(feedParamsProvider);
+  }
+  
 }

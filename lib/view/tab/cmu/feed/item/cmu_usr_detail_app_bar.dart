@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/extension/cmu_invalidate_collect.dart';
+import 'package:my_app/providers/user_cud_providers.dart' show userCudServiceProvider;
 import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
+import 'package:my_app/service/user_api_service.dart';
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 
 class CmuUsrDetailAppBar extends ConsumerStatefulWidget {
   final String centerText;
-  final int? userId;
+  final int userId;
   const CmuUsrDetailAppBar({
     super.key,
     required this.centerText,
-    this.userId
+    required this.userId
   });
 
   @override
@@ -35,9 +39,10 @@ class _CmuBasicAppBarState extends ConsumerState<CmuUsrDetailAppBar> {
     _myUserId = UserPrefs.myUserId;
   }
 
-  void _showActionBottomSheet(){
+  void _showActionBottomSheet(UserApiService? userService){
+    final parentContext = context;
     showModalBottomSheet(
-      context: context,
+      context: parentContext,
       builder: (BuildContext context) {
         return Container(
           decoration: const BoxDecoration(
@@ -54,7 +59,25 @@ class _CmuBasicAppBarState extends ConsumerState<CmuUsrDetailAppBar> {
                       color: Colors.red.shade600
                     ),),
                     onTap: () async {
-                      Navigator.pop(context); // 바텀 시트 닫기
+                      await showAppDialog(context, message: '사용자를 차단 하시겠습니까?', 
+                        confirmText: '확인',
+                        cancelText: '취소',
+                        onCancel: () {
+                          Navigator.pop(context); // 바텀 시트 닫기
+                        },
+                        onConfirm: () async {
+                          final response = await userService?.blockUser(widget.userId);
+                          if (!context.mounted) return;
+                          if (response == 'success') {
+                            Navigator.pop(context);
+                            if (!context.mounted) return;
+                            CmuInvalidateCollect().cmuOnlyInvalidateCache(ref); // 커뮤 캐시 삭제
+                            await showAppDialog(parentContext, message: "사용자를 차단하였습니다.", confirmText: "확인");
+                            if (!parentContext.mounted) return;
+                            parentContext.go('/cmu');
+                          }
+                        }
+                      );
                     },
                   ),
                 // 바텀 시트 하단에 여백을 추가하여 UI를 더 보기 좋게 만들 수 있습니다.
@@ -71,6 +94,15 @@ class _CmuBasicAppBarState extends ConsumerState<CmuUsrDetailAppBar> {
   Widget build(BuildContext context) {
     final htio = ScreenRatio(context).heightRatio;
     final wtio = ScreenRatio(context).widthRatio;
+
+    final userServiceAsyncValue = ref.watch(userCudServiceProvider);
+
+     // 서비스 인스턴스가 로딩 중이거나 에러 상태인지 확인합니다.
+    final bool isServiceLoadingOrError = userServiceAsyncValue.isLoading || userServiceAsyncValue.hasError;
+    final bool canSubmit = !isServiceLoadingOrError;
+
+    final UserApiService? userService = canSubmit ? userServiceAsyncValue.valueOrNull : null;
+
     return Container(
       width: 375 * wtio,
       padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 10 * htio),
@@ -117,7 +149,7 @@ class _CmuBasicAppBarState extends ConsumerState<CmuUsrDetailAppBar> {
               onTap: () async{
                 final response = await ref.read(jwtTokenVerificationProvider.future);
                 if(response.isValid) {
-                  _showActionBottomSheet();
+                  _showActionBottomSheet(userService);
                 } else {
                   if(!context.mounted)return;
                   showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);

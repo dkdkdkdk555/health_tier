@@ -30,7 +30,6 @@ final userWeightListProvider = FutureProvider<Result<List<Weight3Info>>>((ref) a
   return await service.getUserInfoWeight();
 });
 
-
 // 백업 상태를 가져오는 Provider
 final backupStatusProvider = FutureProvider<String>((ref) async {
   final userService = await ref.watch(userCudServiceProvider.future);
