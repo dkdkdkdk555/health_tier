@@ -1,5 +1,5 @@
 class APIServer{
-  static const baseUrl = 'http://192.168.0.49:8080';
+  static const baseUrl = 'http://192.168.0.49:5723';
   static const s3Url = 's3.health-tier.com';
 }
 
@@ -49,6 +49,7 @@ class UserAPI {
   static const base = '/cmu/usr';
 
   static const getUserInfo = '$base/';
+  static const getBlockedUsers = '$base/block/list';
 }
 
 
@@ -66,6 +67,9 @@ class UserCudAPI {
   static const userLeaveOut = '$base/leave';
   static const fcmInfoSave = '$base/push-token';
   static const getUsrInfoWeight = '$base/weight';
+
+  static doBlock(int blockUserId) => '$base/block/$blockUserId'; // POST
+  static doBlockCancle(int blockedUserId) => '$base/block/$blockedUserId'; //DELETE
 }
 
 
