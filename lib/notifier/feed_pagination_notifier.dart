@@ -32,12 +32,10 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
     state = const AsyncLoading();
 
     try {
-      debugPrint('멍멍!');
       final response = await _service.getFeedList(_params);
       _feeds.clear();
       _feeds = response.items;
       _hasNext = response.hasNext;
-      debugPrint('헤즈넥스트 : $_hasNext');
       _params.cursorId = response.lastCursorId;
       state = AsyncData(response);
     } catch (error, stackTrace) {

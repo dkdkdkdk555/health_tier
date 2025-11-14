@@ -227,7 +227,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     // FAB 크기 (비율 + 상한)
     final double fabSize = math.min(wtio * 0.14, 90.0);
     // FAB와 NavigationBar 사이 간격 (비율 유지)
-    final double bottomMargin = math.min(42.0, wtio * 0.11);
+    double bottomMargin = math.min(42.0, wtio * 0.11);
 
     final isWide = wtio > 600;
     final double ratio = ScreenRatio(context).widthRatio;
@@ -299,7 +299,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
                 ? const Alignment(-0.45, 1.0)
                 : Alignment.bottomCenter,
             child: Container(
-              margin: const EdgeInsets.only(bottom: 42),
+              margin: EdgeInsets.only(bottom: bottomMargin),
               height: fabSize,
               width: navWidth,
               child: IslandNavigationBar(
