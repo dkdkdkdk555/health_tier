@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart' show SvgPicture;
+import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource, XFile;
 import 'package:intl/intl.dart';
 import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/model/diet/diet_input_data.dart' show DietInputData;
 import 'package:my_app/model/diet/doc_diet_model.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/providers/feed_cud_providers.dart';
+import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
+import 'package:my_app/service/doc_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
-import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
+import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/hoverable_icon.dart';
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -52,6 +57,115 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       }
     });
   }
+
+  // =========================================================================
+  // 1. AI 이미지 분석용 바텀 시트 호출 메서드 추가
+  // =========================================================================
+  void _showImageSourcePicker(int index, DocApiService docApiService) {
+    FocusScope.of(context).unfocus(); // 혹시 모를 키보드 내리기
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // 시트 높이 조절 가능
+      backgroundColor: Colors.transparent, // 배경 투명 처리
+      builder: (BuildContext context) {
+        final wtio = ScreenRatio(context).widthRatio;
+        final htio = ScreenRatio(context).heightRatio;
+
+        final ImagePicker picker = ImagePicker();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(22 * wtio),
+              topRight: Radius.circular(22 * wtio),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            top: 20 * htio,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // 타이틀: AI 식사 이미지 분석 기능
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 8 * htio),
+                child: Text(
+                  'AI 식단 영양성분 분석',
+                  style: TextStyle(
+                    fontSize: 17 * htio,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Pretendard',
+                    color: const Color(0xFF333333),
+                  ),
+                ),
+              ),
+              Divider(height: 1 * htio, color: const Color(0xFFEEEEEE)),
+              
+              // 갤러리 선택 버튼
+              _buildImageSourceItem(
+                context,
+                icon: Icons.photo_library_outlined,
+                label: '갤러리',
+                onTap: () async {
+                  Navigator.pop(context); // 시트 닫기
+                  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                  if (image != null) {
+                    debugPrint('식단 $index - 갤러리 이미지 경로: ${image.path}');
+                  }
+                },
+              ),
+
+              // 카메라 선택 버튼
+              _buildImageSourceItem(
+                context,
+                icon: Icons.camera_alt_outlined,
+                label: '카메라',
+                onTap: () async {
+                  Navigator.pop(context); // 시트 닫기
+                  final XFile? image = await picker.pickImage(source: ImageSource.camera);
+                  if (image != null) {
+                    debugPrint('식단 $index - 카메라 이미지 경로: ${image.path}');
+                  }
+                },
+              ),
+              SizedBox(height: 10 * htio),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // 바텀 시트의 각 항목을 구성하는 위젯
+  Widget _buildImageSourceItem(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+    final wtio = ScreenRatio(context).widthRatio;
+    final htio = ScreenRatio(context).heightRatio;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 15 * htio),
+        child: Row(
+          children: <Widget>[
+            Icon(icon, size: 24 * htio, color: const Color(0xFF333333)),
+            SizedBox(width: 15 * wtio),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16 * htio,
+                fontFamily: 'Pretendard',
+                color: const Color(0xFF333333),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  // =========================================================================
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +255,26 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 8 * wtio),
+                                        SizedBox(width: 12 * wtio),
+                                        GestureDetector(
+                                          onTap: () async{
+                                            final response = await ref.read(jwtTokenVerificationProvider.future);
+                                            if(response.isValid) {
+                                              final docApiServiceAsyncValue = ref.watch(docApiServiceProvider).value;
+                                              _showImageSourcePicker(index);
+                                            } else {
+                                              if(!context.mounted)return;
+                                              showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
+                                            }
+                                          },
+                                          child: SvgPicture.asset(
+                                            'assets/widgets/gemini_icon.svg',
+                                            fit: BoxFit.cover,
+                                            width: 28 * wtio,
+                                            height: 28 * htio,
+                                          ),
+                                        ),
+                                        SizedBox(width: 12 * wtio),
                                         HoverableIcon(
                                           icon: Icons.remove_circle_outline,
                                           originColor: Colors.grey,

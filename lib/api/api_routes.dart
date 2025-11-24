@@ -1,6 +1,10 @@
 class APIServer{
-  static const baseUrl = 'https://api.health-tier.com';
+  static const baseUrl = 'http://192.168.10.10:5723';
   static const s3Url = 's3.health-tier.com';
+}
+
+class DocAPI {
+  static const geminiFoodAnalyze = '/api/food/analyze';
 }
 
 class FeedAPI {
