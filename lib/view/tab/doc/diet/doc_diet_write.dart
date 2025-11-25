@@ -64,7 +64,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   // =========================================================================
   // 1. AI 이미지 분석용 바텀 시트 호출 메서드 추가
   // =========================================================================
-  void _showImageSourcePicker(int index) {
+  void _showImageSourcePicker(int index, DocApiService? docApiService) {
     FocusScope.of(context).unfocus(); // 혹시 모를 키보드 내리기
 
     showModalBottomSheet(
@@ -76,7 +76,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         final htio = ScreenRatio(context).heightRatio;
 
         final ImagePicker picker = ImagePicker();
-        final docApiService = ref.watch(docApiServiceProvider).value; // 시트가 빌드될 때 docApiService를 가져옴
 
         return Container(
           decoration: BoxDecoration(
@@ -209,6 +208,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     final wtio = ScreenRatio(context).widthRatio;
     final displayDay = DateFormat('yyyy.MM.dd (E)', 'ko').format(focusedDay);
 
+     final docApiService = ref.watch(docApiServiceProvider).value;
+
     return GestureDetector(
        behavior: HitTestBehavior.opaque, // 빈 영역도 터치 가능
       onTap: () {
@@ -296,7 +297,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           onTap: () async{
                                             final response = await ref.read(jwtTokenVerificationProvider.future);
                                             if(response.isValid) {
-                                              _showImageSourcePicker(index);
+                                              _showImageSourcePicker(index, docApiService);
                                             } else {
                                               if(!context.mounted)return;
                                               showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
