@@ -134,7 +134,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       }
     } 
 
-    else if (err.response?.statusCode == 409) {  // Conflict
+    else if (err.response?.statusCode == 409) {
       // 서버 예외: DuplicateKeyException, PSQLException(ht_crtifi_usrs_pkey)
       // 코드명: CONFLICT
       if(context!=null){
@@ -143,7 +143,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       }
     } 
     
-    else if (err.response?.statusCode == 413) { // Payload Too Large
+    else if (err.response?.statusCode == 413) {
       // 서버 예외: MaxUploadSizeExceededException 
       //// 코드명: PAYLOAD_TOO_LARGE
       if (context != null) {
@@ -171,7 +171,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       }
     }
 
-    else if (err.response?.statusCode == 422) { // Unprocessable Entity
+    else if (err.response?.statusCode == 422) {
       // 서버 예외: PsqlException (커스텀, PSOLException 과 다름)
       // 코드명: UNPROCESSABLE_ENTITY
       if(context!=null){
@@ -180,7 +180,16 @@ class ErrorInterceptor extends InterceptorsWrapper {
       }
     } 
 
-    else if (err.response?.statusCode == 500) { // Internal Server Error
+    else if (err.response?.statusCode == 423) {
+      // 서버 예외: AIAnalyzeLimitExceedException
+      // 코드명: LOCKED
+      if(context!=null){
+        showAppMessage(context, message: err.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
+        return _returnUiOkStatus(handler, originalRequest);
+      }
+    } 
+
+    else if (err.response?.statusCode == 500) {
       // 서버 예외: Exception
       // 코드명: INTERNAL_SERVER_ERROR
       if(context!=null){

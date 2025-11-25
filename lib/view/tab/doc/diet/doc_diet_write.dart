@@ -1,3 +1,5 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,7 @@ import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showA
 import 'package:my_app/util/hoverable_icon.dart';
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/util/spinner_utils.dart';
 
 class DocDietWrite extends ConsumerStatefulWidget {
   const DocDietWrite({
@@ -61,7 +64,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   // =========================================================================
   // 1. AI 이미지 분석용 바텀 시트 호출 메서드 추가
   // =========================================================================
-  void _showImageSourcePicker(int index, DocApiService docApiService) {
+  void _showImageSourcePicker(int index) {
     FocusScope.of(context).unfocus(); // 혹시 모를 키보드 내리기
 
     showModalBottomSheet(
@@ -73,6 +76,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         final htio = ScreenRatio(context).heightRatio;
 
         final ImagePicker picker = ImagePicker();
+        final docApiService = ref.watch(docApiServiceProvider).value; // 시트가 빌드될 때 docApiService를 가져옴
 
         return Container(
           decoration: BoxDecoration(
@@ -114,6 +118,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                   final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                   if (image != null) {
                     debugPrint('식단 $index - 갤러리 이미지 경로: ${image.path}');
+                    await analyzeRequest(image, docApiService, index);
                   }
                 },
               ),
@@ -128,6 +133,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                   final XFile? image = await picker.pickImage(source: ImageSource.camera);
                   if (image != null) {
                     debugPrint('식단 $index - 카메라 이미지 경로: ${image.path}');
+                    await analyzeRequest(image, docApiService, index);
                   }
                 },
               ),
@@ -138,6 +144,36 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       },
     );
   }
+
+   analyzeRequest(XFile image, DocApiService? docApiService, int index) async{
+      if (docApiService == null) {
+        // DocApiService가 null인 경우 (초기화 중이거나 에러 발생)
+        showAppMessage(context, 
+          message: '서비스 초기화 중입니다. 잠시 후 다시 시도해주세요.', 
+          type: AppMessageType.dialog
+        );
+        return; // 널 값 오류 방지
+      }
+
+      final imageFile = File(image.path);
+      // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
+      final s = await docApiService.analyzeImage(imageFile); 
+      
+      // UI 업데이트
+      if (mounted) {
+        if(s == null) {
+          return;
+        }
+        setState(() {
+          final input = inputList[index];
+          input.mealType.text = s.foodName;
+          input.dietText.text = s.description + (s.sugar!=0 ? ', 총 당류(g) : ${s.sugar}' : '');
+          if(s.calories != 0) input.calorie.text = s.calories.toStringAsFixed(1);
+          if(s.protein != 0)  input.protein.text = s.protein.toStringAsFixed(1);
+          input.isUpdate = true;
+        });
+      }
+    }
 
   // 바텀 시트의 각 항목을 구성하는 위젯
   Widget _buildImageSourceItem(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
@@ -260,7 +296,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           onTap: () async{
                                             final response = await ref.read(jwtTokenVerificationProvider.future);
                                             if(response.isValid) {
-                                              final docApiServiceAsyncValue = ref.watch(docApiServiceProvider).value;
                                               _showImageSourcePicker(index);
                                             } else {
                                               if(!context.mounted)return;

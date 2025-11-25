@@ -14,14 +14,14 @@ class FoodAnalysisResult {
   });
 
   // JSON 데이터를 Dart 객체로 변환
-  factory FoodAnalysisResult.fromJson(Map<String, dynamic> json) {
+  factory FoodAnalysisResult.fromJson(Map<String, dynamic>? json) {
     return FoodAnalysisResult(
-      foodName: json['foodName'] as String,
-      description: json['description'] as String,
+      foodName: json?['foodName'] ?? '',
+      description: json?['description'] ?? '',
       // API 응답의 숫자 필드가 double 또는 int로 올 수 있으므로, .toDouble()로 처리합니다.
-      calories: (json['calories'] as num).toDouble(), 
-      protein: (json['protein'] as num).toDouble(),
-      sugar: (json['sugar'] as num).toDouble(),
+      calories: (json?['calories'] ?? 0 as num).toDouble(), 
+      protein: (json?['protein'] ?? 0 as num).toDouble(),
+      sugar: (json?['sugar'] ?? 0 as num).toDouble(),
     );
   }
 

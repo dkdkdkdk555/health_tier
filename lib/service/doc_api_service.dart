@@ -13,7 +13,7 @@ class DocApiService {
     식단 이미지 분석 API 호출 (POST /api/food/analyze)
     이미지를 MultipartFile 형태로 전송하고 FoodAnalysisResult 객체를 반환합니다.
   */
-  Future<FoodAnalysisResult> analyzeImage(File imageFile) async {
+  Future<FoodAnalysisResult?> analyzeImage(File imageFile) async {
     // 1. Dio가 전송할 FormData 생성
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(
@@ -30,6 +30,10 @@ class DocApiService {
         contentType: 'multipart/form-data', // 명시적으로 지정
       ),
     );
+
+    if(response.data == null) {
+      
+    }
 
     // 서버 응답 본문(Map<String, dynamic>)을 FoodAnalysisResult 모델로 변환
     final result = FoodAnalysisResult.fromJson(response.data);
