@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:my_app/util/screen_ratio.dart'; // ScreenRatio가 해당 경로에 있다고 가정
+import 'package:my_app/util/screen_ratio.dart';
 
 /// AI 분석 진행률을 보여주는 커스텀 로딩 다이얼로그 위젯
 class LoadingDialog extends StatefulWidget {
-  // AI 분석에 예상되는 최대 시간 (20초)
+  // AI 분석에 예상되는 최대 시간 (초 단위)
   final int maxDurationSeconds; 
 
   const LoadingDialog({
     super.key,
-    this.maxDurationSeconds = 23,
+    this.maxDurationSeconds = 16, // 기본값 13초로 유지
   });
 
   @override
@@ -19,55 +19,61 @@ class LoadingDialog extends StatefulWidget {
 class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+
   double _currentProgress = 0.0;
-  int _elapsedTime = 0;
+  double _elapsedSeconds = 0.0;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    
-    // 1. 애니메이션 컨트롤러 초기화 (로딩 인디케이터용)
+
+    /// 회전 애니메이션 (AI 아이콘)
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2), // 2초마다 반복
+      duration: const Duration(seconds: 2),
     )..repeat();
-    
+
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     );
 
-    // 2. 타이머 시작 (23초 동안 진행률 시뮬레이션)
     _startProgressSimulation();
   }
 
+  /// maxDurationSeconds 에 맞춰 진행률 속도가 자동 조정되도록 리팩터링
   void _startProgressSimulation() {
     const stepDuration = Duration(milliseconds: 100); // 0.1초마다 업데이트
-    int totalSteps = (widget.maxDurationSeconds * 1000) ~/ stepDuration.inMilliseconds;
-    int currentStep = 0;
+    final double maxSeconds = widget.maxDurationSeconds.toDouble();
+    final double stepSeconds = stepDuration.inMilliseconds / 1000.0;
 
     _timer = Timer.periodic(stepDuration, (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
-      
-      setState(() {
-        _elapsedTime = timer.tick * stepDuration.inSeconds; // 경과 시간 (초 단위)
-        currentStep++;
-        
-        // 시간 기반으로 진행률 계산 (0%에서 90%까지만 시뮬레이션)
-        // 실제 API 응답이 오면 나머지 10%가 즉시 채워짐
-        double targetProgress = (currentStep / totalSteps) * 0.9; 
-        _currentProgress = targetProgress;
 
-        if (_elapsedTime >= widget.maxDurationSeconds) {
-          // 최대 시간을 초과하면 90%에서 멈춤
-          _currentProgress = 0.9;
-          timer.cancel();
-        }
+      // 1. 현재 경과 시간 계산
+      _elapsedSeconds = timer.tick * stepSeconds;
+
+      // 2. 종료 조건 확인
+      final bool shouldStop = _elapsedSeconds >= maxSeconds;
+
+      // 3. 경과시간 기반 진행률 (최대 90%까지만 계산)
+      // ratio가 1.0을 초과해도 1.0으로 clamp
+      double ratio = (_elapsedSeconds / maxSeconds).clamp(0.0, 1.0);
+      double targetProgress = ratio * 0.98;
+
+      setState(() {
+        // 종료 조건에 도달했으면 강제로 98%로 설정, 아니면 계산된 값 사용
+        _currentProgress = shouldStop ? 0.98 : targetProgress;
       });
+
+      /// 4. 상태 업데이트 후 타이머 종료
+      if (shouldStop) {
+        timer.cancel();
+      }
     });
   }
 
@@ -82,12 +88,17 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
   Widget build(BuildContext context) {
     final htio = ScreenRatio(context).heightRatio;
     final wtio = ScreenRatio(context).widthRatio;
-    
-    // ignore: deprecated_member_use
+
+    // 경과 시간을 초 단위로 표시 (소수점 첫째 자리까지)
+    final String elapsedText = _elapsedSeconds.toStringAsFixed(1);
+    final String maxDurationText = widget.maxDurationSeconds.toString();
+
     return WillPopScope(
-      onWillPop: () async => false, // 로딩 중에는 뒤로가기 버튼 비활성화
+      onWillPop: () async => false,
       child: AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16 * wtio)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16 * wtio),
+        ),
         backgroundColor: Colors.white,
         contentPadding: EdgeInsets.zero,
         content: Container(
@@ -96,18 +107,17 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 스피너 애니메이션 (AI 분석 상징)
+              /// 회전 아이콘
               RotationTransition(
                 turns: _animation,
                 child: Icon(
-                  Icons.auto_fix_high, // AI 작업을 상징하는 아이콘
+                  Icons.auto_fix_high,
                   size: 40 * htio,
                   color: const Color(0xFF0D85E7),
                 ),
               ),
               SizedBox(height: 15 * htio),
-              
-              // 타이틀
+
               Text(
                 'AI 식단 분석 중',
                 style: TextStyle(
@@ -120,7 +130,6 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
               ),
               SizedBox(height: 8 * htio),
 
-              // 설명 텍스트
               Text(
                 '이미지 인식 및 영양 성분 추출에 시간이 소요됩니다.',
                 style: TextStyle(
@@ -130,10 +139,9 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
                 ),
                 textAlign: TextAlign.center,
               ),
-              
               SizedBox(height: 20 * htio),
 
-              // 진행률 표시줄
+              /// 진행률 바
               LinearProgressIndicator(
                 value: _currentProgress,
                 backgroundColor: const Color(0xFFEEEEEE),
@@ -141,10 +149,9 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
                 minHeight: 8 * htio,
                 borderRadius: BorderRadius.circular(4 * htio),
               ),
-
               SizedBox(height: 10 * htio),
 
-              // 진행률 퍼센트 및 경과 시간
+              /// 퍼센트 및 경과 시간 텍스트
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -158,7 +165,7 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
                     ),
                   ),
                   Text(
-                    '경과 시간: ${_elapsedTime}s / ${widget.maxDurationSeconds}s (예상)',
+                    '경과 시간: ${elapsedText}s / ${maxDurationText}s (예상)',
                     style: TextStyle(
                       fontSize: 12 * htio,
                       fontFamily: 'Pretendard',
@@ -175,13 +182,13 @@ class _LoadingDialogState extends State<LoadingDialog> with SingleTickerProvider
   }
 }
 
-/// 커스텀 로딩 다이얼로그를 표시하는 함수
-void showAiAnalysisLoadingDialog(BuildContext context, {int maxDurationSeconds = 20}) {
+/// 다이얼로그 호출 함수
+void showAiAnalysisLoadingDialog(BuildContext context,) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      return LoadingDialog(maxDurationSeconds: maxDurationSeconds);
+      return const LoadingDialog();
     },
   );
 }

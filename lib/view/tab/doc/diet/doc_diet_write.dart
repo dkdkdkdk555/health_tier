@@ -2,7 +2,7 @@ import 'dart:io' show File;
 
 import 'package:dio/dio.dart' show DioException;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
+import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter, PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart' show SvgPicture;
 import 'package:image_picker/image_picker.dart' show ImagePicker, ImageSource, XFile;
@@ -21,6 +21,7 @@ import 'package:my_app/util/loading_dialog.dart' show showAiAnalysisLoadingDialo
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart';
+import 'package:my_app/view/tab/simple_cache.dart' show osType;
 
 class DocDietWrite extends ConsumerStatefulWidget {
   const DocDietWrite({
@@ -66,11 +67,11 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   // =========================================================================
   // 1. AI 이미지 분석용 바텀 시트 호출 메서드 추가
   // =========================================================================
-  void _showImageSourcePicker(int index, DocApiService? docApiService) {
+  void _showImageSourcePicker(int index, DocApiService? docApiService, BuildContext parentContext) {
     FocusScope.of(context).unfocus(); // 혹시 모를 키보드 내리기
 
     showModalBottomSheet(
-      context: context,
+      context: parentContext,
       isScrollControlled: true, // 시트 높이 조절 가능
       backgroundColor: Colors.transparent, // 배경 투명 처리
       builder: (BuildContext context) {
@@ -112,14 +113,34 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
               // 갤러리 선택 버튼
               _buildImageSourceItem(
                 context,
+                parentContext,
                 icon: Icons.photo_library_outlined,
                 label: '갤러리',
                 onTap: () async {
                   Navigator.pop(context); // 시트 닫기
-                  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-                  if (image != null) {
-                    debugPrint('식단 $index - 갤러리 이미지 경로: ${image.path}');
-                    await analyzeRequest(image, docApiService, index);
+                  try {
+                    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                    if (image != null) {
+                      debugPrint('식단 $index - 갤러리 이미지 경로: ${image.path}');
+                      await analyzeRequest(image, docApiService, index);
+                    }
+                  } on PlatformException catch (e) {
+                    if (!parentContext.mounted) return;
+
+                    if (e.code == 'invalid_image' ||(e.message?.contains('public.') ?? false)) {
+                      if (osType == 'ios') {
+                        showAppMessage(parentContext,message: 'icloud 파일은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.',type: AppMessageType.dialog);
+                      } else {
+                        showAppMessage(parentContext,message: '클라우드에 있는 사진은 바로 업로드할 수 없습니다.\n기기에 다운로드 후 다시 시도해주세요.',type: AppMessageType.dialog);
+                      }
+                    } else {
+                      showAppMessage(parentContext,message: '파일 처리 및 삽입 중 오류가 발생했습니다',type: AppMessageType.dialog);
+                    }
+
+                  } catch (e) {
+                    debugPrint("알 수 없는 오류: $e");
+                    if (!parentContext.mounted) return;
+                    showAppMessage(parentContext,message: '파일 처리 중 오류가 발생했습니다.',type: AppMessageType.dialog);
                   }
                 },
               ),
@@ -127,14 +148,21 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
               // 카메라 선택 버튼
               _buildImageSourceItem(
                 context,
+                parentContext,
                 icon: Icons.camera_alt_outlined,
                 label: '카메라',
                 onTap: () async {
                   Navigator.pop(context); // 시트 닫기
+                  try {
                   final XFile? image = await picker.pickImage(source: ImageSource.camera);
                   if (image != null) {
                     debugPrint('식단 $index - 카메라 이미지 경로: ${image.path}');
                     await analyzeRequest(image, docApiService, index);
+                  }
+                  } catch (e) {
+                    debugPrint("알 수 없는 오류: $e");
+                    if (!parentContext.mounted) return;
+                    showAppMessage(parentContext,message: '파일 처리 중 오류가 발생했습니다.',type: AppMessageType.dialog);
                   }
                 },
               ),
@@ -194,7 +222,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     }
 
   // 바텀 시트의 각 항목을 구성하는 위젯
-  Widget _buildImageSourceItem(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildImageSourceItem(BuildContext context, BuildContext parentContext, {required IconData icon, required String label, required VoidCallback onTap}) {
     final wtio = ScreenRatio(context).widthRatio;
     final htio = ScreenRatio(context).heightRatio;
 
@@ -316,7 +344,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           onTap: () async{
                                             final response = await ref.read(jwtTokenVerificationProvider.future);
                                             if(response.isValid) {
-                                              _showImageSourcePicker(index, docApiService);
+                                              if(!context.mounted)return;
+                                              _showImageSourcePicker(index, docApiService, context);
                                             } else {
                                               if(!context.mounted)return;
                                               showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
