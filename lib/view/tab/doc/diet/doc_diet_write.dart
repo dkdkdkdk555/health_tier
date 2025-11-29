@@ -17,6 +17,7 @@ import 'package:my_app/service/doc_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/hoverable_icon.dart';
+import 'package:my_app/util/image_compress.dart';
 import 'package:my_app/util/loading_dialog.dart' show showAiAnalysisLoadingDialog;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -187,7 +188,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       showAiAnalysisLoadingDialog(context);
 
       try {
-        final imageFile = File(image.path);
+        final imagef = File(image.path);
+        final imageFile = await compressImage(imagef);
         // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
         final s = await docApiService.analyzeImage(imageFile); 
         
