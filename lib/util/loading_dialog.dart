@@ -9,7 +9,7 @@ class LoadingDialog extends StatefulWidget {
 
   const LoadingDialog({
     super.key,
-    this.maxDurationSeconds = 16, // 기본값 13초로 유지
+    this.maxDurationSeconds = 18, // 기본값 18초
   });
 
   @override
