@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 
+import 'package:dio/dio.dart' show DioException;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,7 @@ import 'package:my_app/service/doc_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/hoverable_icon.dart';
+import 'package:my_app/util/loading_dialog.dart' show showAiAnalysisLoadingDialog;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart';
@@ -154,23 +156,40 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         return; // 널 값 오류 방지
       }
 
-      final imageFile = File(image.path);
-      // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
-      final s = await docApiService.analyzeImage(imageFile); 
-      
-      // UI 업데이트
-      if (mounted) {
-        if(s == null) {
-          return;
+      showAiAnalysisLoadingDialog(context);
+
+      try {
+        final imageFile = File(image.path);
+        // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
+        final s = await docApiService.analyzeImage(imageFile); 
+        
+        // UI 업데이트
+        if (mounted) {
+          if(s == null) {
+            return;
+          }
+          Navigator.of(context, rootNavigator: true).pop(); 
+          setState(() {
+            final input = inputList[index];
+            input.mealType.text = s.foodName;
+            input.dietText.text = s.description + (s.sugar!=0 ? ', 총 당류(g) : ${s.sugar}' : '');
+            if(s.calories != 0) input.calorie.text = s.calories.toStringAsFixed(1);
+            if(s.protein != 0)  input.protein.text = s.protein.toStringAsFixed(1);
+            input.isUpdate = true;
+          });
         }
-        setState(() {
-          final input = inputList[index];
-          input.mealType.text = s.foodName;
-          input.dietText.text = s.description + (s.sugar!=0 ? ', 총 당류(g) : ${s.sugar}' : '');
-          if(s.calories != 0) input.calorie.text = s.calories.toStringAsFixed(1);
-          if(s.protein != 0)  input.protein.text = s.protein.toStringAsFixed(1);
-          input.isUpdate = true;
-        });
+      }on DioException catch (e) {
+        if(mounted) {
+          Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+          if(e.response?.statusCode == 423) {
+            showAppMessage(context, message: e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
+          }
+        }
+      } catch(e) {
+        if (mounted) {
+          Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+        }
+        debugPrint('식단 분석 API 호출 에러: $e');
       }
     }
 

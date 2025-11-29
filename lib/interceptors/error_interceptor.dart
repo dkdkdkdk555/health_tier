@@ -184,8 +184,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 서버 예외: AIAnalyzeLimitExceedException
       // 코드명: LOCKED
       if(context!=null){
-        showAppMessage(context, message: err.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
-        return _returnUiOkStatus(handler, originalRequest);
+        return handler.reject(err); // 팝업문제로 해당 오류코드는 ui에서 처리
       }
     } 
 
