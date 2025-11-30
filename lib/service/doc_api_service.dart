@@ -16,7 +16,6 @@ class DocApiService {
     - 호출 전 이미지 크기를 압축하여 사용하시길 강력히 권장합니다.
   */
   Future<FoodAnalysisResult?> analyzeImage(File imageFile) async {
-    try {
       // 1. 파일 크기 확인 (스트림 전송에 필요)
       final fileLength = await imageFile.length();
       final fileName = imageFile.path.split('/').last;
@@ -43,15 +42,5 @@ class DocApiService {
       // 서버 응답 본문(Map<String, dynamic>)을 FoodAnalysisResult 모델로 변환
       final result = FoodAnalysisResult.fromJson(response.data);
       return result;
-    } on DioException catch (e) {
-      // 네트워크 요청 실패 (타임아웃, 서버 에러 등)
-      debugPrint('🚨 Dio 에러 발생 (analyzeImage): $e');
-      // e.response.statusCode 등을 확인하여 서버 응답 상태 진단
-      return null;
-    } catch (e) {
-      // I/O 에러나 다른 치명적인 오류 포착
-      debugPrint('🚨 치명적인 일반 에러 발생 (analyzeImage): $e');
-      return null;
-    }
   }
 }
