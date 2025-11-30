@@ -210,13 +210,13 @@ class MyBadge extends ConsumerWidget {
   String _todayName(String id) {
     switch (id) {
       case 'today10':
-        return '10일 연속';
+        return '10회 인증';
       case 'today30':
-        return '30일 연속';
+        return '30회 인증';
       case 'today100':
-        return '100일 연속';
+        return '100회 인증';
       case 'today365':
-        return '365일 연속';
+        return '365회 인증';
       default:
         return id;
     }
