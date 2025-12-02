@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show Int64List, debugPrint;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart' show FlutterAppBadger;
@@ -32,7 +32,8 @@ class FlutterLocalNotification{
       const DarwinInitializationSettings(
           requestAlertPermission: true,
           requestBadgePermission: true,
-          requestSoundPermission: false);
+          requestSoundPermission: true // iOS는 진동만 따로 하는게 없어서 soundPermission을 true로
+      );
 
     //알림 플러그인을 초기화
     InitializationSettings initializationSettings = InitializationSettings(
@@ -120,18 +121,24 @@ class FlutterLocalNotification{
     await insertNotificationToDB(message, db);
 
     // 채널 설정
-    const AndroidNotificationDetails androidNotificationDetails = 
+    AndroidNotificationDetails androidNotificationDetails = 
       AndroidNotificationDetails('high_importance_channel', 'high_importance_notification',
         channelDescription: 'channel description',
         importance: Importance.max,
         priority: Priority.max,
         showWhen: false,
+        playSound: true,                // 소리까지 같이 낼 거면
+        enableVibration: true,  // 진동사용
+        vibrationPattern: Int64List.fromList([0, 100]), // 바로시작, 0.1초간 지속
       );
 
     FlutterAppBadger.updateBadgeCount(1);
-    const NotificationDetails notificationDetails = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
-      iOS: DarwinNotificationDetails(badgeNumber: 0) // 알림 페로에는 뱃지갯수를 담지 않는다.
+      iOS: const DarwinNotificationDetails(
+        badgeNumber: 0, // 알림 페로에는 뱃지갯수를 담지 않는다.
+        presentSound: true, // 사운드 → 진동 동반
+      )
     );
 
     // 알림 띄우기
