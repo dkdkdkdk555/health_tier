@@ -100,12 +100,14 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                 child: GestureDetector(
                   onTap: () {
                     final notifiType = notification.type;
-                    if(notifiType != null && 
-                        (notifiType == 'COMMUNITY' || notifiType == 'CRTIFI')
-                    ) {
+                    if(notification.feedId != null && notification.feedId != 0) {
                       context.push('/cmu/feed/${notification.feedId!}?isFromNotifi=true');
-                    } else if(notifiType == 'BADGE') {
+                      return;
+                    }
+
+                    if(notifiType == 'BADGE') {
                       context.go('/usr/info');
+                      return;
                     }
                   },
                   child: NotificationItem(notification: notification)

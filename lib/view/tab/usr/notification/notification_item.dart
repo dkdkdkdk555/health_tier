@@ -19,6 +19,7 @@ class NotificationItem extends StatelessWidget {
       'BADGE':'assets/widgets/notifi_badge.svg',
       'PROMOTION': 'assets/widgets/notifi_promotion.svg',
       'GENERAL':'assets/widgets/notifi_doc.svg',
+      'REPORT': 'assets/widgets/notifi_report.svg',
     };
 
     debugPrint('-----------------------');
@@ -107,8 +108,8 @@ class NotificationItem extends StatelessWidget {
                     color: Color(0xFF777777),
                     height: 1.4,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  // maxLines: ,
+                  // overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

@@ -84,7 +84,7 @@ class FlutterLocalNotification{
       markNotificationRead(int.parse(data['id']), db);
       // 화면 이동
       final String? feedId = data['feedId']?.toString();
-      if (feedId != null) {
+      if (feedId != null && data['type'] != 'REPORT') {
         debugPrint("currentContext: $navigatorKey.currentContext");
         WidgetsBinding.instance.addPostFrameCallback((_) {
            router.push('/cmu/feed/${int.parse(feedId)}?isFromNotifi=true');
@@ -92,6 +92,10 @@ class FlutterLocalNotification{
       } else if(data['type'] == 'BADGE') {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           router.go('/usr/info?isFromNotifi=true');
+        });
+      } else if(data['type'] == 'REPORT') {
+         WidgetsBinding.instance.addPostFrameCallback((_) {
+          router.push('/usr/info/management/notifications');
         });
       }
     } catch (e) {
@@ -148,7 +152,7 @@ class FlutterLocalNotification{
         prefix: Value(message.data['prefix']),
         title: message.data['title'] ?? '알림',
         body: message.data['body'] ?? '새로운 메시지가 도착했습니다.',
-        feedId: Value(int.parse(message.data['feedId'] ?? 0)),
+        feedId: Value(int.parse(message.data['feedId'] ?? '0')),
         type: message.data['type'] ?? 'GENERAL',
         receivedAt: DateTime.now().toIso8601String(),
         isRead: Value(message.data['isRead'] ?? 'false'),
