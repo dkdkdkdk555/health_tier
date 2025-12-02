@@ -169,6 +169,22 @@ final router = GoRouter(
                 return const AdminManagePage();
               },
               parentNavigatorKey: rootNavigatorKey,
+              routes: [
+                GoRoute( // 피드 신고관리
+                  path: 'manage/feed',
+                  builder: (context, state) {
+                    return const AdminManageList(topic: 'feed',);
+                  },
+                  parentNavigatorKey: rootNavigatorKey,
+                ),
+                GoRoute( // 댓글 신고관리
+                  path: 'manage/reply',
+                  builder: (context, state) {
+                    return const AdminManageList(topic: 'reply',);
+                  },
+                  parentNavigatorKey: rootNavigatorKey,
+                ),
+              ]
             ),
           ]
         ),

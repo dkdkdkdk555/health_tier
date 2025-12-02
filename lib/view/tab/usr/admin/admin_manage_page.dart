@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/cmu_basic_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
@@ -42,6 +43,7 @@ class _AdminManagePageState extends State<AdminManagePage> {
                     subtitle: '신고된 피드의 처리여부를 결정합니다.',
                     color: Colors.blue.shade100,
                     onTap: () async {
+                      context.push('/usr/admin/manage/feed');
                     }
                   ),
                   ModernButtonCard(
@@ -52,6 +54,7 @@ class _AdminManagePageState extends State<AdminManagePage> {
                     subtitle: '신고된 댓글의 처리여부를 결정합니다.',
                     color: Colors.amber.shade100,
                     onTap: () async {
+                      context.push('/usr/admin/manage/reply');
                     }
                   ),
                 ],
