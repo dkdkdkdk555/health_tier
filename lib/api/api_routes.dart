@@ -88,3 +88,12 @@ class AuthAPI {
   static const getS3PresignedUrl = '$base/s3/presigned';
   static const loginWithIdAndPw = '$base/login';
 }
+
+class AdminAPI {
+  static const base = '/admin/report';
+
+  static const reportedFeedList = '$base/feeds';
+  static const reportedReplyList = '$base/replies';
+  static const actionReportedFeed = '$base/feed/action';
+  static const actionReportedReply = '$base/reply/action';
+}
