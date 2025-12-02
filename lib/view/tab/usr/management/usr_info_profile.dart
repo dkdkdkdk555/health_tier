@@ -182,6 +182,25 @@ class UsrInfoProfile extends ConsumerWidget {
                 height: 8 * htio,
                 decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
             ),
+            if(userInfo.loginId != null) ...[
+              if(userInfo.loginId!.contains('admin')) ...[
+                TextButton(
+                  onPressed: () {
+                    context.push('/usr/admin');
+                  },
+                  child: Text(
+                    '신고관리',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15*htio,
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.normal,
+                      height: 1.6 * htio,
+                    ),
+                  ),
+                ),
+              ]
+            ]
           ],
         );
       },

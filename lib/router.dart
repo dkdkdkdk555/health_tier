@@ -163,6 +163,13 @@ final router = GoRouter(
               },
               parentNavigatorKey: rootNavigatorKey,
             ),
+            GoRoute( // 관리자 페이지
+              path: 'admin',
+              builder: (context, state) {
+                return const AdminManagePage();
+              },
+              parentNavigatorKey: rootNavigatorKey,
+            ),
           ]
         ),
       ],
