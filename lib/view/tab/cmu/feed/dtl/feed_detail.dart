@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider, replyPaginationProvider, sameCategoryFeedPaginationProvider, searchFeedsProvider;
+import 'package:my_app/providers/notifier_provider.dart' show replySupplyNotifierProvider;
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
@@ -71,10 +72,11 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus(); // 포커스 해제 → 키보드 및 바 숨김
-        },
+      body: Listener(
+        onPointerDown: (_) {
+          // 포커스 해제
+          FocusManager.instance.primaryFocus?.unfocus();
+        }, 
         behavior: HitTestBehavior.opaque, // 빈 공간도 인식하게 함
         child: CustomScrollView(
           controller: _scrollController,

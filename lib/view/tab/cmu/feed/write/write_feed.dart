@@ -385,8 +385,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
             if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
               ctntPreview = text;
-              if (ctntPreview.length > 25) { // 25자 제한
-                ctntPreview = ctntPreview.substring(0, 25);
+              if (ctntPreview.length > 90) { // 90자 제한
+                ctntPreview = ctntPreview.substring(0, 90);
               }
             }
         }
@@ -513,7 +513,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         categoryId: categoryId,
         title: title,
         ctnt: content,
-        ctntPreview: ctntPreview.replaceAll(RegExp(r'\r?\n'), ''),
+        ctntPreview: ctntPreview.replaceAll(RegExp(r'[\r\n]+'), ' ').trim(),
         imgPreview: imgPreview,
         userWeights: userWeightsData,
         videoExist: hasVideo ? 'Y' : 'N',

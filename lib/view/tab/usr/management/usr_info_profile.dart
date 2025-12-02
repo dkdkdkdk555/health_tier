@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -306,55 +307,55 @@ class UsrInfoProfile extends ConsumerWidget {
   // 갤러리에서 이미지 선택 및 업로드 함수
   Future<void> _pickImage(BuildContext context, WidgetRef ref, ImageSource source) async {
     uploadStateFunc(true);
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
 
-    if (pickedFile != null) {
-      // 로딩 상태 시작 (로딩 프로바이더가 있다고 가정)
-      try {
-        final List<Map<String, String>> fileMetaList = [];
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
 
-        final String? mimeType = lookupMimeType(pickedFile.path);
-        fileMetaList.add({
-          'fileName': path.basename(pickedFile.path),
-          'contentType': mimeType!,
-        });
+      if(pickedFile == null) return;
 
-        final presignedUrls = await ref.read(s3PresignedProvider((
-          folder: 'uploads',
-          files: fileMetaList,
-          deleteUrls: [],
-        )).future); // FutureProvider 호출
+      final List<Map<String, String>> fileMetaList = [];
 
-        final s3Service = await ref.read(s3ApiServiceProvider.future);
+      final String? mimeType = lookupMimeType(pickedFile.path);
+      fileMetaList.add({
+        'fileName': path.basename(pickedFile.path),
+        'contentType': mimeType!,
+      });
 
-        final presignedUrl = presignedUrls[0];
-          final file = File(pickedFile.path);
-          final mimeType2 = fileMetaList[0]['contentType'] ?? 'application/octet-stream';
+      final presignedUrls = await ref.read(s3PresignedProvider((
+        folder: 'uploads',
+        files: fileMetaList,
+        deleteUrls: [],
+      )).future); // FutureProvider 호출
 
-          await s3Service.uploadFileToS3(
-            presignedUrl: presignedUrl,
-            file: file,
-            contentType: mimeType2,
-          );
-        final s3PublicUrl = presignedUrl.split('?').first;
+      final s3Service = await ref.read(s3ApiServiceProvider.future);
 
-        final service = await ref.read(userCudServiceProvider.future);
-        final response = await service.createOrUpdateProfileImage(imagePath: s3PublicUrl);
+      final presignedUrl = presignedUrls[0];
+        final file = File(pickedFile.path);
+        final mimeType2 = fileMetaList[0]['contentType'] ?? 'application/octet-stream';
 
-        // 성공 시 메시지 표시 및 UI 업데이트
-        if (context.mounted && response=='success') {
-          showAppMessage(context, message: '프로필 이미지가 업로드되었습니다.');
-          CmuInvalidateCollect().usrInfoUpdateInvalidateCache(ref);
-        }
-      } catch (e) {
-        // 에러 메시지 표시
-        if (context.mounted) {
-          showAppMessage(context, message: '이미지 업로드에 실패하였습니다.');
-        }
-      } finally {
-        uploadStateFunc(false);
+        await s3Service.uploadFileToS3(
+          presignedUrl: presignedUrl,
+          file: file,
+          contentType: mimeType2,
+        );
+      final s3PublicUrl = presignedUrl.split('?').first;
+
+      final service = await ref.read(userCudServiceProvider.future);
+      final response = await service.createOrUpdateProfileImage(imagePath: s3PublicUrl);
+
+      // 성공 시 메시지 표시 및 UI 업데이트
+      if (context.mounted && response=='success') {
+        showAppMessage(context, message: '프로필 이미지가 업로드되었습니다.');
+        CmuInvalidateCollect().usrInfoUpdateInvalidateCache(ref);
       }
+    } catch (e) {
+      // 에러 메시지 표시
+      if (context.mounted) {
+        showAppMessage(context, message: '이미지 업로드에 실패하였습니다.');
+      }
+    } finally {
+      uploadStateFunc(false);
     }
   }
 

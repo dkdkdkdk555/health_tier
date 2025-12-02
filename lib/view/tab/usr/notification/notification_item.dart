@@ -108,6 +108,7 @@ class NotificationItem extends StatelessWidget {
                     color: Color(0xFF777777),
                     height: 1.4,
                   ),
+                  // 내용길이 제한
                   // maxLines: ,
                   // overflow: TextOverflow.ellipsis,
                 ),

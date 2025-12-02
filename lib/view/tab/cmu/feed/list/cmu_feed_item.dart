@@ -191,6 +191,7 @@ class CmuFeedItem extends StatelessWidget {
         child: Text(
           '${feed.ctntPreview}',
           textAlign: TextAlign.left,
+          maxLines: 2,
           style: TextStyle(
             color: const Color(0xFF777777),
               overflow: TextOverflow.ellipsis,

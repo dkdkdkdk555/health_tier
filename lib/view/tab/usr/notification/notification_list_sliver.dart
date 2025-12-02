@@ -104,7 +104,6 @@ class _NotificationListSliverState extends ConsumerState<NotificationListSliver>
                       context.push('/cmu/feed/${notification.feedId!}?isFromNotifi=true');
                       return;
                     }
-
                     if(notifiType == 'BADGE') {
                       context.go('/usr/info');
                       return;
