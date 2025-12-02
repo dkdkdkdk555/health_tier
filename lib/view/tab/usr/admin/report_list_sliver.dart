@@ -7,8 +7,10 @@ import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidate
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/usr/admin/feed_report_model.dart' show FeedReportModel;
 import 'package:my_app/model/usr/admin/reply_report_model.dart' show ReplyReportModel;
+import 'package:my_app/model/usr/admin/report_action_request.dart';
 import 'package:my_app/model/usr/user/ht_user_block_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 import 'package:my_app/view/common/error_widget.dart';
@@ -49,10 +51,10 @@ class _ReportListSliverState extends ConsumerState<ReportListSliver> {
         late int totalCount;
         // 초기 로딩 시 한 번만 저장
         if (topicHangle == '피드') {
-          if(feedReportList.isEmpty) feedReportList = List.from(list);
+          feedReportList = List.from(list);
           totalCount = feedReportList.length;
         } else {
-          if(replyReportList.isEmpty) replyReportList = List.from(list);
+          replyReportList = List.from(list);
           totalCount = replyReportList.length;
         }
 
@@ -149,6 +151,7 @@ class _ReportListSliverState extends ConsumerState<ReportListSliver> {
       child: _buildSlidableReportItem(
         context: context,
         key: ValueKey('${isFeed ? 'feed' : 'reply'}_$reportId'),
+        reportId: reportId,
         isFeed: isFeed,
         reporterNickname: reporterNickname,
         writerNickname: writerNickname,
@@ -162,6 +165,7 @@ class _ReportListSliverState extends ConsumerState<ReportListSliver> {
   Widget _buildSlidableReportItem({
     required BuildContext context,
     required Key key,
+    required int reportId,
     required bool isFeed,
     required String reporterNickname,
     required String writerNickname,
@@ -180,24 +184,55 @@ class _ReportListSliverState extends ConsumerState<ReportListSliver> {
           motion: const ScrollMotion(),
           children: [
             SlidableAction(
-              onPressed: (ctx) {
-                // TODO: 유지 처리
+              onPressed: (ctx) async{
+                await showAppDialog(context, message: '유지 처리 하시겠습니까?', 
+                  confirmText: '확인',
+                  cancelText: '취소',
+                  onCancel: () {
+                    Navigator.pop(context); // 바텀 시트 닫기
+                  },
+                  onConfirm: () {
+                    _doActionReport(reportId, '유지', isFeed, null);
+                  }
+                );
               },
               backgroundColor: Colors.grey.shade300,
               foregroundColor: Colors.black87,
               label: '유지',
             ),
             SlidableAction(
-              onPressed: (ctx) {
-                // TODO: 경고 처리
+              onPressed: (ctx) async{
+                await showAppDialog(context, message: '경고 처리 하시겠습니까?', 
+                  confirmText: '확인',
+                  cancelText: '취소',
+                  onCancel: () {
+                    Navigator.pop(context); // 바텀 시트 닫기
+                  },
+                  onConfirm: () {
+                    _doActionReport(reportId, '경고', isFeed, null);
+                  }
+                );
               },
               backgroundColor: Colors.orange.shade400,
               foregroundColor: Colors.white,
               label: '경고',
             ),
             SlidableAction(
-              onPressed: (ctx) {
-                // TODO: 삭제 처리
+              onPressed: (ctx) async{
+                final reason = await showInputDialog(
+                  context,
+                  title: "삭제 사유를 입력해주세요",
+                  hintText: "자세한 삭제 사유를 작성해주세요.",
+                  confirmText: "삭제하기",
+                  cancelText: "취소",
+                  minLines: 3,
+                  maxLines: 5,
+                  maxLength: 200,
+                );
+
+                if(reason != null) {
+                  _doActionReport(reportId, '삭제', isFeed, reason);
+                }
               },
               backgroundColor: Colors.red.shade400,
               foregroundColor: Colors.white,
@@ -269,6 +304,34 @@ class _ReportListSliverState extends ConsumerState<ReportListSliver> {
         ),
       ),
     );
+  }
+
+  void _doActionReport(int reportId, String action, bool isFeed, String? deleteReason) async{
+    final service = await ref.read(userCudServiceProvider.future);
+    try {
+      final request = ReportActionRequest(
+        reportId: reportId, 
+        action: action, 
+        reason: deleteReason
+      );
+      // 신고조치 API 호출
+      final result = isFeed ? await service.handleFeedReport(request)
+                    : await service.handleReplyReport(request);
+
+      if(result == "success") {
+        // 캐시비우기 => UI 즉각반영
+        if(isFeed) {
+          ref.invalidate(feedReportedListProvider);
+        } else {
+          ref.invalidate(replyReportedListProvider);
+        }
+
+        // 안내 메세지
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("신고조치 완료")),);
+      }
+    } catch(e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("처리 실패: $e")),);
+    }
   }
 
   Widget _buildFeedContent(FeedReportModel item) {

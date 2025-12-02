@@ -5,6 +5,7 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/usr/admin/feed_report_model.dart';
 import 'package:my_app/model/usr/admin/reply_report_model.dart';
+import 'package:my_app/model/usr/admin/report_action_request.dart' show ReportActionRequest;
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/model/usr/user/ht_user_block_dto.dart' show HtUserBlockDto;
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
@@ -174,5 +175,31 @@ class UserApiService {
       response.data,
       (obj) => (obj as List).map((e) => ReplyReportModel.fromJson(e)).toList(),
     );
+  }
+
+  // 신고된 피드 처리 (유지 / 경고 / 삭제)
+  Future<String> handleFeedReport(ReportActionRequest request) async {
+    final response = await dio.post(
+      AdminAPI.actionReportedFeed,
+      data: request.toJson(),
+    );
+    if (response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('피드 신고 처리 실패: ${response.statusCode}');
+    }
+  }
+
+  // 신고된 댓글 처리 (유지 / 경고 / 삭제)
+  Future<String> handleReplyReport(ReportActionRequest request) async {
+    final response = await dio.post(
+      AdminAPI.actionReportedReply,
+      data: request.toJson(),
+    );
+    if (response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('피드 신고 처리 실패: ${response.statusCode}');
+    }
   }
 }

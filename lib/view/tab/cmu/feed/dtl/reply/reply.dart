@@ -156,7 +156,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
     final reason = await showInputDialog(
       context,
       title: "신고 사유를 입력해주세요",
-      hintText: "자세한 신고 사유를 작성해주세요.",
+      hintText: "자세한 신고 사유를 작성해주세요.\n불분명한 신고 사유는 반려 될 수 있습니다.",
       confirmText: "신고하기",
       cancelText: "취소",
       minLines: 3,
