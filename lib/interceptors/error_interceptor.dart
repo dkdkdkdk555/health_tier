@@ -80,7 +80,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
           }
         }
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
-        else if (errorResponse.code == 'RELOGIN_REQUIRED' || errorResponse.code == 'INVALID_TOKEN') {
+        else if (errorResponse.code == 'RELOGIN_REQUIRED') {
           
           // _showReloginDialog(originalRequest, handler);
           final currentPage = ref.read(currentPageProvider);

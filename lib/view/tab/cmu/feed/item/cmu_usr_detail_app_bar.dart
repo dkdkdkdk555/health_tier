@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/extension/cmu_invalidate_collect.dart';
 import 'package:my_app/providers/user_cud_providers.dart' show userCudServiceProvider;
-import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
@@ -147,13 +146,7 @@ class _CmuBasicAppBarState extends ConsumerState<CmuUsrDetailAppBar> {
             alignment: Alignment.centerRight,
             child: GestureDetector(
               onTap: () async{
-                final response = await ref.read(jwtTokenVerificationProvider.future);
-                if(response.isValid) {
-                  _showActionBottomSheet(userService);
-                } else {
-                  if(!context.mounted)return;
-                  showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
-                }
+                _showActionBottomSheet(userService);
               },
               child: SvgPicture.asset(
                 'assets/icons/feed_detail/ico_hamberger.svg',

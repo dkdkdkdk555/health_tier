@@ -1,12 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_login/interface/types/naver_account_result.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/extension/cmu_invalidate_collect.dart' show CmuInvalidateCollect;
 import 'package:my_app/model/usr/auth/token_response.dart';
-import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
 import 'package:my_app/service/auth_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/error_message_utils.dart';
