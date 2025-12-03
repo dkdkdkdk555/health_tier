@@ -72,7 +72,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
                 final currentPage = ref.read(currentPageProvider);
                 if (currentPage != 3) {
                   if(!context.mounted)return;
-                  showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
+                  showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true, onConfirm: () => ref.read(currentPageProvider.notifier).state = 3,);
                   _returnUiOkStatus(handler, originalRequest);
                 }
               }
@@ -82,11 +82,11 @@ class ErrorInterceptor extends InterceptorsWrapper {
         // 'RELOGIN_REQUIRED' 코드 처리: 리프레시 토큰마저 만료
         else if (errorResponse.code == 'RELOGIN_REQUIRED') {
           
-          // _showReloginDialog(originalRequest, handler);
           final currentPage = ref.read(currentPageProvider);
+          debugPrint(currentPage.toString());
             if (currentPage != 3) {
             if(context!=null){
-              showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',type: AppMessageType.dialog, loginRequest: true);
+              showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',type: AppMessageType.dialog, loginRequest: true, onConfirm: () => ref.read(currentPageProvider.notifier).state = 3,);
               return _returnUiOkStatus(handler, originalRequest);
             }
           }

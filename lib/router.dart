@@ -287,14 +287,6 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
                           context.push('/cmu/writeFeed'); // GoRouter로 이동
                         } else {
                           if (!context.mounted) return;
-                          showAppMessage(
-                            context,
-                            title: '로그인이 필요해요',
-                            message:
-                                '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',
-                            type: AppMessageType.dialog,
-                            loginRequest: true,
-                          );
                         }
                       } catch (e) {
                         showAppMessage(
@@ -328,22 +320,22 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
               child: IslandNavigationBar(
                 selectedIndex: selectedIndex,
                 onTap: (index) {
-                  switch (index) {
+                  switch (index){
                     case 0:
-                      context.go('/doc');
                       ref.read(currentPageProvider.notifier).state = 0;
+                      context.go('/doc');
                       break;
                     case 1:
-                      context.go('/stc');
                       ref.read(currentPageProvider.notifier).state = 1;
+                      context.go('/stc');
                       break;
                     case 2:
-                      context.go('/cmu');
                       ref.read(currentPageProvider.notifier).state = 2;
+                      context.go('/cmu');
                       break;
                     case 3:
-                      context.go('/usr');
                       ref.read(currentPageProvider.notifier).state = 3;
+                      context.go('/usr');
                       break;
                   }
                 },

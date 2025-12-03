@@ -6,6 +6,7 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
+import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
@@ -14,7 +15,6 @@ import 'package:my_app/util/dialog_utils.dart' show showAppDialog, showInputDial
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
-import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 
 class Reply extends ConsumerStatefulWidget {
   final ReplyResponseDto reply;
@@ -35,7 +35,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
   void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
     if(loginUserId == 0) {
-        showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
+        showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true, onConfirm: () => ref.read(currentPageProvider.notifier).state = 3,);
         return;
     }
     // 팝업 메뉴가 표시될 위치를 정확하게 계산

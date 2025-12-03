@@ -6,7 +6,6 @@ import 'package:my_app/extension/cmu_invalidate_collect.dart';
 import 'package:my_app/providers/user_cud_providers.dart' show userCudServiceProvider;
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
-import 'package:my_app/util/error_message_utils.dart' show AppMessageType, showAppMessage;
 import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 

@@ -16,6 +16,7 @@ Future<void> showAppMessage(
   AppMessageType type = AppMessageType.snackBar,
   String? title,
   String confirmText = "확인",
+  VoidCallback? onConfirm,
   bool loginRequest = false,
 }) async {
   switch (type) {
@@ -46,6 +47,9 @@ Future<void> showAppMessage(
         confirmText: confirmText,
         onConfirm: loginRequest ?
         () {
+          if(onConfirm!=null) {
+            onConfirm();
+          }
           context.go('/usr/login');
         } : () {}
       );
