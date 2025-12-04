@@ -317,3 +317,31 @@ Future<String?> showInputDialog(
     },
   );
 }
+
+// 공통 전체 이미지 뷰어 함수
+void openFullImageView(BuildContext context, String imgUrl) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '',
+    barrierColor: Colors.black87,
+    pageBuilder: (_, __, ___) {
+      return GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Center(
+          child: InteractiveViewer(
+            maxScale: 5.0,
+            minScale: 0.5,
+            child: Image.network(
+              imgUrl,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) {
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}

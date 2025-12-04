@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/common/result.dart' show Result;
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/dialog_utils.dart' show openFullImageView;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/error_widget.dart';
@@ -46,28 +47,35 @@ class ProfileCard extends ConsumerWidget {
                   height: 217,
                   child: Stack(
                     children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: ClipOval(
-                          child: userInfo.imgPath == null
-                          ? SvgPicture.asset(
-                              'assets/widgets/default_user_profile.svg',
-                              fit: BoxFit.cover,
-                            )
-                          : Image.network(
-                              userInfo.imgPath!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return SvgPicture.asset(
-                                  'assets/widgets/default_user_profile.svg',
-                                  fit: BoxFit.cover,
-                                );
-                              },
-                            ),
+                      GestureDetector(
+                        onTap: () {
+                          if (userInfo.imgPath != null && userInfo.imgPath!.isNotEmpty) {
+                            openFullImageView(context, userInfo.imgPath!);
+                          }
+                        },
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: userInfo.imgPath == null
+                            ? SvgPicture.asset(
+                                'assets/widgets/default_user_profile.svg',
+                                fit: BoxFit.cover,
+                              )
+                            : Image.network(
+                                userInfo.imgPath!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return SvgPicture.asset(
+                                    'assets/widgets/default_user_profile.svg',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
+                          ),
                         ),
                       ),
                       Positioned(
