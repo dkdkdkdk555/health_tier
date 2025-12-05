@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -130,7 +131,6 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                       _showReportDialog(feedCudService);
                     },
                   ),
-                // 바텀 시트 하단에 여백을 추가하여 UI를 더 보기 좋게 만들 수 있습니다.
                 const SizedBox(height: 16),
               ],
             ),
@@ -176,11 +176,51 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
           // 우측 아이콘 묶음
           Row(
             children: [
-              // SvgPicture.asset(
-              //   'assets/icons/feed_detail/ico_share.svg',
-              //   width: 24,
-              //   height: 24,
-              // ),
+              GestureDetector(
+                onTap: () async {
+                  // 복사링크 생성
+                  final String linkToCopy = 'https://health-tier.com/p/feed/${widget.feedId}';
+
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        // padding: const EdgeInsets.only(bottom: 16),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(topLeft: Radius.circular(22), topRight: Radius.circular(22))
+                        ),
+                        child: SafeArea(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min, // 내용의 높이만큼만 차지하도록 설정
+                            children: <Widget>[
+                              // '링크 복사하기' 항목
+                              ListTile(
+                                leading: const Icon(Icons.copy),
+                                title: const Text('링크 복사하기'),
+                                onTap: () async {
+                                  //  링크를 클립보드에 복사합니다.
+                                  await Clipboard.setData(ClipboardData(text: linkToCopy));
+                                  if(!context.mounted) return;
+                                  Navigator.pop(context); 
+                                  showAppMessage(context, message: "클립보드에 복사되었습니다.");
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/feed_detail/ico_share.svg',
+                  width: 24,
+                  height: 24,
+                ),
+              ),
               const SizedBox(width: 16),
               // 햄버거 아이콘 클릭 시 _showActionBottomSheet 호출
               GestureDetector(
@@ -190,7 +230,6 @@ class _FeedDetailAppBarState extends ConsumerState<FeedDetailAppBar> {
                     _showActionBottomSheet(feedCudService);
                   } else {
                     if(!context.mounted)return;
-                    // showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
                   }
                 },
                 child: SvgPicture.asset(
