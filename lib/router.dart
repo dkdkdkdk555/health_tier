@@ -188,6 +188,11 @@ final router = GoRouter(
             ),
           ]
         ),
+        // 카카오 연동 회원가입 시 /oauth가 요청되는 현상때문에 임시 조치
+        GoRoute(
+          path: '/oauth',
+          redirect: (_, __) => '/usr',
+        ),
       ],
     ),
   ],
