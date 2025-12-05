@@ -1,6 +1,8 @@
+import 'dart:async' show StreamSubscription;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -156,9 +158,10 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
+  StreamSubscription<Uri>? _linkSubscription; // 딥링크 객체
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -191,10 +194,31 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     Future.delayed(const Duration(seconds: 4), () { // 초 이거 소용없네,,;;
       FlutterLocalNotification.requestNotificationPermission();
     });
+
+    initDeepLinks();
+  }
+
+  Future<void> initDeepLinks() async {
+    // Handle links
+    _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
+      openAppLink(uri);
+    });
+  }
+
+  void openAppLink(Uri uri) {
+    final host = uri.host; // 'cmu'
+    String path = uri.path; // '/feed/165' 또는 '///feed/165'
+    // 맨 앞의 모든 슬래시 제거
+    path = path.replaceAll(RegExp(r'^/+'), '');
+    // 전체 경로 조립 → '/cmu/feed/165'
+    final fullPath = path.startsWith("/") ? '$host/$path' : '/$host/$path';
+    debugPrint(fullPath);
+    rootNavigatorKey.currentContext?.push(fullPath);
   }
 
   @override
   void dispose() {
+    _linkSubscription?.cancel();
     _fadeController.dispose();
     super.dispose();
   }
