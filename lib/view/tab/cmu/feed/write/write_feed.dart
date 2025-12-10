@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
-import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider, feedPaginationProvider, feedParamsProvider;
@@ -31,7 +29,6 @@ import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:http_parser/http_parser.dart';
 
 
 class WriteFeed extends ConsumerStatefulWidget {
