@@ -15,6 +15,7 @@ import 'package:my_app/providers/user_cud_providers.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/util/user_prefs.dart' show UserPrefs;
 import 'package:my_app/view/common/error_widget.dart' show ErrorContentWidget;
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:path/path.dart' as path show basename;
@@ -40,6 +41,10 @@ class UsrInfoProfile extends ConsumerWidget {
     return userInfoAsync.when(
       data: (userInfoResult) {
         final userInfo = userInfoResult.data;
+
+        if(userInfo.loginId!=null && userInfo.loginId!.contains('admin')) {
+          UserPrefs.setLoginId(userInfo.loginId!);
+        }
 
         return Column(
           children: [

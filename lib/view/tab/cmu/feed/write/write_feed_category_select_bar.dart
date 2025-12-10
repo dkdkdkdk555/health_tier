@@ -5,7 +5,8 @@ import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
-import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator; // TextInputFormatter를 위해 추가
+import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
+import 'package:my_app/util/user_prefs.dart' show UserPrefs; // TextInputFormatter를 위해 추가
 
 // ✅ 운동 항목 데이터를 위한 모델 정의
 class ExerciseEntry {
@@ -42,6 +43,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
   late int selectedCategoryId;
   // 3대 운동 항목 리스트
   final List<ExerciseEntry> _exerciseEntries = [];
+  late String? currLoginId;
   
 
   // 모든 운동 타입 정의 (상수로 유지)
@@ -168,6 +170,8 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
 
     final bool showNoticeBox = selectedCategoryId == 2 || selectedCategoryId == 3;
     final bool showBig3ExerciseInput = selectedCategoryId == 3; // ✅ 3대 운동 항목 표시 조건
+
+    currLoginId = UserPrefs.currentLoginId;
 
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
@@ -372,7 +376,15 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
               separatorBuilder: (_, __) => const SizedBox(width: 0,),
               itemBuilder: (context, index) {
                 final category = modifiedCategories[index];
-                if(category.name=='공지') return null;
+                if(category.name=='공지') {
+                   if(currLoginId != null) {
+                    if(currLoginId!.contains('admin')){
+                      return makeCategory(category);
+                    }
+                   } else {
+                    return null;
+                   }
+                }
                 return makeCategory(category);
               },
             ),
