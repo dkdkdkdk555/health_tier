@@ -188,6 +188,10 @@ class ReplyPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Re
       // 부모 댓글(일반 댓글)인 경우
       int index = updatedItems.indexWhere((reply) => reply.id == updatedReply.id);
       if (index != -1) {
+        if(updatedItems[index].children.isNotEmpty) { // 부모댓글에 답글이 있는경우
+          List<ReplyResponseDto> childrenReply = updatedItems[index].children;
+          updatedReply.children = childrenReply;
+        }
         updatedItems[index] = updatedReply; // 해당 댓글 교체
       }
     } else {
