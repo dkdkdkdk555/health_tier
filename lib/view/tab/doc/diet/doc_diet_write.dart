@@ -21,7 +21,6 @@ import 'package:my_app/util/image_compress.dart';
 import 'package:my_app/util/ai_diet_loading_dialog.dart' show showAiAnalysisLoadingDialog;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
-import 'package:my_app/util/spinner_utils.dart';
 import 'package:my_app/view/common/admob_ads.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 
@@ -377,9 +376,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                               if(!context.mounted)return;
                                               // _showAds(context);
                                               _showImageSourcePicker(index, docApiService, context);
-                                            } else {
-                                              if(!context.mounted)return;
-                                              showAppMessage(context,title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true);
                                             }
                                           },
                                           child: SvgPicture.asset(
