@@ -12,7 +12,7 @@ class ReplyResponseDto {
   bool isLiked; // 좋아요 즉각반영을 위해 final 제거
   final int? parentReplyId;
   final String? delYn;
-  final List<ReplyResponseDto> children;
+  List<ReplyResponseDto> children; // 부모댓글 수정시 답글들 사라지는 문제로, 바로 자식댓글을 수정할 수 있게 final 제거
   final List<BadgeInfoDto>? badges;
 
   ReplyResponseDto({

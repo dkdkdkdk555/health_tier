@@ -12,6 +12,7 @@ import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' show MobileAds;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
@@ -137,6 +138,8 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // 애드몹 광고 sdk 초기화
+  MobileAds.instance.initialize();
   // 세로 모드만 허용
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
