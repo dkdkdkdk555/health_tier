@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:my_app/util/screen_ratio.dart';
-import 'package:my_app/view/common/admob_ads.dart' show AdmobAds;
+import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 
 /// AI 분석 진행률을 보여주는 커스텀 로딩 다이얼로그 위젯
 class AIDietLoadingDialog extends StatefulWidget {
@@ -23,7 +23,6 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
 
   // 🚨 광고 애니메이션을 위한 컨트롤러와 애니메이션 추가
   late AnimationController _adController; 
-  late Animation<double> _adAnimation;
   // 광고 애니메이션 시작 여부 플래그
   bool _adAnimationStarted = false;
 
@@ -51,12 +50,6 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 700), // 0.7초 동안 애니메이션 진행
     );
-    
-    // SizeTransition에 사용될 애니메이션 (0.0에서 1.0)
-    _adAnimation = CurvedAnimation(
-      parent: _adController,
-      curve: Curves.easeOut,
-    );
 
     _startProgressSimulation();
   }
@@ -68,7 +61,7 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
     final double stepSeconds = stepDuration.inMilliseconds / 1000.0;
 
     // 🚨 광고 애니메이션을 시작할 경과 시간
-    final double adStartSeconds = maxSeconds * 0.01;
+    final double adStartSeconds = maxSeconds * 0.02;
 
     _timer = Timer.periodic(stepDuration, (timer) {
       if (!mounted) {
@@ -152,15 +145,11 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 8 * htio),
-                  // 🚨 광고 위젯에 SizeTransition과 FadeTransition 적용
-                  SizeTransition(
-                    sizeFactor: _adAnimation, // 0 -> 1로 확장
-                    axis: Axis.vertical,
-                    axisAlignment: -1,
-                    child: FadeTransition(
-                      opacity: _adController, // 0 -> 1로 투명도 변경
-                      child: const AdmobAds(), // 애니메이션 적용 대상
-                    ),
+                  // 🚨 광고 위젯 등장 애니메이션
+                  const AnimatedSize(
+                    duration: Duration(milliseconds: 600),
+                    curve: Curves.easeOut,
+                    child: AdmobAds(adType: AdType.nativeVideo),
                   ),
                   Text(
                     '이미지 인식 및 영양 성분 추출에 시간이 소요됩니다.',

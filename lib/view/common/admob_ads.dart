@@ -19,42 +19,66 @@ class AdmobAds extends StatefulWidget {
   @override
   State<AdmobAds> createState() => _AdmobAdsState();
 }
-
+ 
 class _AdmobAdsState extends State<AdmobAds> {
+  static const AdRequest request = AdRequest( // 광고 요청 설정
+    nonPersonalizedAds: false, // 사용자맞춤o
+  );
+  /* 
+    네이티브 광고
+  */
   NativeAd? _nativeAd;
   bool _nativeAdIsLoaded = false;
-  static const AdRequest request = AdRequest(
-    nonPersonalizedAds: false,
-
-  );
-
-  // 테스트광고id -> 배포전 실제 광고id로 바꿀것
- final String _adVideoUnitId = Platform.isAndroid
+  // 테스트 네이티브 광고id -> 배포전 실제 광고id로 바꿀것
+  final String _adVideoUnitId = Platform.isAndroid
       ? 'ca-app-pub-3940256099942544/1044960115'
       : 'ca-app-pub-3940256099942544/2521693316';
+
+  /*
+    배너 광고
+  */
+  BannerAd? _bannerAd;
+  bool _bannerAdIsLoaded = false;
+  // 테스트 배너 광고id -> 배포전 실제 광고id로 바꿀것
+  final String _adBannerUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/9214589741'
+      : 'ca-app-pub-3940256099942544/2435281174';
 
   @override
   void initState() {
     super.initState();
+    // 테스트 기기 설정
     MobileAds.instance.updateRequestConfiguration(
       RequestConfiguration(testDeviceIds: [
         'Simulator',   // iOS Simulator
         'EMULATOR',    // Android Emulator
       ])
     );
-    loadVideoAd();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if(widget.adType == AdType.nativeVideo && _nativeAd == null) {
+      loadNativeVideoAd();
+    } else if(widget.adType == AdType.banner && _bannerAd == null) {
+      _loadBannerAd(context);
+    }
   }
 
   @override
   void dispose() {
     _nativeAd?.dispose();
     _nativeAd = null;
+    _bannerAd?.dispose();
+    _bannerAd = null;
     super.dispose();
   }
 
-  /// Loads a native ad.
-  void loadVideoAd() {
+  // 네이티브 광고(비디오) 로드
+  void loadNativeVideoAd() {
     _nativeAd = NativeAd(
+        request: request,
         adUnitId: _adVideoUnitId,
         factoryId: 'onAIDietAnalyzeAds',
         listener: NativeAdListener(
@@ -84,7 +108,6 @@ class _AdmobAdsState extends State<AdmobAds> {
           // Called when an ad receives revenue value.
           onPaidEvent: (ad, valueMicros, precision, currencyCode) {},
         ),
-        request: const AdRequest(),
         nativeAdOptions: NativeAdOptions(
           videoOptions: VideoOptions(
             startMuted: true,
@@ -119,14 +142,77 @@ class _AdmobAdsState extends State<AdmobAds> {
       ..load();
   }
 
+  // 배너광고 로드
+  void _loadBannerAd(BuildContext context) async {
+    // 1. 화면 너비를 기반으로 반응형 사이즈 계산
+    final AdSize? adaptiveSize = await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+      MediaQuery.of(context).size.width.truncate(),
+    );
+
+    if (adaptiveSize == null) {
+      debugPrint('Failed to get anchored adaptive banner size.');
+      return;
+    }
+  
+    _bannerAd = BannerAd(
+      adUnitId: _adBannerUnitId,
+      request: request,
+      size: adaptiveSize,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          // Called when an ad is successfully received.
+          debugPrint("Ad was loaded.");
+          setState(() {
+            _bannerAdIsLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          // Called when an ad request failed.
+          debugPrint("Ad failed to load with error: $err");
+          ad.dispose();
+        },
+        // [START_EXCLUDE silent]
+        // [START ad_events]
+        onAdOpened: (Ad ad) {
+          // Called when an ad opens an overlay that covers the screen.
+          debugPrint("Ad was opened.");
+        },
+        onAdClosed: (Ad ad) {
+          // Called when an ad removes an overlay that covers the screen.
+          debugPrint("Ad was closed.");
+        },
+        onAdImpression: (Ad ad) {
+          // Called when an impression occurs on the ad.
+          debugPrint("Ad recorded an impression.");
+        },
+        onAdClicked: (Ad ad) {
+          // Called when an a click event occurs on the ad.
+          debugPrint("Ad was clicked.");
+        },
+        onAdWillDismissScreen: (Ad ad) {
+          // iOS only. Called before dismissing a full screen view.
+          debugPrint("Ad will be dismissed.");
+        },
+      ),
+    )..load();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return _nativeAdIsLoaded
+    Widget renderAdWidget;
+
+    switch(widget.adType) {
+      case AdType.nativeVideo:
+        renderAdWidget = _nativeAdIsLoaded
         ? AdContainerSmall(nativeAd: _nativeAd)
-        : const SizedBox(
-            height: 320,
-            child: Center(child: CircularProgressIndicator()),
-          );
+        : const SizedBox.shrink();
+      case AdType.banner:
+        renderAdWidget = _bannerAdIsLoaded
+        ? AdContainerBanner(bannerAd: _bannerAd)
+        : const SizedBox.shrink();
+    }
+
+    return renderAdWidget;
   }
 }
 
@@ -156,24 +242,27 @@ class AdContainerSmall extends StatelessWidget {
   }
 }
 
-class AdContainerMedium extends StatelessWidget {
-  const AdContainerMedium({
+class AdContainerBanner extends StatelessWidget {
+  const AdContainerBanner({
     super.key,
-    required NativeAd? nativeAd,
-  }) : _nativeAd = nativeAd;
+    required BannerAd? bannerAd,
+  }) : _bannerAd = bannerAd;
 
-  final NativeAd? _nativeAd;
+  final BannerAd? _bannerAd;
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minWidth: 320, // minimum recommended width
-        minHeight: 320, // minimum recommended height
-        maxWidth: 400,
-        maxHeight: 400,
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    final AdSize size = _bannerAd!.size;
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
+        width: size.width.toDouble() * wtio, 
+        height: size.height.toDouble() * htio, 
+        child: AdWidget(ad: _bannerAd!),
       ),
-      child: AdWidget(ad: _nativeAd!),
     );
   }
 }

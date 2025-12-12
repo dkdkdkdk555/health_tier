@@ -7,6 +7,7 @@ import 'package:my_app/providers/notifier_provider.dart' show replySupplyNotifie
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
+import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_list.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
@@ -94,6 +95,10 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
             ),
             // 댓글리스트
             ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
+            // 배너광고
+            const SliverToBoxAdapter(
+              child: AdmobAds(adType: AdType.banner,),
+            ),
             // 같은 카테고리의 다른 글
             widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!, currentFeedId: widget.feedId) 
             : const SliverToBoxAdapter(child: SizedBox.shrink()),
