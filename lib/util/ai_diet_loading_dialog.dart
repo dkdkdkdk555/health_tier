@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:my_app/util/screen_ratio.dart';
+import 'package:my_app/view/common/admob_ads.dart' show AdmobAds;
 
 /// AI 분석 진행률을 보여주는 커스텀 로딩 다이얼로그 위젯
 class AIDietLoadingDialog extends StatefulWidget {
@@ -16,9 +17,15 @@ class AIDietLoadingDialog extends StatefulWidget {
   State<AIDietLoadingDialog> createState() => _LoadingDialogState();
 }
 
-class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerProviderStateMixin {
+class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+
+  // 🚨 광고 애니메이션을 위한 컨트롤러와 애니메이션 추가
+  late AnimationController _adController; 
+  late Animation<double> _adAnimation;
+  // 광고 애니메이션 시작 여부 플래그
+  bool _adAnimationStarted = false;
 
   double _currentProgress = 0.0;
   double _elapsedSeconds = 0.0;
@@ -39,6 +46,18 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerPr
       curve: Curves.easeInOut,
     );
 
+    // 🚨 광고 영역 애니메이션 초기화
+    _adController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700), // 0.7초 동안 애니메이션 진행
+    );
+    
+    // SizeTransition에 사용될 애니메이션 (0.0에서 1.0)
+    _adAnimation = CurvedAnimation(
+      parent: _adController,
+      curve: Curves.easeOut,
+    );
+
     _startProgressSimulation();
   }
 
@@ -47,6 +66,9 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerPr
     const stepDuration = Duration(milliseconds: 100); // 0.1초마다 업데이트
     final double maxSeconds = widget.maxDurationSeconds.toDouble();
     final double stepSeconds = stepDuration.inMilliseconds / 1000.0;
+
+    // 🚨 광고 애니메이션을 시작할 경과 시간
+    final double adStartSeconds = maxSeconds * 0.01;
 
     _timer = Timer.periodic(stepDuration, (timer) {
       if (!mounted) {
@@ -62,6 +84,12 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerPr
       double ratio = (_elapsedSeconds / maxSeconds).clamp(0.0, 1.0);
       double targetProgress = ratio * 0.99;
 
+      // 3. 🚨 광고 애니메이션 시작 조건 체크
+      if (_elapsedSeconds >= adStartSeconds && !_adAnimationStarted) {
+        _adAnimationStarted = true;
+        _adController.forward(); // 애니메이션 시작!
+      }
+
       setState(() {
         // maxDurationSeconds(기본 18초)가 지나면 98%에 고정
         _currentProgress = (_elapsedSeconds >= maxSeconds) ? 0.99 : targetProgress;
@@ -73,6 +101,7 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerPr
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _adController.dispose();
     super.dispose();
   }
 
@@ -123,7 +152,16 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with SingleTickerPr
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 8 * htio),
-            
+                  // 🚨 광고 위젯에 SizeTransition과 FadeTransition 적용
+                  SizeTransition(
+                    sizeFactor: _adAnimation, // 0 -> 1로 확장
+                    axis: Axis.vertical,
+                    axisAlignment: -1,
+                    child: FadeTransition(
+                      opacity: _adController, // 0 -> 1로 투명도 변경
+                      child: const AdmobAds(), // 애니메이션 적용 대상
+                    ),
+                  ),
                   Text(
                     '이미지 인식 및 영양 성분 추출에 시간이 소요됩니다.',
                     style: TextStyle(

@@ -2,9 +2,19 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+
+enum AdType {
+  nativeVideo, // 네이티브 광고 고급형 - 비디오만 보여줌
+  banner, // 배너 광고
+}
 
 class AdmobAds extends StatefulWidget {
-  const AdmobAds({super.key});
+  final AdType adType;
+  const AdmobAds({
+    super.key,
+    required this.adType
+  });
 
   @override
   State<AdmobAds> createState() => _AdmobAdsState();
@@ -15,34 +25,38 @@ class _AdmobAdsState extends State<AdmobAds> {
   bool _nativeAdIsLoaded = false;
   static const AdRequest request = AdRequest(
     nonPersonalizedAds: false,
+
   );
 
   // 테스트광고id -> 배포전 실제 광고id로 바꿀것
- final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/2247696110'
-      : 'ca-app-pub-3940256099942544/3986624511';
+ final String _adVideoUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/1044960115'
+      : 'ca-app-pub-3940256099942544/2521693316';
 
   @override
   void initState() {
     super.initState();
     MobileAds.instance.updateRequestConfiguration(
-        RequestConfiguration(testDeviceIds: [
-          'Simulator',   // iOS Simulator
-          'EMULATOR',    // Android Emulator
-        ]));
-    loadAd();
+      RequestConfiguration(testDeviceIds: [
+        'Simulator',   // iOS Simulator
+        'EMULATOR',    // Android Emulator
+      ])
+    );
+    loadVideoAd();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _nativeAd?.dispose();
+    _nativeAd = null;
+    super.dispose();
   }
 
   /// Loads a native ad.
-  void loadAd() {
+  void loadVideoAd() {
     _nativeAd = NativeAd(
-        adUnitId: _adUnitId,
+        adUnitId: _adVideoUnitId,
+        factoryId: 'onAIDietAnalyzeAds',
         listener: NativeAdListener(
           onAdLoaded: (ad) {
             debugPrint('$NativeAd loaded.');
@@ -51,12 +65,14 @@ class _AdmobAdsState extends State<AdmobAds> {
             });
           },
           onAdFailedToLoad: (ad, error) {
-            // Dispose the ad here to free resources.
-            debugPrint('$NativeAd failed to load: $error');
+            debugPrint('NativeAd failed to load: $error');
+            debugPrint('domain=${error.domain}, code=${error.code}, message=${error.message}');
+            debugPrint('responseInfo=${error.responseInfo}');
             ad.dispose();
           },
           // Called when a click is recorded for a NativeAd.
-          onAdClicked: (ad) {},
+          onAdClicked: (ad) {
+          },
           // Called when an impression occurs on the ad.
           onAdImpression: (ad) {},
           // Called when an ad removes an overlay that covers the screen.
@@ -69,33 +85,37 @@ class _AdmobAdsState extends State<AdmobAds> {
           onPaidEvent: (ad, valueMicros, precision, currencyCode) {},
         ),
         request: const AdRequest(),
-        // Styling
+        nativeAdOptions: NativeAdOptions(
+          videoOptions: VideoOptions(
+            startMuted: true,
+          ),
+          shouldRequestMultipleImages: false,
+          shouldReturnUrlsForImageAssets: true,
+        ),
         nativeTemplateStyle: NativeTemplateStyle(
-            // Required: Choose a template.
             templateType: TemplateType.medium,
-            // Optional: Customize the ad's style.
-            mainBackgroundColor: Colors.purple,
+            mainBackgroundColor: Colors.white,
             cornerRadius: 10.0,
+            /* 설치하기 버튼 스타일 커스텀 */
             callToActionTextStyle: NativeTemplateTextStyle(
-                textColor: Colors.cyan,
-                backgroundColor: Colors.red,
-                style: NativeTemplateFontStyle.monospace,
-                size: 16.0),
+              textColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              style: NativeTemplateFontStyle.monospace,
+              size: 1.0
+            ),
             primaryTextStyle: NativeTemplateTextStyle(
-                textColor: Colors.red,
-                backgroundColor: Colors.cyan,
-                style: NativeTemplateFontStyle.italic,
-                size: 16.0),
+              size: 1,
+              textColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+            ),
             secondaryTextStyle: NativeTemplateTextStyle(
-                textColor: Colors.green,
-                backgroundColor: Colors.black,
-                style: NativeTemplateFontStyle.bold,
-                size: 16.0),
+                backgroundColor: Colors.transparent,
+                textColor: Colors.transparent,
+                size: 1),
             tertiaryTextStyle: NativeTemplateTextStyle(
-                textColor: Colors.brown,
-                backgroundColor: Colors.amber,
-                style: NativeTemplateFontStyle.normal,
-                size: 16.0)))
+                backgroundColor: Colors.transparent,
+                textColor: Colors.transparent,
+                size: 1)))
       ..load();
   }
 
@@ -120,13 +140,17 @@ class AdContainerSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        minWidth: 90, // minimum recommended width
-        minHeight: 90, // minimum recommended height
-        maxWidth: 500,
-        maxHeight: 500,
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
+    return Container(
+      constraints: BoxConstraints(
+        minWidth: 90 * wtio, // minimum recommended width
+        minHeight: 90 * htio, // minimum recommended height
+        maxWidth: 300 * wtio,
+        maxHeight: 250 * htio,
       ),
+      padding: EdgeInsets.symmetric(horizontal: 10*wtio, vertical: 10*htio),
       child: AdWidget(ad: _nativeAd!),
     );
   }
