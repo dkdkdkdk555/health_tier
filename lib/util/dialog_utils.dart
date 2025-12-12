@@ -126,7 +126,7 @@ AlertDialog buildAppDialog(
       Expanded(
         child: TextButton(
           style: TextButton.styleFrom(
-            backgroundColor: const Color(0xFFDDDDDD),
+            backgroundColor: Colors.grey.shade400,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12 * widthRatio),
