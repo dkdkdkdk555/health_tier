@@ -22,6 +22,7 @@ import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProv
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
+import 'package:my_app/util/firebase_remote_config_service.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
@@ -79,6 +80,9 @@ Future<void> initializeDependencies(WidgetRef ref) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Firebase Remote Config 초기화 및 설정
+  await RemoteConfigService.instance.initialize();
   
   // 현재 디바이스의 OS 타입 가져오기
   final osTypeInit = Platform.isIOS ? 'ios' : 'android';

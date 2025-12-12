@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/util/dialog_utils.dart';
+import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/doc/doc_app_bar.dart' show DocAppBar;
 import 'package:my_app/view/tab/doc/body/calendar/doc_calendar_body.dart';
@@ -44,13 +45,8 @@ class _DocMainState extends State<DocMain> {
 
   // 앱이 최신버전인지 확인 -> 아니라면 업데이트 강제
   Future<void> checkRemoteConfig() async {
-    final remoteConfig = FirebaseRemoteConfig.instance;
-    await remoteConfig.setConfigSettings(RemoteConfigSettings(
-      fetchTimeout: const Duration(seconds: 10),
-      minimumFetchInterval: const Duration(hours: 3), // 버전확인하는걸 3시간에 한번씩만 하도록
-    ));
-
-    await remoteConfig.fetchAndActivate();
+    final remoteConfigService = RemoteConfigService.instance;
+    final remoteConfig = remoteConfigService.config;
 
     final latestVersion = remoteConfig.getString('latest_version');
     final forceUpdate = remoteConfig.getBool('force_update');

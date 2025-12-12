@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/util/screen_ratio.dart';
 import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 
@@ -30,6 +31,9 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
   double _elapsedSeconds = 0.0;
   Timer? _timer;
 
+  // 커스텀 광고 존재여부
+  late bool _isThereCustomAds;
+
   @override
   void initState() {
     super.initState();
@@ -51,17 +55,34 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
       duration: const Duration(milliseconds: 700), // 0.7초 동안 애니메이션 진행
     );
 
-    _startProgressSimulation();
+    initWrapperFunc();
+  }
+
+  initWrapperFunc() async {
+    await _getInstance();
+    await _startProgressSimulation();
+  }
+
+  Future<void> _getInstance() async {
+    final remoteConfigService = RemoteConfigService.instance;
+    final remoteConfig = remoteConfigService.config;
+    final bool isAdsOn = remoteConfig.getBool('on_ad');
+    if (mounted) {
+        setState(() {
+            _isThereCustomAds = isAdsOn;
+            debugPrint('여부 (setState 후) : $_isThereCustomAds');
+        });
+    }
   }
 
   /// maxDurationSeconds 에 맞춰 진행률 속도가 자동 조정되도록 리팩터링
-  void _startProgressSimulation() {
+  Future<void> _startProgressSimulation() async {
     const stepDuration = Duration(milliseconds: 100); // 0.1초마다 업데이트
     final double maxSeconds = widget.maxDurationSeconds.toDouble();
     final double stepSeconds = stepDuration.inMilliseconds / 1000.0;
 
     // 🚨 광고 애니메이션을 시작할 경과 시간
-    final double adStartSeconds = maxSeconds * 0.02;
+    final double adStartSeconds = maxSeconds * 0.01;
 
     _timer = Timer.periodic(stepDuration, (timer) {
       if (!mounted) {
@@ -146,10 +167,10 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
                   ),
                   SizedBox(height: 8 * htio),
                   // 🚨 광고 위젯 등장 애니메이션
-                  const AnimatedSize(
-                    duration: Duration(milliseconds: 600),
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 800),
                     curve: Curves.easeOut,
-                    child: AdmobAds(adType: AdType.nativeVideo),
+                    child: AdmobAds(adType: _isThereCustomAds ? AdType.custom : AdType.nativeVideo),
                   ),
                   Text(
                     '이미지 인식 및 영양 성분 추출에 시간이 소요됩니다.',

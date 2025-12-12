@@ -2,11 +2,15 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/common/video_display.dart' show VideoDisplay;
+import 'package:url_launcher/url_launcher.dart' show LaunchMode, launchUrl;
 
 enum AdType {
   nativeVideo, // 네이티브 광고 고급형 - 비디오만 보여줌
   banner, // 배너 광고
+  custom, // 직접 수주한 광고
 }
 
 class AdmobAds extends StatefulWidget {
@@ -204,20 +208,22 @@ class _AdmobAdsState extends State<AdmobAds> {
     switch(widget.adType) {
       case AdType.nativeVideo:
         renderAdWidget = _nativeAdIsLoaded
-        ? AdContainerSmall(nativeAd: _nativeAd)
+        ? AdContainerNativeVideo(nativeAd: _nativeAd)
         : const SizedBox.shrink();
       case AdType.banner:
         renderAdWidget = _bannerAdIsLoaded
         ? AdContainerBanner(bannerAd: _bannerAd)
         : const SizedBox.shrink();
+      case AdType.custom:
+        renderAdWidget = const AdContainerCustom();
     }
 
     return renderAdWidget;
   }
 }
 
-class AdContainerSmall extends StatelessWidget {
-  const AdContainerSmall({
+class AdContainerNativeVideo extends StatelessWidget {
+  const AdContainerNativeVideo({
     super.key,
     required NativeAd? nativeAd,
   }) : _nativeAd = nativeAd;
@@ -262,6 +268,90 @@ class AdContainerBanner extends StatelessWidget {
         width: size.width.toDouble() * wtio, 
         height: size.height.toDouble() * htio, 
         child: AdWidget(ad: _bannerAd!),
+      ),
+    );
+  }
+}
+
+class AdContainerCustom extends StatefulWidget {
+  const AdContainerCustom({super.key});
+
+  @override
+  State<AdContainerCustom> createState() => _AdContainerCustomState();
+}
+
+class _AdContainerCustomState extends State<AdContainerCustom> {
+  late String clickUrl;
+  late String mediaUrl;
+  
+  bool _isVideoUrl(String url) {
+    url = url.toLowerCase();
+    return url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getRemoteConfigValue();
+  }
+
+  _getRemoteConfigValue() async {
+    await _getInstance();
+  }
+
+  Future<void> _getInstance() async {
+    final remoteConfigService = RemoteConfigService.instance;
+    final remoteConfig = remoteConfigService.config;
+    clickUrl = remoteConfig.getString('click_url');
+    mediaUrl = remoteConfig.getString('media_url');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
+    debugPrint('링크 : $clickUrl');
+    debugPrint('미디어 : $mediaUrl');
+
+    if (mediaUrl == '') {
+      return const SizedBox.shrink();
+    }
+
+    Widget adContent;
+    
+    if (_isVideoUrl(mediaUrl)) {
+      // 비디오인 경우: VideoDisplay 위젯 사용
+      adContent = VideoDisplay(videoUrl: mediaUrl); 
+    } else {
+      // 이미지인 경우: Image.network 위젯 사용
+      adContent = Image.network(
+        mediaUrl,
+        fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return const Center(child: CircularProgressIndicator());
+        },
+        errorBuilder: (context, error, stackTrace) {
+          // 이미지 로드 실패 시 대체 위젯
+          return const Center(child: Icon(Icons.broken_image));
+        },
+      );
+    }
+      
+    return GestureDetector(
+      onTap: ()async{
+        await launchUrl(Uri.parse(clickUrl), mode: LaunchMode.externalApplication);
+      },
+      child: Container(
+        constraints: BoxConstraints(
+          minWidth: 90 * wtio,
+          minHeight: 90 * htio,
+          maxWidth: 300 * wtio,
+          maxHeight: 250 * htio,
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 10*wtio, vertical: 10*htio),
+        child: adContent,
       ),
     );
   }
