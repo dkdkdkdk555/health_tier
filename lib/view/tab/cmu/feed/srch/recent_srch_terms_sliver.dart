@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/util/recent_search_shared_preferences.dart';
+import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 
 class RecentSearchTermsSliver extends ConsumerStatefulWidget {
   const RecentSearchTermsSliver({super.key});
@@ -149,6 +150,8 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
                 },
               ),
             ),
+            // 배너광고
+            const AdmobAds(adType: AdType.banner,),
         ],
       ),
     );

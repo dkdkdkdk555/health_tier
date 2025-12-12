@@ -3,7 +3,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/dialog_utils.dart' show showMediaPopup;
+import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_category_top_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_feed_list_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/list/cmu_new_feed_alarm.dart';
@@ -38,6 +41,10 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
   // 카테고리 상태
   bool isBestFeedTap = false;
   int selectedCategoryId = 0; // '전체' 카테고리 기본 선택
+
+  late String clickUrl;
+  late String mediaUrl;
+  late bool onAdCmu;
 
   // 카테고리 선택 콜백
   void _categoryChange({required int index}){
@@ -117,6 +124,29 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
         _initialLoadDone = true;
       });
     });
+
+    _getRemoteConfigValue();
+  }
+
+  _getRemoteConfigValue() async {
+    await Future.delayed(const Duration(milliseconds: 1000)); 
+    await _getInstance();
+  }
+
+  Future<void> _getInstance() async {
+    final shouldHideAd = await UserPrefs.shouldHideAdToday();
+    if(shouldHideAd) return;
+    final remoteConfigService = RemoteConfigService.instance;
+    final remoteConfig = remoteConfigService.config;
+    onAdCmu = remoteConfig.getBool('on_ad_cmu');
+    if(onAdCmu) {
+      clickUrl = remoteConfig.getString('click_url');
+      mediaUrl = remoteConfig.getString('media_url');
+      if(mediaUrl!='') {
+        if(!mounted)return;
+        showMediaPopup(context, mediaUrl: mediaUrl, link: clickUrl);
+      }
+    }
   }
 
   @override

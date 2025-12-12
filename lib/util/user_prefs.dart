@@ -60,6 +60,27 @@ class UserPrefs {
     _currentLoginId = prefs.getString('loginId');
   }
 
+  // 커뮤탭 메인 광고 하루동안 안보기 세팅
+  static Future<void> hideAdForToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final todayKey = '${now.year}-${now.month}-${now.day}';
+    await prefs.setString('hide_ad_today_date', todayKey);
+  }
+
+  // 하루지낫는지 체크
+  static Future<bool> shouldHideAdToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedDate = prefs.getString('hide_ad_today_date');
+    if (savedDate == null) return false;
+
+    final today = DateTime.now();
+    final todayKey = '${today.year}-${today.month}-${today.day}';
+
+    return savedDate == todayKey;
+  }
+
+
   // 사용자 ID를 제거하는 함수 추가
   static Future<void> clearVariable() async {
     _myUserId = null;

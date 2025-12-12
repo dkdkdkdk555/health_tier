@@ -21,7 +21,6 @@ import 'package:my_app/util/image_compress.dart';
 import 'package:my_app/util/ai_diet_loading_dialog.dart' show showAiAnalysisLoadingDialog;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
-import 'package:my_app/view/common/admob_ads.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 
 class DocDietWrite extends ConsumerStatefulWidget {
@@ -63,33 +62,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         });
       }
     });
-  }
-
-  void _showAds(BuildContext parentContext){
-    showModalBottomSheet(
-      context: parentContext,
-      isScrollControlled: true, // 시트 높이 조절 가능
-      backgroundColor: Colors.transparent, // 배경 투명 처리
-      builder: (BuildContext context) {
-        final wtio = ScreenRatio(context).widthRatio;
-        final htio = ScreenRatio(context).heightRatio;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(22 * wtio),
-              topRight: Radius.circular(22 * wtio),
-            ),
-          ),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 20 * htio,
-          ),
-          child: const AdmobAds()
-        );
-      }
-    );
   }
 
   // =========================================================================
@@ -202,53 +174,53 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     );
   }
 
-   analyzeRequest(XFile image, DocApiService? docApiService, int index) async{
-      if (docApiService == null) {
-        // DocApiService가 null인 경우 (초기화 중이거나 에러 발생)
-        showAppMessage(context, 
-          message: '서비스 초기화 중입니다. 잠시 후 다시 시도해주세요.', 
-          type: AppMessageType.dialog
-        );
-        return; // 널 값 오류 방지
-      }
-
-      showAiAnalysisLoadingDialog(context);
-
-      try {
-        final imagef = File(image.path);
-        final imageFile = await compressImage(imagef);
-        // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
-        final s = await docApiService.analyzeImage(imageFile); 
-        
-        // UI 업데이트
-        if (mounted) {
-          if(s == null) {
-            return;
-          }
-          Navigator.of(context, rootNavigator: true).pop(); 
-          setState(() {
-            final input = inputList[index];
-            input.mealType.text = s.foodName;
-            input.dietText.text = s.description + (s.sugar!=0 ? ', 총 당류(g) : ${s.sugar}' : '');
-            if(s.calories != 0) input.calorie.text = s.calories.toStringAsFixed(1);
-            if(s.protein != 0)  input.protein.text = s.protein.toStringAsFixed(1);
-            input.isUpdate = true;
-          });
-        }
-      }on DioException catch (e) {
-        if(mounted) {
-          Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
-          if(e.response?.statusCode == 423) {
-            showAppMessage(context, message: e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
-          }
-        }
-      } catch(e) {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
-        }
-        debugPrint('식단 분석 API 호출 에러: $e');
-      }
+  analyzeRequest(XFile image, DocApiService? docApiService, int index) async{
+    if (docApiService == null) {
+      // DocApiService가 null인 경우 (초기화 중이거나 에러 발생)
+      showAppMessage(context, 
+        message: '서비스 초기화 중입니다. 잠시 후 다시 시도해주세요.', 
+        type: AppMessageType.dialog
+      );
+      return; // 널 값 오류 방지
     }
+
+    showAiAnalysisLoadingDialog(context);
+
+    try {
+      final imagef = File(image.path);
+      final imageFile = await compressImage(imagef);
+      // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
+      final s = await docApiService.analyzeImage(imageFile); 
+      
+      // UI 업데이트
+      if (mounted) {
+        if(s == null) {
+          return;
+        }
+        Navigator.of(context, rootNavigator: true).pop(); 
+        setState(() {
+          final input = inputList[index];
+          input.mealType.text = s.foodName;
+          input.dietText.text = s.description + (s.sugar!=0 ? ', 총 당류(g) : ${s.sugar}' : '');
+          if(s.calories != 0) input.calorie.text = s.calories.toStringAsFixed(1);
+          if(s.protein != 0)  input.protein.text = s.protein.toStringAsFixed(1);
+          input.isUpdate = true;
+        });
+      }
+    }on DioException catch (e) {
+      if(mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+        if(e.response?.statusCode == 423) {
+          showAppMessage(context, message: e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
+        }
+      }
+    } catch(e) {
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+      }
+      debugPrint('식단 분석 API 호출 에러: $e');
+    }
+  }
 
   // 바텀 시트의 각 항목을 구성하는 위젯
   Widget _buildImageSourceItem(BuildContext context, BuildContext parentContext, {required IconData icon, required String label, required VoidCallback onTap}) {
@@ -374,7 +346,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                             final response = await ref.read(jwtTokenVerificationProvider.future);
                                             if(response.isValid) {
                                               if(!context.mounted)return;
-                                              // _showAds(context);
                                               _showImageSourcePicker(index, docApiService, context);
                                             }
                                           },

@@ -18,8 +18,8 @@
 	<string>HealthTier</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>GADApplicationIdentifier</key><!-- 애드몹 설정 -->
-	<string>ca-app-pub-7850046432758723~2565089161</string>
+	<key>GADApplicationIdentifier</key><!-- 애드몹 설정 tester: ca-app-pub-3940256099942544~1458002511 -->
+	<string>ca-app-pub-3940256099942544~1458002511</string><!--<string>ca-app-pub-7850046432758723~2565089161</string>-->
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
