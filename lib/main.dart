@@ -208,7 +208,9 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   Future<void> initDeepLinks() async {
     // Handle links
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
-      openAppLink(uri);
+      if(Platform.isIOS) { // 안드는 goRouter에서 리다이렉트 이용
+        openAppLink(uri);
+      }
     });
   }
 

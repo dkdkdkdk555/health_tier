@@ -20,6 +20,22 @@ final router = GoRouter(
   //   }
   //   return null;
   // },
+  redirect: (context, state) {
+    final fullUri = state.uri; // GoRouter가 받은 전체 URI (healthtierscheme://cmu/feed/10)
+    
+    // 딥링크 스킴인지 확인
+    if (fullUri.scheme == 'healthtierscheme' && fullUri.host == 'cmu') {
+        // 경로 세그먼트에서 피드 ID를 추출하여 내부 경로로 변환
+        final feedIdString = fullUri.pathSegments.lastWhere((s) => RegExp(r'^\d+$').hasMatch(s), orElse: () => '');
+        
+        if (feedIdString.isNotEmpty) {
+            final targetPath = '/cmu/feed/$feedIdString';
+            debugPrint('*** [GoRouter Redirect] Target Path: $targetPath');
+            return targetPath; // 내부 경로(/cmu/feed/10)로 리다이렉션
+        }
+    }
+    return null; // 리다이렉션 없음
+  },
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
