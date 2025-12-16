@@ -18,7 +18,7 @@ final router = GoRouter(
   //     return '/usr'; // 카카오톡으로 로그인하는 경우 자꾸 응답링크로 리다이렉트 시키려고함, 
   //     // return null 이나 '' 해도 응답링크로 보내짐, 
   //   }
-  //   return null;
+  //   return null; --> 딥링크 구현 시 AppLink 패키지를 사용해서 이 문제는 해결,, 여전히 FlutterDeepLinkingEnabled 는 false임
   // },
   redirect: (context, state) {
     final fullUri = state.uri; // GoRouter가 받은 전체 URI (healthtierscheme://cmu/feed/10)

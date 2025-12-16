@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart' show SvgPicture;
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/providers/user_cud_providers.dart';
+import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
@@ -27,9 +29,9 @@ class MyBadge extends ConsumerWidget {
 
         return Column(
           children: [
-            _buildHeader('중량 뱃지', htio, wtio),
+            _buildHeader(context, '중량 뱃지', '🎖️중량 뱃지', '커뮤탭 피드 작성 시 중량인증 카테고리로 삼대운동(벤치프레스, 데드리프트, 스쿼트)의 총중량 kg을 인증하면 그에 맞는 뱃지를 부여해 드립니다.\n\n인증된 중량은 시스템에서 관리되며 누적 기록은 [유저탭 > 신체 정보] 화면에서 확인할 수 있습니다.', htio, wtio),
             _buildWeightBadgeList(weightBadges, htio, wtio),
-            _buildHeader('오운완 뱃지', htio, wtio),
+            _buildHeader(context, '오운완 뱃지', '🎖️오운완 뱃지', '커뮤탭 피드 작성 시 오운완 카테고리로 오늘 하루 운동을 인증하면 누적 일수를 관리하여 이에 맞는 뱃지를 부여해 드립니다.\n\n인증된 오운완 일수는 시스템에서 관리됩니다.', htio, wtio),
             _buildTodayBadgeList(todayBadges, htio, wtio),
           ],
         );
@@ -43,7 +45,7 @@ class MyBadge extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(String title, double htio, double wtio) {
+  Widget _buildHeader(BuildContext context, String title,  String subscriptTitle, String subscription, double htio, double wtio) {
     return Container(
       width: double.infinity,
       height: 86 * htio,
@@ -65,6 +67,25 @@ class MyBadge extends ConsumerWidget {
               height: 0.07 * htio,
             ),
           ),
+          InkWell(
+            onTap: () {
+              showAppDialog(
+                context, 
+                title: subscriptTitle,
+                message: subscription
+              );
+            },
+            child: Padding(
+              padding: EdgeInsets.only(left: 5 * wtio, top: 1 * htio, bottom: 1 * htio),
+              child: SizedBox(
+                width: 14 * wtio,
+                height: 14 * htio,
+                child: SvgPicture.asset(
+                  'assets/icons/description.svg',
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );

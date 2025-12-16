@@ -80,23 +80,23 @@ class MyBodyInfo extends ConsumerWidget {
     String subscriptTitle, String subscription) {
     return Container(
       width: double.infinity,
-      height: 86,
-      padding: const EdgeInsets.only(
-        top: 48,
-        left: 20,
-        right: 20,
-        bottom: 8,
+      height: 86 * htio,
+      padding: EdgeInsets.only(
+        top: 48 * htio,
+        left: 20 * wtio,
+        right: 20 * wtio,
+        bottom: 8 * htio,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.black,
-              fontSize: 20,
+              fontSize: 20 * htio,
               fontFamily: 'Pretendard',
-              height: 0.07,
+              height: 0.07 * htio,
             ),
           ),
           isThereDescription ?
@@ -109,10 +109,10 @@ class MyBodyInfo extends ConsumerWidget {
               );
             },
             child: Padding(
-              padding: const EdgeInsets.only(left: 5, top: 1, bottom: 1),
+              padding: EdgeInsets.only(left: 5 * wtio, top: 1 * htio, bottom: 1 * htio),
               child: SizedBox(
-                width: 14,
-                height: 14,
+                width: 14 * wtio,
+                height: 14 * htio,
                 child: SvgPicture.asset(
                   'assets/icons/description.svg',
                 ),
