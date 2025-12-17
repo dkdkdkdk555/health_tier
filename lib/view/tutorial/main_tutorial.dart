@@ -19,7 +19,7 @@ final GlobalKey kcalTextKey = GlobalKey();
 final GlobalKey bottomBarHandleKey = GlobalKey();
 
 
-void createTutorial() {
+void createTutorial(WidgetRef ref) {
   tutorialCoachMark = TutorialCoachMark(
     targets: _createTargets(),
     colorShadow: Colors.black,
@@ -27,7 +27,13 @@ void createTutorial() {
     paddingFocus: 10,
     imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     textSkip: 'SKIP',
-    onSkip: () => true,
+    onSkip: () {
+      ref.read(mainTutorialStorageProvider.notifier).markAsShown();
+      return true;
+    },
+    onFinish: () {
+      ref.read(mainTutorialStorageProvider.notifier).markAsShown();
+    },
   );
 }
 

@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/model/diet/diet_input_data.dart' show DietInputData;
 import 'package:my_app/model/diet/doc_diet_model.dart';
+import 'package:my_app/notifier/tutorial_notifier.dart' show dietWriteTutorialStorageProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/usr_auth_providers.dart' show jwtTokenVerificationProvider;
@@ -25,6 +26,7 @@ import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 part '../../../../view/tutorial/diet_write_tutorial.dart';
@@ -73,8 +75,13 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   }
 
   void _createTutorial() async{
-    await createTutorial();
-    await Future.delayed(Duration.zero, showTutorial);
+    final prefs = await SharedPreferences.getInstance();
+    final isShown = prefs.getBool("is_diet_write_tutorial_shown") ?? false;
+    debugPrint('이즈쇼운 : $isShown');
+    if(!isShown) {
+      await createTutorial(ref);
+      await Future.delayed(Duration.zero, showTutorial);
+    }
   }
 
   void showTutorial() {

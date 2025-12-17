@@ -4,7 +4,7 @@ late TutorialCoachMark tutorialCoachMarkDietWrite;
 
 final GlobalKey aiAnalyzeBtn = GlobalKey();
 
-Future<void> createTutorial() async {
+Future<void> createTutorial(WidgetRef ref) async {
   tutorialCoachMarkDietWrite = TutorialCoachMark(
     targets: _createTargets(),
     colorShadow: Colors.black,
@@ -12,7 +12,13 @@ Future<void> createTutorial() async {
     opacityShadow: 0.5,
     imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     textSkip: 'SKIP',
-    onSkip: () => true,
+    onSkip: () {
+      ref.read(dietWriteTutorialStorageProvider.notifier).markAsShown();
+      return true;
+    },
+    onFinish: () {
+      ref.read(dietWriteTutorialStorageProvider.notifier).markAsShown();
+    },
   );
 }
 

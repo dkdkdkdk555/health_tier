@@ -244,8 +244,14 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     Future.delayed(const Duration(milliseconds: 2400), showTutorial);
   }
 
-  void showTutorial() {
-    tutorialCoachMark.show(context: context);
+  void showTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isShown = prefs.getBool("is_main_tutorial_shown") ?? false;
+    debugPrint('이즈쇼운 : $isShown');
+    if(!isShown) {
+      if(!mounted)return;
+      tutorialCoachMark.show(context: context);
+    }
   }
 
   @override
@@ -270,6 +276,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
       if (next != null) {
         // 여기서 show를 호출하면 _ShellScaffold의 context를 사용하므로 
         // 하위의 네비게이션 바까지 모두 포함하여 블러 처리가 됩니다.
+        
         tutorialCoachMarkDiet.show(context: context);
       }
     });

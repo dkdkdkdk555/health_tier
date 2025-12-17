@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/main.dart' show navigationBarHideProvider;
+import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';

@@ -11,7 +11,7 @@ final GlobalKey dietCalendarHeader = GlobalKey();
 final GlobalKey totalKcalAndProtien = GlobalKey();
 final GlobalKey aiAnalyzeBtn = GlobalKey();
 
-Future<void> createTutorialDiet() async {
+Future<void> createTutorialDiet(WidgetRef ref) async {
   tutorialCoachMarkDiet = TutorialCoachMark(
     targets: _createTargets(),
     colorShadow: Colors.black,
@@ -19,7 +19,13 @@ Future<void> createTutorialDiet() async {
     opacityShadow: 0.5,
     imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     textSkip: 'SKIP',
-    onSkip: () => true,
+    onSkip: () {
+      ref.read(dietTutorialStorageProvider.notifier).markAsShown();
+      return true;
+    },
+    onFinish: () {
+      ref.read(dietTutorialStorageProvider.notifier).markAsShown();
+    },
   );
 }
 
