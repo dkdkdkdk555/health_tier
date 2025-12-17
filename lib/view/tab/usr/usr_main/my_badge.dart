@@ -29,9 +29,9 @@ class MyBadge extends ConsumerWidget {
 
         return Column(
           children: [
-            _buildHeader(context, '중량 뱃지', '🎖️중량 뱃지', '커뮤탭 피드 작성 시 중량인증 카테고리로 삼대운동(벤치프레스, 데드리프트, 스쿼트)의 총중량 kg을 인증하면 그에 맞는 뱃지를 부여해 드립니다.\n\n인증된 중량은 시스템에서 관리되며 누적 기록은 [유저탭 > 신체 정보] 화면에서 확인할 수 있습니다.', htio, wtio),
+            _buildHeader(context, '중량 뱃지', '🎖️중량 뱃지', '피드 작성 시 중량인증 카테고리로 삼대운동(벤치프레스, 데드리프트, 스쿼트)의 총중량 kg을 인증하면 그에 맞는 뱃지를 부여해 드립니다.\n\n인증된 중량은 시스템에서 관리되며 누적 기록은 [유저탭 > 신체 정보] 화면에서 확인할 수 있습니다.', htio, wtio),
             _buildWeightBadgeList(weightBadges, htio, wtio),
-            _buildHeader(context, '오운완 뱃지', '🎖️오운완 뱃지', '커뮤탭 피드 작성 시 오운완 카테고리로 오늘 하루 운동을 인증하면 누적 일수를 관리하여 이에 맞는 뱃지를 부여해 드립니다.\n\n인증된 오운완 일수는 시스템에서 관리됩니다.', htio, wtio),
+            _buildHeader(context, '오운완 뱃지', '🎖️오운완 뱃지', '피드 작성 시 오운완 카테고리로 오늘 하루 운동을 인증하면 누적 횟수를 관리하여 이에 맞는 뱃지를 부여해 드립니다.\n\n인증된 오운완 횟수는 시스템에서 관리됩니다.', htio, wtio),
             _buildTodayBadgeList(todayBadges, htio, wtio),
           ],
         );
