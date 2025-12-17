@@ -35,6 +35,7 @@ import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
+import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart' show createTutorialDiet, tutorialCoachMarkDiet;
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tab/stc/stc_main.dart';
@@ -48,6 +49,7 @@ import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
+import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
@@ -208,7 +210,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
     initDeepLinks();
     // 튜토리얼 초기화
-    // createTutorial();
+    createTutorial();
+    createTutorialDiet();
   }
 
   Future<void> initDeepLinks() async {

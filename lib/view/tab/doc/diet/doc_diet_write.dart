@@ -24,6 +24,7 @@ import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
+import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 part '../../../../view/tutorial/diet_write_tutorial.dart';

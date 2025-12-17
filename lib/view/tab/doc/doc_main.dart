@@ -124,7 +124,7 @@ class _DocMainState extends State<DocMain> {
       cachedDocTabIndex = index; // 캐시된 값 불러오기
     });
     if(index == 1) {
-      Future.delayed(Duration.zero, showTutorial);
+      Future.delayed(const Duration(milliseconds: 200), showTutorial);
     }
   }
 

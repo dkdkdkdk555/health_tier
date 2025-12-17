@@ -2,276 +2,128 @@ part of '../../main.dart';
 
 late TutorialCoachMark tutorialCoachMark;
 
-// 네비게이션 바 튜토리얼
-GlobalKey docTabBtn = GlobalKey();
-GlobalKey stcTabBtn = GlobalKey();
-GlobalKey cmuTabBtn = GlobalKey();
-GlobalKey usrTabBtn = GlobalKey();
-// 상단탭 튜토리얼
-GlobalKey docBodyTabBtn = GlobalKey();
-GlobalKey docDietTabBtn = GlobalKey();
-// 기록>체중 튜토리얼
-GlobalKey calendarItemKey = GlobalKey();
-// 상세영역
-GlobalKey weightTextKey = GlobalKey();
-GlobalKey proteinTextKey = GlobalKey();
-GlobalKey kcalTextKey = GlobalKey();
-GlobalKey bottomBarHandleKey = GlobalKey();
+// 네비게이션 바
+final GlobalKey docTabBtn = GlobalKey();
+final GlobalKey stcTabBtn = GlobalKey();
+final GlobalKey cmuTabBtn = GlobalKey();
+final GlobalKey usrTabBtn = GlobalKey();
+// 상단 탭
+final GlobalKey docBodyTabBtn = GlobalKey();
+final GlobalKey docDietTabBtn = GlobalKey();
+// 기록 > 체중
+final GlobalKey calendarItemKey = GlobalKey();
+// 상세 영역
+final GlobalKey weightTextKey = GlobalKey();
+final GlobalKey proteinTextKey = GlobalKey();
+final GlobalKey kcalTextKey = GlobalKey();
+final GlobalKey bottomBarHandleKey = GlobalKey();
+
 
 void createTutorial() {
   tutorialCoachMark = TutorialCoachMark(
     targets: _createTargets(),
-    colorShadow: Colors.red,
-    textSkip: "SKIP",
-    paddingFocus: 10,
+    colorShadow: Colors.black,
     opacityShadow: 0.5,
-    imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-    onFinish: () {
-    },
-    onClickTarget: (target) {
-    },
-    onClickTargetWithTapPosition: (target, tapDetails) {
-    },
-    onClickOverlay: (target) {
-    },
-    onSkip: () {
-      return true;
-    },
+    paddingFocus: 10,
+    imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+    textSkip: 'SKIP',
+    onSkip: () => true,
   );
 }
 
-List<TargetFocus> _createTargets(){
-  List<TargetFocus> targets = [];
-  targets.add(
-    TargetFocus(
-      identify: "docTabBtn",
-      keyTarget: docTabBtn,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "기록탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "체중, 식단을 기록하고 관리하는 화면이에요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "stcTabBtn",
-      keyTarget: stcTabBtn,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "통계탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "기록탭에서 기록한 데이터들을 시각화해서 보여주는 화면이에요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "cmuTabBtn",
-      keyTarget: cmuTabBtn,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "커뮤탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "다른 유저들과 소통하는 공간이에요.\n다양한 활동을 피드로 공유하고 정보를 얻을 수 있어요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "usrTabBtn",
-      keyTarget: usrTabBtn,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "유저탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "데이터백업 등 유저 맞춤 기능을 제공하는 공간이에요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "docBodyTabBtn",
-      keyTarget: docBodyTabBtn,
+List<TargetFocus> _createTargets() {
+  return [
+    // 기록탭
+    buildTarget(
+      id: 'docTabBtn',
+      key: docTabBtn,
+      align: ContentAlign.top,
+      unFocusDuration: const Duration(milliseconds: 0),
+      builder: (_, __) => titleDescContent(
+        title: '기록탭',
+        description: '체중, 식단을 기록하고 관리하는 화면이에요.',
+      ),
+    ),
+
+    // 통계탭
+    buildTarget(
+      id: 'stcTabBtn',
+      key: stcTabBtn,
+      align: ContentAlign.top,
+      focusDuration: const Duration(milliseconds: 0),
+      unFocusDuration: const Duration(milliseconds: 0),
+      builder: (_, __) => titleDescContent(
+        title: '통계탭',
+        description: '기록탭에서 기록한 데이터들을 시각화해서 보여주는 화면이에요.',
+      ),
+    ),
+
+    // 커뮤니티탭
+    buildTarget(
+      id: 'cmuTabBtn',
+      key: cmuTabBtn,
+      align: ContentAlign.top,
+      focusDuration: const Duration(milliseconds: 0),
+      unFocusDuration: const Duration(milliseconds: 0),
+      builder: (_, __) => titleDescContent(
+        title: '커뮤탭',
+        description:
+            '다른 유저들과 소통하는 공간이에요.\n다양한 활동을 피드로 공유하고 정보를 얻을 수 있어요.',
+      ),
+    ),
+
+    // 유저탭
+    buildTarget(
+      id: 'usrTabBtn',
+      key: usrTabBtn,
+      align: ContentAlign.top,
+      focusDuration: const Duration(milliseconds: 0),
+      builder: (_, __) => titleDescContent(
+        title: '유저탭',
+        description: '데이터 백업 등 유저 맞춤 기능을 제공하는 공간이에요.',
+      ),
+    ),
+
+    // 체중 기록 탭
+    buildTarget(
+      id: 'docBodyTabBtn',
+      key: docBodyTabBtn,
+      align: ContentAlign.bottom,
       alignSkip: Alignment.bottomRight,
-      enableOverlayTab: true,
-      contents: [
-        TargetContent(
-          align: ContentAlign.bottom,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "기록탭 > 체중 기록 탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록은 달력으로 한눈에 파악할 수 있게 보여줘요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "docDietTabBtn",
-      keyTarget: docDietTabBtn,
+      builder: (_, __) => titleDescContent(
+        title: '기록탭 > 체중 기록',
+        description:
+            '체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록은 달력으로 한눈에 볼 수 있어요.',
+      ),
+    ),
+
+    // 식단 기록 탭
+    buildTarget(
+      id: 'docDietTabBtn',
+      key: docDietTabBtn,
+      align: ContentAlign.bottom,
       alignSkip: Alignment.bottomRight,
-      enableOverlayTab: true,
-      contents: [
-        TargetContent(
-          align: ContentAlign.bottom,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                    "기록탭 > 식단 기록 탭",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 20.0),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 5.0),
-                    child: Text(
-                      "하루 중 먹었던 음식을 기록하고 관리할 수 있어요\n기록한 식단의 전체 칼로리와 단백질(g)은 체중 기록 탭에서도 볼 수 있어요.",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(TargetFocus(
-    identify: "calendarItem",
-    keyTarget: calendarItemKey,
-    enableOverlayTab: true,
-    alignSkip: Alignment.bottomRight,
-    contents: [
-      TargetContent(
-        align: ContentAlign.bottom,
-        builder: (context, controller) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
+      builder: (_, __) => titleDescContent(
+        title: '기록탭 > 식단 기록',
+        description:
+            '하루 중 먹은 음식을 기록할 수 있어요.\n총 칼로리와 단백질은 체중 탭에서도 확인 가능해요.',
+      ),
+    ),
+
+    // 캘린더 셀 (특수)
+    buildTarget(
+      id: 'calendarItem',
+      key: calendarItemKey,
+      align: ContentAlign.bottom,
+      alignSkip: Alignment.bottomRight,
+      shape: ShapeLightFocus.Circle,
+      builder: (_, __) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: SvgPicture.asset(
                   'assets/image/calendar_item_example.svg',
                   height: 56,
@@ -279,157 +131,100 @@ List<TargetFocus> _createTargets(){
               ),
               const Expanded(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(top:9.0),
-                      child: Text(
-                        "캘린더 셀",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0),
+                    Text(
+                      '캘린더 셀',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5.0),
-                      child: Text(
-                        "달력에서 날짜마다 입력한 체중, 총 섭취칼로리, 하루평가를 보여줘요.",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    SizedBox(height: 5),
+                    Text(
+                      '달력에서 날짜마다 입력한 체중, 총 섭취칼로리, 하루평가를 보여줘요.',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ],
                 ),
               ),
             ],
-          );
-        },
+          ),
+        );
+      },
+    ),
+
+    // 체중 입력
+    buildTarget(
+      id: 'weightTextKey',
+      key: weightTextKey,
+      align: ContentAlign.top,
+      builder: (_, __) => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 40),
+          child: Text(
+            '영역을 위로 끌어올려 체중을 입력할 수 있어요.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       ),
-    ],
-    shape: ShapeLightFocus.Circle,
-  ));
-  targets.add(
-    TargetFocus(
-      identify: "weightTextKey",
-      keyTarget: weightTextKey,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 40.0),
-                  child: Text(
-                    "영역을 위로 끌어올려 체중을 입력할 수 있어요.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "proteinTextKey",
-      keyTarget: proteinTextKey,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 40.0),
-                  child: Text(
-                    "식단탭에서 입력한 식사의 하루 총 단백질 섭취량을 보여줘요.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "kcalTextKey",
-      keyTarget: kcalTextKey,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      unFocusAnimationDuration: const Duration(milliseconds: 0),
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 30.0),
-                  child: Text(
-                    "식단탭에서 입력한 식사의\n하루 총 섭취 칼로리를 보여줘요.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  targets.add(
-    TargetFocus(
-      identify: "bottomBarHandleKey",
-      keyTarget: bottomBarHandleKey,
-      alignSkip: Alignment.topRight,
-      enableOverlayTab: true,
-      focusAnimationDuration: const Duration(milliseconds: 0),
-      contents: [
-        TargetContent(
-          align: ContentAlign.top,
-          builder:(context, controller) {
-            return const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10.0),
-                  child: Column(
-                    children: [
-                      UpArrowIndicator(durationTime: 1000, color: Colors.white,),
-                      Text(
-                        "이제 위로 끌어올려 오늘의 평가와 체성분을 입력해보세요!",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        )
-      ]
-    )
-  );
-  return targets;
+    ),
+
+    // 단백질
+    buildTarget(
+      id: 'proteinTextKey',
+      key: proteinTextKey,
+      align: ContentAlign.top,
+      builder: (_, __) => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 40),
+          child: Text(
+            '식단탭에서 입력한 식사의 하루 총 단백질 섭취량을 보여줘요.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+    ),
+
+    // 칼로리
+    buildTarget(
+      id: 'kcalTextKey',
+      key: kcalTextKey,
+      align: ContentAlign.top,
+      builder: (_, __) => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 30),
+          child: Text(
+            '식단탭에서 입력한 식사의\n하루 총 섭취 칼로리를 보여줘요.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+    ),
+
+    // 하단 핸들
+    buildTarget(
+      id: 'bottomBarHandleKey',
+      key: bottomBarHandleKey,
+      align: ContentAlign.top,
+      builder: (_, __) => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            UpArrowIndicator(durationTime: 1000, color: Colors.white),
+            SizedBox(height: 6),
+            Text(
+              '이제 위로 끌어올려 오늘의 평가와 체성분을 입력해보세요!',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    ),
+  ];
 }
