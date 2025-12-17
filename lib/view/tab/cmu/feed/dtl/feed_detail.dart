@@ -58,7 +58,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
   void _deleteFeedCallback(FeedCudService? feedCudService) async {
     await feedCudService!.deleteFeed(widget.feedId);
     if(!mounted)return;
-    showAppDialog(context, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
+    showAppDialog(context, barrierDismiss: false, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
       ref.read(feedPaginationProvider(ref.read(feedParamsProvider)).notifier).removeFeed(widget.feedId);
       ref.invalidate(searchFeedsProvider);
       ref.invalidate(sameCategoryFeedPaginationProvider);

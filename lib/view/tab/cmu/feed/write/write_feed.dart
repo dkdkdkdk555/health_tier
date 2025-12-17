@@ -42,6 +42,9 @@ class WriteFeed extends ConsumerStatefulWidget {
   ConsumerState<WriteFeed> createState() => _WriteFeedState();
 }
 
+// 피드저장 로딩상태 관리
+bool _isSubmitting = false;
+
 class _WriteFeedState extends ConsumerState<WriteFeed> {
   final TextEditingController _titleController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -56,8 +59,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
-  // 피드저장 로딩상태 관리
-  bool _isSubmitting = false;
   int categoryId = 0;
   // 수정 모드일 때 데이터 로딩 완료 여부
   bool _isEditDataLoaded = false;
@@ -784,6 +785,23 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 ),
               ),
             ),
+
+            if (_isSubmitting)
+            HeroMode(
+              enabled: false,
+              child: Positioned.fill(
+                child: AbsorbPointer(
+                  absorbing: true, // 터치 차단
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    child: const Center(
+                      child: AppLoadingIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             // 키보드 위에 위치한 툴바
             if (_showToolbar)
               Positioned(
