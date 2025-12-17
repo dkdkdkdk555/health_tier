@@ -1,4 +1,5 @@
 import 'dart:io' show File;
+import 'dart:ui' show ImageFilter;
 
 import 'package:dio/dio.dart' show DioException;
 import 'package:flutter/material.dart';
@@ -21,7 +22,11 @@ import 'package:my_app/util/image_compress.dart';
 import 'package:my_app/util/ai_diet_loading_dialog.dart' show showAiAnalysisLoadingDialog;
 import 'package:my_app/util/saving_success_dialog.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+
+part '../../../../view/tutorial/diet_write_tutorial.dart';
 
 class DocDietWrite extends ConsumerStatefulWidget {
   const DocDietWrite({
@@ -62,6 +67,17 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         });
       }
     });
+
+    _createTutorial();
+  }
+
+  void _createTutorial() async{
+    await createTutorial();
+    await Future.delayed(Duration.zero, showTutorial);
+  }
+
+  void showTutorial() {
+    tutorialCoachMarkDietWrite.show(context: context);
   }
 
   // =========================================================================
@@ -351,6 +367,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           },
                                           child: SvgPicture.asset(
                                             'assets/widgets/gemini_icon.svg',
+                                            key: aiAnalyzeBtn,
                                             fit: BoxFit.cover,
                                             width: 28 * wtio,
                                             height: 28 * htio,

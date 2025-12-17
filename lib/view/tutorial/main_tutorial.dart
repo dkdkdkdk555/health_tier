@@ -48,7 +48,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: docTabBtn,
       alignSkip: Alignment.topRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       unFocusAnimationDuration: const Duration(milliseconds: 0),
       contents: [
         TargetContent(
@@ -85,7 +84,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: stcTabBtn,
       alignSkip: Alignment.topRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
       unFocusAnimationDuration: const Duration(milliseconds: 0),
       contents: [
@@ -123,7 +121,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: cmuTabBtn,
       alignSkip: Alignment.topRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
       unFocusAnimationDuration: const Duration(milliseconds: 0),
       contents: [
@@ -161,7 +158,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: usrTabBtn,
       alignSkip: Alignment.topRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       focusAnimationDuration: const Duration(milliseconds: 0),
       contents: [
         TargetContent(
@@ -198,7 +194,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: docBodyTabBtn,
       alignSkip: Alignment.bottomRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       contents: [
         TargetContent(
           align: ContentAlign.bottom,
@@ -234,7 +229,6 @@ List<TargetFocus> _createTargets(){
       keyTarget: docDietTabBtn,
       alignSkip: Alignment.bottomRight,
       enableOverlayTab: true,
-      enableTargetTab: false,
       contents: [
         TargetContent(
           align: ContentAlign.bottom,

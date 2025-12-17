@@ -123,6 +123,13 @@ class _DocMainState extends State<DocMain> {
       _selectedIndex = index;
       cachedDocTabIndex = index; // 캐시된 값 불러오기
     });
+    if(index == 1) {
+      Future.delayed(Duration.zero, showTutorial);
+    }
+  }
+
+  void showTutorial() {
+    tutorialCoachMarkDiet.show(context: context);
   }
 
   @override

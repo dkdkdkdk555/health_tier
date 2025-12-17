@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,9 @@ import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+
+part '../../../tutorial/diet_tutorial.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
   const DocDietMain({super.key});
@@ -23,10 +28,20 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
   final double _minHeightSize = 414; // 바텀영역 최소값
   final double _maxHeightSize = 595; // 바텀영역 최댓감
 
+  @override
+  void initState() {
+    super.initState();
+    _createTutorial();
+  }
+
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
       _focusedDay = selectedDay;
     });
+  }
+
+  void _createTutorial() async{
+    await createTutorial();
   }
 
   @override
