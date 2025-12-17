@@ -77,7 +77,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   void _createTutorial() async{
     final prefs = await SharedPreferences.getInstance();
     final isShown = prefs.getBool("is_diet_write_tutorial_shown") ?? false;
-    debugPrint('이즈쇼운 : $isShown');
     if(!isShown) {
       await createTutorial(ref);
       await Future.delayed(Duration.zero, showTutorial);

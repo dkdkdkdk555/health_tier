@@ -247,7 +247,6 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
   void showTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     final isShown = prefs.getBool("is_main_tutorial_shown") ?? false;
-    debugPrint('이즈쇼운 : $isShown');
     if(!isShown) {
       if(!mounted)return;
       tutorialCoachMark.show(context: context);
