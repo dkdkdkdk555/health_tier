@@ -12,13 +12,18 @@ GlobalKey docBodyTabBtn = GlobalKey();
 GlobalKey docDietTabBtn = GlobalKey();
 // 기록>체중 튜토리얼
 GlobalKey calendarItemKey = GlobalKey();
+// 상세영역
+GlobalKey weightTextKey = GlobalKey();
+GlobalKey proteinTextKey = GlobalKey();
+GlobalKey kcalTextKey = GlobalKey();
+GlobalKey bottomBarHandleKey = GlobalKey();
 
 void createTutorial() {
   tutorialCoachMark = TutorialCoachMark(
     targets: _createTargets(),
     colorShadow: Colors.red,
     textSkip: "SKIP",
-    paddingFocus: 15,
+    paddingFocus: 10,
     opacityShadow: 0.5,
     imageFilter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
     onFinish: () {
@@ -263,6 +268,7 @@ List<TargetFocus> _createTargets(){
     identify: "calendarItem",
     keyTarget: calendarItemKey,
     enableOverlayTab: true,
+    alignSkip: Alignment.bottomRight,
     contents: [
       TargetContent(
         align: ContentAlign.bottom,
@@ -309,5 +315,127 @@ List<TargetFocus> _createTargets(){
     ],
     shape: ShapeLightFocus.Circle,
   ));
+  targets.add(
+    TargetFocus(
+      identify: "weightTextKey",
+      keyTarget: weightTextKey,
+      alignSkip: Alignment.topRight,
+      enableOverlayTab: true,
+      unFocusAnimationDuration: const Duration(milliseconds: 0),
+      contents: [
+        TargetContent(
+          align: ContentAlign.top,
+          builder:(context, controller) {
+            return const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 40.0),
+                  child: Text(
+                    "영역을 위로 끌어올려 체중을 입력할 수 있어요.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        )
+      ]
+    )
+  );
+  targets.add(
+    TargetFocus(
+      identify: "proteinTextKey",
+      keyTarget: proteinTextKey,
+      alignSkip: Alignment.topRight,
+      enableOverlayTab: true,
+      unFocusAnimationDuration: const Duration(milliseconds: 0),
+      focusAnimationDuration: const Duration(milliseconds: 0),
+      contents: [
+        TargetContent(
+          align: ContentAlign.top,
+          builder:(context, controller) {
+            return const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 40.0),
+                  child: Text(
+                    "식단탭에서 입력한 식사의 하루 총 단백질 섭취량을 보여줘요.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        )
+      ]
+    )
+  );
+  targets.add(
+    TargetFocus(
+      identify: "kcalTextKey",
+      keyTarget: kcalTextKey,
+      alignSkip: Alignment.topRight,
+      enableOverlayTab: true,
+      unFocusAnimationDuration: const Duration(milliseconds: 0),
+      focusAnimationDuration: const Duration(milliseconds: 0),
+      contents: [
+        TargetContent(
+          align: ContentAlign.top,
+          builder:(context, controller) {
+            return const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 30.0),
+                  child: Text(
+                    "식단탭에서 입력한 식사의\n하루 총 섭취 칼로리를 보여줘요.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        )
+      ]
+    )
+  );
+  targets.add(
+    TargetFocus(
+      identify: "bottomBarHandleKey",
+      keyTarget: bottomBarHandleKey,
+      alignSkip: Alignment.topRight,
+      enableOverlayTab: true,
+      focusAnimationDuration: const Duration(milliseconds: 0),
+      contents: [
+        TargetContent(
+          align: ContentAlign.top,
+          builder:(context, controller) {
+            return const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: Column(
+                    children: [
+                      UpArrowIndicator(durationTime: 1000, color: Colors.white,),
+                      Text(
+                        "이제 위로 끌어올려 오늘의 평가와 체성분을 입력해보세요!",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        )
+      ]
+    )
+  );
   return targets;
 }

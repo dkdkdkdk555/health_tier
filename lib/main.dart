@@ -26,6 +26,7 @@ import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/util/up_arrow.dart' show UpArrowIndicator;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/webview_page.dart';
 import 'package:my_app/view/intro_screen.dart';
@@ -207,7 +208,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
     initDeepLinks();
     // 튜토리얼 초기화
-    createTutorial();
+    // createTutorial();
   }
 
   Future<void> initDeepLinks() async {

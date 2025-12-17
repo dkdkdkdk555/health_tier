@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart' show DateFormat, NumberFormat;
+import 'package:my_app/main.dart' show bottomBarHandleKey, kcalTextKey, proteinTextKey, weightTextKey;
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart';
@@ -46,6 +47,7 @@ class DocBodyDetail extends ConsumerWidget {
             children: [
               SizedBox(height: 6 * htio,),
               Container(
+                key: bottomBarHandleKey,
                 width: 40 * wtio,
                 height: 4 * htio,
                 decoration: ShapeDecoration(
@@ -213,6 +215,7 @@ class DocBodyDetail extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
+                key: kcalTextKey,
                 'kcal',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -315,6 +318,7 @@ class DocBodyDetail extends ConsumerWidget {
             children: [
               Text(
                 weightText,
+                key: weightTextKey,
                 style: TextStyle(
                   color: detail?.weight != null ? Colors.black : Colors.black.withAlpha(30),
                   fontSize: (detail?.weight != null ? 42: 32) * htio,
@@ -351,6 +355,7 @@ class DocBodyDetail extends ConsumerWidget {
             children: [
               Text(
                 proteinText,
+                key: proteinTextKey,
                 maxLines: detail?.totalProtein != null ? 1 : 2,
                 overflow: TextOverflow.visible,
                 style: TextStyle(
