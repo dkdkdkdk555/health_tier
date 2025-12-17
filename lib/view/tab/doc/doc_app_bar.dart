@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/main.dart';
 import 'package:my_app/util/screen_ratio.dart';
 
 class DocAppBar extends StatelessWidget {
@@ -29,6 +30,7 @@ class DocAppBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               buildTab(
+                gk: docBodyTabBtn,
                 title: '체중',
                 isSelected: selectedIndex == 0,
                 index: 0,
@@ -37,6 +39,7 @@ class DocAppBar extends StatelessWidget {
               ),
               SizedBox(width: 52 * widthRatio),
               buildTab(
+                gk: docDietTabBtn,
                 title: '식단',
                 isSelected: selectedIndex == 1,
                 index: 1,
@@ -52,6 +55,7 @@ class DocAppBar extends StatelessWidget {
   }
 
   Widget buildTab({
+    required GlobalKey gk,
     required String title,
     required bool isSelected,
     required int index,
@@ -59,6 +63,7 @@ class DocAppBar extends StatelessWidget {
     required double heightRatio,
   }) {
     return GestureDetector(
+      key: gk,
       onTap: () => onTap(index),
       behavior: HitTestBehavior.translucent,
       child: Column(

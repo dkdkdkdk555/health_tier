@@ -30,7 +30,6 @@ final router = GoRouter(
         
         if (feedIdString.isNotEmpty) {
             final targetPath = '/cmu/feed/$feedIdString';
-            debugPrint('*** [GoRouter Redirect] Target Path: $targetPath');
             return targetPath; // 내부 경로(/cmu/feed/10)로 리다이렉션
         }
     }
@@ -242,6 +241,11 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     _fabOpacity = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _fabController, curve: Curves.easeIn),
     );
+    Future.delayed(const Duration(milliseconds: 2400), showTutorial);
+  }
+
+  void showTutorial() {
+    tutorialCoachMark.show(context: context);
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:async' show StreamSubscription;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -48,6 +49,7 @@ import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import '../firebase_options.dart';
 import 'view/navigation_bar.dart';
 import 'dart:math' as math;
@@ -55,6 +57,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 part 'router.dart';
+part 'view/tutorial/main_tutorial.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -203,6 +206,8 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     });
 
     initDeepLinks();
+    // 튜토리얼 초기화
+    createTutorial();
   }
 
   Future<void> initDeepLinks() async {

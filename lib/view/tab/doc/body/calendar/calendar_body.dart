@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/main.dart' show calendarItemKey;
 import 'package:my_app/model/body/doc_main_model.dart' show DocDayInfo;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
@@ -143,9 +144,12 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
           orElse: () => DocDayInfo(day: '', weight: null, totalCalorie: null),
         );
 
+        final bool isFirstItem = list.isNotEmpty && matched.day == list.first.day;
+
         final bgColor = stampColor(matched.stamp);
 
         return LayoutBuilder(
+          key: isFirstItem ? calendarItemKey : null,
           builder: (context, constraints) {
             return SizedBox(
               height: constraints.maxHeight,
