@@ -144,7 +144,10 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
           orElse: () => DocDayInfo(day: '', weight: null, totalCalorie: null),
         );
 
-        final bool isFirstItem = list.isNotEmpty && matched.day == list.first.day;
+        final bool isFirstItem =
+          date.year == _focusedDay.year &&
+          date.month == _focusedDay.month &&
+          date.day == 1;
 
         final bgColor = stampColor(matched.stamp);
 

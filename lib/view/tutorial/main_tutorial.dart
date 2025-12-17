@@ -191,7 +191,7 @@ List<TargetFocus> _createTargets(){
     TargetFocus(
       identify: "docBodyTabBtn",
       keyTarget: docBodyTabBtn,
-      alignSkip: Alignment.bottomLeft,
+      alignSkip: Alignment.bottomRight,
       enableOverlayTab: true,
       enableTargetTab: false,
       contents: [
@@ -260,43 +260,54 @@ List<TargetFocus> _createTargets(){
     )
   );
   targets.add(TargetFocus(
-      identify: "calendarItem",
-      keyTarget: calendarItemKey,
-      contents: [
-        TargetContent(
-          align: ContentAlign.bottom,
-          child: Row(
+    identify: "calendarItem",
+    keyTarget: calendarItemKey,
+    enableOverlayTab: true,
+    contents: [
+      TargetContent(
+        align: ContentAlign.bottom,
+        builder: (context, controller) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: SvgPicture.asset(
                   'assets/image/calendar_item_example.svg',
-                  height: 48,
+                  height: 56,
                 ),
               ),
-              const Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 20.0),
-                    child: Text(
-                      "캘린더 셀",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0),
+              const Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top:9.0),
+                      child: Text(
+                        "캘린더 셀",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0),
+                      ),
                     ),
-                  ),
-                  Text(
-                    "달력에서 날짜마다 입력한 체중, 총섭취칼로리, 하루평가를 보여줘요.",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
+                    Padding(
+                      padding: EdgeInsets.only(top: 5.0),
+                      child: Text(
+                        "달력에서 날짜마다 입력한 체중, 총 섭취칼로리, 하루평가를 보여줘요.",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
-        ),
-      ],
-      shape: ShapeLightFocus.Circle,
-    ));
+          );
+        },
+      ),
+    ],
+    shape: ShapeLightFocus.Circle,
+  ));
   return targets;
 }
