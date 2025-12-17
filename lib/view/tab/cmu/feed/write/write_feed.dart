@@ -28,6 +28,7 @@ import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.da
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart' show ImageFormat, VideoThumbnail;
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 
@@ -308,7 +309,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       // 현재 에디터에 있는 서버 이미지/비디오 URL 목록 (수정 후)
       final List<String> currentServerMediaUrls = [];
 
-      bool hasVideo = false;
       for (int i = 0; i < currentDelta.operations.length; i++) {
         final op = currentDelta.operations[i];
         if (op.isInsert && op.data is Map) {
@@ -316,10 +316,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
           if (insertData.containsKey('image')) {
             final String imageUrl = insertData['image'];
-            // 첫 번째 이미지의 URL을 imgPreview로 설정 (로컬이든 서버 URL이든 상관없음)
-            if (imgPreview.isEmpty) { // 이미 설정되지 않았을 경우에만
-              imgPreview = imageUrl;
-            }
 
             if (imageUrl.startsWith('file://')) {
               final String filePath = Uri.parse(imageUrl).toFilePath();
@@ -357,7 +353,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             }
           } else if (insertData.containsKey('video')) {
             final String videoUrl = insertData['video'];
-            hasVideo = true;
             // YouTube URL은 서버에 업로드할 필요가 없으므로 건너뜁니다.
             if (videoUrl.startsWith('file://')) {
               final String filePath = Uri.parse(videoUrl).toFilePath();
@@ -420,6 +415,27 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       
       // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
       List<String> uploadedUrls = [];
+
+        // 3-1. 썸네일 생성 (영상이 있는 경우)
+        io.File? thumbnailFile;
+        for (final file in filesToUpload) {
+          if (isVideoUrl(file.path)) {
+            thumbnailFile = await getThumbnailFile(file.path);
+            if (thumbnailFile != null) break;
+          }
+        }
+        // 3-2. 썸네일이 있으면 업로드 대상에 추가
+        if (thumbnailFile != null) {
+          final fileName = path.basename(thumbnailFile.path);
+          final mimeType = lookupMimeType(thumbnailFile.path) ?? 'image/jpeg';
+
+          rawFiles.add(thumbnailFile);
+          fileMetaList.add({
+            'fileName': fileName,
+            'contentType': mimeType,
+          });
+        }
+
       if (fileMetaList.isNotEmpty || deleteUrls.isNotEmpty) {
         final presignedUrls = await ref.read(s3PresignedProvider((
           folder: 'uploads',
@@ -444,11 +460,18 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           final s3PublicUrl = presignedUrl.split('?').first;
           uploadedUrls.add(s3PublicUrl);
           debugPrint('✅ 업로드 완료 → $s3PublicUrl');
-        }
 
-        // 서버 업로드된 첫 번째 이미지 URL 넣어주기
-        if ((imgPreview.startsWith('file://') || imgPreview.startsWith('data:image/')) && uploadedUrls.isNotEmpty) {
-          imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
+          // imgPreview 결정
+          if (thumbnailFile != null) {
+            // 썸네일은 마지막으로 업로드됨
+            imgPreview = uploadedUrls.last;
+          } else {
+            // 썸네일 없으면 첫 이미지 사용
+            imgPreview = uploadedUrls.firstWhere(
+              (url) => !isVideoUrl(url),
+              orElse: () => '',
+            );
+          }
         }
       }
 
@@ -514,7 +537,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         ctntPreview: ctntPreview.replaceAll(RegExp(r'[\r\n]+'), ' ').trim(),
         imgPreview: imgPreview,
         userWeights: userWeightsData,
-        videoExist: hasVideo ? 'Y' : 'N',
+        videoExist: content.contains('"video":') ? 'Y' : 'N',
       );
 
       int resultFeedId;
@@ -562,6 +585,33 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           curve: Curves.easeOut,
         );
     }
+  }
+
+  Future<io.File?> getThumbnailFile(String videoUrl) async {
+    try {
+      final thumbPath = await VideoThumbnail.thumbnailFile(
+        video: videoUrl,
+        imageFormat: ImageFormat.JPEG,
+        maxHeight: 200,
+        quality: 75,
+      );
+
+      if (thumbPath == null) return null;
+      return io.File(thumbPath);
+    } catch (e) {
+      debugPrint('썸네일 생성 실패: $e');
+      return null;
+    }
+  }
+
+
+  bool isVideoUrl(String url) {
+    final lower = url.toLowerCase();
+    return lower.endsWith('.mp4') ||
+        lower.endsWith('.mov') ||
+        lower.endsWith('.avi') ||
+        lower.endsWith('.mkv') ||
+        lower.endsWith('.webm');
   }
 
   @override
