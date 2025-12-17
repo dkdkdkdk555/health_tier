@@ -93,7 +93,7 @@ List<TargetFocus> _createTargets() {
       builder: (_, __) => titleDescContent(
         title: '기록탭 > 체중 기록',
         description:
-            '체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록은 달력으로 한눈에 볼 수 있어요.',
+            '체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록을 달력으로 한눈에 볼 수 있어요.',
       ),
     ),
 
@@ -143,7 +143,7 @@ List<TargetFocus> _createTargets() {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      '달력에서 날짜마다 입력한 체중, 총 섭취칼로리, 하루평가를 보여줘요.',
+                      '달력에서 날짜마다 입력한 체중, 총 섭취 칼로리, 하루 평가를 보여줘요.',
                       style: TextStyle(color: Colors.white),
                     ),
                   ],
@@ -199,7 +199,7 @@ List<TargetFocus> _createTargets() {
         child: Padding(
           padding: EdgeInsets.only(bottom: 30),
           child: Text(
-            '식단탭에서 입력한 식사의\n하루 총 섭취 칼로리를 보여줘요.',
+            '식단탭에서 입력한 식사의 하루 총 섭취 칼로리를 보여줘요.',
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -219,7 +219,7 @@ List<TargetFocus> _createTargets() {
             UpArrowIndicator(durationTime: 1000, color: Colors.white),
             SizedBox(height: 6),
             Text(
-              '이제 위로 끌어올려 오늘의 평가와 체성분을 입력해보세요!',
+              '이제 위로 끌어올려 오늘의 평가와 체성분을 입력해 보세요!',
               style: TextStyle(color: Colors.white),
             ),
           ],

@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/main.dart' show rootNavigatorKey;
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
@@ -12,16 +14,16 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class DocMain extends StatefulWidget {
+class DocMain extends ConsumerStatefulWidget {
   const DocMain({
     super.key,
   });
 
   @override
-  State<DocMain> createState() => _DocMainState();
+  ConsumerState<DocMain> createState() => _DocMainState();
 }
 
-class _DocMainState extends State<DocMain> {
+class _DocMainState extends ConsumerState<DocMain> {
   late int _selectedIndex;
   static bool _remoteChecked = false; 
   final String appStore = "https://apps.apple.com/kr/app/id6753325210";
@@ -124,12 +126,13 @@ class _DocMainState extends State<DocMain> {
       cachedDocTabIndex = index; // 캐시된 값 불러오기
     });
     if(index == 1) {
-      Future.delayed(const Duration(milliseconds: 200), showTutorial);
+      // 100ms 뒤에 트리거 프로바이더에 현재 시간을 넣어 신호를 보냄
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          ref.read(dietTutorialTriggerProvider.notifier).state = DateTime.now();
+        }
+      });
     }
-  }
-
-  void showTutorial() {
-    tutorialCoachMarkDiet.show(context: context);
   }
 
   @override

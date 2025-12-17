@@ -1,5 +1,9 @@
 part of '../../view/tab/doc/diet/doc_diet_main.dart';
 
+// 튜토리얼 실행 신호를 보내기 위한 프로바이더 (DateTime은 중복 클릭 시에도 반응하게 하기 위함) 
+// 프로바이더는 값이 달라야지만 반응하기때문에 DateTime이 필요
+final dietTutorialTriggerProvider = StateProvider<DateTime?>((ref) => null);
+
 late TutorialCoachMark tutorialCoachMarkDiet;
 
 final GlobalKey dietCalendar = GlobalKey();
@@ -27,9 +31,10 @@ List<TargetFocus> _createTargets() {
       key: dietCalendar,
       align: ContentAlign.bottom,
       shape: ShapeLightFocus.RRect,
+      alignSkip: Alignment.bottomRight,
       builder: (_, __) => titleDescContent(
         title: '식단 캘린더',
-        description: '좌우로 스크롤해서 날짜를 이동할 수 있어요.',
+        description: '좌우로 스크롤 해서 날짜를 이동할 수 있어요.',
       ),
     ),
 
@@ -39,6 +44,7 @@ List<TargetFocus> _createTargets() {
       key: dietCalendarHeader,
       align: ContentAlign.bottom,
       shape: ShapeLightFocus.RRect,
+      alignSkip: Alignment.bottomRight,
       builder: (_, __) => titleDescContent(
         title: '날짜 선택',
         description:
@@ -52,6 +58,7 @@ List<TargetFocus> _createTargets() {
       key: totalKcalAndProtien,
       align: ContentAlign.bottom,
       shape: ShapeLightFocus.RRect,
+      alignSkip: Alignment.bottomRight,
       builder: (_, __) => titleDescContent(
         title: '하루 섭취량 요약',
         description:

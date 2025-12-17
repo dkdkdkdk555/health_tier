@@ -22,9 +22,10 @@ List<TargetFocus> _createTargets() {
       id: 'aiAnalyzeBtn',
       key: aiAnalyzeBtn,
       align: ContentAlign.bottom,
+      alignSkip: Alignment.bottomRight,
       builder: (_, __) => titleDescContent(
         title: 'AI 식단 분석',
-        description: 'AI에게 사진을 주면 영양성분을 분석하고 자동으로 입력해줘요.',
+        description: 'AI에게 사진을 주면 영양성분을 분석하고 자동으로 입력해 줘요.',
       ),
     ),
   ];

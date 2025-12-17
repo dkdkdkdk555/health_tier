@@ -9,6 +9,7 @@ import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
+import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 part '../../../tutorial/diet_tutorial.dart';
@@ -31,17 +32,12 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
   @override
   void initState() {
     super.initState();
-    _createTutorial();
   }
 
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
       _focusedDay = selectedDay;
     });
-  }
-
-  void _createTutorial() async{
-    await createTutorial();
   }
 
   @override
