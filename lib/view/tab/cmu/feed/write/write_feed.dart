@@ -765,6 +765,16 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                               padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 20 * htio), // 기본 패딩 제거
                               placeholder: '내용을 입력해주세요...',
                               customStyles: DefaultStyles(
+                                paragraph: DefaultTextBlockStyle(
+                                  TextStyle(
+                                    fontSize: 14 * htio,
+                                    color: const Color(0xFF000000),
+                                  ),
+                                  HorizontalSpacing.zero,
+                                  VerticalSpacing.zero,
+                                  VerticalSpacing.zero,
+                                  null,
+                                ),
                                 placeHolder: DefaultTextBlockStyle(
                                   TextStyle(
                                     fontSize: 14 * htio,
@@ -864,8 +874,8 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                   duration: const Duration(milliseconds: 300),
                   height: 50.0 * wtio,
                   width: MediaQuery.of(context).size.width,
-                  color: Colors.grey[200],
-                       child: SingleChildScrollView(
+                  color: const Color(0xFF0D86E7).withValues(alpha: 0.3),
+                    child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Padding(
                       padding: EdgeInsets.only(left: 15 * wtio),
@@ -875,10 +885,14 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                           children: [
                             // 1. 앞에 보일 아이콘들 직접 배치
                             IconButton(
-                              icon: const Icon(Icons.photo_library), 
+                              icon: const Icon(Icons.photo_library),
+                              color: Colors.grey.shade800, 
+                              tooltip: '갤러리에서 사진 첨부',
                               onPressed: () => _handleFilePick(context, _controller, 'image')),
                             IconButton(
                               icon: const Icon(Icons.videocam), 
+                              color: Colors.grey.shade800,
+                              tooltip: '갤러리에서 비디오 첨부',
                               onPressed: () => _handleFilePick(context, _controller, 'video')),
                             IntrinsicHeight(
                               child: QuillSimpleToolbar(
@@ -896,7 +910,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                                   showListNumbers: true,
                                   showUndo: true,
                                   showRedo: true,
-                                      
                                   showListCheck: false,
                                   showItalicButton: false,
                                   showSmallButton: false,
@@ -920,38 +933,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                                   showClipboardCut: false,
                                   showClipboardCopy: false,
                                   showClipboardPaste: false,
-                                  // embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                                  //   imageButtonOptions: QuillToolbarImageButtonOptions(
-                                  //     imageButtonConfig: QuillToolbarImageConfig(
-                                  //       onImageInsertCallback: (image, controller) async {
-                                  //         final originalFile = io.File(image);
-                                  //         if (!await originalFile.exists()) return;
-                                      
-                                  //         final appDir = await getApplicationDocumentsDirectory();
-                                  //         final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
-                                  //         final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-                                  //         final imageUrl = 'file://${savedFile.path}';
-                                      
-                                  //         controller.document.insert(
-                                  //           controller.selection.extentOffset,
-                                  //           BlockEmbed.image(imageUrl),
-                                  //         );
-                                  //         controller.updateSelection(
-                                  //           TextSelection.collapsed(
-                                  //             offset: controller.selection.extentOffset + 1,
-                                  //           ),
-                                  //           ChangeSource.local,
-                                  //         );
-                                  //       },
-                                  //     ),
-                                  //   ),
-                                  //   videoButtonOptions: QuillToolbarVideoButtonOptions(
-                                  //     videoConfig: QuillToolbarVideoConfig(
-                                  //        // onVideoInsertCallback을 커스터마이징합니다.
-                                  //       onVideoInsertCallback: (videoPathFromPicker, controller) => _handleVideoInsert(videoPathFromPicker, controller),
-                                  //     )
-                                  //   )
-                                  // ),
                                   buttonOptions: QuillSimpleToolbarButtonOptions(
                                     linkStyle: QuillToolbarLinkStyleButtonOptions(
                                       validateLink: (link) {
