@@ -4,27 +4,29 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 Widget titleDescContent({
   required String title,
   required String description,
+  required double htio,
+  required double wtio,
 }) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
+    padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: 21,
+            fontSize: 21 * htio,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4 * htio),
         Text(
           description,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontSize: 15,
+            fontSize: 15 * htio,
           ),
         ),
       ],

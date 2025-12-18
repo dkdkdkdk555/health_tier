@@ -4,12 +4,14 @@ class TitleWidgetHighlight extends StatelessWidget {
   final String title;
   final String categoryNm;
   final String searchKeyword; // ✅ 새로운 파라미터
+  final double htio;
 
   const TitleWidgetHighlight({
     super.key,
     required this.title,
     required this.categoryNm,
     this.searchKeyword = '', // 기본값 설정
+    required this.htio,
   });
 
   // 텍스트를 검색어에 따라 하이라이팅하는 헬퍼 메서드
@@ -50,17 +52,17 @@ class TitleWidgetHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const defaultStyle = TextStyle(
+    TextStyle defaultStyle = TextStyle(
       color: Colors.black,
-      fontSize: 16,
+      fontSize: 16 * htio,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w500,
-      height: 1.40,
+      height: 1.40 * htio,
     );
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxHeight: 44, // 두 줄 텍스트의 최대 높이 (대략 16px * 1.4 * 2줄)
+      constraints: BoxConstraints(
+        maxHeight: 44 * htio, // 두 줄 텍스트의 최대 높이 (대략 16px * 1.4 * 2줄)
       ),
       child: RichText( // ✅ RichText 사용
         text: TextSpan(

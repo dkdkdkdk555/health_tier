@@ -377,14 +377,14 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             } 
           } 
         } else if(op.isInsert && op.data is String) {
-            final String text = op.data as String;
-            // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
-            if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
-              ctntPreview = text;
-              if (ctntPreview.length > 90) { // 90자 제한
-                ctntPreview = ctntPreview.substring(0, 90);
-              }
+          final String text = op.data as String;
+          // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
+          if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
+            ctntPreview = text;
+            if (ctntPreview.length > 90) { // 90자 제한
+              ctntPreview = ctntPreview.substring(0, 90);
             }
+          }
         }
       }
 

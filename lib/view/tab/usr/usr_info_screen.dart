@@ -28,9 +28,6 @@ class UsrInfoScreen extends ConsumerStatefulWidget {
   ConsumerState<UsrInfoScreen> createState() => _UsrInfoScreenState();
 }
 
-var htio = 0.0;
-var wtio = 0.0;
-
 class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
   static bool _pushTokenSent = false; // 앱 전체에서 한 번만 보내도록
 
@@ -113,8 +110,8 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    htio = ScreenRatio(context).heightRatio;
-    wtio = ScreenRatio(context).widthRatio;
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
 
     return Container(
       color: Colors.white,
@@ -124,7 +121,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
           const TopBlankArea(),
           // 상단바
           SliverToBoxAdapter(
-            child: _buildTopBar(),
+            child: _buildTopBar(htio, wtio),
           ),
           // 프로필 영역
           const SliverToBoxAdapter(
@@ -148,7 +145,7 @@ class _UsrInfoScreenState extends ConsumerState<UsrInfoScreen> {
     );
   }
 
-  Container _buildTopBar() {
+  Container _buildTopBar(double htio, double wtio) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 10 * htio),
       width: double.infinity,

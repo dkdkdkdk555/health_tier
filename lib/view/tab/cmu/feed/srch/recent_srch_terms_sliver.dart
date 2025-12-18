@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/util/recent_search_shared_preferences.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 
 class RecentSearchTermsSliver extends ConsumerStatefulWidget {
@@ -48,6 +49,9 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     // ✅ 여기에서 SliverMainAxisGroup 대신 일반 Widget (Container)을 반환합니다.
     return Container(
       color: Colors.white, // 오버레이의 배경색을 흰색으로 설정
@@ -56,30 +60,30 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
         children: [
           // '최근검색' 타이틀 및 '전체 삭제' 헤더
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 12 * htio),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   '최근 검색',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 14,
+                    fontSize: 14 * htio,
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w700,
-                    height: 1.50,
+                    height: 1.50 * htio,
                   ),
                 ),
                 GestureDetector(
                   onTap: _clearAllSearches,
-                  child: const Text(
+                  child: Text(
                     '전체 삭제',
                     style: TextStyle(
-                      color: Color(0xFF777777),
-                      fontSize: 12,
+                      color: const Color(0xFF777777),
+                      fontSize: 12 * htio,
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w400,
-                      height: 1.50,
+                      height: 1.50 * htio,
                     ),
                   ),
                 ),
@@ -90,7 +94,7 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
           // 최근 검색어 리스트
           if (_recentSearches.isEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+              padding: EdgeInsets.symmetric(horizontal: 20.0 * wtio, vertical: 20.0 * wtio),
               child: Center(
                 child: Text(
                   '최근 검색어가 없습니다.',
@@ -109,27 +113,27 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
                 itemBuilder: (context, index) {
                   final String searchTerm = _recentSearches[index];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 8 * htio),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.access_time,
-                          size: 16,
-                          color: Color(0xFFBBBBBB),
+                          size: 16 * htio,
+                          color: const Color(0xFFBBBBBB),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8 * wtio),
 
                         Expanded(
                           child: GestureDetector(
                             onTap: () => _onSearchTermTap(searchTerm),
                             child: Text(
                               searchTerm,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.black,
-                                fontSize: 14,
+                                fontSize: 14 * htio,
                                 fontFamily: 'Pretendard',
                                 fontWeight: FontWeight.w400,
-                                height: 1.50,
+                                height: 1.50 * htio,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -138,10 +142,10 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
 
                         GestureDetector(
                           onTap: () => _removeSearchTerm(searchTerm),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
-                            size: 16,
-                            color: Color(0xFFBBBBBB),
+                            size: 16 * htio,
+                            color: const Color(0xFFBBBBBB),
                           ),
                         ),
                       ],

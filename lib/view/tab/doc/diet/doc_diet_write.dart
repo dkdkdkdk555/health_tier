@@ -71,14 +71,22 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       }
     });
 
-    _createTutorial();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final htio = ScreenRatio(context).heightRatio;
+      final wtio = ScreenRatio(context).widthRatio;
+
+      _createTutorial(wtio: wtio,htio: htio);
+    });
   }
 
-  void _createTutorial() async{
+  void _createTutorial({
+    required double wtio,
+    required double htio,
+  }) async{
     final prefs = await SharedPreferences.getInstance();
     final isShown = prefs.getBool("is_diet_write_tutorial_shown") ?? false;
     if(!isShown) {
-      await createTutorial(ref);
+      await createTutorial(ref:ref, wtio: wtio, htio: htio);
       await Future.delayed(Duration.zero, showTutorial);
     }
   }

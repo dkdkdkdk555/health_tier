@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/category_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/item/content_preview_widget_highlight.dart';
 import 'package:my_app/view/tab/cmu/feed/item/image_preview_widget.dart';
@@ -19,21 +20,24 @@ class SrchResultFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     return GestureDetector(
       behavior: HitTestBehavior.opaque, // child의 빈 공간까지도 탭 영역으로 확장
       onTap: (){
         context.push('/cmu/feed/${feed.id}?categoryId=${feed.categoryId}');
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0), // 아이템 상하 간격
+        padding: EdgeInsets.symmetric(vertical: 12 * htio), // 아이템 상하 간격
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 이미지 미리보기가 없는 경우 (텍스트만)
             if (feed.imgPreview == null || feed.imgPreview!.isEmpty) ...{
-              CategoryWidget(categoryNm: feed.category),
-              TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, ),
-              ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, ),
+              CategoryWidget(categoryNm: feed.category, htio: htio, wtio: wtio,),
+              TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, htio: htio, ),
+              ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, htio: htio,),
             } else ...{
               // 이미지 미리보기가 있는 경우 (텍스트와 이미지)
               Row(
@@ -43,21 +47,21 @@ class SrchResultFeedItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CategoryWidget(categoryNm: feed.category),
-                        TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, ),
-                        ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, ),
+                        CategoryWidget(categoryNm: feed.category, htio: htio, wtio: wtio),
+                        TitleWidgetHighlight(title: feed.title, categoryNm: feed.category, searchKeyword: searchKeyword, htio: htio,),
+                        ContentPreviewWidgetHighlight(ctntPreview: feed.ctntPreview ?? '', searchKeyword: searchKeyword, htio: htio,),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 16), // 텍스트와 이미지 사이 간격
+                  SizedBox(width: 16 * wtio), // 텍스트와 이미지 사이 간격
                   Container(
-                    margin: const EdgeInsets.only(top:31),
-                    child: ImagePreviewWidget(imgPreview: feed.imgPreview!)
+                    margin: EdgeInsets.only(top:31 * htio),
+                    child: ImagePreviewWidget(imgPreview: feed.imgPreview!, htio: htio, wtio: wtio,)
                   ),
                 ],
               ),
             },
-            LikeAndReplyWidget(likeCnt: feed.likeCnt, replyCnt: feed.replyCnt),
+            LikeAndReplyWidget(likeCnt: feed.likeCnt, replyCnt: feed.replyCnt, htio: htio, wtio: wtio,),
           ],
         ),
       ),

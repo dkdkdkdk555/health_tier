@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class SrchAppBar extends ConsumerStatefulWidget {
   final bool focusSearchArea;
@@ -56,14 +57,17 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+    
     final srchKeyword = ref.watch(srchKeywordProvider);
     _searchController.text = srchKeyword;
 
     return Container(
-      width: 375,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      width: 375 * wtio,
+      padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 10 * htio),
       color: Colors.white,
-      height: 48,
+      height: 48 * htio,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -81,8 +85,8 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
                 }
               },
               child: SizedBox(
-                width: 24,
-                height: 24,
+                width: 24 * wtio,
+                height: 24 * htio,
                 child: SvgPicture.asset(
                   'assets/icons/feed_detail/ico_back.svg',
                 ),
@@ -92,22 +96,22 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
 
           // 검색어 입력칸
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0), // 뒤로가기/검색 버튼 공간 확보
+            padding: EdgeInsets.symmetric(horizontal: 40.0 * wtio), // 뒤로가기/검색 버튼 공간 확보
             child: TextField(
               controller: _searchController,
               focusNode: _searchFocusNode,
               textAlignVertical: TextAlignVertical.center, // 텍스트를 세로 중앙 정렬
               decoration: InputDecoration(
                 hintText: '검색어를 입력하세요',
-                hintStyle: const TextStyle(
-                  color: Color(0xFFAAAAAA),
-                  fontSize: 14,
+                hintStyle: TextStyle(
+                  color: const Color(0xFFAAAAAA),
+                  fontSize: 14 * htio,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w400,
                 ),
                 filled: true,
                 fillColor: const Color(0xFFF5F5F5), // 배경색
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0), // 내부 패딩 조절
+                contentPadding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 0), // 내부 패딩 조절
                 border: OutlineInputBorder( // 테두리 설정
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none, // 테두리 선 없음
@@ -118,12 +122,12 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFF0D86E7), width: 1), // 포커스 시 테두리 색상 변경
+                  borderSide: BorderSide(color: const Color(0xFF0D86E7), width: 1 * wtio), // 포커스 시 테두리 색상 변경
                 ),
               ),
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.black,
-                fontSize: 14,
+                fontSize: 14 * htio,
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w400,
               ),
@@ -140,8 +144,8 @@ class _SrchAppBarState  extends ConsumerState<SrchAppBar> {
                _performSearch(); // 검색 버튼 탭 시 _performSearch 호출
               },
               child: SizedBox(
-                width: 28,
-                height: 28,
+                width: 28 * wtio,
+                height: 28 * htio,
                 child: SvgPicture.asset(
                   'assets/widgets/search_btn.svg',
                 ),

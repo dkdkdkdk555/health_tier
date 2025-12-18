@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/category_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/item/content_preview_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/item/image_preview_widget.dart';
@@ -17,6 +18,8 @@ class UsrCreateFeedItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -29,7 +32,7 @@ class UsrCreateFeedItem extends StatelessWidget {
           children: [
             // 이미지 미리보기가 없는 경우 (텍스트만)
             if (feed.imgPreview == null || feed.imgPreview!.isEmpty) ...{
-              CategoryWidget(categoryNm: feed.category),
+              CategoryWidget(categoryNm: feed.category, htio: htio, wtio: wtio,),
               TitleWidget(title: feed.title, categoryNm: feed.category,),
               ContentPreviewWidget(ctntPreview: feed.ctntPreview ?? ''),
             } else ...{
@@ -41,7 +44,7 @@ class UsrCreateFeedItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CategoryWidget(categoryNm: feed.category),
+                        CategoryWidget(categoryNm: feed.category, htio: htio, wtio: wtio),
                         TitleWidget(title: feed.title, categoryNm: feed.category,),
                         ContentPreviewWidget(ctntPreview: feed.ctntPreview ?? ''),
                       ],
@@ -50,12 +53,12 @@ class UsrCreateFeedItem extends StatelessWidget {
                   const SizedBox(width: 16), // 텍스트와 이미지 사이 간격
                   Container(
                     margin: const EdgeInsets.only(top:31),
-                    child: ImagePreviewWidget(imgPreview: feed.imgPreview!)
+                    child: ImagePreviewWidget(imgPreview: feed.imgPreview!, htio: htio, wtio: wtio,)
                   ),
                 ],
               ),
             },
-            LikeAndReplyWidget(likeCnt: feed.likeCnt, replyCnt: feed.replyCnt),
+            LikeAndReplyWidget(likeCnt: feed.likeCnt, replyCnt: feed.replyCnt,htio: htio, wtio: wtio),
           ],
         ),
       ),

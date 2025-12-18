@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/recent_srch_terms_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_app_bar_delegate.dart';
@@ -40,6 +41,7 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
   Widget build(BuildContext context) {
     final currentSearchKeyword = ref.watch(srchKeywordProvider);
     final isSearchFocused = ref.watch(isSearchFocusedProvider);
+    final htio = ScreenRatio(context).heightRatio;
 
     // 검색어가 비어있지 않으면 검색 결과를 보여줍니다.
     // final bool showSearchResults = currentSearchKeyword.isNotEmpty;
@@ -62,7 +64,7 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
               SliverPersistentHeader(
                 pinned: true,
                 delegate: SrchAppBarDelegate(focusSearchArea: showRecentSearchesOverlay, 
-                  clickBackBtn: _searchAreaControll),
+                  clickBackBtn: _searchAreaControll, htio:htio),
               ),
               SrchResultListSliver(scrollController: _scrollController,),
             ],
@@ -71,12 +73,12 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
           // 3. 최근 검색어 목록 오버레이 레이어 (조건부)
           // 블러 및 어둡게 처리하는 레이어 위에 위치합니다.
           if (showRecentSearchesOverlay)
-            const Positioned(
-              top: _fixedHeaderTotalHeight, // 상단 고정 헤더 아래에 배치
+            Positioned(
+              top: _fixedHeaderTotalHeight * htio, // 상단 고정 헤더 아래에 배치
               left: 0,
               right: 0,
               bottom: 0, // 화면 하단까지 확장하거나 특정 높이로 제한할 수 있습니다.
-              child: RecentSearchTermsSliver(), // 이 위젯은 이제 일반 Widget을 반환합니다.
+              child: const RecentSearchTermsSliver(), // 이 위젯은 이제 일반 Widget을 반환합니다.
             ),
         ],
       ),

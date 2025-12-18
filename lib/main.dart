@@ -211,8 +211,13 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
     initDeepLinks();
     // 튜토리얼 초기화
-    createTutorial(ref);
-    createTutorialDiet(ref);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final htio = ScreenRatio(context).heightRatio;
+      final wtio = ScreenRatio(context).widthRatio;
+
+      createTutorial(ref: ref,wtio: wtio,htio: htio,);
+      createTutorialDiet(ref: ref, wtio: wtio,htio: htio);
+    });
   }
 
   Future<void> initDeepLinks() async {

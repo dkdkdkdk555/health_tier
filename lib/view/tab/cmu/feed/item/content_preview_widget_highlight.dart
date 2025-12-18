@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class ContentPreviewWidgetHighlight extends StatelessWidget {
   final String ctntPreview;
   final String searchKeyword;
+  final double htio;
 
   const ContentPreviewWidgetHighlight({
     super.key,
     required this.ctntPreview,
     this.searchKeyword = '', // 기본값 설정
+    required this.htio,
   });
 
   // 텍스트를 검색어에 따라 하이라이팅하는 헬퍼 메서드 (TitleWidget과 동일)
@@ -45,18 +47,18 @@ class ContentPreviewWidgetHighlight extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const defaultStyle = TextStyle(
-      color: Color(0xFF777777),
-      fontSize: 14,
+    TextStyle defaultStyle = TextStyle(
+      color: const Color(0xFF777777),
+      fontSize: 14 * htio,
       fontFamily: 'Pretendard',
       fontWeight: FontWeight.w400,
-      height: 1.40,
+      height: 1.40 * htio,
     );
 
     return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 1),
+      padding: EdgeInsets.only(top: 4 * htio, bottom: 1 * htio),
       child: SizedBox(
-        height: 44, // 두 줄 텍스트의 높이
+        height: 44 * htio, // 두 줄 텍스트의 높이
         child: RichText(
           text: TextSpan(
             style: defaultStyle, // 기본 스타일 적용

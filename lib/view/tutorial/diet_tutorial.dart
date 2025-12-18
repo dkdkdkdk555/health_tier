@@ -11,9 +11,13 @@ final GlobalKey dietCalendarHeader = GlobalKey();
 final GlobalKey totalKcalAndProtien = GlobalKey();
 final GlobalKey aiAnalyzeBtn = GlobalKey();
 
-Future<void> createTutorialDiet(WidgetRef ref) async {
+Future<void> createTutorialDiet({
+  required WidgetRef ref,
+  required double wtio,
+  required double htio,
+}) async {
   tutorialCoachMarkDiet = TutorialCoachMark(
-    targets: _createTargets(),
+    targets: _createTargets(wtio: wtio, htio: htio),
     colorShadow: Colors.black,
     paddingFocus: 0,
     opacityShadow: 0.5,
@@ -29,7 +33,10 @@ Future<void> createTutorialDiet(WidgetRef ref) async {
   );
 }
 
-List<TargetFocus> _createTargets() {
+List<TargetFocus> _createTargets({
+  required double wtio,
+  required double htio,
+}) {
   return [
     // 식단 캘린더
     buildTarget(
@@ -41,6 +48,8 @@ List<TargetFocus> _createTargets() {
       builder: (_, __) => titleDescContent(
         title: '식단 캘린더',
         description: '좌우로 스크롤 해서 날짜를 이동할 수 있어요.',
+        htio: htio,
+        wtio: wtio,
       ),
     ),
 
@@ -55,6 +64,8 @@ List<TargetFocus> _createTargets() {
         title: '날짜 선택',
         description:
             '터치하면 캘린더 팝업이 나와요.\n원하는 날짜로 한 번에 이동할 수 있어요.',
+        htio: htio,
+        wtio: wtio,
       ),
     ),
 
@@ -69,6 +80,8 @@ List<TargetFocus> _createTargets() {
         title: '하루 섭취량 요약',
         description:
             '하루에 입력한 총 칼로리와 단백질을 자동으로 계산해서 표시해요.',
+        htio: htio,
+        wtio: wtio,
       ),
     ),
   ];
