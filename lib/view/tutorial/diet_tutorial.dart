@@ -54,7 +54,7 @@ List<TargetFocus> _createTargets() {
       builder: (_, __) => titleDescContent(
         title: '날짜 선택',
         description:
-            '클릭하면 캘린더 팝업이 나와요.\n날짜를 클릭하면 한 번에 이동할 수 있어요.',
+            '터치하면 캘린더 팝업이 나와요.\n원하는 날짜로 한 번에 이동할 수 있어요.',
       ),
     ),
 

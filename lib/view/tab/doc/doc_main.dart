@@ -43,7 +43,7 @@ class _DocMainState extends ConsumerState<DocMain> {
     if (_remoteChecked) return; // 이미 체크했으면 스킵
     _remoteChecked = true;
 
-    await Future.delayed(const Duration(milliseconds: 1200)); // 빌드 안정화
+    await Future.delayed(const Duration(milliseconds: 2050)); // 빌드 안정화
     await checkRemoteConfig();
   }
 

@@ -99,7 +99,7 @@ List<TargetFocus> _createTargets() {
       builder: (_, __) => titleDescContent(
         title: '기록탭 > 체중 기록',
         description:
-            '체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록을 달력으로 한눈에 볼 수 있어요.',
+            '체중 등 체성분을 기록하고 관리할 수 있어요.\n전체 기록을 달력에서 한눈에 볼 수 있어요.',
       ),
     ),
 
@@ -218,14 +218,14 @@ List<TargetFocus> _createTargets() {
       key: bottomBarHandleKey,
       align: ContentAlign.top,
       builder: (_, __) => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             UpArrowIndicator(durationTime: 1000, color: Colors.white),
             SizedBox(height: 6),
             Text(
-              '이제 위로 끌어올려 오늘의 평가와 체성분을 입력해 보세요!',
+              '이제 위로 끌어올려 오늘을 기록해 보세요!',
               style: TextStyle(color: Colors.white),
             ),
           ],
