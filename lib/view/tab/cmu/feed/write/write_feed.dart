@@ -70,6 +70,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   List<ExerciseEntry> _currentExerciseEntries = [];
   // 이미지,비디오 업로드 상태관리
   bool _isUploading = false;
+  String? _imgPreview;
 
   @override
   void initState() {
@@ -145,6 +146,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           _isEditDataLoaded = true;
           // UI 업데이트
           _titleController.text = feedDetail.title;
+          _imgPreview = feedDetail.imgPreview;
           try {
             // ctnt는 JSON 문자열이므로 Delta로 변환
             final decodedContent = jsonDecode(feedDetail.ctnt);
@@ -369,10 +371,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               } else {
                 debugPrint('Warning: Local video file not found: $filePath');
               }
-            } else if(videoUrl.contains(APIServer.baseUrl)) {
+            } else if(videoUrl.contains(APIServer.s3Url)) {
               // 기존 서버에 저장된 url추가
               currentServerMediaUrls.add(videoUrl);
-            }
+            } 
           } 
         } else if(op.isInsert && op.data is String) {
             final String text = op.data as String;
@@ -390,7 +392,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       List<String> deleteUrls = [];
       if (widget.feedId != null && _initialServerMediaUrls.isNotEmpty) {
         for (String initialUrl in _initialServerMediaUrls) {
-          if (!currentServerMediaUrls.contains(initialUrl)) {
+          if (!currentServerMediaUrls.contains(initialUrl) && initialUrl.contains(APIServer.s3Url)) {
             // 기존 URL이 현재 문서에 없으면 삭제 목록에 추가
             deleteUrls.add(initialUrl);
           }
@@ -427,7 +429,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
         }
         // 3-2. 썸네일이 있으면 업로드 대상에 추가
         if (thumbnailFile != null) {
-          final fileName = path.basename(thumbnailFile.path);
+          final fileName = 'thumbnail-${path.basename(thumbnailFile.path)}';
           final mimeType = lookupMimeType(thumbnailFile.path) ?? 'image/jpeg';
 
           rawFiles.add(thumbnailFile);
@@ -462,16 +464,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           uploadedUrls.add(s3PublicUrl);
           debugPrint('✅ 업로드 완료 → $s3PublicUrl');
 
-          // imgPreview 결정
           if (thumbnailFile != null) {
             // 썸네일은 마지막으로 업로드됨
+            // 썸네일을 우선적으로 이미지 미리보기로 설정
             imgPreview = uploadedUrls.last;
-          } else {
-            // 썸네일 없으면 첫 이미지 사용
-            imgPreview = uploadedUrls.firstWhere(
-              (url) => !isVideoUrl(url),
-              orElse: () => '',
-            );
           }
         }
       }
@@ -529,6 +525,40 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           return;
         }
       }
+
+      // 이미지 미리보기 결정
+      if (imgPreview.isEmpty) {
+        final deltaJson = _controller.document.toDelta().toJson();
+        final Delta delta = Delta.fromJson(deltaJson);
+
+        String? firstImageUrl;
+        bool hasVideo = false;
+
+        for (final op in delta.operations) {
+          if (!op.isInsert || op.data is! Map) continue;
+
+          final data = op.data as Map<String, dynamic>;
+
+          // 🔴 video 우선
+          if (data.containsKey('video')) {
+            hasVideo = true;
+            break;
+          }
+
+          // 🟡 video 없을 경우 대비: 첫 image 기억
+          if (firstImageUrl == null && data.containsKey('image')) {
+            firstImageUrl = data['image'] as String?;
+          }
+        }
+
+        if (hasVideo) {
+          imgPreview = _imgPreview!;
+        } else if (firstImageUrl != null) {
+          imgPreview = firstImageUrl;
+        }
+      }
+
+      
       
       final FeedDto feedDto = FeedDto(
         id: widget.feedId,
