@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showMediaPopup;
+import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/user_prefs.dart';
@@ -178,7 +179,7 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
       if (hasNew) {
         _showNewFeedAlarmOverlay();
       } else {
-        debugPrint('새피드 없음');
+        
       }
     } catch (e) {
       debugPrint('새 피드 체크 중 에러 발생: $e');
