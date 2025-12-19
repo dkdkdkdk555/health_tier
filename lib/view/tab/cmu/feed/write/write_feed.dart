@@ -611,14 +611,29 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   void _scrollUp() async{
     await Future.delayed(const Duration(milliseconds: 50));
-    // 스크롤 가능한 최대 범위(바닥)로 이동
-    final double targetOffset = _scrollController.position.maxScrollExtent;
-    if (_scrollController.hasClients) { // 컨트롤러가 attached 되어 있는지 확인
-        _scrollController.animateTo(
-          targetOffset,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+
+    if (!_scrollController.hasClients) return;
+
+    // 1. 현재 스크롤 위치와 최대 스크롤 가능 범위를 가져옵니다.
+    final double currentOffset = _scrollController.offset;
+    final double maxOffset = _scrollController.position.maxScrollExtent;
+    
+    // 2. 바닥으로부터의 임계값 (예: 100픽셀 이내에 있을 때만 바닥을 따라감)
+    // 이 값이 너무 작으면 정밀하지만, 너무 크면 중간 수정 시에도 스크롤될 수 있습니다.
+    const double threshold = 100.0;
+
+    // 3. 현재 위치가 바닥 근처인지 확인
+    bool isNearBottom = (maxOffset - currentOffset) <= threshold;
+
+    if (isNearBottom) {
+      _scrollController.animateTo(
+        maxOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else {
+      // 바닥 근처가 아니면(중간 수정 중이면) 아무것도 하지 않습니다.
+      debugPrint('중간 수정 중이므로 스크롤을 고정합니다.');
     }
   }
 
@@ -796,6 +811,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                             config: QuillEditorConfig(
                               scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
                               autoFocus: false, // 필요에 따라 자동 포커스 설정
+                              expands: false,
                               padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 20 * htio), // 기본 패딩 제거
                               placeholder: '내용을 입력해주세요...',
                               customStyles: DefaultStyles(
