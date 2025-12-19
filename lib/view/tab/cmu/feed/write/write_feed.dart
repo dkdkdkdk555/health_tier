@@ -220,33 +220,36 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   }
 
   // 제목과 카테고리를 선택했는지피
-  bool _isFeedContentValid() {
+  String _isFeedContentValid() {
     // 1. categoryId가 0이 아닌지 확인
     if (categoryId == 0) {
-      return false;
+      return "카테고리, 제목을 모두 입력해주세요.";
     }
 
     // 2. titleText가 비어있지 않은지 확인 (공백만 있는 경우도 비어있는 것으로 간주)
     if (_titleController.text.trim().isEmpty) {
-      return false;
+      return "제목을 입력해주세요.";
     }
 
     // 카테고리 3(중량인증)일 경우, 운동 항목 유효성 검사 추가
     if (categoryId == 3) {
       if (_currentExerciseEntries.isEmpty) {
-        return false; // 항목이 없으면 유효하지 않음
+        return "인증받을 종목을 추가해 주세요."; // 항목이 없으면 유효하지 않음
       }
       for (var entry in _currentExerciseEntries) {
-        if (entry.type == null || entry.weightController.text.trim().isEmpty) {
-          return false; // 타입 또는 중량이 비어있으면 유효하지 않음
+        if (entry.type == null) {
+          return "인증받을 종목을 선택해 주세요."; // 타입 또는 중량이 비어있으면 유효하지 않음
+        }
+        if (entry.weightController.text.trim().isEmpty) {
+            return "인증받을 종목의 중량을 추가해 주세요.";
         }
         if (int.tryParse(entry.weightController.text.trim()) == null) {
-          return false; // 중량이 유효한 숫자가 아니면 유효하지 않음
+          return "인증받을 중량은 자연수여야 합니다."; // 중량이 유효한 숫자가 아니면 유효하지 않음
         }
       }
     }
 
-    return true; // 모든 조건을 통과하면 유효함
+    return "isValid"; // 모든 조건을 통과하면 유효함
   }
 
 
@@ -274,9 +277,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     if (_isSubmitting) return; // 이미 업로드 중이면 중복 실행 방지
 
      // 유효성검증
-    if (!_isFeedContentValid()) {
+     final validResult = _isFeedContentValid();
+    if (validResult != "isValid") {
       if (!mounted) return;
-      showAppMessage(context, message: '카테고리, 제목을 모두 입력해주세요.');
+      showAppMessage(context, message: validResult);
       
       return; // 유효성 검증 실패 시 함수 종료
     }
