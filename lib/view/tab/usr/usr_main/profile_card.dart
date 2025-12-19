@@ -57,28 +57,29 @@ class ProfileCard extends ConsumerWidget {
                             openFullImageView(context, userInfo.imgPath!);
                           }
                         },
-                        child: Container(
-                          width: 200 * wtio,
-                          height: 200 * htio,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: ClipOval(
-                            child: userInfo.imgPath == null
-                            ? SvgPicture.asset(
-                                'assets/widgets/default_user_profile.svg',
-                                fit: BoxFit.cover,
-                              )
-                            : Image.network(
-                                userInfo.imgPath!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return SvgPicture.asset(
-                                    'assets/widgets/default_user_profile.svg',
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              ),
+                        child: Center(
+                          child: Container(
+                            height: 200 * htio,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: userInfo.imgPath == null
+                              ? SvgPicture.asset(
+                                  'assets/widgets/default_user_profile.svg',
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.network(
+                                  userInfo.imgPath!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return SvgPicture.asset(
+                                      'assets/widgets/default_user_profile.svg',
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ),
+                            ),
                           ),
                         ),
                       ),
