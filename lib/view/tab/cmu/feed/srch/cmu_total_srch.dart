@@ -73,12 +73,12 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
           // 3. 최근 검색어 목록 오버레이 레이어 (조건부)
           // 블러 및 어둡게 처리하는 레이어 위에 위치합니다.
           if (showRecentSearchesOverlay)
-            Positioned(
-              top: _fixedHeaderTotalHeight * htio, // 상단 고정 헤더 아래에 배치
+            const Positioned(
+              top: _fixedHeaderTotalHeight, // 상단 고정 헤더 아래에 배치
               left: 0,
               right: 0,
               bottom: 0, // 화면 하단까지 확장하거나 특정 높이로 제한할 수 있습니다.
-              child: const RecentSearchTermsSliver(), // 이 위젯은 이제 일반 Widget을 반환합니다.
+              child: RecentSearchTermsSliver(), // 이 위젯은 이제 일반 Widget을 반환합니다.
             ),
         ],
       ),
