@@ -209,7 +209,6 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       FlutterLocalNotification.requestNotificationPermission();
     });
 
-    initDeepLinks();
     // 튜토리얼 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final htio = ScreenRatio(context).heightRatio;
@@ -220,8 +219,17 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
     });
   }
 
-  Future<void> initDeepLinks() async {
-    // Handle links
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initDeepLinks();
+    });
+  }
+
+  Future<void> _initDeepLinks() async {
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
       if(Platform.isIOS) { // 안드는 goRouter에서 리다이렉트 이용
         openAppLink(uri);
@@ -230,14 +238,16 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   }
 
   void openAppLink(Uri uri) {
-    final host = uri.host; // 'cmu'
-    String path = uri.path; // '/feed/165' 또는 '///feed/165'
-    // 맨 앞의 모든 슬래시 제거
-    path = path.replaceAll(RegExp(r'^/+'), '');
-    // 전체 경로 조립 → '/cmu/feed/165'
-    final fullPath = path.startsWith("/") ? '$host/$path' : '/$host/$path';
-    debugPrint(fullPath);
-    rootNavigatorKey.currentContext?.push(fullPath);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final host = uri.host; // 'cmu'
+      String path = uri.path; // '/feed/165' 또는 '///feed/165'
+      // 맨 앞의 모든 슬래시 제거
+      path = path.replaceAll(RegExp(r'^/+'), '');
+      // 전체 경로 조립 → '/cmu/feed/165'
+      final fullPath = path.startsWith("/") ? '$host/$path' : '/$host/$path';
+      debugPrint(fullPath);
+      rootNavigatorKey.currentContext?.push(fullPath);
+    });
   }
 
   @override
