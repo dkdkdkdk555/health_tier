@@ -382,7 +382,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           },
                                           child: SvgPicture.asset(
                                             'assets/widgets/gemini_icon.svg',
-                                            key: aiAnalyzeBtn,
+                                            key: index == 0 ? aiAnalyzeBtn : null, // 글로벌키 aiAnalyzeBtn 를 중복으로 사용하면 에러발생함
                                             fit: BoxFit.cover,
                                             width: 28 * wtio,
                                             height: 28 * htio,
