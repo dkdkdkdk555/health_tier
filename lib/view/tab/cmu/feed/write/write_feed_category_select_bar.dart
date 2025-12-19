@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_app/extension/limit_value_formatter.dart' show LimitValueFormatter;
 import 'package:my_app/model/cmu/feed/category_model.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/util/user_prefs.dart' show UserPrefs; // TextInputFormatter를 위해 추가
 
@@ -166,6 +168,9 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     final categoriesAsync = ref.watch(getFeedCategories);
 
     final bool showNoticeBox = selectedCategoryId == 2 || selectedCategoryId == 3;
@@ -174,29 +179,29 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
     currLoginId = UserPrefs.currentLoginId;
 
     return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 8),
+      padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, top: 16 * htio, bottom: 8 * htio),
       decoration: const BoxDecoration(
         color: Colors.white,
       ),
       child: Column(
         children: [
-          const Align(
+          Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: EdgeInsets.only(left: 4, bottom: 10),
+              padding: EdgeInsets.only(left: 4 * wtio, bottom: 10 * htio),
               child: Text(
                 '카테고리 선택',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 15 * htio,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF555555),
+                  color: const Color(0xFF555555),
                 ),
               ),
             ),
           ),
           Row(
             children: [
-              buildCategoryCollapsed(categoriesAsync),
+              buildCategoryCollapsed(categoriesAsync, htio, wtio),
             ],
           ),
           AnimatedSize(
@@ -205,23 +210,23 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
             alignment: Alignment.topCenter,
             child: showNoticeBox
                 ? Padding(
-                    padding: const EdgeInsets.only(top: 16),
+                    padding: EdgeInsets.only(top: 16 * htio),
                     child: Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.symmetric(horizontal: 12*wtio, vertical: 12*htio),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color: const Color(0xFF0D85E7),
-                          width: 1,
+                          width: 1 * wtio,
                         ),
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.white,
                       ),
-                      child: const Text(
+                      child: Text(
                         '◎유의사항\n- 인증글은 한번 생성하면 수정할 수 없습니다.\n- 다른 사용자나 관리자가 확인할 수 있는 사진/영상을 업로드 해주세요!\n- 인증글 정책과 맞지 않는 글은 관리자에 의해 삭제될 수 있습니다.',
                         style: TextStyle(
-                          fontSize: 10.5,
-                          color: Color(0xFF0D85E7),
-                          height: 1.5,
+                          fontSize: 10.5 * htio,
+                          color: const Color(0xFF0D85E7),
+                          height: 1.5 * htio,
                         ),
                       ),
                     ),
@@ -235,18 +240,18 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
             alignment: Alignment.topCenter,
             child: showBig3ExerciseInput
                 ? Padding(
-                    padding: const EdgeInsets.only(top: 16),
+                    padding: EdgeInsets.only(top: 16 * htio),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4, bottom: 10),
+                        Padding(
+                          padding: EdgeInsets.only(left: 4 * wtio, bottom: 10 * htio),
                           child: Text(
-                            '3대 운동 항목',
+                            '3대 운동 종목',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 15 * htio,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF555555),
+                              color: const Color(0xFF555555),
                             ),
                           ),
                         ),
@@ -255,23 +260,23 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                           final index = entry.key;
                           final exercise = entry.value;
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
+                            padding: EdgeInsets.only(bottom: 8.0 * htio),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
                                   flex: 2,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: EdgeInsets.symmetric(horizontal: 12 * wtio),
                                     decoration: BoxDecoration(
-                                      border: Border.all(color: const Color(0xFFDDDDDD), width: 1),
+                                      border: Border.all(color: const Color(0xFFDDDDDD), width: 1 * wtio),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: DropdownButtonHideUnderline(
                                       child: DropdownButton<String>(
                                         isExpanded: true,
                                         value: exercise.type,
-                                        hint: const Text('항목 선택'),
+                                        hint: const Text('종목 선택'),
                                         items: _getAvailableExerciseTypes(exercise.type), // ✅ 동적 아이템 사용
                                         onChanged: (String? newValue) {
                                           if (!mounted) return;
@@ -280,26 +285,27 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                                           });
                                           _notifyExerciseEntriesChange();
                                         },
-                                        style: const TextStyle(fontSize: 13, color: Color(0xFF333333)),
+                                        style: TextStyle(fontSize: 13 * htio, color: const Color(0xFF333333)),
                                         dropdownColor: Colors.white,
                                         icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF888888)),
                                       ),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8 * wtio),
                                 Expanded(
                                   flex: 1,
                                   child: TextField(
                                     controller: exercise.weightController,
                                     keyboardType: TextInputType.number,
                                     inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly // 숫자만 허용
+                                      LimitValueFormatter(max: 1000),
+                                      FilteringTextInputFormatter.allow(RegExp(r'^1000$|^(\d{0,3})(\.\d{0,})?$'))
                                     ],
                                     decoration: InputDecoration(
                                       hintText: '중량(kg)',
-                                      hintStyle: const TextStyle(fontSize: 12, color: Color.fromRGBO(158, 158, 158, 0.8)),
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                      hintStyle: TextStyle(fontSize: 12 * htio, color: const Color.fromRGBO(158, 158, 158, 0.8)),
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 10 * htio),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
                                         borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
@@ -310,21 +316,26 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(color: Color(0xFF0D85E7), width: 1.5),
+                                        borderSide: BorderSide(color: const Color(0xFF0D85E7), width: 1.5 * wtio),
                                       ),
                                     ),
-                                    style: const TextStyle(fontSize: 14, color: Color(0xff000000)),
+                                    style: TextStyle(fontSize: 14 * htio, color: const Color(0xff000000)),
                                     cursorColor: const Color(0xFF0D85E7),
                                   ),
                                 ),
                                 // 첫 번째 행이 아닐 때만 삭제 버튼 표시
                                 if (index > 0 || _exerciseEntries.length > 1) // 첫 행이면서 항목이 하나 이상일 때도 삭제 가능
-                                  IconButton(
-                                    iconSize: 18,
-                                    icon: const Icon(Icons.remove_circle_outline_outlined, color: Colors.red),
-                                    onPressed: () => _removeExerciseEntry(index),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
+                                  SizedBox(
+                                    width: 18 * wtio,
+                                    height: 18 * htio,
+                                    child: Expanded(
+                                      child: IconButton(
+                                        icon: const Icon(Icons.remove_circle_outline_outlined, color: Colors.red),
+                                        onPressed: () => _removeExerciseEntry(index),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ),
                                   ),
                               ],
                             ),
@@ -336,12 +347,16 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                             alignment: Alignment.centerRight,
                             child: TextButton.icon(
                               onPressed: _addExerciseEntry,
-                              icon: const Icon(Icons.add, color: Color(0xFF0D85E7), size: 18),
-                              label: const Text(
+                              icon: SizedBox(
+                                width: 18 * wtio,
+                                height: 18 * htio,
+                                child: const Icon(Icons.add, color: Color(0xFF0D85E7))
+                              ),
+                              label: Text(
                                 '항목 추가',
                                 style: TextStyle(
-                                  color: Color(0xFF0D85E7),
-                                  fontSize: 12,
+                                  color: const Color(0xFF0D85E7),
+                                  fontSize: 12 * htio,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -361,7 +376,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
     );
   }
 
-  Widget buildCategoryCollapsed(AsyncValue<Result<List<Category>>> categoriesAsync) {
+  Widget buildCategoryCollapsed(AsyncValue<Result<List<Category>>> categoriesAsync, double htio, double wtio) {
     return categoriesAsync.when(
       data: (categories) {
         final modifiedCategories = [
@@ -369,7 +384,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
         ];
         return Expanded(
           child: SizedBox(
-            height: 34,
+            height: 34 * htio,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: modifiedCategories.length,
@@ -379,13 +394,13 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
                 if(category.name=='공지') {
                    if(currLoginId != null) {
                     if(currLoginId!.contains('admin')){
-                      return makeCategory(category);
+                      return makeCategory(category, htio, wtio);
                     }
                    } else {
                     return null;
                    }
                 }
-                return makeCategory(category);
+                return makeCategory(category, htio, wtio);
               },
             ),
           ),
@@ -396,7 +411,7 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
     );
   }
 
-  Widget makeCategory(Category category) {
+  Widget makeCategory(Category category, double htio, double wtio) {
     final isSelected = selectedCategoryId == category.id;
 
     return GestureDetector(
@@ -414,43 +429,35 @@ class _WriteFeedCategorySelectBarState extends ConsumerState<WriteFeedCategorySe
         }
       },
       child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          margin: const EdgeInsets.only(right: 4),
+          padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 8 * htio),
+          margin: EdgeInsets.only(right: 4 * wtio),
           decoration: ShapeDecoration(
               color: Colors.white,
               shape: RoundedRectangleBorder(
                   side: BorderSide(
-                      width: 1,
+                      width: 1 * wtio,
                       color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFFDDDDDD),
                   ),
                   borderRadius: BorderRadius.circular(99),
               ),
           ),
-          child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      spacing: 4,
-                      children: [
-                          Text(
-                              category.name,
-                              style: TextStyle(
-                                  color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFF333333),
-                                  fontSize: 12,
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.50,
-                              ),
+          child: Center(
+              child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                      Text(
+                          category.name,
+                          style: TextStyle(
+                              color: isSelected ? const Color(0xFF0D85E7) : const Color(0xFF333333),
+                              fontSize: 12 * htio,
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
                           ),
-                      ],
-                  ),
-              ],
+                      ),
+                  ],
+              ),
           ),
       ),
     );

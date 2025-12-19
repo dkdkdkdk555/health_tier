@@ -219,7 +219,7 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
                 ],
               ),
             ),
-            if (_elapsedSeconds >= 19)
+            if (_elapsedSeconds >= 20)
               Positioned(
                 right: -9 * wtio, // 다이얼로그 테두리 밖으로 약간 빼내기
                 top: -9.5 * htio, // 다이얼로그 테두리 밖으로 약간 빼내기
@@ -230,8 +230,9 @@ class _LoadingDialogState extends State<AIDietLoadingDialog> with TickerProvider
                     color: const Color(0xFFBBBBBB), // 적당한 회색
                   ),
                   onPressed: () {
-                    // 다이얼로그 닫기
-                    Navigator.of(context).pop(); 
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    }
                   },
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(), // 최소 크기 제약 해제

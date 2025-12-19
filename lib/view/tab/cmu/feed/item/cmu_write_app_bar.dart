@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/util/dialog_utils.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class CmuWriteAppBar extends StatelessWidget {
   final String centerText;
@@ -15,9 +16,12 @@ class CmuWriteAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      height: 48 * htio,
+      padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -31,17 +35,17 @@ class CmuWriteAppBar extends StatelessWidget {
             },
             child: SvgPicture.asset(
               'assets/icons/feed_detail/ico_back.svg',
-              width: 24,
-              height: 24,
+              width: 24 * wtio,
+              height: 24 * htio,
             ),
           ),
 
           // 가운데 텍스트
           Text(
             centerText,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.black,
-              fontSize: 16,
+              fontSize: 16 * htio,
               fontWeight: FontWeight.w600,
               fontFamily: 'Pretendard',
             ),
@@ -52,11 +56,11 @@ class CmuWriteAppBar extends StatelessWidget {
             onTap: () {
               onSubmit();
             },
-            child: const Text(
+            child: Text(
               '완료',
               style: TextStyle(
                 color:  Colors.black54,// Color(0xFF0D85E7), -> 글까지 입력하면 색 바뀌기
-                fontSize: 16,
+                fontSize: 16 * htio,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Pretendard',
               ),

@@ -159,14 +159,6 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                         confirmText: '확인',
                         cancelText: '취소',
                         onConfirm: () async {
-                          if (!context.mounted) return;
-                          // 로딩 다이얼로그 표시
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (_) => const Center(child: AppLoadingIndicator()),
-                          );
-          
                           try {
                             // 1. Drift DB에서 데이터 가져오기
                             final diets = await ref.read(getAllHtDayDietProvider.future);
@@ -175,9 +167,17 @@ class _DocBackupAndRestoreState extends ConsumerState<DocBackupAndRestore> {
                             // 2. 데이터가 비어있으면 안내 후 종료
                             if (diets.isEmpty && bodies.isEmpty) {
                               if (!context.mounted) return;
-                              showAppMessage(context, message: '백업할 데이터가 없습니다.', type: AppMessageType.dialog);
+                              showAppMessage(context, message: '백업할 데이터가 없습니다.', type: AppMessageType.dialog,);
                               return;
                             }
+
+                            // 2. 데이터가 있을 때만 로딩 다이얼로그 표시
+                            if (!context.mounted) return;
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (_) => const Center(child: AppLoadingIndicator()),
+                            );
           
                             // 3. Map 구조로 변환
                             final backupData = {

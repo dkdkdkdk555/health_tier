@@ -48,6 +48,16 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   late DateTime focusedDay;
   bool _isPressed = false;
   List<DietInputData> inputList = [DietInputData.def()];
+  bool _loadingDialogClosed = false;
+
+   void _closeLoadingDialog() {
+    if (_loadingDialogClosed) return;
+    _loadingDialogClosed = true;
+
+    if (Navigator.of(context, rootNavigator: true).canPop()) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+  }
 
   @override
   void initState() {
@@ -206,6 +216,8 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   }
 
   analyzeRequest(XFile image, DocApiService? docApiService, int index) async{
+    _loadingDialogClosed = false;
+
     if (docApiService == null) {
       // DocApiService가 null인 경우 (초기화 중이거나 에러 발생)
       showAppMessage(context, 
@@ -226,9 +238,11 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       // UI 업데이트
       if (mounted) {
         if(s == null) {
+          _closeLoadingDialog();
           return;
         }
-        Navigator.of(context, rootNavigator: true).pop(); 
+        _closeLoadingDialog();
+
         setState(() {
           final input = inputList[index];
           input.mealType.text = s.foodName;
@@ -238,16 +252,21 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
           input.isUpdate = true;
         });
       }
-    }on DioException catch (e) {
+    } on DioException catch (e) {
       if(mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+        _closeLoadingDialog();
         if(e.response?.statusCode == 423) {
-          showAppMessage(context, message: e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            showAppMessage(
+              context, message:e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog,
+            );
+          });
         }
       }
     } catch(e) {
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // 실패 시 닫기
+        _closeLoadingDialog();
       }
       debugPrint('식단 분석 API 호출 에러: $e');
     }
@@ -382,7 +401,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                           },
                                           child: SvgPicture.asset(
                                             'assets/widgets/gemini_icon.svg',
-                                            key: aiAnalyzeBtn,
+                                            key: index == 0 ? aiAnalyzeBtn : null, // 글로벌키 aiAnalyzeBtn 를 중복으로 사용하면 에러발생함
                                             fit: BoxFit.cover,
                                             width: 28 * wtio,
                                             height: 28 * htio,

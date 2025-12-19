@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 
 class ErrorContentWidget extends StatelessWidget {
   final String mainText;
@@ -19,16 +20,19 @@ class ErrorContentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     return Center(
       child: Column(
         children: [
           isExistTopLine ? Container(
-            height: 2.5,
+            height: 2.5 * htio,
             decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
           ) : const SizedBox.shrink(),
           Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical),
+              padding: EdgeInsets.symmetric(horizontal: horizontal * wtio, vertical: vertical * htio),
               child: Column(
                 children: [
                   isIconView ? Icon(
@@ -38,13 +42,16 @@ class ErrorContentWidget extends StatelessWidget {
                   Text(
                     mainText,
                     textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14 * htio
+                    ),
                   ),
                 ],
               ),
             )
           ),
           isExistBottomLine ? Container(
-            height: 2.5,
+            height: 2.5 * htio,
             decoration: const BoxDecoration(color: Color(0xFFF5F5F5)),
           ) : const SizedBox.shrink(),
         ],
