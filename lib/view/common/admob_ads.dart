@@ -118,6 +118,7 @@ class _AdmobAdsState extends State<AdmobAds> {
           ),
           shouldRequestMultipleImages: false,
           shouldReturnUrlsForImageAssets: true,
+          mediaAspectRatio: Platform.isIOS ? MediaAspectRatio.landscape : MediaAspectRatio.any
         ),
         nativeTemplateStyle: NativeTemplateStyle(
             templateType: TemplateType.medium,
