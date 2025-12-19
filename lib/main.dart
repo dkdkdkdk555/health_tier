@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:ui' show ImageFilter;
 
 import 'package:app_links/app_links.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart' show AppTrackingTransparency, TrackingStatus;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -149,8 +150,6 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // 애드몹 광고 sdk 초기화
-  MobileAds.instance.initialize();
   // 세로 모드만 허용
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -204,11 +203,6 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       }
     });
 
-    // 알림 권한 요청은 앱 시작 후 3초 뒤에 실행
-    Future.delayed(const Duration(seconds: 4), () { // 초 이거 소용없네,,;;
-      FlutterLocalNotification.requestNotificationPermission();
-    });
-
     // 튜토리얼 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final htio = ScreenRatio(context).heightRatio;
@@ -226,6 +220,10 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initDeepLinks();
+      await _requestAuthrizationTracking();
+      await FlutterLocalNotification.requestNotificationPermission();
+      // 애드몹 광고 sdk 초기화
+      await MobileAds.instance.initialize();
     });
   }
 
@@ -235,6 +233,15 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
         openAppLink(uri);
       }
     });
+  }
+
+  Future<void> _requestAuthrizationTracking() async {
+    // 앱 추적 권한 상태 확인 및 요청
+    final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+    
+    if (status == TrackingStatus.notDetermined) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
   }
 
   void openAppLink(Uri uri) {
