@@ -37,20 +37,23 @@ class FeedListSliver extends ConsumerWidget {
         }
 
         saveLatestIndex(index:feeds[0].id); 
-        return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index == feeds.length) {
-                return scrollData.hasNext
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16 * htio),
-                        child: const Center(child: AppLoadingIndicator()),
-                      )
-                    : const SizedBox.shrink();
-              }
-              return CmuFeedItem(feed: feeds[index]);
-            },
-            childCount: feeds.length + 1,
+        return SliverPadding(
+          padding: EdgeInsets.only(bottom: 100 * htio),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index == feeds.length) {
+                  return scrollData.hasNext
+                      ? Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16 * htio),
+                          child: const Center(child: AppLoadingIndicator()),
+                        )
+                      : const SizedBox.shrink();
+                }
+                return CmuFeedItem(feed: feeds[index]);
+              },
+              childCount: feeds.length + 1,
+            ),
           ),
         );
       },
