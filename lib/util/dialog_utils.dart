@@ -430,7 +430,8 @@ class _MediaPopup extends StatelessWidget {
                 Navigator.of(context).pop();
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 6 * htio),
+                padding: EdgeInsets.symmetric(horizontal: 14 * wtio, vertical: 6 * htio),
+                margin: EdgeInsets.only(left: 7.6 * wtio, top:7.6 * htio),
                 decoration: BoxDecoration(
                   color: Colors.black.withAlpha(80),
                   borderRadius: BorderRadius.circular(14),
@@ -439,7 +440,7 @@ class _MediaPopup extends StatelessWidget {
                   '오늘 하루 동안 열지 않음',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14 * htio,
+                    fontSize: 12 * htio,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
