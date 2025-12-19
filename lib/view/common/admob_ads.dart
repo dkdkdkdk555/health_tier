@@ -35,8 +35,8 @@ class _AdmobAdsState extends State<AdmobAds> {
   bool _nativeAdIsLoaded = false;
   // 테스트 네이티브 광고id -> 배포전 실제 광고id로 바꿀것
   final String _adVideoUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/1044960115'
-      : 'ca-app-pub-3940256099942544/2521693316';
+      ? 'ca-app-pub-7850046432758723/4951002365' // 테스트 : 'ca-app-pub-3940256099942544/1044960115'
+      : 'ca-app-pub-7850046432758723/8528796430'; // 테스트 : 'ca-app-pub-3940256099942544/2521693316';
 
   /*
     배너 광고
@@ -45,8 +45,8 @@ class _AdmobAdsState extends State<AdmobAds> {
   bool _bannerAdIsLoaded = false;
   // 테스트 배너 광고id -> 배포전 실제 광고id로 바꿀것
   final String _adBannerUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/9214589741'
-      : 'ca-app-pub-3940256099942544/2435281174';
+      ?  'ca-app-pub-7850046432758723/6719523763' // 테스트 : 'ca-app-pub-3940256099942544/9214589741'
+      :  'ca-app-pub-7850046432758723/9066485500'; // 테스트 : 'ca-app-pub-3940256099942544/2435281174';
 
   @override
   void initState() {

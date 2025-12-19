@@ -45,8 +45,7 @@
         <!-- Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
-            <!-- android:value="ca-app-pub-7850046432758723~8100486877"/> 실제 -->
+            android:value="ca-app-pub-7850046432758723~8100486877"/>
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
             android:exported="true" >
