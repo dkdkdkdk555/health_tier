@@ -1,15 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:my_app/model/stc/day_range_param.dart' show DayRange;
 import 'package:my_app/providers/db_providers.dart';
-import 'package:my_app/view/tab/simple_cache.dart';
 
 class StcInvalidator {
   StcInvalidator();
 
   void stcInvalidate(WidgetRef ref) {
-    ref.invalidate(selectWeightList(cachedDayRange));
-    ref.invalidate(selectMuscleList(cachedDayRange));
-    ref.invalidate(selectFatList(cachedDayRange));
-    ref.invalidate(selectStampList(cachedDayRange));
+    DateTime startDate = DateTime.now().subtract(const Duration(days: 365));
+    DateTime endDate = DateTime.now();
+    DayRange invalidateDayRange = DayRange(
+      DateFormat('yyyy-MM-dd').format(startDate),
+      DateFormat('yyyy-MM-dd').format(endDate),
+    );
+
+    ref.invalidate(selectWeightList(invalidateDayRange));
+    ref.invalidate(selectMuscleList(invalidateDayRange));
+    ref.invalidate(selectFatList(invalidateDayRange));
+    ref.invalidate(selectStampList(invalidateDayRange));
   }
 
 }
