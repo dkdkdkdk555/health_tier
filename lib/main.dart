@@ -212,7 +212,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
       createTutorialDiet(ref: ref, wtio: wtio,htio: htio);
     });
   }
-
+ 
 
   @override
   void didChangeDependencies() {
@@ -220,8 +220,10 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initDeepLinks();
-      await _requestAuthrizationTracking();
       await FlutterLocalNotification.requestNotificationPermission();
+      if(Platform.isIOS) {
+        await _requestAuthrizationTracking();
+      }
       // 애드몹 광고 sdk 초기화
       await MobileAds.instance.initialize();
     });
