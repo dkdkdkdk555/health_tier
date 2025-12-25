@@ -60,6 +60,7 @@ class ProfileCard extends ConsumerWidget {
                         child: Center(
                           child: Container(
                             height: 200 * htio,
+                            width: 200 * htio,
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                             ),
