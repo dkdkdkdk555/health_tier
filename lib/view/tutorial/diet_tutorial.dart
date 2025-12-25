@@ -22,7 +22,25 @@ Future<void> createTutorialDiet({
     paddingFocus: 0,
     opacityShadow: 0.5,
     imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-    textSkip: 'SKIP',
+    skipWidget: Container(
+      margin: EdgeInsets.symmetric(horizontal: 20*wtio),
+      padding: EdgeInsets.symmetric(
+        horizontal: 8 * htio,
+        vertical: 4 * htio,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: Text(
+        'SKIP',
+        style: TextStyle(
+          fontSize: 14 * htio,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    ),
     onSkip: () {
       ref.read(dietTutorialStorageProvider.notifier).markAsShown();
       return true;

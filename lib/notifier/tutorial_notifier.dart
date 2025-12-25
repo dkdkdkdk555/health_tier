@@ -18,6 +18,8 @@ class MainTutorialNotifier extends StateNotifier<bool> {
   }
 }
 
+final calendarCellTutorialUsedProvider = StateProvider<bool>((ref) => false); // 캘린더바디 셀에 글로벌키 지정시 키를 재할당하는 버그를 막고자 만듬
+
 ///////////////////
 
 final dietTutorialStorageProvider = StateNotifierProvider<DietTutorialNotifier, bool>((ref) {

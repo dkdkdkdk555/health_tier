@@ -19,7 +19,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenRequest;
-import 'package:my_app/notifier/tutorial_notifier.dart' show mainTutorialStorageProvider;
+import 'package:my_app/notifier/tutorial_notifier.dart' show calendarCellTutorialUsedProvider, mainTutorialStorageProvider;
 import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
 import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
