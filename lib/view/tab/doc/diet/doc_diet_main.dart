@@ -59,7 +59,6 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
             SizedBox(height: 414 * heightRatio,)
           ],
         ),
-
         AnimatedPositioned(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
@@ -76,7 +75,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= 510) {
+              if (_bodyHeightSize >= (460 * heightRatio)) {
                 _showFullModal();
               }
               setState(() {
