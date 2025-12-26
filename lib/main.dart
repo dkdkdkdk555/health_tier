@@ -282,9 +282,14 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
         Locale('ko'), // 한국어도 함께 지원 가능
       ],
       builder: (context, child) {
+        final bottomSafe = Platform.isAndroid ? MediaQuery.of(context).viewPadding.bottom : 0.0;
+        
         return Stack(
           children: [
-            child!,
+            Padding(
+              padding: EdgeInsets.only(bottom: bottomSafe),
+              child: child!,
+            ),
             IgnorePointer(
               ignoring: _fadeController.isCompleted,
               child: FadeTransition(
