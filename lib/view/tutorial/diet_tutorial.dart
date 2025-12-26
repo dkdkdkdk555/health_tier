@@ -23,7 +23,7 @@ Future<void> createTutorialDiet({
     opacityShadow: 0.5,
     imageFilter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
     skipWidget: Container(
-      margin: EdgeInsets.symmetric(horizontal: 20*wtio),
+      margin: EdgeInsets.symmetric(horizontal: 20*wtio, vertical: 20*htio),
       padding: EdgeInsets.symmetric(
         horizontal: 8 * htio,
         vertical: 4 * htio,
