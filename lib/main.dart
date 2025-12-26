@@ -8,6 +8,7 @@ import 'package:app_tracking_transparency/app_tracking_transparency.dart' show A
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;

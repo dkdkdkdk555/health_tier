@@ -70,14 +70,14 @@ final router = GoRouter(
               path: 'feed/:feedId',
               pageBuilder: (context, state) {
                 final feedId = int.parse(state.pathParameters['feedId']!);
-
                 final categoryId = state.uri.queryParameters['categoryId'] != null
                     ? int.tryParse(state.uri.queryParameters['categoryId']!)
                     : null;
 
                 final isFromWriteFeed = state.uri.queryParameters['isFromWriteFeed'] == 'true';
                 final isFromNotifi = state.uri.queryParameters['isFromNotifi'] == 'true';
-                return CustomTransitionPage(
+
+                return CupertinoPage(
                   key: state.pageKey,
                   child: FeedDetail(
                     feedId: feedId,
@@ -85,20 +85,6 @@ final router = GoRouter(
                     isFromWriteFeed: isFromWriteFeed,
                     isFromNotifi: isFromNotifi,
                   ),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-                    const end = Offset.zero;        // 현재 위치로 이동
-                    const curve = Curves.ease;
-
-                    final tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
-                  transitionDuration: const Duration(milliseconds: 300),
                 );
               },
               parentNavigatorKey: rootNavigatorKey,
