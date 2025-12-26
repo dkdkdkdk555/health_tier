@@ -31,12 +31,20 @@ class _DocMainState extends ConsumerState<DocMain> {
   final String appStore = "https://apps.apple.com/kr/app/id6753325210";
   final String playStore = "https://play.google.com/store/apps/details?id=com.health.tier&hl=ko";
 
+  late final PageController _pageController;
   
   @override
   void initState() {
     super.initState();
     _selectedIndex = cachedDocTabIndex; // 캐시된 값 불러오기
+    _pageController = PageController(initialPage: _selectedIndex);
     _initRemoteConfigOnce();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _initRemoteConfigOnce() async {
@@ -116,17 +124,18 @@ class _DocMainState extends ConsumerState<DocMain> {
     );
   }
 
-
-  final List<Widget> _pages = [
-    const DocCalendarBody(),
-    const DocDietMain(),
-  ];
-
   void _onTap(int index) async{
     setState(() {
       _selectedIndex = index;
       cachedDocTabIndex = index; // 캐시된 값 불러오기
     });
+
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+    
     if(index == 1) {
       final prefs = await SharedPreferences.getInstance();
       final isShown = prefs.getBool("is_diet_tutorial_shown") ?? false;
@@ -157,19 +166,30 @@ class _DocMainState extends ConsumerState<DocMain> {
 
               // Body
               Expanded(
-                flex: 349,
                 child: Container(
                   color: const Color(0xFFF5F5F5),
-                  child: Stack(
-                    children: List.generate(_pages.length, (index) {
-                      return Offstage(
-                        offstage: _selectedIndex != index,
-                        child: TickerMode(
-                          enabled: _selectedIndex == index,
-                          child: _pages[index],
-                        ),
-                      );
-                    }),
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const BouncingScrollPhysics(), // iOS 느낌
+                    onPageChanged: (index) {
+                      setState(() {
+                        _selectedIndex = index;
+                        cachedDocTabIndex = index;
+                      });
+                  
+                      if (index == 1) {
+                        SharedPreferences.getInstance().then((prefs) {
+                          final isShown = prefs.getBool("is_diet_tutorial_shown") ?? false;
+                          if (!isShown) {
+                            ref.read(dietTutorialTriggerProvider.notifier).state = DateTime.now();
+                          }
+                        });
+                      }
+                    },
+                    children: const [
+                      DocCalendarBody(),
+                      DocDietMain(),
+                    ],
                   ),
                 ),
               ),

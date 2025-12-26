@@ -22,7 +22,10 @@ class DocDietMain extends ConsumerStatefulWidget {
   ConsumerState<DocDietMain> createState() => _DocDietMainState();
 }
 
-class _DocDietMainState extends ConsumerState<DocDietMain> {
+class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   DateTime _focusedDay = DateTime.now();
 
   double _dragDistance = 0;
@@ -30,10 +33,6 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
   final double _minHeightSize = 414; // 바텀영역 최소값
   final double _maxHeightSize = 595; // 바텀영역 최댓감
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
@@ -43,6 +42,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
 
