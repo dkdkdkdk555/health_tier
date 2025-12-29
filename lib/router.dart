@@ -256,17 +256,21 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
+    final wtio = MediaQuery.of(context).size.width;
+
     // 튜토리얼 트리거 감시
     ref.listen(dietTutorialTriggerProvider, (previous, next) {
       if (next != null) {
         // 여기서 show를 호출하면 _ShellScaffold의 context를 사용하므로 
         // 하위의 네비게이션 바까지 모두 포함하여 블러 처리가 됩니다.
-        
-        tutorialCoachMarkDiet.show(context: context);
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if(!context.mounted) return;
+          tutorialCoachMarkDiet.show(context: context);
+        });
       }
     });
     
-    final wtio = MediaQuery.of(context).size.width;
     final selectedIndex = _calculateIndex(GoRouterState.of(context));
     final navigationBarHide = ref.watch(navigationBarHideProvider);
 

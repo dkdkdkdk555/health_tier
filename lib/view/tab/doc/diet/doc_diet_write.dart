@@ -97,7 +97,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     final isShown = prefs.getBool("is_diet_write_tutorial_shown") ?? false;
     if(!isShown) {
       await createTutorial(ref:ref, wtio: wtio, htio: htio);
-      await Future.delayed(Duration.zero, showTutorial);
+      await Future.delayed(const Duration(milliseconds: 300), showTutorial);
     }
   }
 
