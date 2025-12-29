@@ -212,7 +212,7 @@ List<TargetFocus> _createTargets({
         child: Padding(
           padding: EdgeInsets.only(bottom: 40 * htio),
           child: Text(
-            '영역을 위로 끌어올려 체중을 입력할 수 있어요.',
+            '입력한 체중을 보여줘요.',
             style: TextStyle(fontSize: 15 * htio, color: Colors.white),
           ),
         ),
@@ -229,7 +229,7 @@ List<TargetFocus> _createTargets({
         child: Padding(
           padding: EdgeInsets.only(bottom: 40 * htio),
           child: Text(
-            '식단탭에서 입력한 식사의 하루 총 단백질 섭취량을 보여줘요.',
+            '식단탭에서 입력한 하루 총 단백질 섭취량을 보여줘요.',
             style: TextStyle(fontSize: 15 * htio, color: Colors.white),
           ),
         ),
@@ -246,7 +246,7 @@ List<TargetFocus> _createTargets({
         child: Padding(
           padding: EdgeInsets.only(bottom: 30 * htio),
           child: Text(
-            '식단탭에서 입력한 식사의 하루 총 섭취 칼로리를 보여줘요.',
+            '식단탭에서 입력한 하루 총 섭취 칼로리를 보여줘요.',
             style: TextStyle(fontSize: 15 * htio, color: Colors.white),
           ),
         ),
