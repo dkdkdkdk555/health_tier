@@ -257,6 +257,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
   @override
   Widget build(BuildContext context) {
     final wtio = MediaQuery.of(context).size.width;
+    final htio = MediaQuery.of(context).size.height;
 
     // 튜토리얼 트리거 감시
     ref.listen(dietTutorialTriggerProvider, (previous, next) {
@@ -370,6 +371,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
                   }
                 },
                 wtio: wtio,
+                htio: htio,
               ),
             ),
           ),
