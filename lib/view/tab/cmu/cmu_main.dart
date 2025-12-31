@@ -81,6 +81,12 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) { // 웹에서 접근 시 네비게이션 바 숨기기
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(navigationBarHideProvider.notifier).state = true;
+      });
+    }
+
     _selectedIndex = cachedCmuTabIndex; // 캐시된 값 불러오기
 
     _scrollController = ScrollController();
@@ -153,6 +159,9 @@ class _CmuMainState extends ConsumerState<CmuMain> with TickerProviderStateMixin
   @override
   void dispose() {
     _scrollController.dispose();
+    if (kIsWeb) { // 페이지 이탈 시 복구
+      ref.read(navigationBarHideProvider.notifier).state = false;
+    }
     super.dispose();
   }
 

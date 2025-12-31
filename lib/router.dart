@@ -8,7 +8,7 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/doc',
+  initialLocation: kIsWeb ? '/cmu' : '/doc',
   // info.plist 설정을 FlutterDeepLinkingEnabled 하므로서 카카오톡으로 로그인하는 경우
   // go_router 패키지와 더불어 나타나는 리다이렉트 문제를 임시방편으로 막아둠.
   // redirect: (context, state) {
@@ -33,6 +33,12 @@ final router = GoRouter(
             return targetPath; // 내부 경로(/cmu/feed/10)로 리다이렉션
         }
     }
+
+    // 웹인경우 커뮤탭 외에는 접근 못하도록
+    if (kIsWeb && !state.uri.path.startsWith('/cmu')) {
+      return '/cmu';
+    }
+
     return null; // 리다이렉션 없음
   },
   routes: [
