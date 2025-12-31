@@ -61,7 +61,6 @@ import 'view/navigation_bar.dart';
 import 'dart:math' as math;
 import 'package:flutter_quill/flutter_quill.dart'; 
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter/foundation.dart';
 
 part 'router.dart';
 part 'view/tutorial/main_tutorial.dart';
