@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -96,6 +97,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
             // 댓글리스트
             ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
             // 배너광고
+            if (!kIsWeb)
             const SliverToBoxAdapter(
               child: AdmobAds(adType: AdType.banner,),
             ),

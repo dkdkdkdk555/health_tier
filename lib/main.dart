@@ -4,14 +4,16 @@ import 'dart:io';
 import 'dart:ui' show ImageFilter;
 
 import 'package:app_links/app_links.dart';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart' show AppTrackingTransparency, TrackingStatus;
+import 'package:app_tracking_transparency/app_tracking_transparency.dart'
+    show AppTrackingTransparency, TrackingStatus;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
+import 'package:flutter_quill/flutter_quill.dart'
+    show FlutterQuillLocalizations;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -19,10 +21,14 @@ import 'package:google_mobile_ads/google_mobile_ads.dart' show MobileAds;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
-import 'package:my_app/model/usr/auth/push_token_request.dart' show PushTokenRequest;
-import 'package:my_app/notifier/tutorial_notifier.dart' show calendarCellTutorialUsedProvider, mainTutorialStorageProvider;
-import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
-import 'package:my_app/providers/user_cud_providers.dart' show usrProfileImgProvider;
+import 'package:my_app/model/usr/auth/push_token_request.dart'
+    show PushTokenRequest;
+import 'package:my_app/notifier/tutorial_notifier.dart'
+    show calendarCellTutorialUsedProvider, mainTutorialStorageProvider;
+import 'package:my_app/providers/current_page_provider.dart'
+    show currentPageProvider;
+import 'package:my_app/providers/user_cud_providers.dart'
+    show usrProfileImgProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
@@ -38,7 +44,8 @@ import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
-import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart' show createTutorialDiet, dietTutorialTriggerProvider, tutorialCoachMarkDiet;
+import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart'
+    show createTutorialDiet, dietTutorialTriggerProvider, tutorialCoachMarkDiet;
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tab/stc/stc_main.dart';
@@ -52,14 +59,15 @@ import 'package:my_app/view/tab/usr/notification/notification_manage_page.dart';
 import 'package:my_app/view/tab/usr/sign_progress/nicname_input_page.dart';
 import 'package:my_app/view/tab/usr/usr_info_screen.dart';
 import 'package:my_app/view/tab/usr/usr_main.dart';
-import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
+import 'package:my_app/view/tutorial/common_functions.dart'
+    show buildTarget, titleDescContent;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import '../firebase_options.dart';
 import 'view/navigation_bar.dart';
 import 'dart:math' as math;
-import 'package:flutter_quill/flutter_quill.dart'; 
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 
@@ -84,7 +92,7 @@ Future<void> initializeDependencies(WidgetRef ref) async {
   // db 초기화
   final db = AppDatabase();
   // 테스트 데이터 삽입 시만 사용
-  // await db.insertTestDataIfNeeded(); 
+  // await db.insertTestDataIfNeeded();
 
   // Firebase 초기화
   await Firebase.initializeApp(
@@ -93,11 +101,11 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
   // Firebase Remote Config 초기화 및 설정
   await RemoteConfigService.instance.initialize();
-  
+
   // 현재 디바이스의 OS 타입 가져오기
   final osTypeInit = Platform.isIOS ? 'ios' : 'android';
   osType = osTypeInit;
-  
+
   // FCM 토큰 갱신 리스너 등록
   FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async {
     // SharedPreferences에서 accessToken 가져오기
@@ -126,18 +134,19 @@ Future<void> initializeDependencies(WidgetRef ref) async {
   });
   // 백그라운드 알림 : 수신 시 db 저장
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  // 포그라운드 알림: 앱 내 커스텀 알림 
+  // 포그라운드 알림: 앱 내 커스텀 알림
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     FlutterLocalNotification.showNotification(message, db);
   });
   // 백그라운드 클릭 시: 앱 켜지고 handlePayload 호출 (알림 보여주는건 os에서 알아서 해줌 -> 그 알림 클릭시 여기선 페이로드 저장만해둠)
   FirebaseMessaging.onMessageOpenedApp.listen((message) async {
-    if(Platform.isIOS){
+    if (Platform.isIOS) {
       final db = AppDatabase();
       await FlutterLocalNotification.insertNotificationToDB(message, db);
     }
     FlutterLocalNotification.pendingPayload = json.encode(message.data);
-    FlutterLocalNotification.handlePayload(FlutterLocalNotification.pendingPayload!);
+    FlutterLocalNotification.handlePayload(
+        FlutterLocalNotification.pendingPayload!);
     FlutterLocalNotification.pendingPayload = null;
   });
 
@@ -152,78 +161,108 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // 세로 모드만 허용
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-  await initializeDateFormatting('ko');
+
+  if (!kIsWeb) {
+    // 세로 모드만 허용
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    await initializeDateFormatting('ko');
+  }
+
   runApp(
     const ProviderScope(
-      child: MyApp(),
+      child: AppEntry(),
     ),
   );
 }
 
+class AppEntry extends StatelessWidget {
+  const AppEntry({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return const WebFrame(child: MyApp()); // 웹
+    } else {
+      return const MyApp(); // 모바일
+    }
+  }
+}
+
 class MyApp extends ConsumerStatefulWidget {
-  const MyApp({super.key,});
+  const MyApp({
+    super.key,
+  });
 
   @override
   ConsumerState<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMixin {
+class _MyAppState extends ConsumerState<MyApp>
+    with SingleTickerProviderStateMixin {
   StreamSubscription<Uri>? _linkSubscription; // 딥링크 객체
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
+  AnimationController? _fadeController;
+  Animation<double>? _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    // 앱 시작 후 100ms 지연 후 초기화 작업 시작
-    Future.delayed(const Duration(milliseconds: 100), () async {
-      await initializeDependencies(ref);
-    });
 
-    // Fade out 애니메이션 세팅
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeOut,
-    );
-    // 2초 후 인트로 페이드아웃
-    Future.delayed(const Duration(milliseconds: 2400), () {
-      if (mounted) _fadeController.forward();
-    });
+    if (!kIsWeb) {
+      // 앱 시작 후 100ms 지연 후 초기화 작업 시작
+      Future.delayed(const Duration(milliseconds: 100), () async {
+        await initializeDependencies(ref);
+      });
 
-    _fadeController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        setState(() {});
+      // Fade out 애니메이션 세팅
+      _fadeController = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 600),
+      );
+      if (_fadeController != null) {
+        _fadeAnimation = CurvedAnimation(
+          parent: _fadeController!,
+          curve: Curves.easeOut,
+        );
+        // 2초 후 인트로 페이드아웃
+        Future.delayed(const Duration(milliseconds: 2400), () {
+          if (mounted) _fadeController!.forward();
+        });
+
+        _fadeController!.addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            setState(() {});
+          }
+        });
       }
-    });
 
-    // 튜토리얼 초기화
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final htio = ScreenRatio(context).heightRatio;
-      final wtio = ScreenRatio(context).widthRatio;
+      // 튜토리얼 초기화
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final htio = ScreenRatio(context).heightRatio;
+        final wtio = ScreenRatio(context).widthRatio;
 
-      createTutorial(ref: ref,wtio: wtio,htio: htio,);
-      createTutorialDiet(ref: ref, wtio: wtio,htio: htio);
-    });
+        createTutorial(
+          ref: ref,
+          wtio: wtio,
+          htio: htio,
+        );
+        createTutorialDiet(ref: ref, wtio: wtio, htio: htio);
+      });
+    }
   }
- 
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    if (kIsWeb) return;
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _initDeepLinks();
       await FlutterLocalNotification.requestNotificationPermission();
-      if(Platform.isIOS) {
+      if (Platform.isIOS) {
         await _requestAuthrizationTracking();
       }
       // 애드몹 광고 sdk 초기화
@@ -232,8 +271,10 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   }
 
   Future<void> _initDeepLinks() async {
+    if (kIsWeb) return;
     _linkSubscription = AppLinks().uriLinkStream.listen((uri) {
-      if(Platform.isIOS) { // 안드는 goRouter에서 리다이렉트 이용
+      if (Platform.isIOS) {
+        // 안드는 goRouter에서 리다이렉트 이용
         openAppLink(uri);
       }
     });
@@ -242,7 +283,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   Future<void> _requestAuthrizationTracking() async {
     // 앱 추적 권한 상태 확인 및 요청
     final status = await AppTrackingTransparency.trackingAuthorizationStatus;
-    
+
     if (status == TrackingStatus.notDetermined) {
       await AppTrackingTransparency.requestTrackingAuthorization();
     }
@@ -264,7 +305,7 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
   @override
   void dispose() {
     _linkSubscription?.cancel();
-    _fadeController.dispose();
+    if (_fadeController != null) _fadeController!.dispose();
     super.dispose();
   }
 
@@ -284,24 +325,51 @@ class _MyAppState extends ConsumerState<MyApp> with SingleTickerProviderStateMix
         Locale('ko'), // 한국어도 함께 지원 가능
       ],
       builder: (context, child) {
-        final bottomSafe = Platform.isAndroid ? MediaQuery.of(context).viewPadding.bottom : 0.0;
-        
+        final bottomSafe = (!kIsWeb && Platform.isAndroid)
+            ? MediaQuery.of(context).viewPadding.bottom
+            : 0.0;
+
         return Stack(
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: bottomSafe),
               child: child!,
             ),
+            if (_fadeController != null && _fadeAnimation != null)
             IgnorePointer(
-              ignoring: _fadeController.isCompleted,
+                ignoring: _fadeController!.isCompleted,
               child: FadeTransition(
-                opacity: Tween(begin: 1.0, end: 0.0).animate(_fadeAnimation),
+                  opacity: Tween(begin: 1.0, end: 0.0).animate(_fadeAnimation!),
                 child: const IntroScreen(),
               ),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+class WebFrame extends StatelessWidget {
+  final Widget child;
+  const WebFrame({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 475,
+        decoration: const BoxDecoration(
+          color: Colors.black, // 배경 여백
+        ),
+        child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              size: const Size(375, 812),
+              // 모바일 기준 고정 -> 실질 가로475 , 세로는 창조절 길이가 어떻게 변하든 이 사이즈가 비율을 결정한다.
+              textScaler: const TextScaler.linear(1.0),
+            ),
+            child: child),
+      ),
     );
   }
 }
