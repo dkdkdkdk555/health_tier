@@ -39,7 +39,7 @@ dependencies:
   responsive_builder: ^0.7.1
   auto_size_text: ^3.0.0
   table_calendar: ^3.1.3
-  intl: ^0.19.0 # 날짜 포멧 처리 용도
+  intl: ^0.20.2 # 날짜 포멧 처리 용도
   fluttertoast: ^8.2.12
 
   # DB
@@ -70,6 +70,7 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   http_parser: ^4.1.2
   webview_flutter: ^4.13.0
+  flutter_inappwebview: ^6.1.5
 
   # firebase
   firebase_core: ^4.0.0 
