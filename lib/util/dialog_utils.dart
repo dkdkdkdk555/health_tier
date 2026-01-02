@@ -498,3 +498,147 @@ class _MediaPopup extends StatelessWidget {
     );
   }
 }
+
+
+void showInstallRcmndPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black54,
+    builder: (_) => _InstallRcmndPopup(),
+  );
+}
+
+class _InstallRcmndPopup extends StatelessWidget {
+  const _InstallRcmndPopup();
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // 팝업 본체
+            Container(
+              width: 450,
+              height: 450,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.network(
+                'https://s3.ap-northeast-2.amazonaws.com/s3.health-tier.com/uploads/popup.png',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Icon(Icons.broken_image, color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(width: 6 * wtio),
+            // 닫기 버튼 (우측 상단)
+            Positioned(
+              right: 4 * wtio,
+              top: 3 * htio,
+              child: IconButton(
+                icon: Icon(
+                  Icons.cancel,
+                  size: 26 * htio,
+                  color: Colors.white70,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
+
+            // 링크 버튼 (가운데 하단)
+            Positioned(
+              bottom: 75 * htio,
+              left: -245,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () async {
+                    await launchUrl(
+                        Uri.parse(
+                            'https://play.google.com/store/apps/details?id=com.health.tier&hl=ko'),
+                        mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    width: 144.3,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18 * wtio, vertical: 10 * htio),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF59A710).withAlpha(220),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Google Play 설치',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * htio,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2 * wtio,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 120 * htio,
+              left: -245,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () async {
+                    await launchUrl(
+                        Uri.parse('https://apps.apple.com/kr/app/id6753325210'),
+                        mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    width: 144.3,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18 * wtio, vertical: 10 * htio),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0D85E7).withAlpha(200),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'App Store 설치',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * htio,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2 * wtio,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

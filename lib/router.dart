@@ -338,11 +338,12 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
                       child: Center(
                         child: GestureDetector(
                           onTap: () {
-                            // TODO:앱 설치 권유 팝업
+                            // 앱 설치 권유 팝업
+                            showInstallRcmndPopup(context);
                           },
                           child: Container(
                             height: 56,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 20,
                             ),
                             decoration: BoxDecoration(

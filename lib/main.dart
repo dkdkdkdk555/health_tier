@@ -32,6 +32,7 @@ import 'package:my_app/providers/user_cud_providers.dart'
     show usrProfileImgProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
 import 'package:my_app/service/user_api_service.dart';
+import 'package:my_app/util/dialog_utils.dart' show showInstallRcmndPopup;
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
