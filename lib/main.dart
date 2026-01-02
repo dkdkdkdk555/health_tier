@@ -358,19 +358,24 @@ class WebFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 475,
-        decoration: const BoxDecoration(
-          color: Colors.black, // 배경 여백
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFFE9ECF0),
+      ),
+      child: Center(
+        child: Container(
+          width: 475,
+          decoration: const BoxDecoration(
+            color: Colors.black, // 배경 여백
+          ),
+          child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: const Size(375, 812),
+                // 모바일 기준 고정 -> 실질 가로475 , 세로는 창조절 길이가 어떻게 변하든 이 사이즈가 비율을 결정한다.
+                textScaler: const TextScaler.linear(1.0),
+              ),
+              child: child),
         ),
-        child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              size: const Size(375, 812),
-              // 모바일 기준 고정 -> 실질 가로475 , 세로는 창조절 길이가 어떻게 변하든 이 사이즈가 비율을 결정한다.
-              textScaler: const TextScaler.linear(1.0),
-            ),
-            child: child),
       ),
     );
   }
