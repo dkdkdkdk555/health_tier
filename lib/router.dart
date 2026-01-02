@@ -287,8 +287,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
 
   @override
   Widget build(BuildContext context) {
-    final wtio = ScreenRatio(context).widthRatio;
-    final htio = ScreenRatio(context).heightRatio;
+    final wtio = MediaQuery.of(context).size.width;
 
     // 튜토리얼 트리거 감시
     ref.listen(dietTutorialTriggerProvider, (previous, next) {
@@ -333,18 +332,18 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
                   alignment: AlignmentGeometry.center,
                   children: [
                     Positioned(
-                      left: 16 * wtio,
-                      right: 16 * wtio,
-                      bottom: 18 * htio,
+                      left: 16,
+                      right: 16,
+                      bottom: 18,
                       child: Center(
                         child: GestureDetector(
                           onTap: () {
                             // TODO:앱 설치 권유 팝업
                           },
                           child: Container(
-                            height: 56 * htio,
+                            height: 56,
                             padding: EdgeInsets.symmetric(
-                              horizontal: 20 * htio,
+                              horizontal: 20,
                             ),
                             decoration: BoxDecoration(
                               color: const Color(0xFF0D85E7),
@@ -362,18 +361,18 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
                               children: [
                                 SvgPicture.asset(
                                   'assets/widgets/create_feed.svg',
-                                  width: 24 * htio,
-                                  height: 24 * htio,
+                                  width: 24,
+                                  height: 24,
                                 ),
-                                SizedBox(width: 8 * htio),
-                                Text(
+                                const SizedBox(width: 8),
+                                const Text(
                                   '피드 작성하기',
                                   style: TextStyle(
-                                      fontSize: 18 * htio,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: 'Pretendard',
                                       color: Colors.white,
-                                      height: 0.01 * htio),
+                                      height: 0.01),
                                 ),
                               ],
                             ),

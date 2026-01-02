@@ -21,6 +21,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart' show MobileAds;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
+import 'package:my_app/extension/screen_ratio_extension.dart';
 import 'package:my_app/model/usr/auth/push_token_request.dart'
     show PushTokenRequest;
 import 'package:my_app/notifier/tutorial_notifier.dart'
@@ -34,7 +35,7 @@ import 'package:my_app/service/user_api_service.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart';
 import 'package:my_app/util/flutter_local_notification.dart';
-import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/util/screen_ratio.dart' hide ScreenRatio;
 import 'package:my_app/util/up_arrow.dart' show UpArrowIndicator;
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/common/webview_page.dart';

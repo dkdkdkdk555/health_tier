@@ -75,7 +75,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= (460 * heightRatio)) {
+              if (_bodyHeightSize >= 460) {
                 _showFullModal();
               }
               setState(() {
