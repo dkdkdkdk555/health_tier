@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,12 +7,14 @@ import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
 import 'package:my_app/model/cmu/feed/reply_response.dart';
 import 'package:my_app/model/cmu/feed/report_request_dto.dart';
 import 'package:my_app/model/cmu/reply/reply_like_request_dto.dart';
-import 'package:my_app/providers/current_page_provider.dart' show currentPageProvider;
+import 'package:my_app/providers/current_page_provider.dart'
+    show currentPageProvider;
 import 'package:my_app/providers/feed_providers.dart';
 import 'package:my_app/providers/notifier_provider.dart';
 import 'package:my_app/providers/reply_cud_providers.dart';
 import 'package:my_app/service/reply_cud_api_service.dart';
-import 'package:my_app/util/dialog_utils.dart' show showAppDialog, showInputDialog;
+import 'package:my_app/util/dialog_utils.dart'
+    show showAppDialog, showInputDialog, showInstallRcmndPopup;
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/user_prefs.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/reply/reply_hamburger.dart';
@@ -32,11 +35,22 @@ class Reply extends ConsumerStatefulWidget {
 }
 
 class _ReplyConsumerState extends ConsumerState<Reply> {
-
-  void _showReplyHamburgerMenu(BuildContext context, Offset position, int writerUserId, int loginUserId) {
-    if(loginUserId == 0) {
-        showAppMessage(context, title: '로그인이 필요해요', message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.', type: AppMessageType.dialog, loginRequest: true, onConfirm: () => ref.read(currentPageProvider.notifier).state = 3,);
-        return;
+  void _showReplyHamburgerMenu(BuildContext context, Offset position,
+      int writerUserId, int loginUserId) {
+    if (loginUserId == 0) {
+      if (!kIsWeb) {
+        showAppMessage(
+          context,
+          title: '로그인이 필요해요',
+          message: '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',
+          type: AppMessageType.dialog,
+          loginRequest: true,
+          onConfirm: () => ref.read(currentPageProvider.notifier).state = 3,
+        );
+      } else {
+        showInstallRcmndPopup(context);
+      }
+      return;
     }
     // 팝업 메뉴가 표시될 위치를 정확하게 계산
     final RelativeRect positionRect = RelativeRect.fromRect(
@@ -53,32 +67,35 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
           writerUserId: writerUserId,
           loginUserId: loginUserId,
           onEdit: () {
-             ref.read(replySupplyNotifierProvider).pickReplyInfo(widget.reply.id, widget.reply.ctnt, null, isUpdate: true);
+            ref.read(replySupplyNotifierProvider).pickReplyInfo(
+                widget.reply.id, widget.reply.ctnt, null,
+                isUpdate: true);
           },
           onDelete: () async {
             await showAppDialog(
-              context, 
+              context,
               message: '댓글을 삭제하시겠습니까?',
               confirmText: '확인',
               cancelText: '취소',
               onConfirm: () async {
-                final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
+                final replyServiceAsync =
+                    await ref.read(replyCudServiceProvider.future);
                 final replyService = replyServiceAsync;
                 try {
-                  final response = await replyService.deleteReply(widget.reply.id);
+                  final response =
+                      await replyService.deleteReply(widget.reply.id);
 
-                  if(response == 'success') {
-
+                  if (response == 'success') {
                     ref.invalidate(replyPaginationProvider(widget.cmuId));
 
                     if (context.mounted) {
-                      showAppMessage(context, message:'댓글이 삭제되었습니다.');
+                      showAppMessage(context, message: '댓글이 삭제되었습니다.');
                     }
                   }
-                } catch(e) {
+                } catch (e) {
                   debugPrint('$e');
                   if (context.mounted) {
-                    showAppMessage(context, message:'댓글 삭제처리 중 오류가 발생했습니다.');
+                    showAppMessage(context, message: '댓글 삭제처리 중 오류가 발생했습니다.');
                   }
                 }
               },
@@ -88,7 +105,8 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
             );
           },
           onReport: () async {
-            final replyServiceAsync = await ref.read(replyCudServiceProvider.future);
+            final replyServiceAsync =
+                await ref.read(replyCudServiceProvider.future);
             final replyService = replyServiceAsync;
             _showReportDialog(replyService);
           },
@@ -105,9 +123,12 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
   DateTime? _lastClickTime;
 
-   // 좋아요 버튼 클릭 핸들러 (새로 추가)
-  Future<void> _onLikeButtonPressed(int? myUserId, BuildContext context, WidgetRef ref) async {
-    if (_lastClickTime != null && DateTime.now().difference(_lastClickTime!) < const Duration(milliseconds: 300)) {
+  // 좋아요 버튼 클릭 핸들러 (새로 추가)
+  Future<void> _onLikeButtonPressed(
+      int? myUserId, BuildContext context, WidgetRef ref) async {
+    if (_lastClickTime != null &&
+        DateTime.now().difference(_lastClickTime!) <
+            const Duration(milliseconds: 300)) {
       return;
     }
     _lastClickTime = DateTime.now();
@@ -123,7 +144,7 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
             replyId: widget.reply.id,
           ),
         );
-        if(response == 'success') {
+        if (response == 'success') {
           setState(() {
             widget.reply.isLiked = true;
             widget.reply.likeCnt += 1;
@@ -132,19 +153,15 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
       } else if (widget.reply.isLiked == true) {
         // 좋아요 상태에서 누르면 좋아요 취소 요청
         final response = await replyService.cancelReplyLike(
-          ReplyLikeRequestDto(
-            userId: myUserId ?? 0,
-            replyId: widget.reply.id
-          ),
+          ReplyLikeRequestDto(userId: myUserId ?? 0, replyId: widget.reply.id),
         );
-        if(response == 'success') {
+        if (response == 'success') {
           setState(() {
             widget.reply.isLiked = false;
             widget.reply.likeCnt -= 1;
           });
         }
       }
-
     } catch (e) {
       if (context.mounted) {
         showAppMessage(context, message: '댓글 좋아요 처리에 실패하였습니다.');
@@ -166,7 +183,10 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
 
     if (reason != null) {
       try {
-        final reportDto = ReportRequestDto(replyId: widget.reply.id,reason: reason,);
+        final reportDto = ReportRequestDto(
+          replyId: widget.reply.id,
+          reason: reason,
+        );
         final response = await replyCudService.reportReply(reportDto);
 
         if (!mounted) return;
@@ -175,7 +195,11 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
         }
       } catch (e) {
         if (!mounted) return;
-        showAppDialog(context,message: "신고에 실패했습니다.\n관리자에게 문의하세요.",confirmText: "확인",);
+        showAppDialog(
+          context,
+          message: "신고에 실패했습니다.\n관리자에게 문의하세요.",
+          confirmText: "확인",
+        );
       }
     }
   }
@@ -184,10 +208,12 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
   TextSpan _buildStyledCommentText(String text, String delYn) {
     final defaultColor = delYn == 'N' ? Colors.black : Colors.grey.shade700;
     const highlightColor = Color(0xFF0D86E7);
-    final FontStyle fontStyle = delYn == 'N' ? FontStyle.normal : FontStyle.italic;
+    final FontStyle fontStyle =
+        delYn == 'N' ? FontStyle.normal : FontStyle.italic;
 
     final List<TextSpan> spans = [];
-    final RegExp regex = RegExp(r'(\S*@\S+)'); // @으로 시작하는 단어를 찾기 위한 정규식 (단어 전체 매칭)
+    final RegExp regex =
+        RegExp(r'(\S*@\S+)'); // @으로 시작하는 단어를 찾기 위한 정규식 (단어 전체 매칭)
 
     text.splitMapJoin(
       regex,
@@ -236,9 +262,11 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color:  (widget.reply.delYn == 'N' && widget.reply.likeCnt >=5 )
-                 ? const Color(0xFFFFF4E9)
-                 : widget.reply.delYn == 'Y'? Colors.grey.shade50 : Colors.white,
+        color: (widget.reply.delYn == 'N' && widget.reply.likeCnt >= 5)
+            ? const Color(0xFFFFF4E9)
+            : widget.reply.delYn == 'Y'
+                ? Colors.grey.shade50
+                : Colors.white,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -253,13 +281,16 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildProfileImageStack(widget.reply.imgPath, widget.reply.badges, context, widget.reply.delYn!),
+                  _buildProfileImageStack(widget.reply.imgPath,
+                      widget.reply.badges, context, widget.reply.delYn!),
                   Padding(
-                    padding: const EdgeInsets.only(left:8.0, right:4.5),
+                    padding: const EdgeInsets.only(left: 8.0, right: 4.5),
                     child: Text(
                       widget.reply.nickname,
                       style: TextStyle(
-                        color: widget.reply.delYn == 'N' ? Colors.black : Colors.grey.shade700,
+                        color: widget.reply.delYn == 'N'
+                            ? Colors.black
+                            : Colors.grey.shade700,
                         fontSize: 14,
                         fontFamily: 'Pretendard',
                         fontWeight: FontWeight.w600,
@@ -271,52 +302,54 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                     padding: const EdgeInsets.only(right: 4),
                     child: _buildWeightTag(widget.reply.badges),
                   ),
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final feedWriterUserId = ref.watch(feedMainChangeNotifierProvider.select((notifier) => notifier.userId));
-                  
-                      return widget.reply.userId == feedWriterUserId
+                  Consumer(builder: (context, ref, child) {
+                    final feedWriterUserId = ref.watch(
+                        feedMainChangeNotifierProvider
+                            .select((notifier) => notifier.userId));
+
+                    return widget.reply.userId == feedWriterUserId
                         ? Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                          decoration: ShapeDecoration(
-                            color: const Color(0x33333333),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                          ),
-                          child: const Text(
-                            '작성자',
-                            style: TextStyle(
-                              color: Color(0xFF333333),
-                              fontSize: 10,
-                              fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
-                              height: 1.50,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 1),
+                            decoration: ShapeDecoration(
+                              color: const Color(0x33333333),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
                             ),
-                          ),
-                        )
+                            child: const Text(
+                              '작성자',
+                              style: TextStyle(
+                                color: Color(0xFF333333),
+                                fontSize: 10,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w700,
+                                height: 1.50,
+                              ),
+                            ),
+                          )
                         : Container();
-                    }
-                  ),
+                  }),
                   const Spacer(),
-                  if(widget.reply.delYn == 'N')
-                  if(loginUserId != null || loginUserId != 0)
-                  GestureDetector(
-                    onTapUp: (TapUpDetails details) {
-                      _showReplyHamburgerMenu(
-                        context,
-                        details.globalPosition, // 탭 발생 위치를 전달
-                        widget.reply.userId, // 댓글 작성자 ID
-                        loginUserId ?? 0, // 로그인한 사용자 ID
-                      );
-                    },
-                    child: SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: SvgPicture.asset(
-                        'assets/widgets/replyHambuger.svg',
-                        fit: BoxFit.cover,
+                  if (widget.reply.delYn == 'N')
+                    if (loginUserId != null || loginUserId != 0)
+                      GestureDetector(
+                        onTapUp: (TapUpDetails details) {
+                          _showReplyHamburgerMenu(
+                            context,
+                            details.globalPosition, // 탭 발생 위치를 전달
+                            widget.reply.userId, // 댓글 작성자 ID
+                            loginUserId ?? 0, // 로그인한 사용자 ID
+                          );
+                        },
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: SvgPicture.asset(
+                            'assets/widgets/replyHambuger.svg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
                 ],
               ),
               Text.rich(
@@ -337,61 +370,64 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 2,
                 children: [
-                if(widget.reply.delYn == 'N')
-                  GestureDetector(
-                    onTap: () {
-                      _onLikeButtonPressed(loginUserId, context, ref);
-                    },
-                    child: SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: SvgPicture.asset(
-                        widget.reply.isLiked ? 'assets/icons/liked.svg': 'assets/icons/like.svg',
+                  if (widget.reply.delYn == 'N')
+                    GestureDetector(
+                      onTap: () {
+                        _onLikeButtonPressed(loginUserId, context, ref);
+                      },
+                      child: SizedBox(
                         width: 16,
                         height: 16,
-                        fit: BoxFit.cover,
+                        child: SvgPicture.asset(
+                          widget.reply.isLiked
+                              ? 'assets/icons/liked.svg'
+                              : 'assets/icons/like.svg',
+                          width: 16,
+                          height: 16,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  if (widget.reply.delYn == 'N')
+                    Text(
+                      '${widget.reply.likeCnt}',
+                      style: const TextStyle(
+                        color: Color(0xFF777777),
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                        height: 1.50,
+                      ),
+                    ),
+                ],
+              ),
+              if (widget.reply.delYn == 'N')
+                Padding(
+                  padding: const EdgeInsets.only(left: 12.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(replySupplyNotifierProvider).pickReplyInfo(
+                            widget.reply.parentReplyId == null
+                                ? widget.reply.id
+                                : widget.reply.parentReplyId!,
+                            widget.reply.ctnt,
+                            widget.reply.nickname,
+                            isReReply: widget.reply.parentReplyId != null,
+                            fcmRecieveUserId: widget.reply.userId,
+                          );
+                    },
+                    child: const Text(
+                      '답글 쓰기',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700,
+                        height: 1.50,
                       ),
                     ),
                   ),
-                if(widget.reply.delYn == 'N')
-                  Text(
-                    '${widget.reply.likeCnt}',
-                    style: const TextStyle(
-                      color: Color(0xFF777777),
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w500,
-                      height: 1.50,
-                    ),
-                  ),
-                ],
-              ),
-              if(widget.reply.delYn == 'N')
-              Padding(
-                padding: const EdgeInsets.only(left:12.0),
-                child: GestureDetector(
-                  onTap: () {
-                    ref.read(replySupplyNotifierProvider)
-                      .pickReplyInfo(
-                        widget.reply.parentReplyId==null ? widget.reply.id : widget.reply.parentReplyId!, 
-                        widget.reply.ctnt, 
-                        widget.reply.nickname,
-                        isReReply: widget.reply.parentReplyId!=null,
-                        fcmRecieveUserId: widget.reply.userId,
-                      );
-                  },
-                  child: const Text(
-                    '답글 쓰기',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12,
-                      fontFamily: 'Pretendard',
-                      fontWeight: FontWeight.w700,
-                      height: 1.50,
-                    ),
-                  ),
                 ),
-              ),
               const Spacer(),
               Text(
                 widget.reply.displayDttm,
@@ -410,15 +446,15 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
     );
   }
 
-  Widget _buildProfileImageStack(String imgPath, List<BadgeInfoDto>? badges, BuildContext context, String delYn) {
-    final todayBadge = badges!
-        .firstWhere(
-          (badge) => badge.badgeType == 'today',
-          orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
-        );
+  Widget _buildProfileImageStack(String imgPath, List<BadgeInfoDto>? badges,
+      BuildContext context, String delYn) {
+    final todayBadge = badges!.firstWhere(
+      (badge) => badge.badgeType == 'today',
+      orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
+    );
 
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         context.push('/cmu/profile/${widget.reply.userId}');
       },
       child: SizedBox(
@@ -437,20 +473,20 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                 ),
                 child: ClipOval(
                   child: (imgPath.isNotEmpty)
-                      ? delYn == 'N' ?
-                          Image.network(
-                            imgPath,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return SvgPicture.asset(
-                                'assets/widgets/default_user_profile.svg',
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          ) :
-                          Opacity(
-                            opacity: 0.37,
-                            child: Image.network(
+                      ? delYn == 'N'
+                          ? Image.network(
+                              imgPath,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return SvgPicture.asset(
+                                  'assets/widgets/default_user_profile.svg',
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            )
+                          : Opacity(
+                              opacity: 0.37,
+                              child: Image.network(
                                 imgPath,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
@@ -459,8 +495,8 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                                     fit: BoxFit.cover,
                                   );
                                 },
-                            ),
-                          )
+                              ),
+                            )
                       : SvgPicture.asset(
                           'assets/widgets/default_user_profile.svg',
                           fit: BoxFit.cover,
@@ -477,22 +513,22 @@ class _ReplyConsumerState extends ConsumerState<Reply> {
                     return const SizedBox.shrink();
                   },
                 ),
-            ),
+              ),
           ],
         ),
       ),
     );
   }
 
-    Widget _buildWeightTag(List<BadgeInfoDto>? badges) {
-    final weightBadge = badges!
-        .firstWhere(
-          (badge) => badge.badgeType == 'weight',
-          orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
-        );
+  Widget _buildWeightTag(List<BadgeInfoDto>? badges) {
+    final weightBadge = badges!.firstWhere(
+      (badge) => badge.badgeType == 'weight',
+      orElse: () => BadgeInfoDto(badgeId: '', badgeName: '', badgeType: ''),
+    );
 
     // badgeId가 비어있으면 뱃지를 표시하지 않음
-    if (weightBadge.badgeId.isEmpty) { // != '' 대신 .isEmpty 사용
+    if (weightBadge.badgeId.isEmpty) {
+      // != '' 대신 .isEmpty 사용
       return const SizedBox.shrink(); // 공간도 차지하지 않도록 SizedBox.shrink() 사용
     }
 
