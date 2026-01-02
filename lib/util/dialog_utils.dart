@@ -526,8 +526,8 @@ class _InstallRcmndPopup extends StatelessWidget {
           children: [
             // 팝업 본체
             Container(
-              width: 450,
-              height: 450,
+              width: 355 * wtio,
+              height: 355 * htio,
               decoration: BoxDecoration(
                 color: Colors.black,
                 borderRadius: BorderRadius.circular(16),
@@ -568,8 +568,8 @@ class _InstallRcmndPopup extends StatelessWidget {
 
             // 링크 버튼 (가운데 하단)
             Positioned(
-              bottom: 75 * htio,
-              left: -245,
+              bottom: 60 * htio,
+              left: -160 * wtio,
               right: 0,
               child: Center(
                 child: GestureDetector(
@@ -580,7 +580,7 @@ class _InstallRcmndPopup extends StatelessWidget {
                         mode: LaunchMode.externalApplication);
                   },
                   child: Container(
-                    width: 144.3,
+                    width: 144.3 * wtio,
                     padding: EdgeInsets.symmetric(
                         horizontal: 18 * wtio, vertical: 10 * htio),
                     decoration: BoxDecoration(
@@ -603,8 +603,8 @@ class _InstallRcmndPopup extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: 120 * htio,
-              left: -245,
+              bottom: 105 * htio,
+              left: -160 * wtio,
               right: 0,
               child: Center(
                 child: GestureDetector(
@@ -614,7 +614,7 @@ class _InstallRcmndPopup extends StatelessWidget {
                         mode: LaunchMode.externalApplication);
                   },
                   child: Container(
-                    width: 144.3,
+                    width: 144.3 * wtio,
                     padding: EdgeInsets.symmetric(
                         horizontal: 18 * wtio, vertical: 10 * htio),
                     decoration: BoxDecoration(
