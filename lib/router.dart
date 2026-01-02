@@ -287,7 +287,8 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
 
   @override
   Widget build(BuildContext context) {
-    final wtio = MediaQuery.of(context).size.width;
+    final wtio = ScreenRatio(context).widthRatio;
+    final htio = ScreenRatio(context).heightRatio;
 
     // 튜토리얼 트리거 감시
     ref.listen(dietTutorialTriggerProvider, (previous, next) {
@@ -327,7 +328,62 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
       extendBody: true,
       body: widget.child,
       bottomNavigationBar: navigationBarHide
-          ? null
+          ? (kIsWeb
+              ? Stack(
+                  alignment: AlignmentGeometry.center,
+                  children: [
+                    Positioned(
+                      left: 16 * wtio,
+                      right: 16 * wtio,
+                      bottom: 18 * htio,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            // TODO:앱 설치 권유 팝업
+                          },
+                          child: Container(
+                            height: 56 * htio,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20 * htio,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0D85E7),
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black38,
+                                  blurRadius: 12,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/widgets/create_feed.svg',
+                                  width: 24 * htio,
+                                  height: 24 * htio,
+                                ),
+                                SizedBox(width: 8 * htio),
+                                Text(
+                                  '피드 작성하기',
+                                  style: TextStyle(
+                                      fontSize: 18 * htio,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Pretendard',
+                                      color: Colors.white,
+                                      height: 0.01 * htio),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : null)
           : Stack(
               alignment: Alignment.center,
               children: [

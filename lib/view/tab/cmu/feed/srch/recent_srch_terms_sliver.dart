@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
@@ -155,6 +156,7 @@ class _RecentSearchTermsSliverState extends ConsumerState<RecentSearchTermsSlive
               ),
             ),
             // 배너광고
+          if (!kIsWeb)
             const AdmobAds(adType: AdType.banner,),
         ],
       ),
