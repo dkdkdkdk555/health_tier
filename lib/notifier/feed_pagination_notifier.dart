@@ -50,7 +50,6 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
     _isFetching = true;
 
     try {
-      debugPrint('왈왈!');
       final response = await _service.getFeedList(_params.copyWith(cursorId: _params.cursorId));
       _feeds.addAll(response.items);
       _params.cursorId = response.lastCursorId;

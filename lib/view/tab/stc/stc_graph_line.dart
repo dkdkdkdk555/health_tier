@@ -11,12 +11,13 @@ import 'package:my_app/view/common/error_widget.dart';
 class StcGraphLine extends ConsumerStatefulWidget {
   final DayRange dayRange;
   final int tabIndex;
+  final ValueChanged<bool> onTapGraph;
 
-  const StcGraphLine({
-    super.key,
-    required this.dayRange,
-    required this.tabIndex
-  });
+  const StcGraphLine(
+      {super.key,
+      required this.dayRange,
+      required this.tabIndex,
+      required this.onTapGraph});
 
   @override
   ConsumerState<StcGraphLine> createState() => _StcGraphLineState();
@@ -26,16 +27,13 @@ var htio = 0.0;
 var wtio = 0.0;
 
 class _StcGraphLineState extends ConsumerState<StcGraphLine> {
-
   int? focusedIndex; // weights 데이터 순번
   bool showTooltip = false; //말풍선 보여주는지 여부
-
 
   @override
   Widget build(BuildContext context) {
     htio = ScreenRatio(context).heightRatio;
     wtio = ScreenRatio(context).widthRatio;
-
 
     final stcList = switch (widget.tabIndex) {
       0 => ref.watch(selectWeightList(widget.dayRange)),
@@ -101,71 +99,90 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                   }),
                   Padding(
                     padding: EdgeInsets.only(left: 27 * wtio),
-                    child: LineChart(
-                      LineChartData(
-                        minY: minY,
-                        maxY: maxY,
-                        gridData: const FlGridData(drawHorizontalLine: false, drawVerticalLine: false),
-                        titlesData: const FlTitlesData(
-                          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        lineBarsData: [
-                          LineChartBarData(
-                            isCurved: false,
-                            color: widget.tabIndex == 0 ? const Color(0xFF0D86E7)
-                              : widget.tabIndex == 1 ? const Color(0xFF95D33E) 
-                              : const Color(0xFFFFDE23),
-                            barWidth: 2.15 * htio,
-                            dotData: FlDotData(
-                              show: true,
-                              checkToShowDot: (spot, barData) =>
-                                  showTooltip && focusedIndex != null && spot.x.toInt() == focusedIndex,
-                            ),
-                            belowBarData: BarAreaData(show: false),
-                            spots: List.generate(
-                              values.length,
-                              (index) => FlSpot(index.toDouble(), values[index]),
-                            ),
+                    child: Listener(
+                      onPointerDown: (_) => widget.onTapGraph(false),
+                      onPointerUp: (_) => widget.onTapGraph(true),
+                      onPointerCancel: (_) => widget.onTapGraph(true),
+                      child: LineChart(
+                        LineChartData(
+                          minY: minY,
+                          maxY: maxY,
+                          gridData: const FlGridData(
+                              drawHorizontalLine: false,
+                              drawVerticalLine: false),
+                          titlesData: const FlTitlesData(
+                            leftTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
                           ),
-                        ],
-                        extraLinesData: ExtraLinesData(
-                          extraLinesOnTop: false,
-                          horizontalLines: yDoubles
-                              .map((y) => HorizontalLine(
-                                    y: y,
-                                    color: const Color(0xFFEEEEEE),
-                                    strokeWidth: 1.6 * wtio,
-                                  ))
-                              .toList(),
-                        ),
-                        lineTouchData: LineTouchData(
-                          enabled: true,
-                          handleBuiltInTouches: false,
-                          touchCallback: (event, response) {
-                            if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
-                              final spot = response?.lineBarSpots?.first;
-                              if (spot != null) {
+                          borderData: FlBorderData(show: false),
+                          lineBarsData: [
+                            LineChartBarData(
+                              isCurved: false,
+                              color: widget.tabIndex == 0
+                                  ? const Color(0xFF0D86E7)
+                                  : widget.tabIndex == 1
+                                      ? const Color(0xFF95D33E)
+                                      : const Color(0xFFFFDE23),
+                              barWidth: 2.15 * htio,
+                              dotData: FlDotData(
+                                show: true,
+                                checkToShowDot: (spot, barData) =>
+                                    showTooltip &&
+                                    focusedIndex != null &&
+                                    spot.x.toInt() == focusedIndex,
+                              ),
+                              belowBarData: BarAreaData(show: false),
+                              spots: List.generate(
+                                values.length,
+                                (index) =>
+                                    FlSpot(index.toDouble(), values[index]),
+                              ),
+                            ),
+                          ],
+                          extraLinesData: ExtraLinesData(
+                            extraLinesOnTop: false,
+                            horizontalLines: yDoubles
+                                .map((y) => HorizontalLine(
+                                      y: y,
+                                      color: const Color(0xFFEEEEEE),
+                                      strokeWidth: 1.6 * wtio,
+                                    ))
+                                .toList(),
+                          ),
+                          lineTouchData: LineTouchData(
+                            enabled: true,
+                            handleBuiltInTouches: false,
+                            touchCallback: (event, response) {
+                              if (event is FlTapUpEvent ||
+                                  event is FlPanUpdateEvent) {
+                                final spot = response?.lineBarSpots?.first;
+                                if (spot != null) {
+                                  setState(() {
+                                    focusedIndex = spot.x.toInt();
+                                    showTooltip = true;
+                                  });
+                                }
+                              } else if (event is FlLongPressEnd ||
+                                  event is FlPanEndEvent) {
                                 setState(() {
-                                  focusedIndex = spot.x.toInt();
-                                  showTooltip = true;
+                                  showTooltip = false;
                                 });
                               }
-                            } else if (event is FlLongPressEnd || event is FlPanEndEvent) {
-                              setState(() {
-                                showTooltip = false;
-                              });
-                            }
-                          },
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
                   if (showTooltip && focusedIndex != null)
-                    makeDetailBallon(chartWidth, chartHeight, minY, maxY, values, days),
+                    makeDetailBallon(
+                        chartWidth, chartHeight, minY, maxY, values, days),
                 ],
               );
             },
@@ -175,41 +192,38 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
     );
   }
 
-  Positioned makeDetailBallon(
-     double chartWidth,
-     double chartHeight,
-     double minY,
-     double maxY,
-     List<double> values,
-     List<String> days
-  ){
-
-    if (focusedIndex == null || focusedIndex! >= values.length || focusedIndex! >= days.length) {
+  Positioned makeDetailBallon(double chartWidth, double chartHeight,
+      double minY, double maxY, List<double> values, List<String> days) {
+    if (focusedIndex == null ||
+        focusedIndex! >= values.length ||
+        focusedIndex! >= days.length) {
       return const Positioned(child: SizedBox.shrink());
     }
 
     final chartPaddingLeft = 27 * wtio;
     final chartInnerWidth = chartWidth - chartPaddingLeft;
 
-    final x = (chartInnerWidth / (values.length - 1)) * focusedIndex! + chartPaddingLeft;
+    final x = (chartInnerWidth / (values.length - 1)) * focusedIndex! +
+        chartPaddingLeft;
     final weightY = values[focusedIndex!];
     final relativeY = (maxY - weightY) / (maxY - minY);
     final y = relativeY * chartHeight;
-    final balloonTop = y - (120*htio); // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
+    final interval = y < 20 ? 100 : 120;
+    final balloonTop =
+        y - (interval * htio); // 80: 말풍선과 데이터 점 간의 간격 (원하는 만큼 조정)
 
     final balloonWidth = 94.0 * wtio;
     double balloonLeft = x - (balloonWidth) / 2;
 
     String balloonAsset = 'assets/widgets/message_balloon.svg';
 
-    if (balloonLeft < -10 *wtio) {
+    if (balloonLeft < -10 * wtio) {
       balloonLeft = 15 * wtio;
       balloonAsset = 'assets/widgets/message_balloon_left.svg';
-    } else if ((balloonLeft + balloonWidth)-(40*wtio) > chartWidth) {
-      balloonLeft = (chartWidth - balloonWidth) + (10 *wtio);
+    } else if ((balloonLeft + balloonWidth) - (40 * wtio) > chartWidth) {
+      balloonLeft = (chartWidth - balloonWidth) + (10 * wtio);
       balloonAsset = 'assets/widgets/message_balloon_right.svg';
     }
-
 
     if (showTooltip && focusedIndex != null) {
       return Positioned(
@@ -269,7 +283,8 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: '${values[focusedIndex!].toStringAsFixed(1)} ',
+                            text:
+                                '${values[focusedIndex!].toStringAsFixed(1)} ',
                             style: TextStyle(
                               color: const Color(0xFF333333),
                               fontSize: 18 * htio,
@@ -285,7 +300,7 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                               fontSize: 18 * htio,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w500,
-                              height: 1.50 *  htio,
+                              height: 1.50 * htio,
                             ),
                           ),
                         ],
@@ -303,5 +318,4 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
       return const Positioned(child: SizedBox.shrink());
     }
   }
-
 }

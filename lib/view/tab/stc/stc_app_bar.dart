@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ConsumerState, ConsumerStatefulWidget;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/tab/stc/stc_main.dart' show stcSubsetPageProvider;
 
-class StcAppBar extends StatefulWidget {
+class StcAppBar extends ConsumerStatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onTap;
 
@@ -12,10 +15,10 @@ class StcAppBar extends StatefulWidget {
   });
 
   @override
-  State<StcAppBar> createState() => _StcAppBarState();
+  ConsumerState<StcAppBar> createState() => _StcAppBarState();
 }
 
-class _StcAppBarState extends State<StcAppBar> {
+class _StcAppBarState extends ConsumerState<StcAppBar> {
   final List<String> tabs = ['체중', '골격근량', '체지방률', '하루평가'];
   final List<GlobalKey> _tabKeys = [];
   late int selectedIndex;
@@ -38,7 +41,8 @@ class _StcAppBarState extends State<StcAppBar> {
     final key = _tabKeys[selectedIndex];
     final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
-      final position = renderBox.localToGlobal(Offset.zero, ancestor: context.findRenderObject());
+      final position = renderBox.localToGlobal(Offset.zero,
+          ancestor: context.findRenderObject());
       final left = position.dx;
       final width = renderBox.size.width;
       setState(() {
@@ -52,6 +56,9 @@ class _StcAppBarState extends State<StcAppBar> {
   Widget build(BuildContext context) {
     final htio = ScreenRatio(context).heightRatio;
     final wtio = ScreenRatio(context).widthRatio;
+
+    selectedIndex = ref.read(stcSubsetPageProvider);
+    _updateUnderline();
 
     return Column(
       children: [
@@ -91,12 +98,16 @@ class _StcAppBarState extends State<StcAppBar> {
               _buildUnderline(htio),
               // 텍스트 탭들
               Padding(
-                padding: EdgeInsets.only(left: 20 * wtio,),
+                padding: EdgeInsets.only(
+                  left: 20 * wtio,
+                ),
                 child: Row(
                   children: List.generate(tabs.length, (index) {
                     final isSelected = index == selectedIndex;
                     return Padding(
-                      padding: EdgeInsets.only(right: 20 * wtio,),
+                      padding: EdgeInsets.only(
+                        right: 20 * wtio,
+                      ),
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -112,7 +123,9 @@ class _StcAppBarState extends State<StcAppBar> {
                           child: Text(
                             tabs[index],
                             style: TextStyle(
-                              color: isSelected ? Colors.black : const Color(0xFFAAAAAA),
+                              color: isSelected
+                                  ? Colors.black
+                                  : const Color(0xFFAAAAAA),
                               fontSize: 16 * htio,
                               fontFamily: 'Pretendard',
                               fontWeight: FontWeight.w700,
