@@ -202,4 +202,16 @@ class UserApiService {
       throw Exception('피드 신고 처리 실패: ${response.statusCode}');
     }
   }
+
+  // 전환율 측정 api - 푸시 알림 클릭
+  Future<void> switchPushNotification(String pushKey) async {
+    await dio
+        .post(UserDataAPI.switchPush, queryParameters: {'pushKey': pushKey});
+  }
+
+  // 전환율 측정 api - 기록이미 해서 푸시 알림 무시
+  Future<void> ignorePushNotification(String pushKey) async {
+    await dio
+        .post(UserDataAPI.ignorePush, queryParameters: {'pushKey': pushKey});
+  }
 }

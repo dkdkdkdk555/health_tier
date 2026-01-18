@@ -97,3 +97,8 @@ class AdminAPI {
   static const actionReportedFeed = '$base/feed/action';
   static const actionReportedReply = '$base/reply/action';
 }
+
+class UserDataAPI {
+  static const switchPush = '/push/log/switch'; // POST
+  static const ignorePush = '/push/log/ignore'; // POST
+}
