@@ -28,6 +28,8 @@ import 'package:my_app/notifier/tutorial_notifier.dart'
     show calendarCellTutorialUsedProvider, mainTutorialStorageProvider;
 import 'package:my_app/providers/current_page_provider.dart'
     show currentPageProvider;
+import 'package:my_app/providers/db_providers.dart'
+    show checkTodayRecordComplete;
 import 'package:my_app/providers/user_cud_providers.dart'
     show usrProfileImgProvider;
 import 'package:my_app/providers/usr_auth_providers.dart';
@@ -79,6 +81,22 @@ part 'view/tutorial/main_tutorial.dart';
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final db = AppDatabase();
+  final data = message.data;
+  final pushKey = data['push_key'];
+  // [Logic] 백그라운드 수신 시 필터링
+  if (pushKey != null) {
+    bool isComplete = await checkTodayRecordComplete(db);
+
+    if (isComplete) {
+      // 기록이 있으면 API 호출하고, DB 저장은 스킵하거나 '읽음' 상태로 저장
+      // 여기서는 "사용자에게 방해가 되지 않도록" 무시 API만 쏘고 종료
+      debugPrint('[Background] 기록 완료로 알림 무시: $pushKey');
+      await FlutterLocalNotification.ignorePushNotification(pushKey);
+      return;
+    }
+  }
+
+  // 기록이 없거나 일반 알림인 경우 DB 저장
   await FlutterLocalNotification.insertNotificationToDB(message, db);
 }
 
