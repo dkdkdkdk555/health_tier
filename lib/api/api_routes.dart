@@ -1,4 +1,4 @@
-class APIServer{
+class APIServer {
   static const baseUrl = 'https://api.health-tier.com';
   static const s3Url = 's3.health-tier.com';
 }
@@ -20,7 +20,7 @@ class FeedAPI {
   static const search = '$base/search';
   static increaseViewCount(int id) => '$base/$id/view';
 }
- 
+
 class FeedCudAPI {
   static const base = '/cud/cmu/feed';
 
@@ -46,7 +46,6 @@ class ReplyCudAPI {
   static const cancelLikeReply = '$base/like'; // DELETE
 
   static const reportReply = '/cud/report/reply';
-
 }
 
 class UserAPI {
@@ -55,7 +54,6 @@ class UserAPI {
   static const getUserInfo = '$base/';
   static const getBlockedUsers = '$base/block/list';
 }
-
 
 class UserCudAPI {
   static const base = '/cud/usr';
@@ -73,9 +71,9 @@ class UserCudAPI {
   static const getUsrInfoWeight = '$base/weight';
 
   static doBlock(int blockUserId) => '$base/block/$blockUserId'; // POST
-  static doBlockCancle(int blockedUserId) => '$base/block/$blockedUserId'; //DELETE
+  static doBlockCancle(int blockedUserId) =>
+      '$base/block/$blockedUserId'; //DELETE
 }
-
 
 class AuthAPI {
   static const base = '/auth';

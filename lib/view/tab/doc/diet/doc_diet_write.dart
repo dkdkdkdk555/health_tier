@@ -50,6 +50,12 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   List<DietInputData> inputList = [DietInputData.def()];
   bool _loadingDialogClosed = false;
 
+  // 검색 관련 상태
+  List<DayDietModel> _searchResults = [];
+  int _activeSearchIndex = -1;
+  List<LayerLink> _layerLinks = [];
+  OverlayEntry? _overlayEntry;
+
    void _closeLoadingDialog() {
     if (_loadingDialogClosed) return;
     _loadingDialogClosed = true;
@@ -63,6 +69,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
   void initState() {
     super.initState();
     focusedDay = widget.focusDay;
+    _layerLinks = [LayerLink()];
 
     final searchDay = DateFormat('yyyy-MM-dd').format(focusedDay);
     ref.read(selectDietDayDoc(searchDay).future).then((dietList) {
@@ -77,6 +84,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
             dto.protein.text = e.formattedProtein;
             return dto;
           }).toList();
+          _layerLinks = List.generate(inputList.length, (_) => LayerLink());
         });
       }
     });
@@ -86,6 +94,171 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       final wtio = ScreenRatio(context).widthRatio;
 
       _createTutorial(wtio: wtio,htio: htio);
+    });
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    _activeSearchIndex = -1;
+  }
+
+  Future<void> _onSearchMealType(String query, int index) async {
+    if (query.trim().isEmpty) {
+      _removeOverlay();
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
+
+    final results = await ref.read(searchDietByTitleProvider(query).future);
+    if (!mounted) return;
+
+    setState(() {
+      _searchResults = results;
+      _activeSearchIndex = index;
+    });
+
+    if (results.isEmpty) {
+      _removeOverlay();
+      return;
+    }
+
+    _showSearchOverlay(index);
+  }
+
+  void _showSearchOverlay(int index) {
+    _removeOverlay();
+
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: 220 * wtio,
+        child: CompositedTransformFollower(
+          link: _layerLinks[index],
+          showWhenUnlinked: false,
+          offset: Offset(0, 52 * htio),
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(8 * wtio),
+            child: Container(
+              constraints: BoxConstraints(maxHeight: 200 * htio),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8 * wtio),
+                border: Border.all(color: const Color(0xFFDDDDDD)),
+              ),
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: _searchResults.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final item = _searchResults[i];
+                  return InkWell(
+                    onTap: () => _onSelectSearchItem(item, index),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12 * wtio,
+                        vertical: 10 * htio,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 왼쪽: title, diet
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.title ?? '',
+                                  style: TextStyle(
+                                    fontSize: 14 * htio,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Pretendard',
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (item.diet?.isNotEmpty == true) ...[
+                                  SizedBox(height: 2 * htio),
+                                  Text(
+                                    item.diet!,
+                                    style: TextStyle(
+                                      fontSize: 12 * htio,
+                                      color: const Color(0xFF666666),
+                                      fontFamily: 'Pretendard',
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 8 * wtio),
+                          // 오른쪽: calorie(상단), protein(하단)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                item.formattedCalorie.isNotEmpty
+                                    ? "${item.formattedCalorie}kcal"
+                                    : "-",
+                                style: TextStyle(
+                                  fontSize: 11 * htio,
+                                  color: const Color(0xFF999999),
+                                  fontFamily: 'Pretendard',
+                                ),
+                              ),
+                              SizedBox(height: 2 * htio),
+                              Text(
+                                item.formattedProtein.isNotEmpty
+                                    ? "${item.formattedProtein}g"
+                                    : "-",
+                                style: TextStyle(
+                                  fontSize: 11 * htio,
+                                  color: const Color(0xFF999999),
+                                  fontFamily: 'Pretendard',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _onSelectSearchItem(DayDietModel item, int index) {
+    final input = inputList[index];
+    input.mealType.text = item.title ?? '';
+    input.dietText.text = item.diet ?? '';
+    input.calorie.text = item.formattedCalorie;
+    input.protein.text = item.formattedProtein;
+    input.isUpdate = true;
+
+    _removeOverlay();
+    setState(() {
+      _searchResults = [];
     });
   }
 
@@ -312,6 +485,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
        behavior: HitTestBehavior.opaque, // 빈 영역도 터치 가능
       onTap: () {
         FocusScope.of(context).unfocus(); // 키보드 내리기
+        _removeOverlay(); // 검색 목록 숨기기
+        setState(() {
+          _searchResults = [];
+        });
       },
       child: Container(
         decoration: BoxDecoration(
@@ -372,21 +549,28 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                       children: [
                                         Expanded(
                                           flex: 4,
-                                          child: SizedBox(
-                                            height: 48 * htio,
-                                            child: TextField(
-                                              controller: input.mealType,
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(12),
-                                              ],
-                                              style: TextStyle(
-                                                fontSize: 13.5 * htio,
-                                                fontFamily: 'Pretendard',
+                                          child: CompositedTransformTarget(
+                                            link: _layerLinks[index],
+                                            child: SizedBox(
+                                              height: 48 * htio,
+                                              child: TextField(
+                                                controller: input.mealType,
+                                                inputFormatters: [
+                                                  LengthLimitingTextInputFormatter(
+                                                      12),
+                                                ],
+                                                style: TextStyle(
+                                                  fontSize: 13.5 * htio,
+                                                  fontFamily: 'Pretendard',
+                                                ),
+                                                decoration: getInputDecoration(
+                                                    '식사 유형', htio, wtio),
+                                                onChanged: (value) {
+                                                  input.isUpdate = true;
+                                                  _onSearchMealType(
+                                                      value, index);
+                                                },
                                               ),
-                                              decoration: getInputDecoration('식사 유형', htio, wtio),
-                                              onChanged: (value) {
-                                                input.isUpdate = true;
-                                              },
                                             ),
                                           ),
                                         ),
@@ -419,8 +603,10 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                                                 if (deleteId != -1) {
                                                   await deleteHtDietDoc(ref: ref, id: deleteId);
                                                 }
+                                                  _removeOverlay();
                                                 setState(() {
                                                   inputList.removeAt(index);
+                                                    _layerLinks.removeAt(index);
                                                 });
                                                 widget.onSaved();
                                               },
@@ -534,6 +720,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                               onPressed: () {
                                 setState(() {
                                   inputList.add(DietInputData.def());
+                                    _layerLinks.add(LayerLink());
                                 });
                               },
                               icon: Icon(
