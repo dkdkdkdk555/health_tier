@@ -47,7 +47,7 @@ android {
     }
 
     namespace = "com.health.tier"
-    compileSdk = 35                  // ✅ 수정됨
+    compileSdk = 36                  // ✅ 수정됨
     ndkVersion = flutter.ndkVersion
 
     buildFeatures {
@@ -65,7 +65,7 @@ android {
     defaultConfig {
         applicationId = "com.health.tier"
         minSdk = 24
-        targetSdk = 35              // ✅ 수정됨
+        targetSdk = 36              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
