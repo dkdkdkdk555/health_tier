@@ -48,7 +48,7 @@ android {
 
     namespace = "com.health.tier"
     compileSdk = 36                  // ✅ 수정됨
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "26.1.10909125"
 
     buildFeatures {
         buildConfig true
@@ -85,8 +85,12 @@ android {
             signingConfig = signingConfigs.release
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'flutter_proguard_rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    packagingOptions {
+        doNotStrip "**/*.so"
     }
 
     kotlinOptions {
