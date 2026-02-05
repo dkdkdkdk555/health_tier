@@ -91,7 +91,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
                   } else {
                     showInstallRcmndPopup(context);
                   }
-                  _returnUiOkStatus(handler, originalRequest);
+                  return _returnUiOkStatus(handler, originalRequest);
                 }
               }
             }

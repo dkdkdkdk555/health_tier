@@ -336,7 +336,13 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                     if (image != null) {
                       debugPrint('식단 $index - 갤러리 이미지 경로: ${image.path}');
-                      await analyzeRequest(image, docApiService, index);
+                      if (!parentContext.mounted) return;
+                      await _showAddPromptDialog(
+                        parentContext: parentContext,
+                        image: image,
+                        docApiService: docApiService,
+                        index: index,
+                      );
                     }
                   } on PlatformException catch (e) {
                     if (!parentContext.mounted) return;
@@ -368,11 +374,17 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                 onTap: () async {
                   Navigator.pop(context); // 시트 닫기
                   try {
-                  final XFile? image = await picker.pickImage(source: ImageSource.camera);
-                  if (image != null) {
-                    debugPrint('식단 $index - 카메라 이미지 경로: ${image.path}');
-                    await analyzeRequest(image, docApiService, index);
-                  }
+                    final XFile? image = await picker.pickImage(source: ImageSource.camera);
+                    if (image != null) {
+                      debugPrint('식단 $index - 카메라 이미지 경로: ${image.path}');
+                      if (!parentContext.mounted) return;
+                      await _showAddPromptDialog(
+                        parentContext: parentContext,
+                        image: image,
+                        docApiService: docApiService,
+                        index: index,
+                      );
+                    }
                   } catch (e) {
                     debugPrint("알 수 없는 오류: $e");
                     if (!parentContext.mounted) return;
@@ -388,13 +400,13 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
     );
   }
 
-  analyzeRequest(XFile image, DocApiService? docApiService, int index) async{
+  analyzeRequest(XFile image, DocApiService? docApiService, int index, {String addText = ''}) async{
     _loadingDialogClosed = false;
 
     if (docApiService == null) {
       // DocApiService가 null인 경우 (초기화 중이거나 에러 발생)
-      showAppMessage(context, 
-        message: '서비스 초기화 중입니다. 잠시 후 다시 시도해주세요.', 
+      showAppMessage(context,
+        message: '서비스 초기화 중입니다. 잠시 후 다시 시도해주세요.',
         type: AppMessageType.dialog
       );
       return; // 널 값 오류 방지
@@ -406,7 +418,7 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       final imagef = File(image.path);
       final imageFile = await compressImage(imagef);
       // ! 대신 ?를 사용하여 널이 아님을 보장했으므로, 널 체크 연산자 제거
-      final s = await docApiService.analyzeImage(imageFile); 
+      final s = await docApiService.analyzeImage(imageFile, addText: addText); 
       
       // UI 업데이트
       if (mounted) {
@@ -442,6 +454,94 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
         _closeLoadingDialog();
       }
       debugPrint('식단 분석 API 호출 에러: $e');
+    }
+  }
+
+  // 추가 프롬프트 입력 다이얼로그
+  Future<void> _showAddPromptDialog({
+    required BuildContext parentContext,
+    required XFile image,
+    required DocApiService? docApiService,
+    required int index,
+  }) async {
+    final TextEditingController promptController = TextEditingController();
+    final wtio = ScreenRatio(parentContext).widthRatio;
+    final htio = ScreenRatio(parentContext).heightRatio;
+
+    final result = await showDialog<String?>(
+      context: parentContext,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16 * wtio),
+          ),
+          title: Text(
+            '추가 설명 입력',
+            style: TextStyle(
+              fontSize: 17 * htio,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Pretendard',
+            ),
+          ),
+          content: TextField(
+            controller: promptController,
+            maxLines: 3,
+            maxLength: 100,
+            decoration: InputDecoration(
+              hintText: '(선택사항) 사진의 음식을 설명해주세요',
+              hintStyle: TextStyle(
+                fontSize: 14 * htio,
+                color: const Color(0xFF999999),
+                fontFamily: 'Pretendard',
+              ),
+              contentPadding: EdgeInsets.all(12 * wtio),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8 * wtio),
+                borderSide: BorderSide(color: const Color(0xFFDDDDDD), width: 1 * wtio),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8 * wtio),
+                borderSide: BorderSide(color: const Color(0xFF0D86E7), width: 1.5 * wtio),
+              ),
+            ),
+            style: TextStyle(
+              fontSize: 14 * htio,
+              fontFamily: 'Pretendard',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, null),
+              child: Text(
+                '취소',
+                style: TextStyle(
+                  fontSize: 14 * htio,
+                  color: const Color(0xFF999999),
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, promptController.text),
+              child: Text(
+                '분석하기',
+                style: TextStyle(
+                  fontSize: 14 * htio,
+                  color: const Color(0xFF0D86E7),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    // 다이얼로그가 취소되지 않았을 때만 분석 진행
+    if (result != null) {
+      await analyzeRequest(image, docApiService, index, addText: result);
     }
   }
 

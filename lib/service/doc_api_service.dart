@@ -15,7 +15,7 @@ class DocApiService {
     - 파일을 스트리밍 방식으로 전송하여 메모리 부족 문제를 방지합니다.
     - 호출 전 이미지 크기를 압축하여 사용하시길 강력히 권장합니다.
   */
-  Future<FoodAnalysisResult?> analyzeImage(File imageFile) async {
+  Future<FoodAnalysisResult?> analyzeImage(File imageFile, {String addText = ''}) async {
       // 1. 파일 크기 확인 (스트림 전송에 필요)
       final fileLength = await imageFile.length();
       final fileName = imageFile.path.split('/').last;
@@ -29,6 +29,7 @@ class DocApiService {
           filename: fileName,
           contentType: MediaType('image', 'jpeg'),
         ),
+        'addText': addText,
       });
 
       final response = await dio.post(
