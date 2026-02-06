@@ -7,6 +7,12 @@ class DocAPI {
   static const geminiFoodAnalyze = '/api/food/analyze';
 }
 
+class FoodDatabaseAPI {
+  static const base = '/api/food-database';
+  static const list = '$base/list';
+  static String detail(int id) => '$base/$id';
+}
+
 class FeedAPI {
   static const base = '/cmu/feed';
 

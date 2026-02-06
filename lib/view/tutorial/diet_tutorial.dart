@@ -9,7 +9,6 @@ late TutorialCoachMark tutorialCoachMarkDiet;
 final GlobalKey dietCalendar = GlobalKey();
 final GlobalKey dietCalendarHeader = GlobalKey();
 final GlobalKey totalKcalAndProtien = GlobalKey();
-final GlobalKey aiAnalyzeBtn = GlobalKey();
 
 Future<void> createTutorialDiet({
   required WidgetRef ref,

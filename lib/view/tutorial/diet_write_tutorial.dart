@@ -3,6 +3,7 @@ part of '../../view/tab/doc/diet/doc_diet_write.dart';
 late TutorialCoachMark tutorialCoachMarkDietWrite;
 
 final GlobalKey aiAnalyzeBtn = GlobalKey();
+final GlobalKey foodSearchBtn = GlobalKey();
 
 Future<void> createTutorial({
   required WidgetRef ref,
@@ -61,5 +62,18 @@ List<TargetFocus> _createTargets({
         wtio: wtio,
       ),
     ),
+    buildTarget(
+      id: 'foodSearchBtn',
+      key: foodSearchBtn,
+      align: ContentAlign.bottom,
+      alignSkip: Alignment.bottomRight,
+      builder: (_, __) => titleDescContent(
+        title: '음식 검색',
+        description: '식단 데이터베이스에서 음식을 검색하여 바로 입력할 수 있어요.',
+        htio: htio,
+        wtio: wtio,
+      ),
+    ),
   ];
 }
+
