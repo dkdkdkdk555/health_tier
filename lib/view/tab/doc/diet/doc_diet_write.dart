@@ -1085,7 +1085,8 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
   bool _showDetail = false;
   FoodDatabaseDto? _selectedFood;
   bool _useTotalWeight = false; // false=100g 기준, true=총 중량 기준
-  int _divideBy = 1; // 1/n 에서 n값 (1~10)
+  int _multiplyBy = 1; // m/n 에서 m값 (1~10)
+  int _divideBy = 1; // m/n 에서 n값 (1~10)
 
   @override
   void dispose() {
@@ -1119,6 +1120,7 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
           _selectedFood = detail;
           _showDetail = true;
           _useTotalWeight = false;
+          _multiplyBy = 1;
           _divideBy = 1;
           _isLoading = false;
         });
@@ -1134,7 +1136,7 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
     if (_selectedFood == null) return {};
     final f = _selectedFood!;
     final weightRatio = _useTotalWeight ? f.totalWeight / 100.0 : 1.0;
-    final ratio = weightRatio / _divideBy;
+    final ratio = weightRatio * _multiplyBy / _divideBy;
     return {
       'kcal': f.kcal * ratio,
       'protein': f.protein * ratio,
@@ -1418,7 +1420,64 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                     SizedBox(width: 62 * wtio),
                     Row(
                       children: [
-                        Text('1 /',
+                        // 분자 -
+                        GestureDetector(
+                          onTap: () {
+                            if (_multiplyBy > 1) setState(() => _multiplyBy--);
+                          },
+                          child: Container(
+                            width: 28 * wtio,
+                            height: 28 * htio,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0xFFDDDDDD),
+                                  width: 1 * wtio),
+                              borderRadius: BorderRadius.circular(6 * wtio),
+                            ),
+                            child: Icon(Icons.remove,
+                                size: 16 * htio,
+                                color: _multiplyBy > 1
+                                    ? const Color(0xFF333333)
+                                    : const Color(0xFFCCCCCC)),
+                          ),
+                        ),
+                        SizedBox(width: 8 * wtio),
+                        // 분자 +
+                        GestureDetector(
+                          onTap: () {
+                            if (_multiplyBy < 10) setState(() => _multiplyBy++);
+                          },
+                          child: Container(
+                            width: 28 * wtio,
+                            height: 28 * htio,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: const Color(0xFFDDDDDD),
+                                  width: 1 * wtio),
+                              borderRadius: BorderRadius.circular(6 * wtio),
+                            ),
+                            child: Icon(Icons.add,
+                                size: 16 * htio,
+                                color: _multiplyBy < 10
+                                    ? const Color(0xFF333333)
+                                    : const Color(0xFFCCCCCC)),
+                          ),
+                        ),
+                        SizedBox(width: 10 * wtio),
+                        // m / n 표시
+                        SizedBox(
+                          width: 22 * wtio,
+                          child: Text(
+                            '$_multiplyBy',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 15 * htio,
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF333333)),
+                          ),
+                        ),
+                        Text('/',
                             style: TextStyle(
                                 fontSize: 15 * htio,
                                 fontFamily: 'Pretendard',
@@ -1436,7 +1495,8 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                                 color: const Color(0xFF333333)),
                           ),
                         ),
-                        SizedBox(width: 8 * wtio),
+                        SizedBox(width: 10 * wtio),
+                        // 분모 -
                         GestureDetector(
                           onTap: () {
                             if (_divideBy > 1) setState(() => _divideBy--);
@@ -1458,6 +1518,7 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                           ),
                         ),
                         SizedBox(width: 8 * wtio),
+                        // 분모 +
                         GestureDetector(
                           onTap: () {
                             if (_divideBy < 10) setState(() => _divideBy++);
