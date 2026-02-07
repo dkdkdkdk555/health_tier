@@ -89,10 +89,6 @@ android {
         }
     }
 
-    packagingOptions {
-        doNotStrip "**/*.so"
-    }
-
     kotlinOptions {
         jvmTarget = "17"
     }
