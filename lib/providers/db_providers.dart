@@ -659,7 +659,8 @@ final hasUnreadNotification = FutureProvider.autoDispose<bool>((ref) async {
   식사유형(title) 검색 - 중복 제거하여 반환
   검색어가 포함된 title을 가진 식단 기록을 반환
 */
-final searchDietByTitleProvider = FutureProvider.family<List<DayDietModel>, String>((ref, query) async {
+final searchDietByTitleProvider = FutureProvider.autoDispose
+    .family<List<DayDietModel>, String>((ref, query) async {
   if (query.trim().isEmpty) return [];
 
   final db = ref.watch(databaseProvider);
