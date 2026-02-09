@@ -1085,12 +1085,12 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
   bool _showDetail = false;
   FoodDatabaseDto? _selectedFood;
   bool _useTotalWeight = false; // false=100g 기준, true=총 중량 기준
-  int _multiplyBy = 1; // m/n 에서 m값 (1~10)
-  int _divideBy = 1; // m/n 에서 n값 (1~10)
+  final _gramController = TextEditingController(text: '100');
 
   @override
   void dispose() {
     _searchController.dispose();
+    _gramController.dispose();
     super.dispose();
   }
 
@@ -1120,8 +1120,7 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
           _selectedFood = detail;
           _showDetail = true;
           _useTotalWeight = false;
-          _multiplyBy = 1;
-          _divideBy = 1;
+          _gramController.text = '100';
           _isLoading = false;
         });
       } else {
@@ -1135,8 +1134,8 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
   Map<String, double> _calculateNutrients() {
     if (_selectedFood == null) return {};
     final f = _selectedFood!;
-    final weightRatio = _useTotalWeight ? f.totalWeight / 100.0 : 1.0;
-    final ratio = weightRatio * _multiplyBy / _divideBy;
+    final grams = double.tryParse(_gramController.text) ?? 0;
+    final ratio = grams / 100.0;
     return {
       'kcal': f.kcal * ratio,
       'protein': f.protein * ratio,
@@ -1392,7 +1391,10 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                     _weightTab(
                         '100g',
                         !_useTotalWeight,
-                        () => setState(() => _useTotalWeight = false),
+                        () => setState(() {
+                              _useTotalWeight = false;
+                              _gramController.text = '100';
+                            }),
                         htio,
                         wtio),
                     SizedBox(width: 8 * wtio),
@@ -1400,7 +1402,11 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                       '총 중량 (${food.totalWeight.toStringAsFixed(0)}g)',
                       _useTotalWeight,
                       food.totalWeight > 0
-                          ? () => setState(() => _useTotalWeight = true)
+                          ? () => setState(() {
+                                _useTotalWeight = true;
+                                _gramController.text =
+                                    food.totalWeight.toStringAsFixed(1);
+                              })
                           : null,
                       htio,
                       wtio,
@@ -1409,7 +1415,7 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                 ),
                 SizedBox(height: 14 * htio),
 
-                // 양 (1/n)
+                // 양 (g 직접입력)
                 Row(
                   children: [
                     Text('양',
@@ -1417,130 +1423,52 @@ class _FoodSearchPopupState extends ConsumerState<_FoodSearchPopup> {
                             fontSize: 13 * htio,
                             color: const Color(0xFF777777),
                             fontFamily: 'Pretendard')),
-                    SizedBox(width: 62 * wtio),
-                    Row(
-                      children: [
-                        // 분자 -
-                        GestureDetector(
-                          onTap: () {
-                            if (_multiplyBy > 1) setState(() => _multiplyBy--);
-                          },
-                          child: Container(
-                            width: 28 * wtio,
-                            height: 28 * htio,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xFFDDDDDD),
-                                  width: 1 * wtio),
-                              borderRadius: BorderRadius.circular(6 * wtio),
-                            ),
-                            child: Icon(Icons.remove,
-                                size: 16 * htio,
-                                color: _multiplyBy > 1
-                                    ? const Color(0xFF333333)
-                                    : const Color(0xFFCCCCCC)),
+                    SizedBox(width: 16 * wtio),
+                    SizedBox(
+                      width: 100 * wtio,
+                      height: 36 * htio,
+                      child: TextField(
+                        controller: _gramController,
+                        keyboardType:
+                            const TextInputType.numberWithOptions(decimal: true),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 15 * htio,
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF333333),
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'^\d{0,3}(\.\d?)?$')),
+                          LimitValueFormatter(max: 999.9),
+                        ],
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 8 * wtio, vertical: 6 * htio),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8 * wtio),
+                            borderSide: BorderSide(
+                                color: const Color(0xFFDDDDDD),
+                                width: 1 * wtio),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8 * wtio),
+                            borderSide: BorderSide(
+                                color: const Color(0xFF0D86E7),
+                                width: 1.5 * wtio),
                           ),
                         ),
-                        SizedBox(width: 8 * wtio),
-                        // 분자 +
-                        GestureDetector(
-                          onTap: () {
-                            if (_multiplyBy < 10) setState(() => _multiplyBy++);
-                          },
-                          child: Container(
-                            width: 28 * wtio,
-                            height: 28 * htio,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xFFDDDDDD),
-                                  width: 1 * wtio),
-                              borderRadius: BorderRadius.circular(6 * wtio),
-                            ),
-                            child: Icon(Icons.add,
-                                size: 16 * htio,
-                                color: _multiplyBy < 10
-                                    ? const Color(0xFF333333)
-                                    : const Color(0xFFCCCCCC)),
-                          ),
-                        ),
-                        SizedBox(width: 10 * wtio),
-                        // m / n 표시
-                        SizedBox(
-                          width: 22 * wtio,
-                          child: Text(
-                            '$_multiplyBy',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 15 * htio,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333)),
-                          ),
-                        ),
-                        Text('/',
-                            style: TextStyle(
-                                fontSize: 15 * htio,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333))),
-                        SizedBox(
-                          width: 22 * wtio,
-                          child: Text(
-                            '$_divideBy',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 15 * htio,
-                                fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333)),
-                          ),
-                        ),
-                        SizedBox(width: 10 * wtio),
-                        // 분모 -
-                        GestureDetector(
-                          onTap: () {
-                            if (_divideBy > 1) setState(() => _divideBy--);
-                          },
-                          child: Container(
-                            width: 28 * wtio,
-                            height: 28 * htio,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xFFDDDDDD),
-                                  width: 1 * wtio),
-                              borderRadius: BorderRadius.circular(6 * wtio),
-                            ),
-                            child: Icon(Icons.remove,
-                                size: 16 * htio,
-                                color: _divideBy > 1
-                                    ? const Color(0xFF333333)
-                                    : const Color(0xFFCCCCCC)),
-                          ),
-                        ),
-                        SizedBox(width: 8 * wtio),
-                        // 분모 +
-                        GestureDetector(
-                          onTap: () {
-                            if (_divideBy < 10) setState(() => _divideBy++);
-                          },
-                          child: Container(
-                            width: 28 * wtio,
-                            height: 28 * htio,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  color: const Color(0xFFDDDDDD),
-                                  width: 1 * wtio),
-                              borderRadius: BorderRadius.circular(6 * wtio),
-                            ),
-                            child: Icon(Icons.add,
-                                size: 16 * htio,
-                                color: _divideBy < 10
-                                    ? const Color(0xFF333333)
-                                    : const Color(0xFFCCCCCC)),
-                          ),
-                        ),
-                      ],
+                        onChanged: (_) => setState(() {}),
+                      ),
                     ),
+                    SizedBox(width: 6 * wtio),
+                    Text('g',
+                        style: TextStyle(
+                            fontSize: 14 * htio,
+                            fontFamily: 'Pretendard',
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF555555))),
                   ],
                 ),
                 SizedBox(height: 14 * htio),
