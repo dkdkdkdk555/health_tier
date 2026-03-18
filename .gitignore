@@ -59,3 +59,5 @@ ios/Flutter/Debug.xcconfig
 ios/Flutter/Release.xcconfig
 macos/Flutter/Flutter-Debug.xcconfig
 macos/Flutter/Flutter-Release.xcconfig
+
+/lib/firebase_options.dart
