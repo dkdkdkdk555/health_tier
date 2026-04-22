@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
 import 'package:my_app/providers/feed_providers.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/common/error_widget.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_result_feed_item.dart';
@@ -43,13 +44,15 @@ class _SrchResultListSliverState extends ConsumerState<SrchResultListSliver> {
   Widget build(BuildContext context) {
     final keyword = ref.watch(srchKeywordProvider);
     final asyncFeeds = ref.watch(searchFeedsProvider(keyword));
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
 
     return SliverMainAxisGroup( // `SliverMainAxisGroup`을 사용하여 여러 슬리버를 그룹화
       slivers: [
         SliverToBoxAdapter(
           child: Container(
-              margin: const EdgeInsets.only(top:14),
-              height: 2,
+              margin: EdgeInsets.only(top:14 * htio),
+              height: 2 * htio,
               decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
           ),
         ),
@@ -58,10 +61,10 @@ class _SrchResultListSliverState extends ConsumerState<SrchResultListSliver> {
           data: (data) {
             final items = data.items;
             if (items.isEmpty) {
-              return const SliverToBoxAdapter(
+              return SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Center(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 20 * htio),
+                  child: const Center(
                     child: Text(
                       '검색결과가 없습니다.',
                       style: TextStyle(color: Colors.grey),
@@ -77,43 +80,43 @@ class _SrchResultListSliverState extends ConsumerState<SrchResultListSliver> {
                   return Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
                         child: SrchResultFeedItem(feed: items[index], searchKeyword: keyword,),
                       ),
                       Container(
-                          height: 1,
+                          height: 1 * htio,
                           decoration: const BoxDecoration(color: Color(0xFFEEEEEE)),
                       ),
                     ],
                   );
                 } else {
                   // 다음 페이지 로딩 중
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20.0),
-                    child: Center(child: AppLoadingIndicator()),
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20 * htio),
+                    child: const Center(child: AppLoadingIndicator()),
                   );
                 }
               },
             );
           },
-          loading: () => const SliverToBoxAdapter(
+          loading: () => SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 50.0), // 로딩 인디케이터 중앙 정렬
-              child: Center(child: AppLoadingIndicator()),
+              padding: EdgeInsets.symmetric(vertical: 50.0 * htio), // 로딩 인디케이터 중앙 정렬
+              child: const Center(child: AppLoadingIndicator()),
             ),
           ),
           error: (error, stackTrace) {
             debugPrint('Error fetching user feeds: $error');
             debugPrint('Stack trace: $stackTrace');
-            return const SliverToBoxAdapter(
-              child: ErrorContentWidget(horizontal: 40, vertical: 40,)
+            return SliverToBoxAdapter(
+              child: ErrorContentWidget(horizontal: 40 * wtio, vertical: 40 * htio,)
             );
           },
         ),
         // ListView.builder가 아니라 CustomScrollView 전체 스크롤을 관리하므로
         // 맨 아래 여백은 필요에 따라 추가합니다.
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 20),
+        SliverToBoxAdapter(
+          child: SizedBox(height: 20 * htio),
         ),
       ],
     );

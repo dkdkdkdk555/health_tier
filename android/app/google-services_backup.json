@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "37458358225",
+    "project_id": "health-tier-dev",
+    "storage_bucket": "health-tier-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "FIREBASE_ANDROID_APP_ID_REDACTED",
+        "android_client_info": {
+          "package_name": "com.ukhyeon.healthtier"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "FIREBASE_ANDROID_API_KEY_REDACTED"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -70,7 +70,6 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
         _currentReplyTargetComment = ''; // 수정 모드 시 답글 대상 댓글 비움
       } else {
         _currentReplyTargetComment = _truncateComment(selectedReplyInfo.comment);
-        _textEditingController.clear(); // 답글 모드 시 기존 입력 내용을 비움
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focusNode.requestFocus();
@@ -78,7 +77,6 @@ class _ReplyBottomBarState extends ConsumerState<ReplyBottomBar> {
       });
     } else {
       _currentReplyTargetComment = '';
-      _textEditingController.clear(); // 텍스트 필드 내용 초기화
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _updateBarHeight();
       });
@@ -256,7 +254,7 @@ void dispose() {
       setState(() {
         _barHeight = 106;
         _showSendButton = false;
-        _focusNode.previousFocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       },);
     }
   }

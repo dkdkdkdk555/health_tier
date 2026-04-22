@@ -19,6 +19,7 @@ class BlockItem extends StatelessWidget {
       'BADGE':'assets/widgets/notifi_badge.svg',
       'PROMOTION': 'assets/widgets/notifi_promotion.svg',
       'GENERAL':'assets/widgets/notifi_doc.svg',
+      'REPORT': 'assets/widgets/notifi_report.svg'
     };
 
     debugPrint('-----------------------');

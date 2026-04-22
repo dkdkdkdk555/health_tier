@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 class UserPrefs {
   static int? _myUserId; // 전역으로 접근 가능한 사용자 ID 저장
   static String? _myUserImgUrl; // 전역으로 접근 가능한 사용자 프로필 이미지url
+  static String? _currentLoginId;
   // 초기화되었는지 확인하는 플래그 (선택 사항)
   static bool _isInitialized = false;
 
   static int? get myUserId => _myUserId; // 사용자 ID에 접근하는 getter
   static String? get myUserImgUrl => _myUserImgUrl;
+  static String? get currentLoginId => _currentLoginId;
 
   static Future<void> loadMyUserId() async {
     if (_isInitialized) {
@@ -35,6 +37,7 @@ class UserPrefs {
   // 사용자 프로필이미지 저장
   static Future<void> setUserImgUrl(String url) async {
     final prefs = await SharedPreferences.getInstance();
+    _myUserImgUrl = url;
     await prefs.setString('imgUrl', url);
   }
 
@@ -44,14 +47,46 @@ class UserPrefs {
     _myUserImgUrl = prefs.getString('imgUrl');
   }
 
+  // 사용자 로그인아이디 저장
+  static Future<void> setLoginId(String loginId) async {
+    final prefs = await SharedPreferences.getInstance();
+    _currentLoginId = loginId;
+    await prefs.setString('loginId', loginId);
+  }
+
+  // 사용자 로그인아이디 가져오기
+  static Future<void> loadLoginId() async {
+    final prefs = await SharedPreferences.getInstance();
+    _currentLoginId = prefs.getString('loginId');
+  }
+
+  // 커뮤탭 메인 광고 하루동안 안보기 세팅
+  static Future<void> hideAdForToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final todayKey = '${now.year}-${now.month}-${now.day}';
+    await prefs.setString('hide_ad_today_date', todayKey);
+  }
+
+  // 하루지낫는지 체크
+  static Future<bool> shouldHideAdToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedDate = prefs.getString('hide_ad_today_date');
+    if (savedDate == null) return false;
+
+    final today = DateTime.now();
+    final todayKey = '${today.year}-${today.month}-${today.day}';
+
+    return savedDate == todayKey;
+  }
+
 
   // 사용자 ID를 제거하는 함수 추가
-  static Future<void> clearMyUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
+  static Future<void> clearVariable() async {
     _myUserId = null;
     _isInitialized = false;
-    debugPrint('Cleared myUserId from SharedPreferences.');
+    _currentLoginId = null;
+    _myUserImgUrl = null;
   }
 
   static Future<void> settingLoginResponse(TokenResponse tokenResponse) async {

@@ -8,18 +8,41 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/doc',
+  initialLocation: kIsWeb ? '/cmu' : '/doc',
   // info.plist 설정을 FlutterDeepLinkingEnabled 하므로서 카카오톡으로 로그인하는 경우
   // go_router 패키지와 더불어 나타나는 리다이렉트 문제를 임시방편으로 막아둠.
   // redirect: (context, state) {
   //   final uri = Uri.tryParse(state.uri.toString());
   //   if (uri != null && uri.scheme.startsWith('kakao')) {
   //     debugPrint('외부 카카오 URL 무시: ${state.uri.toString()}');
-  //     return '/usr'; // 카카오톡으로 로그인하는 경우 자꾸 응답링크로 리다이렉트 시키려고함, 
-  //     // return null 이나 '' 해도 응답링크로 보내짐, 
+  //     return '/usr'; // 카카오톡으로 로그인하는 경우 자꾸 응답링크로 리다이렉트 시키려고함,
+  //     // return null 이나 '' 해도 응답링크로 보내짐,
   //   }
-  //   return null;
+  //   return null; --> 딥링크 구현 시 AppLink 패키지를 사용해서 이 문제는 해결,, 여전히 FlutterDeepLinkingEnabled 는 false임
   // },
+  redirect: (context, state) {
+    final fullUri =
+        state.uri; // GoRouter가 받은 전체 URI (healthtierscheme://cmu/feed/10)
+
+    // 딥링크 스킴인지 확인
+    if (fullUri.scheme == 'healthtierscheme' && fullUri.host == 'cmu') {
+      // 경로 세그먼트에서 피드 ID를 추출하여 내부 경로로 변환
+      final feedIdString = fullUri.pathSegments
+          .lastWhere((s) => RegExp(r'^\d+$').hasMatch(s), orElse: () => '');
+
+      if (feedIdString.isNotEmpty) {
+        final targetPath = '/cmu/feed/$feedIdString';
+        return targetPath; // 내부 경로(/cmu/feed/10)로 리다이렉션
+      }
+    }
+
+    // 웹인경우 커뮤탭 외에는 접근 못하도록
+    if (kIsWeb && !state.uri.path.startsWith('/cmu')) {
+      return '/cmu';
+    }
+
+    return null; // 리다이렉션 없음
+  },
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
@@ -27,143 +50,175 @@ final router = GoRouter(
         return _ShellScaffold(child: child);
       },
       routes: [
-        GoRoute(path: '/doc', 
+        GoRoute(
+          path: '/doc',
           builder: (context, state) => const DocMain(),
         ),
-        GoRoute(path: '/stc', 
-          builder: (context, state) => const StcMain()
-        ),
-        GoRoute(path: '/cmu', 
-          builder: (context, state) => const CmuMain(),
-          routes: [
-            GoRoute( // 사용자 프로필 화면
-              path: 'profile/:userId',
-              builder: (context, state) {
-                final userId = int.parse(state.pathParameters['userId']!);
-                return CmuUsrProfile(userId: userId);
-              },
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-            GoRoute( // 통합검색 화면
-              path: 'srch',
-              builder: (context, state) {
-                return const CmuTotalSrch();
-              },
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-            GoRoute(
-              path: 'feed/:feedId',
-              pageBuilder: (context, state) {
-                final feedId = int.parse(state.pathParameters['feedId']!);
+        GoRoute(path: '/stc', builder: (context, state) => const StcMain()),
+        GoRoute(
+            path: '/cmu',
+            builder: (context, state) => const CmuMain(),
+            routes: [
+              GoRoute(
+                // 사용자 프로필 화면
+                path: 'profile/:userId',
+                builder: (context, state) {
+                  final userId = int.parse(state.pathParameters['userId']!);
+                  return CmuUsrProfile(userId: userId);
+                },
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+              GoRoute(
+                // 통합검색 화면
+                path: 'srch',
+                builder: (context, state) {
+                  return const CmuTotalSrch();
+                },
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+              GoRoute(
+                path: 'feed/:feedId',
+                pageBuilder: (context, state) {
+                  final feedId = int.parse(state.pathParameters['feedId']!);
+                  final categoryId = state.uri.queryParameters['categoryId'] !=
+                          null
+                      ? int.tryParse(state.uri.queryParameters['categoryId']!)
+                      : null;
 
-                final categoryId = state.uri.queryParameters['categoryId'] != null
-                    ? int.tryParse(state.uri.queryParameters['categoryId']!)
-                    : null;
+                  final isFromWriteFeed =
+                      state.uri.queryParameters['isFromWriteFeed'] == 'true';
+                  final isFromNotifi =
+                      state.uri.queryParameters['isFromNotifi'] == 'true';
 
-                final isFromWriteFeed = state.uri.queryParameters['isFromWriteFeed'] == 'true';
-                final isFromNotifi = state.uri.queryParameters['isFromNotifi'] == 'true';
-                return CustomTransitionPage(
-                  key: state.pageKey,
-                  child: FeedDetail(
-                    feedId: feedId,
-                    categoryId: categoryId,
-                    isFromWriteFeed: isFromWriteFeed,
-                    isFromNotifi: isFromNotifi,
-                  ),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0); // 오른쪽에서 시작
-                    const end = Offset.zero;        // 현재 위치로 이동
-                    const curve = Curves.ease;
-
-                    final tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
-
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
+                  return CupertinoPage(
+                    key: state.pageKey,
+                    child: FeedDetail(
+                      feedId: feedId,
+                      categoryId: categoryId,
+                      isFromWriteFeed: isFromWriteFeed,
+                      isFromNotifi: isFromNotifi,
+                    ),
+                  );
+                },
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+              GoRoute(
+                // 피드 수정
+                path: 'writeFeed',
+                builder: (context, state) {
+                  final feedId = state.extra as int?;
+                  return WriteFeed(feedId: feedId);
+                },
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+            ]),
+        GoRoute(
+            path: '/usr',
+            builder: (context, state) => const UsrMain(),
+            routes: [
+              GoRoute(
+                  // 마이페이지
+                  path: 'info',
+                  builder: (context, state) {
+                    final isFromNotifi =
+                        state.uri.queryParameters['isFromNotifi'] == 'true';
+                    return UsrInfoScreen(
+                      isFromNotifi: isFromNotifi,
                     );
                   },
-                  transitionDuration: const Duration(milliseconds: 300),
-                );
-              },
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-            GoRoute( // 피드 수정
-              path: 'writeFeed',
-              builder: (context, state) {
-                final feedId = state.extra as int?;
-                return WriteFeed(feedId: feedId);
-              },
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-          ]
-        ),
-        GoRoute(path: '/usr', 
-          builder: (context, state) => const UsrMain(),
-          routes: [
-            GoRoute( // 마이페이지
-              path: 'info',
-              builder: (context, state) {
-                final isFromNotifi = state.uri.queryParameters['isFromNotifi'] == 'true';
-                return UsrInfoScreen(
-                  isFromNotifi: isFromNotifi,
-                );
-              },
-              routes: [
-                GoRoute( // 내 정보 관리
-                  path: 'management',
+                  routes: [
+                    GoRoute(
+                        // 내 정보 관리
+                        path: 'management',
+                        builder: (context, state) {
+                          return const UsrInfoManagement();
+                        },
+                        parentNavigatorKey: rootNavigatorKey,
+                        routes: [
+                          GoRoute(
+                            // 알림목록 조회
+                            path: 'notifications',
+                            builder: (context, state) {
+                              return const NotificationManagePage();
+                            },
+                            parentNavigatorKey: rootNavigatorKey,
+                          ),
+                          GoRoute(
+                            // 회원탈퇴 페이지
+                            path: 'signout',
+                            builder: (context, state) {
+                              return const UsrSignoutNoticePage();
+                            },
+                            parentNavigatorKey: rootNavigatorKey,
+                          ),
+                          GoRoute(
+                            // 차단사용자 조회
+                            path: 'blockusers',
+                            builder: (context, state) {
+                              return const BlockManagePage();
+                            },
+                            parentNavigatorKey: rootNavigatorKey,
+                          ),
+                        ]),
+                  ]),
+              GoRoute(
+                // 닉네임 입력 페이지
+                path: 'nicknameInput',
+                builder: (context, state) => const NicknameInputPage(),
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+              GoRoute(
+                // 시작하기 화면
+                path: 'login',
+                builder: (context, state) {
+                  return const GetStartedScreen();
+                },
+                parentNavigatorKey: _shellNavigatorKey,
+              ),
+              GoRoute(
+                // 이용약관, 개인정보처리방침 웹뷰 페이지
+                path: 'agremment',
+                builder: (context, state) {
+                  final title = state.uri.queryParameters['title']!;
+                  final url = state.uri.queryParameters['url']!;
+                  return WebViewPage(title: title, url: url);
+                },
+                parentNavigatorKey: rootNavigatorKey,
+              ),
+              GoRoute(
+                  // 관리자 페이지
+                  path: 'admin',
                   builder: (context, state) {
-                    return const UsrInfoManagement();
+                    return const AdminManagePage();
                   },
                   parentNavigatorKey: rootNavigatorKey,
                   routes: [
-                    GoRoute( // 알림목록 조회
-                      path: 'notifications',
+                    GoRoute(
+                      // 피드 신고관리
+                      path: 'manage/feed',
                       builder: (context, state) {
-                        return const NotificationManagePage();
+                        return const AdminManageList(
+                          topic: 'feed',
+                        );
                       },
                       parentNavigatorKey: rootNavigatorKey,
                     ),
-                    GoRoute( // 회원탈퇴 페이지
-                      path: 'signout',
+                    GoRoute(
+                      // 댓글 신고관리
+                      path: 'manage/reply',
                       builder: (context, state) {
-                        return const UsrSignoutNoticePage();
+                        return const AdminManageList(
+                          topic: 'reply',
+                        );
                       },
                       parentNavigatorKey: rootNavigatorKey,
                     ),
-                    GoRoute( // 차단사용자 조회
-                      path: 'blockusers',
-                      builder: (context, state) {
-                        return const BlockManagePage();
-                      },
-                      parentNavigatorKey: rootNavigatorKey,
-                    ),
-                  ]
-                ),
-              ]
-            ),
-            GoRoute( // 닉네임 입력 페이지
-              path: 'nicknameInput',
-              builder: (context, state) => const NicknameInputPage(),
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-            GoRoute( // 시작하기 화면
-              path: 'login',
-              builder: (context, state) {
-                return const GetStartedScreen();
-              },
-              parentNavigatorKey: _shellNavigatorKey,
-            ),
-            GoRoute( // 이용약관, 개인정보처리방침 웹뷰 페이지
-              path: 'agremment',
-              builder: (context, state) {
-                final title = state.uri.queryParameters['title']!;
-                final url = state.uri.queryParameters['url']!;
-                return WebViewPage(title: title, url: url);
-              },
-              parentNavigatorKey: rootNavigatorKey,
-            ),
-          ]
+                  ]),
+            ]),
+        // 카카오 연동 회원가입 시 /oauth가 요청되는 현상때문에 임시 조치
+        GoRoute(
+          path: '/oauth',
+          redirect: (_, __) => '/usr',
         ),
       ],
     ),
@@ -178,7 +233,8 @@ class _ShellScaffold extends ConsumerStatefulWidget {
   ConsumerState<_ShellScaffold> createState() => _ShellScaffoldState();
 }
 
-class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTickerProviderStateMixin {
+class _ShellScaffoldState extends ConsumerState<_ShellScaffold>
+    with SingleTickerProviderStateMixin {
   late AnimationController _fabController;
   late Animation<Offset> _fabSlide;
   late Animation<double> _fabOpacity;
@@ -193,11 +249,25 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     );
 
     _fabSlide = Tween<Offset>(begin: const Offset(-1, 0), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _fabController, curve: Curves.easeOut));
+        .animate(
+            CurvedAnimation(parent: _fabController, curve: Curves.easeOut));
 
     _fabOpacity = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _fabController, curve: Curves.easeIn),
     );
+
+    if (!kIsWeb) {
+      Future.delayed(const Duration(milliseconds: 2400), showTutorial);
+    }
+  }
+
+  void showTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isShown = prefs.getBool("is_main_tutorial_shown") ?? false;
+    if (!isShown) {
+      if (!mounted) return;
+      tutorialCoachMark.show(context: context);
+    }
   }
 
   @override
@@ -218,6 +288,20 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
   @override
   Widget build(BuildContext context) {
     final wtio = MediaQuery.of(context).size.width;
+
+    // 튜토리얼 트리거 감시
+    ref.listen(dietTutorialTriggerProvider, (previous, next) {
+      if (next != null) {
+        // 여기서 show를 호출하면 _ShellScaffold의 context를 사용하므로
+        // 하위의 네비게이션 바까지 모두 포함하여 블러 처리가 됩니다.
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!context.mounted) return;
+          tutorialCoachMarkDiet.show(context: context);
+        });
+      }
+    });
+
     final selectedIndex = _calculateIndex(GoRouterState.of(context));
     final navigationBarHide = ref.watch(navigationBarHideProvider);
 
@@ -227,7 +311,7 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     // FAB 크기 (비율 + 상한)
     final double fabSize = math.min(wtio * 0.14, 90.0);
     // FAB와 NavigationBar 사이 간격 (비율 유지)
-    final double bottomMargin = math.min(42.0, wtio * 0.11);
+    double bottomMargin = math.min(42.0, wtio * 0.11);
 
     final isWide = wtio > 600;
     final double ratio = ScreenRatio(context).widthRatio;
@@ -242,95 +326,144 @@ class _ShellScaffoldState extends ConsumerState<_ShellScaffold> with SingleTicke
     return Scaffold(
       extendBody: true,
       body: widget.child,
-      bottomNavigationBar: navigationBarHide ? null : Stack(
-        alignment: Alignment.center,
-        children: [
-          if (selectedIndex == 2)
-            Positioned(
-              height: fabSize,
-              width: fabSize,
-              right: rightPosition,
-              bottom: bottomMargin,
-              child: SlideTransition(
-                position: _fabSlide,
-                child: FadeTransition(
-                  opacity: _fabOpacity,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      try {
-                        final response = await ref.read(jwtTokenVerificationProvider.future);
-                        if (response.isValid) {
-                          if (!context.mounted) return;
-                          context.push('/cmu/writeFeed'); // GoRouter로 이동
-                        } else {
-                          if (!context.mounted) return;
-                          showAppMessage(
-                            context,
-                            title: '로그인이 필요해요',
-                            message:
-                                '로그인이 필요한 기능입니다. 로그인 후 이용해주세요.',
-                            type: AppMessageType.dialog,
-                            loginRequest: true,
-                          );
-                        }
-                      } catch (e) {
-                        showAppMessage(
-                          context,
-                          message:
-                              '서버 오류가 발생하였습니다.\n반복될 경우 관리자에게 문의하세요.',
-                          type: AppMessageType.dialog,
-                        );
-                        debugPrint('$e');
-                      }
-                    },
-                    backgroundColor: const Color(0xFF0D85E7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+      bottomNavigationBar: navigationBarHide
+          ? (kIsWeb
+              ? Stack(
+                  alignment: AlignmentGeometry.center,
+                  children: [
+                    Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 18,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            // 앱 설치 권유 팝업
+                            showInstallRcmndPopup(context);
+                          },
+                          child: Container(
+                            height: 56,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0D85E7),
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black38,
+                                  blurRadius: 12,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/widgets/create_feed.svg',
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  '피드 작성하기',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Pretendard',
+                                      color: Colors.white,
+                                      height: 0.01),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    child:
-                        SvgPicture.asset('assets/widgets/create_feed.svg'),
+                  ],
+                )
+              : null)
+          : Stack(
+              alignment: Alignment.center,
+              children: [
+                if (selectedIndex == 2)
+                  Positioned(
+                    height: fabSize,
+                    width: fabSize,
+                    right: rightPosition,
+                    bottom: bottomMargin,
+                    child: SlideTransition(
+                      position: _fabSlide,
+                      child: FadeTransition(
+                        opacity: _fabOpacity,
+                        child: FloatingActionButton(
+                          onPressed: () async {
+                            try {
+                              final response = await ref
+                                  .read(jwtTokenVerificationProvider.future);
+                              if (response.isValid) {
+                                if (!context.mounted) return;
+                                context.push('/cmu/writeFeed'); // GoRouter로 이동
+                              } else {
+                                if (!context.mounted) return;
+                              }
+                            } catch (e) {
+                              showAppMessage(
+                                context,
+                                message: '서버 오류가 발생하였습니다.\n반복될 경우 관리자에게 문의하세요.',
+                                type: AppMessageType.dialog,
+                              );
+                              debugPrint('$e');
+                            }
+                          },
+                          backgroundColor: const Color(0xFF0D85E7),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: SvgPicture.asset(
+                              'assets/widgets/create_feed.svg'),
+                        ),
+                      ),
+                    ),
+                  ),
+                AnimatedAlign(
+                  duration: const Duration(milliseconds: 350),
+                  alignment: selectedIndex == 2
+                      ? const Alignment(-0.45, 1.0)
+                      : Alignment.bottomCenter,
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: bottomMargin),
+                    height: fabSize,
+                    width: navWidth,
+                    child: IslandNavigationBar(
+                      selectedIndex: selectedIndex,
+                      onTap: (index) {
+                        switch (index) {
+                          case 0:
+                            ref.read(currentPageProvider.notifier).state = 0;
+                            context.go('/doc');
+                            break;
+                          case 1:
+                            ref.read(currentPageProvider.notifier).state = 1;
+                            context.go('/stc');
+                            break;
+                          case 2:
+                            ref.read(currentPageProvider.notifier).state = 2;
+                            context.go('/cmu');
+                            break;
+                          case 3:
+                            ref.read(currentPageProvider.notifier).state = 3;
+                            context.go('/usr');
+                            break;
+                        }
+                      },
+                      wtio: wtio,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 350),
-            alignment: selectedIndex == 2
-                ? const Alignment(-0.45, 1.0)
-                : Alignment.bottomCenter,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 42),
-              height: fabSize,
-              width: navWidth,
-              child: IslandNavigationBar(
-                selectedIndex: selectedIndex,
-                onTap: (index) {
-                  switch (index) {
-                    case 0:
-                      context.go('/doc');
-                      ref.read(currentPageProvider.notifier).state = 0;
-                      break;
-                    case 1:
-                      context.go('/stc');
-                      ref.read(currentPageProvider.notifier).state = 1;
-                      break;
-                    case 2:
-                      context.go('/cmu');
-                      ref.read(currentPageProvider.notifier).state = 2;
-                      break;
-                    case 3:
-                      context.go('/usr');
-                      ref.read(currentPageProvider.notifier).state = 3;
-                      break;
-                  }
-                },
-                wtio: wtio,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
-

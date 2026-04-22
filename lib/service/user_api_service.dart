@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart' show debugPrint;
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/admin/feed_report_model.dart';
+import 'package:my_app/model/usr/admin/reply_report_model.dart';
+import 'package:my_app/model/usr/admin/report_action_request.dart' show ReportActionRequest;
 import 'package:my_app/model/usr/auth/push_token_request.dart';
 import 'package:my_app/model/usr/user/ht_user_block_dto.dart' show HtUserBlockDto;
 import 'package:my_app/model/usr/user/usr_leave_request.dart';
@@ -146,7 +150,6 @@ class UserApiService {
     }
   }
 
-
   // 차단 사용자 목록 조회
   Future<Result<List<HtUserBlockDto>>> getBlockedUsers() async {
     final response = await dio.get(UserAPI.getBlockedUsers,);
@@ -156,4 +159,59 @@ class UserApiService {
     );
   }
 
+  // 신고된 피드 목록 조회
+  Future<Result<List<FeedReportModel>>> getReportedFeeds() async {
+    final response = await dio.get(AdminAPI.reportedFeedList,);
+    return Result.fromJson(
+      response.data,
+      (obj) => (obj as List).map((e) => FeedReportModel.fromJson(e)).toList(),
+    );
+  }
+
+  // 신고된 댓글 목록 조회
+  Future<Result<List<ReplyReportModel>>> getReportedReplies() async {
+    final response = await dio.get(AdminAPI.reportedReplyList,);
+    return Result.fromJson(
+      response.data,
+      (obj) => (obj as List).map((e) => ReplyReportModel.fromJson(e)).toList(),
+    );
+  }
+
+  // 신고된 피드 처리 (유지 / 경고 / 삭제)
+  Future<String> handleFeedReport(ReportActionRequest request) async {
+    final response = await dio.post(
+      AdminAPI.actionReportedFeed,
+      data: request.toJson(),
+    );
+    if (response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('피드 신고 처리 실패: ${response.statusCode}');
+    }
+  }
+
+  // 신고된 댓글 처리 (유지 / 경고 / 삭제)
+  Future<String> handleReplyReport(ReportActionRequest request) async {
+    final response = await dio.post(
+      AdminAPI.actionReportedReply,
+      data: request.toJson(),
+    );
+    if (response.statusCode == 200) {
+      return response.data.toString();
+    } else {
+      throw Exception('피드 신고 처리 실패: ${response.statusCode}');
+    }
+  }
+
+  // 전환율 측정 api - 푸시 알림 클릭
+  Future<void> switchPushNotification(String pushKey) async {
+    await dio
+        .post(UserDataAPI.switchPush, queryParameters: {'pushKey': pushKey});
+  }
+
+  // 전환율 측정 api - 기록이미 해서 푸시 알림 무시
+  Future<void> ignorePushNotification(String pushKey) async {
+    await dio
+        .post(UserDataAPI.ignorePush, queryParameters: {'pushKey': pushKey});
+  }
 }

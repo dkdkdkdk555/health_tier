@@ -32,12 +32,10 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
 
     return blockListAsync.when(
       data: (result) {
-        final list = result.data ?? [];
+        final list = result.data;
 
         // 초기 로딩 시 한 번만 저장
-        if (_blockList.isEmpty) {
-          _blockList = List.from(list);
-        }
+        _blockList = List.from(list);
 
         final totalCount = _blockList.length;
 
@@ -76,11 +74,11 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
                       ),
                     ),
 
-                    _buildBlockItem(context, _blockList[index]),
+                    _buildBlockItem(context, _blockList[index], index),
                   ],
                 );
               }
-              return _buildBlockItem(context, _blockList[index]);
+              return _buildBlockItem(context, _blockList[index], index);
             },
             childCount: totalCount,
           ),
@@ -103,7 +101,7 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
   }
 
   /// 🔹 리스트 아이템 + 구분선 위젯
-  Widget _buildBlockItem(BuildContext context, HtUserBlockDto user) {
+  Widget _buildBlockItem(BuildContext context, HtUserBlockDto user, int index) {
     return Column(
       children: [
         Slidable(
@@ -120,17 +118,10 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
                     final result = await service.doBlockCancle(user.blockedUserId);
 
                     if (result == "success") {
-                      // 2) UI 목록 즉시 제거
-                      setState(() {
-                        _blockList.removeWhere(
-                          (element) => element.blockedUserId == user.blockedUserId,
-                        );
-                      });
-
-                      // 3) 서버 최신 목록 다시 불러오도록 invalidate
+                      // 2) 서버 최신 목록 다시 불러오도록 invalidate
                       CmuInvalidateCollect().cmuOnlyInvalidateCache(ref);
 
-                      // 4) 사용자에게 안내 메시지
+                      // 3) 사용자에게 안내 메시지
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("차단이 해제되었습니다.")),
@@ -140,7 +131,6 @@ class _BlockListSliverState extends ConsumerState<BlockListSliver> {
                       throw Exception("API returned: $result");
                     }
                   } catch (e) {
-                    // 실패 시 안내
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("차단 해제 실패: $e")),

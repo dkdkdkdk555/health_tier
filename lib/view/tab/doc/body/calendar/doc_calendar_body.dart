@@ -18,7 +18,11 @@ class DocCalendarBody extends ConsumerStatefulWidget {
   ConsumerState<DocCalendarBody> createState() => _DocCalendarBodyState();
 }
 
-class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
+class _DocCalendarBodyState extends ConsumerState<DocCalendarBody>  with AutomaticKeepAliveClientMixin {
+
+  @override
+  bool get wantKeepAlive => true;
+
   DateTime _focusedDay = DateTime.now();
 
   double _dragDistance = 0;
@@ -51,6 +55,8 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
 
@@ -103,7 +109,7 @@ class _DocCalendarBodyState extends ConsumerState<DocCalendarBody> {
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= 510) {
+              if (_bodyHeightSize >= 360) {
                 _showFullModal();
               }
               setState(() {

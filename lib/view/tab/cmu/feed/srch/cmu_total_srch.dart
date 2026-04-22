@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_app/notifier/srch_keyword_notifier.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/item/top_blank_area.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/recent_srch_terms_sliver.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/srch_app_bar_delegate.dart';
@@ -40,6 +41,7 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
   Widget build(BuildContext context) {
     final currentSearchKeyword = ref.watch(srchKeywordProvider);
     final isSearchFocused = ref.watch(isSearchFocusedProvider);
+    final htio = ScreenRatio(context).heightRatio;
 
     // 검색어가 비어있지 않으면 검색 결과를 보여줍니다.
     // final bool showSearchResults = currentSearchKeyword.isNotEmpty;
@@ -62,7 +64,7 @@ class _CmuTotalSrchState extends ConsumerState<CmuTotalSrch> {
               SliverPersistentHeader(
                 pinned: true,
                 delegate: SrchAppBarDelegate(focusSearchArea: showRecentSearchesOverlay, 
-                  clickBackBtn: _searchAreaControll),
+                  clickBackBtn: _searchAreaControll, htio:htio),
               ),
               SrchResultListSliver(scrollController: _scrollController,),
             ],

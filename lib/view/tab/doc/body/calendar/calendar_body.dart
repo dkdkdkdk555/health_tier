@@ -2,7 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/main.dart' show calendarItemKey;
 import 'package:my_app/model/body/doc_main_model.dart' show DocDayInfo;
+import 'package:my_app/notifier/tutorial_notifier.dart' show calendarCellTutorialUsedProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
@@ -33,7 +35,6 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
   DateTime? _selectedDay;
   late double widthRatio;
   late double heightRatio;
-  
 
   @override
   void initState() {
@@ -42,14 +43,21 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
     _focusedDay = widget.ifocusedDay;
     widthRatio = widget.ratio.widthRatio;
     heightRatio = widget.ratio.heightRatio;
+
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    
+  }
 
   @override
   Widget build(BuildContext context) {
     _focusedDay = widget.ifocusedDay; // CustomCalendarHeader 에서 nextMonth, prevMonth 경우 업데이트
     final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
     final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
+
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20 * widthRatio),
@@ -143,9 +151,18 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
           orElse: () => DocDayInfo(day: '', weight: null, totalCalorie: null),
         );
 
+        final isCalendarCellTutorialUsed = ref.watch(calendarCellTutorialUsedProvider);
+
+        final bool shouldAttachKey = 
+          !isCalendarCellTutorialUsed && // 최초에만 현재월의1일에 해당 글로벌키를 할당하도록
+          DateTime.now().year == _focusedDay.year &&
+          DateTime.now().month == _focusedDay.month &&
+          date.day == 1;
+
         final bgColor = stampColor(matched.stamp);
 
         return LayoutBuilder(
+          key: shouldAttachKey ? calendarItemKey : null,
           builder: (context, constraints) {
             return SizedBox(
               height: constraints.maxHeight,

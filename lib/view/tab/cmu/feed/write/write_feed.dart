@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,6 @@ import 'package:go_router/go_router.dart';
 import 'package:mime/mime.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/model/cmu/feed/feed_cud_dto.dart';
-import 'package:my_app/model/cmu/feed/image_upload_args.dart';
 import 'package:my_app/model/cmu/feed/user_weight_crtifi_dto.dart';
 import 'package:my_app/providers/feed_cud_providers.dart';
 import 'package:my_app/providers/feed_providers.dart' show feedDetailProvider, feedPaginationProvider, feedParamsProvider;
@@ -24,14 +22,15 @@ import 'package:my_app/service/feed_cud_api_service.dart';
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/error_message_utils.dart';
 import 'package:my_app/util/quill_video_player.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/util/spinner_utils.dart' show AppLoadingIndicator;
 import 'package:my_app/view/tab/cmu/feed/item/cmu_write_app_bar.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed_category_select_bar.dart';
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart' show ImageFormat, VideoThumbnail;
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:http_parser/http_parser.dart';
 
 
 class WriteFeed extends ConsumerStatefulWidget {
@@ -44,6 +43,9 @@ class WriteFeed extends ConsumerStatefulWidget {
   @override
   ConsumerState<WriteFeed> createState() => _WriteFeedState();
 }
+
+// 피드저장 로딩상태 관리
+bool _isSubmitting = false;
 
 class _WriteFeedState extends ConsumerState<WriteFeed> {
   final TextEditingController _titleController = TextEditingController();
@@ -59,8 +61,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   bool _showToolbar = false;
   // 에디터의 현재 높이를 저장할 변수
   double _currentEditorHeight = 0.0;
-  // 피드저장 로딩상태 관리
-  bool _isSubmitting = false;
   int categoryId = 0;
   // 수정 모드일 때 데이터 로딩 완료 여부
   bool _isEditDataLoaded = false;
@@ -70,6 +70,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   List<ExerciseEntry> _currentExerciseEntries = [];
   // 이미지,비디오 업로드 상태관리
   bool _isUploading = false;
+  String? _imgPreview;
 
   @override
   void initState() {
@@ -145,6 +146,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           _isEditDataLoaded = true;
           // UI 업데이트
           _titleController.text = feedDetail.title;
+          _imgPreview = feedDetail.imgPreview;
           try {
             // ctnt는 JSON 문자열이므로 Delta로 변환
             final decodedContent = jsonDecode(feedDetail.ctnt);
@@ -218,33 +220,36 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
   }
 
   // 제목과 카테고리를 선택했는지피
-  bool _isFeedContentValid() {
+  String _isFeedContentValid() {
     // 1. categoryId가 0이 아닌지 확인
     if (categoryId == 0) {
-      return false;
+      return "카테고리, 제목을 모두 입력해주세요.";
     }
 
     // 2. titleText가 비어있지 않은지 확인 (공백만 있는 경우도 비어있는 것으로 간주)
     if (_titleController.text.trim().isEmpty) {
-      return false;
+      return "제목을 입력해주세요.";
     }
 
     // 카테고리 3(중량인증)일 경우, 운동 항목 유효성 검사 추가
     if (categoryId == 3) {
       if (_currentExerciseEntries.isEmpty) {
-        return false; // 항목이 없으면 유효하지 않음
+        return "인증받을 종목을 추가해 주세요."; // 항목이 없으면 유효하지 않음
       }
       for (var entry in _currentExerciseEntries) {
-        if (entry.type == null || entry.weightController.text.trim().isEmpty) {
-          return false; // 타입 또는 중량이 비어있으면 유효하지 않음
+        if (entry.type == null) {
+          return "인증받을 종목을 선택해 주세요."; // 타입 또는 중량이 비어있으면 유효하지 않음
+        }
+        if (entry.weightController.text.trim().isEmpty) {
+            return "인증받을 종목의 중량을 추가해 주세요.";
         }
         if (int.tryParse(entry.weightController.text.trim()) == null) {
-          return false; // 중량이 유효한 숫자가 아니면 유효하지 않음
+          return "인증받을 중량은 자연수여야 합니다."; // 중량이 유효한 숫자가 아니면 유효하지 않음
         }
       }
     }
 
-    return true; // 모든 조건을 통과하면 유효함
+    return "isValid"; // 모든 조건을 통과하면 유효함
   }
 
 
@@ -272,9 +277,10 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
     if (_isSubmitting) return; // 이미 업로드 중이면 중복 실행 방지
 
      // 유효성검증
-    if (!_isFeedContentValid()) {
+     final validResult = _isFeedContentValid();
+    if (validResult != "isValid") {
       if (!mounted) return;
-      showAppMessage(context, message: '카테고리, 제목을 모두 입력해주세요.');
+      showAppMessage(context, message: validResult);
       
       return; // 유효성 검증 실패 시 함수 종료
     }
@@ -310,7 +316,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       // 현재 에디터에 있는 서버 이미지/비디오 URL 목록 (수정 후)
       final List<String> currentServerMediaUrls = [];
 
-      bool hasVideo = false;
       for (int i = 0; i < currentDelta.operations.length; i++) {
         final op = currentDelta.operations[i];
         if (op.isInsert && op.data is Map) {
@@ -318,10 +323,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
           if (insertData.containsKey('image')) {
             final String imageUrl = insertData['image'];
-            // 첫 번째 이미지의 URL을 imgPreview로 설정 (로컬이든 서버 URL이든 상관없음)
-            if (imgPreview.isEmpty) { // 이미 설정되지 않았을 경우에만
-              imgPreview = imageUrl;
-            }
 
             if (imageUrl.startsWith('file://')) {
               final String filePath = Uri.parse(imageUrl).toFilePath();
@@ -359,7 +360,6 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
             }
           } else if (insertData.containsKey('video')) {
             final String videoUrl = insertData['video'];
-            hasVideo = true;
             // YouTube URL은 서버에 업로드할 필요가 없으므로 건너뜁니다.
             if (videoUrl.startsWith('file://')) {
               final String filePath = Uri.parse(videoUrl).toFilePath();
@@ -375,20 +375,20 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               } else {
                 debugPrint('Warning: Local video file not found: $filePath');
               }
-            } else if(videoUrl.contains(APIServer.baseUrl)) {
+            } else if(videoUrl.contains(APIServer.s3Url)) {
               // 기존 서버에 저장된 url추가
               currentServerMediaUrls.add(videoUrl);
-            }
+            } 
           } 
         } else if(op.isInsert && op.data is String) {
-            final String text = op.data as String;
-            // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
-            if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
-              ctntPreview = text;
-              if (ctntPreview.length > 25) { // 25자 제한
-                ctntPreview = ctntPreview.substring(0, 25);
-              }
+          final String text = op.data as String;
+          // ctntPreview는 첫 번째 텍스트가 있는 insert operation에서 추출
+          if (ctntPreview.isEmpty && text.trim().isNotEmpty && text != '\n') { // 이미 설정되지 않았고, 비어있지 않은 실제 텍스트인 경우
+            ctntPreview = text;
+            if (ctntPreview.length > 90) { // 90자 제한
+              ctntPreview = ctntPreview.substring(0, 90);
             }
+          }
         }
       }
 
@@ -396,7 +396,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       List<String> deleteUrls = [];
       if (widget.feedId != null && _initialServerMediaUrls.isNotEmpty) {
         for (String initialUrl in _initialServerMediaUrls) {
-          if (!currentServerMediaUrls.contains(initialUrl)) {
+          if (!currentServerMediaUrls.contains(initialUrl) && initialUrl.contains(APIServer.s3Url)) {
             // 기존 URL이 현재 문서에 없으면 삭제 목록에 추가
             deleteUrls.add(initialUrl);
           }
@@ -422,6 +422,27 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
       
       // 3. 서버에 업로드 (업로드할 파일이 있는 경우에만)
       List<String> uploadedUrls = [];
+
+        // 3-1. 썸네일 생성 (영상이 있는 경우)
+        io.File? thumbnailFile;
+        for (final file in filesToUpload) {
+          if (isVideoUrl(file.path)) {
+            thumbnailFile = await getThumbnailFile(file.path);
+            if (thumbnailFile != null) break;
+          }
+        }
+        // 3-2. 썸네일이 있으면 업로드 대상에 추가
+        if (thumbnailFile != null) {
+          final fileName = 'thumbnail-${path.basename(thumbnailFile.path)}';
+          final mimeType = lookupMimeType(thumbnailFile.path) ?? 'image/jpeg';
+
+          rawFiles.add(thumbnailFile);
+          fileMetaList.add({
+            'fileName': fileName,
+            'contentType': mimeType,
+          });
+        }
+
       if (fileMetaList.isNotEmpty || deleteUrls.isNotEmpty) {
         final presignedUrls = await ref.read(s3PresignedProvider((
           folder: 'uploads',
@@ -446,11 +467,12 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           final s3PublicUrl = presignedUrl.split('?').first;
           uploadedUrls.add(s3PublicUrl);
           debugPrint('✅ 업로드 완료 → $s3PublicUrl');
-        }
 
-        // 서버 업로드된 첫 번째 이미지 URL 넣어주기
-        if ((imgPreview.startsWith('file://') || imgPreview.startsWith('data:image/')) && uploadedUrls.isNotEmpty) {
-          imgPreview = uploadedUrls.first; // 첫 번째 업로드된 이미지 URL로 대체
+          if (thumbnailFile != null) {
+            // 썸네일은 마지막으로 업로드됨
+            // 썸네일을 우선적으로 이미지 미리보기로 설정
+            imgPreview = uploadedUrls.last;
+          }
         }
       }
 
@@ -507,16 +529,50 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
           return;
         }
       }
+
+      // 이미지 미리보기 결정
+      if (imgPreview.isEmpty) {
+        final deltaJson = _controller.document.toDelta().toJson();
+        final Delta delta = Delta.fromJson(deltaJson);
+
+        String? firstImageUrl;
+        bool hasVideo = false;
+
+        for (final op in delta.operations) {
+          if (!op.isInsert || op.data is! Map) continue;
+
+          final data = op.data as Map<String, dynamic>;
+
+          // 🔴 video 우선
+          if (data.containsKey('video')) {
+            hasVideo = true;
+            break;
+          }
+
+          // 🟡 video 없을 경우 대비: 첫 image 기억
+          if (firstImageUrl == null && data.containsKey('image')) {
+            firstImageUrl = data['image'] as String?;
+          }
+        }
+
+        if (hasVideo) {
+          imgPreview = _imgPreview!;
+        } else if (firstImageUrl != null) {
+          imgPreview = firstImageUrl;
+        }
+      }
+
+      
       
       final FeedDto feedDto = FeedDto(
         id: widget.feedId,
         categoryId: categoryId,
         title: title,
         ctnt: content,
-        ctntPreview: ctntPreview.replaceAll(RegExp(r'\r?\n'), ''),
+        ctntPreview: ctntPreview.replaceAll(RegExp(r'[\r\n]+'), ' ').trim(),
         imgPreview: imgPreview,
         userWeights: userWeightsData,
-        videoExist: hasVideo ? 'Y' : 'N',
+        videoExist: content.contains('"video":') ? 'Y' : 'N',
       );
 
       int resultFeedId;
@@ -555,15 +611,56 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   void _scrollUp() async{
     await Future.delayed(const Duration(milliseconds: 50));
-    // 스크롤 가능한 최대 범위(바닥)로 이동
-    final double targetOffset = _scrollController.position.maxScrollExtent;
-    if (_scrollController.hasClients) { // 컨트롤러가 attached 되어 있는지 확인
-        _scrollController.animateTo(
-          targetOffset,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+
+    if (!_scrollController.hasClients) return;
+
+    // 1. 현재 스크롤 위치와 최대 스크롤 가능 범위를 가져옵니다.
+    final double currentOffset = _scrollController.offset;
+    final double maxOffset = _scrollController.position.maxScrollExtent;
+    
+    // 2. 바닥으로부터의 임계값 (예: 100픽셀 이내에 있을 때만 바닥을 따라감)
+    // 이 값이 너무 작으면 정밀하지만, 너무 크면 중간 수정 시에도 스크롤될 수 있습니다.
+    const double threshold = 100.0;
+
+    // 3. 현재 위치가 바닥 근처인지 확인
+    bool isNearBottom = (maxOffset - currentOffset) <= threshold;
+
+    if (isNearBottom) {
+      _scrollController.animateTo(
+        maxOffset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else {
+      // 바닥 근처가 아니면(중간 수정 중이면) 아무것도 하지 않습니다.
     }
+  }
+
+  Future<io.File?> getThumbnailFile(String videoUrl) async {
+    try {
+      final thumbPath = await VideoThumbnail.thumbnailFile(
+        video: videoUrl,
+        imageFormat: ImageFormat.JPEG,
+        maxHeight: 200,
+        quality: 75,
+      );
+
+      if (thumbPath == null) return null;
+      return io.File(thumbPath);
+    } catch (e) {
+      debugPrint('썸네일 생성 실패: $e');
+      return null;
+    }
+  }
+
+
+  bool isVideoUrl(String url) {
+    final lower = url.toLowerCase();
+    return lower.endsWith('.mp4') ||
+        lower.endsWith('.mov') ||
+        lower.endsWith('.avi') ||
+        lower.endsWith('.mkv') ||
+        lower.endsWith('.webm');
   }
 
   @override
@@ -582,6 +679,9 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
 
   @override
   Widget build(BuildContext context) {
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
     final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
      // build 메서드 내에서 ref.watch로 서비스 인스턴스를 가져옵니다.
     final feedCudServiceAsyncValue = ref.watch(feedCudServiceProvider); // <-- FutureProvider를 watch
@@ -619,7 +719,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
               children: [
                 // 상단바
                 Padding(
-                  padding: const EdgeInsets.only(top: 44),
+                  padding: EdgeInsets.only(top: 44 * htio),
                   child: CmuWriteAppBar(
                     centerText: '피드 작성하기', 
                     onSubmit: canSubmit ? () => _onSubmit(feedCudService!) : () {debugPrint('아직로드안됐다..');},
@@ -637,18 +737,18 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                           onTap: (){
                             
                           },
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 20, right: 20, top: 15),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, top: 15 * htio),
                             child: Align(
                               alignment: Alignment.topLeft,
                               child: Padding(
-                                padding: EdgeInsets.only(left: 4,),
+                                padding: EdgeInsets.only(left: 4 * wtio,),
                                 child: Text(
                                   '피드 제목',
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 15 * htio,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF555555),
+                                    color: const Color(0xFF555555),
                                   ),
                                 ),
                               ),
@@ -656,24 +756,24 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
                           child: TextField(
                             controller: _titleController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: '제목을 입력해주세요',
                               hintStyle: TextStyle(
-                                fontSize: 14,
-                                 color: Color.fromRGBO(158, 158, 158, 0.8), 
+                                fontSize: 14 * htio,
+                                 color: const Color.fromRGBO(158, 158, 158, 0.8), 
                               ),
-                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 10 * htio),
                               focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: Color(0xFF0D85E7),
-                                  width: 2.0,
+                                  color: const Color(0xFF0D85E7),
+                                  width: 2.0 * wtio,
                                 ),
                               ),
                             ),
-                            style: const TextStyle(fontSize: 16, color: Color(0xff000000)),
+                            style: TextStyle(fontSize: 16 * htio, color: const Color(0xff000000)),
                             cursorColor: const Color(0xFF0D85E7),
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(100), // 최대 100자
@@ -681,26 +781,26 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                           ),
                         ),
                     
-                         const SizedBox(height: 24),
-                         const Padding(
-                          padding: EdgeInsets.only(left: 20, right: 20, bottom: 6),
+                        SizedBox(height: 24 * htio),
+                        Padding(
+                          padding: EdgeInsets.only(left: 20 * wtio, right: 20 * wtio, bottom: 6 * htio),
                             child: Align(
                               alignment: Alignment.topLeft,
                               child: Padding(
-                                padding: EdgeInsets.only(left: 4,),
+                                padding: EdgeInsets.only(left: 4 * wtio,),
                                 child: Text(
                                   '피드 내용',
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 15 * htio,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF555555),
+                                    color: const Color(0xFF555555),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                           Container(
-                            height: 1,
+                            height: 1 * htio,
                             color:Colors.grey.shade300
                           ),
                           QuillEditor(
@@ -710,13 +810,24 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                             config: QuillEditorConfig(
                               scrollable: false, // QuillEditor 자체의 스크롤을 비활성화
                               autoFocus: false, // 필요에 따라 자동 포커스 설정
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20), // 기본 패딩 제거
+                              expands: false,
+                              padding: EdgeInsets.symmetric(horizontal: 20 * wtio, vertical: 20 * htio), // 기본 패딩 제거
                               placeholder: '내용을 입력해주세요...',
-                              customStyles: const DefaultStyles(
+                              customStyles: DefaultStyles(
+                                paragraph: DefaultTextBlockStyle(
+                                  TextStyle(
+                                    fontSize: 14 * htio,
+                                    color: const Color(0xFF000000),
+                                  ),
+                                  HorizontalSpacing.zero,
+                                  VerticalSpacing.zero,
+                                  VerticalSpacing.zero,
+                                  null,
+                                ),
                                 placeHolder: DefaultTextBlockStyle(
                                   TextStyle(
-                                    fontSize: 14,
-                                    color: Color.fromRGBO(158, 158, 158, 0.8),
+                                    fontSize: 14 * htio,
+                                    color: const Color.fromRGBO(158, 158, 158, 0.8),
                                   ),
                                   HorizontalSpacing.zero,
                                   VerticalSpacing.zero,
@@ -767,7 +878,7 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                         // 툴바 높이 + 키보드 높이와 동일한 아래쪽 패딩 추가
                         // 이는 콘텐츠가 툴바/키보드 아래에 숨겨지지 않도록 보장
                         if (_showToolbar)
-                        SizedBox(height: 50.0 + keyboardHeight),
+                        SizedBox(height: (50.0 * htio) + keyboardHeight),
                         // 제목 입력 시에도 키보드 높이만큼 패딩
                         if (!_showToolbar && keyboardHeight > 0)
                         SizedBox(height: keyboardHeight),
@@ -787,105 +898,102 @@ class _WriteFeedState extends ConsumerState<WriteFeed> {
                 ),
               ),
             ),
+
+            if (_isSubmitting)
+            HeroMode(
+              enabled: false,
+              child: Positioned.fill(
+                child: AbsorbPointer(
+                  absorbing: true, // 터치 차단
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    child: const Center(
+                      child: AppLoadingIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             // 키보드 위에 위치한 툴바
             if (_showToolbar)
               Positioned(
                 bottom: keyboardHeight, // 키보드 바로 위에 위치
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  height: 50.0,
+                  height: 50.0 * wtio,
                   width: MediaQuery.of(context).size.width,
-                  color: Colors.grey[200],
-                       child: SingleChildScrollView(
+                  color: const Color(0xFF0D86E7).withValues(alpha: 0.3),
+                    child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: QuillSimpleToolbar(
-                      controller: _controller,
-                      config: QuillSimpleToolbarConfig(
-                        customButtons: [
-                          QuillToolbarCustomButtonOptions(
-                            icon: const Icon(Icons.photo_library),
-                            tooltip: '갤러리에서 이미지 가져오기',
-                            onPressed: () => _handleFilePick(context, _controller, 'image'),
-                          ),
-                          QuillToolbarCustomButtonOptions(
-                            icon: const Icon(Icons.videocam),
-                            tooltip: '갤러리에서 비디오 가져오기',
-                            onPressed: () => _handleFilePick(context, _controller, 'video'),
-                          ),
-                          QuillToolbarCustomButtonOptions(
-                            icon: const Icon(Icons.keyboard_hide_outlined),
-                            tooltip: 'Hide Keyboard',
-                            onPressed: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                          ),
-                        ],
-                        showListNumbers: true,
-                        showUndo: true,
-                        showRedo: true,
-        
-                        showListCheck: false,
-                        showItalicButton: false,
-                        showSmallButton: false,
-                        showInlineCode: false,
-                        showCodeBlock: false,
-                        showQuote: false,
-                        showDirection: false,
-                        showSubscript: false,
-                        showSuperscript: false,
-                        showFontFamily: false,
-                        showFontSize: false,
-                        showColorButton: false,
-                        showBackgroundColorButton: false,
-                        showClearFormat: false,
-                        showAlignmentButtons: false,
-                        showHeaderStyle: false,
-                        showIndent: false,
-                        showLink: false,
-                        showSearchButton: false,
-                        showLineHeightButton: false,
-                        showClipboardCut: false,
-                        showClipboardCopy: false,
-                        showClipboardPaste: false,
-                        // embedButtons: FlutterQuillEmbeds.toolbarButtons(
-                        //   imageButtonOptions: QuillToolbarImageButtonOptions(
-                        //     imageButtonConfig: QuillToolbarImageConfig(
-                        //       onImageInsertCallback: (image, controller) async {
-                        //         final originalFile = io.File(image);
-                        //         if (!await originalFile.exists()) return;
-        
-                        //         final appDir = await getApplicationDocumentsDirectory();
-                        //         final fileName = 'img-${DateTime.now().millisecondsSinceEpoch}.png';
-                        //         final savedFile = await originalFile.copy(path.join(appDir.path, fileName));
-                        //         final imageUrl = 'file://${savedFile.path}';
-        
-                        //         controller.document.insert(
-                        //           controller.selection.extentOffset,
-                        //           BlockEmbed.image(imageUrl),
-                        //         );
-                        //         controller.updateSelection(
-                        //           TextSelection.collapsed(
-                        //             offset: controller.selection.extentOffset + 1,
-                        //           ),
-                        //           ChangeSource.local,
-                        //         );
-                        //       },
-                        //     ),
-                        //   ),
-                        //   videoButtonOptions: QuillToolbarVideoButtonOptions(
-                        //     videoConfig: QuillToolbarVideoConfig(
-                        //        // onVideoInsertCallback을 커스터마이징합니다.
-                        //       onVideoInsertCallback: (videoPathFromPicker, controller) => _handleVideoInsert(videoPathFromPicker, controller),
-                        //     )
-                        //   )
-                        // ),
-                        buttonOptions: QuillSimpleToolbarButtonOptions(
-                          linkStyle: QuillToolbarLinkStyleButtonOptions(
-                            validateLink: (link) {
-                              final uri = Uri.tryParse(link);
-                              return uri != null && (uri.hasScheme && (uri.isAbsolute));
-                            },
-                          ),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 15 * wtio),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            // 1. 앞에 보일 아이콘들 직접 배치
+                            IconButton(
+                              icon: const Icon(Icons.photo_library),
+                              color: Colors.grey.shade800, 
+                              tooltip: '갤러리에서 사진 첨부',
+                              onPressed: () => _handleFilePick(context, _controller, 'image')),
+                            IconButton(
+                              icon: const Icon(Icons.videocam), 
+                              color: Colors.grey.shade800,
+                              tooltip: '갤러리에서 비디오 첨부',
+                              onPressed: () => _handleFilePick(context, _controller, 'video')),
+                            IntrinsicHeight(
+                              child: QuillSimpleToolbar(
+                                controller: _controller,
+                                config: QuillSimpleToolbarConfig(
+                                  customButtons: [
+                                    QuillToolbarCustomButtonOptions(
+                                      icon: const Icon(Icons.keyboard_hide_outlined),
+                                      tooltip: 'Hide Keyboard',
+                                      onPressed: () {
+                                        FocusScope.of(context).unfocus();
+                                      },
+                                    ),
+                                  ],
+                                  showListNumbers: true,
+                                  showUndo: true,
+                                  showRedo: true,
+                                  showListCheck: false,
+                                  showItalicButton: false,
+                                  showSmallButton: false,
+                                  showInlineCode: false,
+                                  showCodeBlock: false,
+                                  showQuote: false,
+                                  showDirection: false,
+                                  showSubscript: false,
+                                  showSuperscript: false,
+                                  showFontFamily: false,
+                                  showFontSize: false,
+                                  showColorButton: false,
+                                  showBackgroundColorButton: false,
+                                  showClearFormat: false,
+                                  showAlignmentButtons: false,
+                                  showHeaderStyle: false,
+                                  showIndent: false,
+                                  showLink: false,
+                                  showSearchButton: false,
+                                  showLineHeightButton: false,
+                                  showClipboardCut: false,
+                                  showClipboardCopy: false,
+                                  showClipboardPaste: false,
+                                  buttonOptions: QuillSimpleToolbarButtonOptions(
+                                    linkStyle: QuillToolbarLinkStyleButtonOptions(
+                                      validateLink: (link) {
+                                        final uri = Uri.tryParse(link);
+                                        return uri != null && (uri.hasScheme && (uri.isAbsolute));
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

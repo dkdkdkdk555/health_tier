@@ -1,12 +1,19 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/main.dart' show navigationBarHideProvider;
+import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_write.dart';
+import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+
+part '../../../tutorial/diet_tutorial.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
   const DocDietMain({super.key});
@@ -15,13 +22,17 @@ class DocDietMain extends ConsumerStatefulWidget {
   ConsumerState<DocDietMain> createState() => _DocDietMainState();
 }
 
-class _DocDietMainState extends ConsumerState<DocDietMain> {
+class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   DateTime _focusedDay = DateTime.now();
 
   double _dragDistance = 0;
   double _bodyHeightSize = 414; // 기본값 = 최소값
   final double _minHeightSize = 414; // 바텀영역 최소값
   final double _maxHeightSize = 595; // 바텀영역 최댓감
+
 
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
@@ -31,6 +42,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
 
@@ -47,7 +59,6 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
             SizedBox(height: 414 * heightRatio,)
           ],
         ),
-
         AnimatedPositioned(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
@@ -64,7 +75,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> {
               });
             },
             onVerticalDragEnd: (_) {
-              if (_bodyHeightSize >= 510) {
+              if (_bodyHeightSize >= 460) {
                 _showFullModal();
               }
               setState(() {

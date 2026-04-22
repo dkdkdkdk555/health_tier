@@ -151,33 +151,58 @@ class CmuFeedItem extends StatelessWidget {
     );
   }
 
-  Container imagePreview(double htio, double wtio) {
-    return Container(
-      width: 70 * htio,
-      height: 70 * htio,
-      margin: EdgeInsets.only(left:16 * wtio),
-      alignment: Alignment.topCenter,
-      decoration: ShapeDecoration(
-          image: DecorationImage(
-              image: NetworkImage('${feed.imgPreview}'),
-              fit: BoxFit.cover,
+  Widget imagePreview(double htio, double wtio) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 70 * htio,
+          height: 70 * htio,
+          alignment: Alignment.topCenter,
+          decoration: ShapeDecoration(
+              image: DecorationImage(
+                  image: NetworkImage('${feed.imgPreview}'),
+                  fit: BoxFit.cover,
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
+        ),
+        if (feed.videoExist == 'Y')
+        Container(
+          width: 28 * htio,
+          height: 28 * htio,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black54, // 반투명 배경
+          ),
+          child: const Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ]
     );
   }
 
-  Container videoExist(double htio, double wtio) {
-    return Container(
+  Widget videoExist(double htio, double wtio) {
+    return SizedBox(
       width: 70 * htio,
       height: 70 * htio,
-      margin: EdgeInsets.only(left:16 * wtio),
-      alignment: Alignment.topCenter,
-      decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-      ),
-      child: const Icon(
-        Icons.video_library_outlined
+      child: Center(
+        child: Container(
+          width: 28 * htio,
+          height: 28 * htio,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black54, // 반투명 배경
+          ),
+          child: const Icon(
+            Icons.play_arrow,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
       ),
     );
   }
@@ -191,6 +216,7 @@ class CmuFeedItem extends StatelessWidget {
         child: Text(
           '${feed.ctntPreview}',
           textAlign: TextAlign.left,
+          maxLines: 2,
           style: TextStyle(
             color: const Color(0xFF777777),
               overflow: TextOverflow.ellipsis,

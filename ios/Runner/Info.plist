@@ -18,12 +18,15 @@
 	<string>HealthTier</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>사용자에게 최적화된 광고를 제공하기 위해 기기 식별 정보를 사용합니다.</string>
+	<key>GADApplicationIdentifier</key><!-- 애드몹 설정 tester: ca-app-pub-3940256099942544~1458002511 -->
+	<string>ca-app-pub-7850046432758723~2565089161</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<!-- 카카오톡으로 로그인 하는경우 카카오에서 응답한 링크로 리다이렉트 시키는 문제때문에 일단 false로 지정-->
-	<!-- 나중에 딥링크 구현할때는 true 로 바꿔야함. 임시방편으로 위 문제를 막음 -->
+	<!-- 카카오톡으로 로그인 하는경우 카카오에서 응답한 링크로 리다이렉트 시키는 문제때문에 false로 지정 -->
 	<key>FlutterDeepLinkingEnabled</key>
 	<false/>
 	<key>CFBundleURLTypes</key>
@@ -59,8 +62,6 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>naver.com</key>

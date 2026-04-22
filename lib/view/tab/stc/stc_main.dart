@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/model/stc/day_range_param.dart';
-import 'package:my_app/util/dialog_utils.dart' show showAppDialog, showDayPicker;
+import 'package:my_app/util/dialog_utils.dart'
+    show showAppDialog, showDayPicker;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/simple_cache.dart';
 import 'package:my_app/view/tab/stc/stc_app_bar.dart';
@@ -22,22 +23,46 @@ class StcMain extends ConsumerStatefulWidget {
 var htio = 0.0;
 var wtio = 0.0;
 
+final stcSubsetPageProvider = StateProvider<int>((ref) => 0);
+
 class _StcMainState extends ConsumerState<StcMain> {
   late int _selectedIndex;
-  List<bool> whichButtonPush = [true, false, false, false]; 
+  late PageController _pageController;
+  List<bool> whichButtonPush = [true, false, false, false];
   var startDate = cachedDayRange.getStartDay();
   var endDate = cachedDayRange.getEndDay();
+  bool pageScrollable = true;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = cachedStcTabIndex;
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   void _onTap(int index) {
     setState(() {
       _selectedIndex = index;
       cachedStcTabIndex = index;
+    });
+    _pageController
+        .jumpToPage(index); // 탭바에서 직접 탭하여 이동할경우 사이에 탭들을 랜더링하지 않게 하기위해
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _onGraphTapChanged(bool isGraphTapped) {
+    setState(() {
+      pageScrollable = isGraphTapped;
     });
   }
 
@@ -65,29 +90,63 @@ class _StcMainState extends ConsumerState<StcMain> {
         children: [
           StcAppBar(selectedIndex: _selectedIndex, onTap: _onTap),
           SizedBox(height: 15 * htio),
-          Row(
-            children: [
-              SizedBox(width: 20 * wtio),
-              periodSearchForm(context, htio, wtio),
-            ],
-          ),
-          SizedBox(height: 68 * htio),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
-              child: Column(
-                children: [
-                  _selectedIndex != 3 
-                    ? StcGraphLine(dayRange: param, tabIndex: _selectedIndex)
-                    : StcStampPieChart(dayRange: param),
-                  SizedBox(height: 16 * htio),
-                  periodButtons(htio, wtio),
-                ],
-              ),
+          SizedBox(
+            height: 643 * htio,
+            child: PageView(
+              controller: _pageController,
+              physics: pageScrollable
+                  ? const BouncingScrollPhysics()
+                  : const NeverScrollableScrollPhysics(),
+              onPageChanged: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                  cachedStcTabIndex = index;
+                });
+                ref.read(stcSubsetPageProvider.notifier).state = index;
+              },
+              children: [
+                stcSubsetWidget(wtio, context, htio, param),
+                stcSubsetWidget(wtio, context, htio, param),
+                stcSubsetWidget(wtio, context, htio, param),
+                stcSubsetWidget(wtio, context, htio, param),
+              ],
             ),
-          ),
+          )
         ],
       ),
+    );
+  }
+
+  Column stcSubsetWidget(
+      double wtio, BuildContext context, double htio, DayRange param) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            SizedBox(width: 20 * wtio),
+            periodSearchForm(context, htio, wtio),
+          ],
+        ),
+        SizedBox(height: 68 * htio),
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
+            child: Column(
+              children: [
+                _selectedIndex != 3
+                    ? StcGraphLine(
+                        dayRange: param,
+                        tabIndex: _selectedIndex,
+                        onTapGraph: _onGraphTapChanged,
+                      )
+                    : StcStampPieChart(dayRange: param),
+                SizedBox(height: 16 * htio),
+                periodButtons(htio, wtio),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -107,11 +166,13 @@ class _StcMainState extends ConsumerState<StcMain> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              datePicker(context, pickedDay: startDate, isStart: true, htio: htio, wtio: wtio),
+              datePicker(context,
+                  pickedDay: startDate, isStart: true, htio: htio, wtio: wtio),
               SizedBox(width: 8 * wtio),
               waveText(wtio),
               SizedBox(width: 8 * wtio),
-              datePicker(context, pickedDay: endDate, isStart: false, htio: htio, wtio: wtio),
+              datePicker(context,
+                  pickedDay: endDate, isStart: false, htio: htio, wtio: wtio),
             ],
           ),
         ),
@@ -119,7 +180,11 @@ class _StcMainState extends ConsumerState<StcMain> {
     );
   }
 
-  Widget datePicker(BuildContext context, {required DateTime pickedDay, required bool isStart, required double htio, required double wtio}) {
+  Widget datePicker(BuildContext context,
+      {required DateTime pickedDay,
+      required bool isStart,
+      required double htio,
+      required double wtio}) {
     return GestureDetector(
       onTap: () async {
         final picked = await showDayPicker(context, pickedDay);
@@ -129,12 +194,15 @@ class _StcMainState extends ConsumerState<StcMain> {
           final diff = newEnd.difference(newStart).inDays;
           if (diff > 365) {
             if (!context.mounted) return;
-            showAppDialog(context, message: '조회 기간은 최대 1년까지 선택할 수 있습니다.', confirmText: '확인');
+            showAppDialog(context,
+                message: '조회 기간은 최대 1년까지 선택할 수 있습니다.', confirmText: '확인');
             return;
           }
           setState(() {
-            if (isStart) startDate = picked;
-            else endDate = picked;
+            if (isStart)
+              startDate = picked;
+            else
+              endDate = picked;
             _onDateRangeChanged(startDate, endDate);
           });
         }
@@ -152,7 +220,8 @@ class _StcMainState extends ConsumerState<StcMain> {
             ),
           ),
           SizedBox(width: 4 * wtio),
-          SvgPicture.asset('assets/icons/calendar.svg', width: 16 * wtio, height: 16 * htio),
+          SvgPicture.asset('assets/icons/calendar.svg',
+              width: 16 * wtio, height: 16 * htio),
         ],
       ),
     );
@@ -190,11 +259,15 @@ class _StcMainState extends ConsumerState<StcMain> {
     );
   }
 
-  Widget periods(String text, bool isChoose, int index, double htio, double wtio) {
-    var selectedColor = _selectedIndex == 0 ? const Color(0xFF0D86E7)
-                        : _selectedIndex == 1 ? const Color(0xFF95D33E) 
-                        : _selectedIndex == 2 ? const Color(0xFFFFDE23)
-                        : const Color(0xFF000000);
+  Widget periods(
+      String text, bool isChoose, int index, double htio, double wtio) {
+    var selectedColor = _selectedIndex == 0
+        ? const Color(0xFF0D86E7)
+        : _selectedIndex == 1
+            ? const Color(0xFF95D33E)
+            : _selectedIndex == 2
+                ? const Color(0xFFFFDE23)
+                : const Color(0xFF000000);
 
     isChoose = cachedStcBtnPushed == index;
 
@@ -202,7 +275,8 @@ class _StcMainState extends ConsumerState<StcMain> {
       child: GestureDetector(
         onTap: () {
           setState(() {
-            for (int i = 0; i < whichButtonPush.length; i++) whichButtonPush[i] = false;
+            for (int i = 0; i < whichButtonPush.length; i++)
+              whichButtonPush[i] = false;
             whichButtonPush[index] = true;
 
             switch (text) {
@@ -227,7 +301,8 @@ class _StcMainState extends ConsumerState<StcMain> {
                 _onBtnPushedChanged(2);
                 break;
               case '1년':
-                startDate = DateTime(endDate.year - 1, endDate.month, _safeDay(endDate));
+                startDate = DateTime(
+                    endDate.year - 1, endDate.month, _safeDay(endDate));
                 _onBtnPushedChanged(3);
                 break;
             }
@@ -235,10 +310,12 @@ class _StcMainState extends ConsumerState<StcMain> {
           });
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
+          padding:
+              EdgeInsets.symmetric(horizontal: 10 * wtio, vertical: 10 * htio),
           decoration: ShapeDecoration(
             color: isChoose ? selectedColor : Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4 * wtio)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4 * wtio)),
           ),
           child: Center(
             child: Text(
@@ -261,6 +338,8 @@ class _StcMainState extends ConsumerState<StcMain> {
     final year = baseDate.year;
     final month = baseDate.month;
     final lastDayOfPrevMonth = DateTime(year, month, 0).day;
-    return baseDate.day > lastDayOfPrevMonth ? lastDayOfPrevMonth : baseDate.day;
+    return baseDate.day > lastDayOfPrevMonth
+        ? lastDayOfPrevMonth
+        : baseDate.day;
   }
 }

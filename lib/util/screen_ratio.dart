@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 class ScreenRatio {
@@ -10,7 +11,7 @@ class ScreenRatio {
 
   ScreenRatio(this.context) {
     final screenSize = MediaQuery.of(context).size;
-    widthRatio = screenSize.width / baseWidth;
     heightRatio = screenSize.height / baseHeight;
+    widthRatio = kIsWeb ? heightRatio : screenSize.width / baseWidth;
   }
 }

@@ -654,3 +654,59 @@ final hasUnreadNotification = FutureProvider.autoDispose<bool>((ref) async {
       .then((rows) => rows.length);
   return count > 0;
 });
+
+/*
+  식사유형(title) 검색 - 중복 제거하여 반환
+  검색어가 포함된 title을 가진 식단 기록을 반환
+*/
+final searchDietByTitleProvider = FutureProvider.autoDispose
+    .family<List<DayDietModel>, String>((ref, query) async {
+  if (query.trim().isEmpty) return [];
+
+  final db = ref.watch(databaseProvider);
+
+  final result = await db.customSelect(
+    '''
+    SELECT
+      MIN(ID) AS id,
+      DAY AS day,
+      TITLE AS title,
+      DIET AS diet,
+      CALORIE AS calorie,
+      PROTEIN AS protein
+    FROM HT_DAY_DIET
+    WHERE TITLE LIKE ?
+    GROUP BY TITLE, DIET, CALORIE, PROTEIN
+    ORDER BY MAX(ID) DESC
+    LIMIT 10
+    ''',
+    variables: [Variable.withString('%$query%')],
+    readsFrom: {db.htDayDiet},
+  ).get();
+
+  return result.map(DayDietModel.fromRow).toList();
+});
+
+/*
+  푸시 알림 필터링용: 오늘 날짜의 체중 및 식단 기록 존재 여부 확인
+  - htDayBody(체중)와 htDayDiet(식단) 기록이 '모두' 있는 경우 true 반환
+*/
+Future<bool> checkTodayRecordComplete(AppDatabase db) async {
+  final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+  // 1. 체중 기록 확인 (0이 아닌 유효한 값)
+  final bodyRecord = await (db.select(db.htDayBody)
+        ..where((tbl) => tbl.day.equals(today))
+        ..where((tbl) => tbl.weight.isNotNull())
+        ..where((tbl) => tbl.weight.isNotValue(0)))
+      .getSingleOrNull();
+
+  // 2. 식단 기록 확인 (하나라도 있으면 기록한 것으로 간주)
+  final dietRecord = await (db.select(db.htDayDiet)
+        ..where((tbl) => tbl.day.equals(today))
+        ..limit(1))
+      .getSingleOrNull();
+
+  // 두 기록이 모두 존재해야 함
+  return bodyRecord != null && dietRecord != null;
+}

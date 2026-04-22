@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/user_prefs.dart';
+import 'package:my_app/view/common/video_display.dart' show VideoDisplay;
+import 'package:shared_preferences/shared_preferences.dart' show SharedPreferences;
 import 'package:table_calendar/table_calendar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../extension/screen_ratio_extension.dart' show ScreenRatio;
 
@@ -126,7 +130,7 @@ AlertDialog buildAppDialog(
       Expanded(
         child: TextButton(
           style: TextButton.styleFrom(
-            backgroundColor: const Color(0xFFDDDDDD),
+            backgroundColor: Colors.grey.shade400,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12 * widthRatio),
@@ -316,4 +320,325 @@ Future<String?> showInputDialog(
       );
     },
   );
+}
+
+// 공통 전체 이미지 뷰어 함수
+void openFullImageView(BuildContext context, String imgUrl) {
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: '',
+    barrierColor: Colors.black87,
+    pageBuilder: (_, __, ___) {
+      return GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Center(
+          child: InteractiveViewer(
+            maxScale: 5.0,
+            minScale: 0.5,
+            child: Image.network(
+              imgUrl,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) {
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+void showMediaPopup(
+  BuildContext context, {
+  required String mediaUrl,
+  required String link,
+}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black54,
+    builder: (_) => _MediaPopup(mediaUrl: mediaUrl, link: link,),
+  );
+}
+
+class _MediaPopup extends StatelessWidget {
+  final String mediaUrl;
+  final String link;
+
+  const _MediaPopup({
+    required this.mediaUrl,
+    required this.link,
+  });
+
+  bool _isVideoUrl(String url) {
+    url = url.toLowerCase();
+    return url.endsWith('.mp4') || url.endsWith('.mov') || url.endsWith('.webm');
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
+    final double popupWidth = size.width - (40*wtio); // 좌우 padding 20
+    final double popupHeight = (size.height * 2 / 3) * htio;
+    
+
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // 팝업 본체
+            Container(
+              width: popupWidth,
+              height: popupHeight,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: _isVideoUrl(mediaUrl)
+                  ? VideoDisplay(videoUrl: mediaUrl)
+                  : Image.network(
+                      mediaUrl,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                      errorBuilder: (_, __, ___) => const Center(
+                        child: Icon(Icons.broken_image, color: Colors.white),
+                      ),
+                    ),
+            ),
+             // 오늘 하루 보지 않기
+            GestureDetector(
+              onTap: () async {
+                await UserPrefs.hideAdForToday();
+                if(!context.mounted) return;
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 14 * wtio, vertical: 6 * htio),
+                margin: EdgeInsets.only(left: 7.6 * wtio, top:7.6 * htio),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(80),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  '오늘 하루 동안 열지 않음',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12 * htio,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 6*wtio),
+            // 닫기 버튼 (우측 상단)
+            Positioned(
+              right: -5 * wtio,
+              top: -5 * htio,
+              child: IconButton(
+                icon: Icon(
+                  Icons.cancel,
+                  size: 26 * htio,
+                  color: Colors.white70,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
+
+            // 링크 버튼 (가운데 하단)
+            Positioned(
+              bottom: 16 * htio,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () async {
+                    await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 18 * wtio, vertical: 10 * htio),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(80), // 반투명 배경
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '자세히 보러가기 >>',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14 * htio,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2 * wtio,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+void showInstallRcmndPopup(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    barrierColor: Colors.black54,
+    builder: (_) => _InstallRcmndPopup(),
+  );
+}
+
+class _InstallRcmndPopup extends StatelessWidget {
+  const _InstallRcmndPopup();
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final htio = ScreenRatio(context).heightRatio;
+    final wtio = ScreenRatio(context).widthRatio;
+
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // 팝업 본체
+            Container(
+              width: 355 * wtio,
+              height: 355 * htio,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.network(
+                'https://s3.ap-northeast-2.amazonaws.com/s3.health-tier.com/uploads/popup.png',
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Icon(Icons.broken_image, color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(width: 6 * wtio),
+            // 닫기 버튼 (우측 상단)
+            Positioned(
+              right: 4 * wtio,
+              top: 3 * htio,
+              child: IconButton(
+                icon: Icon(
+                  Icons.cancel,
+                  size: 26 * htio,
+                  color: Colors.white70,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+              ),
+            ),
+
+            // 링크 버튼 (가운데 하단)
+            Positioned(
+              bottom: 60 * htio,
+              left: -160 * wtio,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () async {
+                    await launchUrl(
+                        Uri.parse(
+                            'https://play.google.com/store/apps/details?id=com.health.tier&hl=ko'),
+                        mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    width: 144.3 * wtio,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18 * wtio, vertical: 10 * htio),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF59A710).withAlpha(220),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Google Play 설치',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * htio,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2 * wtio,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 105 * htio,
+              left: -160 * wtio,
+              right: 0,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () async {
+                    await launchUrl(
+                        Uri.parse('https://apps.apple.com/kr/app/id6753325210'),
+                        mode: LaunchMode.externalApplication);
+                  },
+                  child: Container(
+                    width: 144.3 * wtio,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 18 * wtio, vertical: 10 * htio),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0D85E7).withAlpha(200),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'App Store 설치',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14 * htio,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2 * wtio,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

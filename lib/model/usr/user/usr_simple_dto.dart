@@ -1,11 +1,13 @@
 
 class UserSimpleDto {
   final String nickname;
+  final String? loginId;
   final String? imgPath;
   final SnsType? snsType;
 
   UserSimpleDto({
     required this.nickname,
+    this.loginId,
     this.imgPath,
     this.snsType,
   });
@@ -13,6 +15,7 @@ class UserSimpleDto {
   factory UserSimpleDto.fromJson(Map<String, dynamic> json) {
     return UserSimpleDto(
       nickname: json['nickname'],
+      loginId: json['loginId'],
       imgPath: json['imgPath'],
       snsType: _snsTypeFromString(json['snsType'] as String?),
     );
@@ -21,6 +24,7 @@ class UserSimpleDto {
   Map<String, dynamic> toJson() {
     return {
       'nickname': nickname,
+      'loginId': loginId,
       'imgPath': imgPath,
       'snsType': snsType?.name,
     };

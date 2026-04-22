@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.4.2+18 # 앞이 버전 + 뒤가 버전코드
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
@@ -70,6 +70,7 @@ dependencies:
   sign_in_with_apple: ^7.0.1
   http_parser: ^4.1.2
   webview_flutter: ^4.13.0
+  flutter_inappwebview: ^6.1.5
 
   # firebase
   firebase_core: ^4.0.0 
@@ -83,12 +84,17 @@ dependencies:
 
   flutter_local_notifications: ^19.4.0
   flutter_slidable: ^4.0.1
+  app_links: ^6.4.1 # 딥링크 구현
   go_router: ^16.2.1
   flutter_app_badger: ^1.5.0
   file_picker: ^10.3.3
   # photo_manager: ^3.7.1 # icloud에 있는 미디어를 선택시 로컬에 내려받게 해준다.
   flutter_image_compress: ^2.4.0 # 이미지 변환
   lottie: ^3.3.0 # 로고 svg 파일의 <path>를 한획씩 그려주는 애니메이션효과를 적용하기위해 의존성추가한 패키지
+  google_mobile_ads: ^6.0.0 # 애드몹
+  tutorial_coach_mark: ^1.3.3 # 튜토리얼
+  video_thumbnail: ^0.5.6
+  app_tracking_transparency: ^2.0.6+1 # 사용자 추적위한 추가 - iOS 애드몹 테스팅 모드 위해서
   
 dev_dependencies:
   flutter_test:

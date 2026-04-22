@@ -4,7 +4,15 @@ import 'package:flutter_svg/svg.dart';
 class LikeAndReplyWidget extends StatelessWidget {
   final int likeCnt;
   final int replyCnt;
-  const LikeAndReplyWidget({super.key, required this.likeCnt, required this.replyCnt});
+  final double htio;
+  final double wtio;
+  const LikeAndReplyWidget({
+    super.key, 
+    required this.likeCnt, 
+    required this.replyCnt,
+    required this.htio,
+    required this.wtio,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,41 +25,41 @@ class LikeAndReplyWidget extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 'assets/icons/like.svg',
-                width: 16, // 아이콘 크기 명시
-                height: 16,
+                width: 16 * wtio, // 아이콘 크기 명시
+                height: 16 * htio,
                 fit: BoxFit.cover,
               ),
-              const SizedBox(width: 2),
+              SizedBox(width: 2 * wtio),
               Text(
                 '$likeCnt',
-                style: const TextStyle(
-                  color: Color(0xFF777777),
-                  fontSize: 12,
+                style: TextStyle(
+                  color: const Color(0xFF777777),
+                  fontSize: 12 * htio,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w500,
-                  height: 1.50,
+                  height: 1.50 * htio,
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 12), // 좋아요와 댓글 사이 간격
+          SizedBox(width: 12 * wtio), // 좋아요와 댓글 사이 간격
           Row(
             children: [
               SvgPicture.asset(
                 'assets/icons/reply.svg',
-                width: 16, // 아이콘 크기 명시
-                height: 16,
+                width: 16 * wtio, // 아이콘 크기 명시
+                height: 16 * htio,
                 fit: BoxFit.cover,
               ),
-              const SizedBox(width: 2),
+              SizedBox(width: 2 *wtio),
               Text(
                 '$replyCnt',
-                style: const TextStyle(
-                  color: Color(0xFF777777),
-                  fontSize: 12,
+                style: TextStyle(
+                  color: const Color(0xFF777777),
+                  fontSize: 12 * htio,
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w500,
-                  height: 1.50,
+                  height: 1.50 * htio,
                 ),
               ),
             ],

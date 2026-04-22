@@ -46,9 +46,9 @@ android {
         keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
     }
 
-    namespace = "com.ukhyeon.healthtier"
-    compileSdk = 35                  // ✅ 수정됨
-    ndkVersion = flutter.ndkVersion
+    namespace = "com.health.tier"
+    compileSdk = 36                  // ✅ 수정됨
+    ndkVersion = "26.1.10909125"
 
     buildFeatures {
         buildConfig true
@@ -63,9 +63,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ukhyeon.healthtier"
+        applicationId = "com.health.tier"
         minSdk = 24
-        targetSdk = 35              // ✅ 수정됨
+        targetSdk = 36              // ✅ 수정됨
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
     }
@@ -85,7 +85,7 @@ android {
             signingConfig = signingConfigs.release
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'flutter_proguard_rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 

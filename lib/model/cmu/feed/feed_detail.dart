@@ -9,7 +9,7 @@ class FeedDetailDto {
   final String ctnt;
   final int userId;
   final String nickname;
-  final String imgPath;
+  final String? imgPreview;
   final int likeCnt;
   final bool? isLiked;
   final bool? isReportedForMe;
@@ -30,7 +30,7 @@ class FeedDetailDto {
     required this.ctnt,
     required this.userId,
     required this.nickname,
-    required this.imgPath,
+    required this.imgPreview,
     required this.likeCnt,
     required this.isLiked,
     required this.isReportedForMe,
@@ -53,7 +53,7 @@ class FeedDetailDto {
       ctnt: json['ctnt'] as String? ?? '',
       userId: json['userId'] as int? ?? 0,
       nickname: json['nickname'] as String? ?? '',
-      imgPath: json['imgPath'] as String? ?? '',
+      imgPreview: json['imgPreview'] as String?,
       likeCnt: json['likeCnt'] as int? ?? 0,
       isLiked: json['liked'] as bool? ?? false,
       isReportedForMe: json['reportedForMe'] as bool? ?? false,

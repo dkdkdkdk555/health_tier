@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/model/cmu/common/result.dart';
 import 'package:my_app/model/cmu/feed/badge_info_dto.dart';
+import 'package:my_app/model/usr/admin/feed_report_model.dart' show FeedReportModel;
+import 'package:my_app/model/usr/admin/reply_report_model.dart' show ReplyReportModel;
 import 'package:my_app/model/usr/user/ht_user_block_dto.dart' show HtUserBlockDto;
 import 'package:my_app/model/usr/user/usr_simple_dto.dart';
 import 'package:my_app/model/usr/user/weight_3_info.dart';
@@ -52,4 +54,16 @@ final usrProfileImgProvider = StateProvider<String>((ref) {
 final userBlockedListProvider = FutureProvider<Result<List<HtUserBlockDto>>>((ref) async {
   final service = await ref.watch(userCudServiceProvider.future);
   return await service.getBlockedUsers();
+});
+
+// 신고된 피드 목록
+final feedReportedListProvider = FutureProvider<Result<List<FeedReportModel>>>((ref) async {
+  final service = await ref.watch(userCudServiceProvider.future);
+  return await service.getReportedFeeds();
+});
+
+// 신고된 댓글 목록
+final replyReportedListProvider = FutureProvider<Result<List<ReplyReportModel>>>((ref) async {
+  final service = await ref.watch(userCudServiceProvider.future);
+  return await service.getReportedReplies();
 });

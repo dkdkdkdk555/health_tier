@@ -1,6 +1,16 @@
-class APIServer{
-  static const baseUrl = 'http://192.168.0.49:5723';
+class APIServer {
+  static const baseUrl = 'https://api.health-tier.com';
   static const s3Url = 's3.health-tier.com';
+}
+
+class DocAPI {
+  static const geminiFoodAnalyze = '/api/food/analyze';
+}
+
+class FoodDatabaseAPI {
+  static const base = '/api/food-database';
+  static const list = '$base/list';
+  static String detail(int id) => '$base/$id';
 }
 
 class FeedAPI {
@@ -16,7 +26,7 @@ class FeedAPI {
   static const search = '$base/search';
   static increaseViewCount(int id) => '$base/$id/view';
 }
- 
+
 class FeedCudAPI {
   static const base = '/cud/cmu/feed';
 
@@ -42,7 +52,6 @@ class ReplyCudAPI {
   static const cancelLikeReply = '$base/like'; // DELETE
 
   static const reportReply = '/cud/report/reply';
-
 }
 
 class UserAPI {
@@ -51,7 +60,6 @@ class UserAPI {
   static const getUserInfo = '$base/';
   static const getBlockedUsers = '$base/block/list';
 }
-
 
 class UserCudAPI {
   static const base = '/cud/usr';
@@ -69,9 +77,9 @@ class UserCudAPI {
   static const getUsrInfoWeight = '$base/weight';
 
   static doBlock(int blockUserId) => '$base/block/$blockUserId'; // POST
-  static doBlockCancle(int blockedUserId) => '$base/block/$blockedUserId'; //DELETE
+  static doBlockCancle(int blockedUserId) =>
+      '$base/block/$blockedUserId'; //DELETE
 }
-
 
 class AuthAPI {
   static const base = '/auth';
@@ -83,4 +91,18 @@ class AuthAPI {
   static const checkNickname = '/check-nickname';
   static const getS3PresignedUrl = '$base/s3/presigned';
   static const loginWithIdAndPw = '$base/login';
+}
+
+class AdminAPI {
+  static const base = '/admin/report';
+
+  static const reportedFeedList = '$base/feeds';
+  static const reportedReplyList = '$base/replies';
+  static const actionReportedFeed = '$base/feed/action';
+  static const actionReportedReply = '$base/reply/action';
+}
+
+class UserDataAPI {
+  static const switchPush = '/push/log/switch'; // POST
+  static const ignorePush = '/push/log/ignore'; // POST
 }

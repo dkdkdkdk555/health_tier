@@ -26,7 +26,7 @@ class CmuNewFeedAlarm extends StatelessWidget {
           child: Align(
             alignment: Alignment.center,
             child: Text(
-                '새 게시글',
+                '새 피드',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 11.5 * htio,

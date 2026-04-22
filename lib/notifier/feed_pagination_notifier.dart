@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/model/cmu/common/scroll_response.dart';
 import 'package:my_app/model/cmu/feed/feed_list_model.dart';
@@ -32,12 +31,10 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
     state = const AsyncLoading();
 
     try {
-      debugPrint('멍멍!');
       final response = await _service.getFeedList(_params);
       _feeds.clear();
       _feeds = response.items;
       _hasNext = response.hasNext;
-      debugPrint('헤즈넥스트 : $_hasNext');
       _params.cursorId = response.lastCursorId;
       state = AsyncData(response);
     } catch (error, stackTrace) {
@@ -52,7 +49,6 @@ class FeedPaginationNotifier extends StateNotifier<AsyncValue<ScrollResponse<Fee
     _isFetching = true;
 
     try {
-      debugPrint('왈왈!');
       final response = await _service.getFeedList(_params.copyWith(cursorId: _params.cursorId));
       _feeds.addAll(response.items);
       _params.cursorId = response.lastCursorId;

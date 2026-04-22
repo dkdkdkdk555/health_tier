@@ -11,13 +11,16 @@ class TokenVerificationResponse {
     this.message,
   });
 
-  factory TokenVerificationResponse.fromJson(Map<String, dynamic> json) {
-    return TokenVerificationResponse(
-      isValid: json['isValid'] as bool,
-      userId: json['userId'] is int ? json['userId'] as int : null,
-      error: json['error'] is String ? json['error'] as String : null,
-      message: json['message'] is String ? json['message'] as String : null,
-    );
+  factory TokenVerificationResponse.fromJson(Map<String, dynamic>? json) {
+    if(json!=null){
+      return TokenVerificationResponse(
+        isValid: json['isValid'] as bool? ?? false,
+        userId: json['userId'] is int ? json['userId'] as int : null,
+        error: json['error'] is String ? json['error'] as String : null,
+        message: json['message'] is String ? json['message'] as String : null,
+      );
+    } 
+    return TokenVerificationResponse(isValid: false);
   }
 
   @override

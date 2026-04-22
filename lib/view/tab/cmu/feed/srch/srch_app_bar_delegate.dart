@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/cmu/feed/srch/srch_app_bar.dart';
 
 class SrchAppBarDelegate extends SliverPersistentHeaderDelegate {
   final bool focusSearchArea;
   final VoidCallback clickBackBtn;
+  final double htio;
 
   SrchAppBarDelegate({
     required this.focusSearchArea,
     required this.clickBackBtn,
+    required this.htio
   });
-  
+
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return SrchAppBar(
@@ -19,10 +22,10 @@ class SrchAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 48;
+  double get maxExtent => 48 * htio;
 
   @override
-  double get minExtent => 48;
+  double get minExtent => 48 * htio;
 
   @override
   bool shouldRebuild(covariant SrchAppBarDelegate oldDelegate) {

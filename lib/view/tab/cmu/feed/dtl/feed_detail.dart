@@ -1,11 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/model/cmu/feed/feed_list_request.dart';
 import 'package:my_app/providers/feed_providers.dart' show feedPaginationProvider, feedParamsProvider, replyPaginationProvider, sameCategoryFeedPaginationProvider, searchFeedsProvider;
+import 'package:my_app/providers/notifier_provider.dart' show replySupplyNotifierProvider;
 import 'package:my_app/service/feed_cud_api_service.dart' show FeedCudService;
 import 'package:my_app/util/dialog_utils.dart' show showAppDialog;
 import 'package:my_app/util/screen_ratio.dart';
+import 'package:my_app/view/common/admob_ads.dart' show AdType, AdmobAds;
 import 'package:my_app/view/tab/cmu/feed/dtl/category/category_another_feed_list.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_app_bar_delegate.dart';
 import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail_main.dart';
@@ -56,7 +59,7 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
   void _deleteFeedCallback(FeedCudService? feedCudService) async {
     await feedCudService!.deleteFeed(widget.feedId);
     if(!mounted)return;
-    showAppDialog(context, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
+    showAppDialog(context, barrierDismiss: false, message: '피드가 삭제 되었습니다.', confirmText: '확인', onConfirm: () {
       ref.read(feedPaginationProvider(ref.read(feedParamsProvider)).notifier).removeFeed(widget.feedId);
       ref.invalidate(searchFeedsProvider);
       ref.invalidate(sameCategoryFeedPaginationProvider);
@@ -71,10 +74,11 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus(); // 포커스 해제 → 키보드 및 바 숨김
-        },
+      body: Listener(
+        onPointerDown: (_) {
+          // 포커스 해제
+          FocusManager.instance.primaryFocus?.unfocus();
+        }, 
         behavior: HitTestBehavior.opaque, // 빈 공간도 인식하게 함
         child: CustomScrollView(
           controller: _scrollController,
@@ -92,6 +96,11 @@ class _FeedDetailState extends ConsumerState<FeedDetail> {
             ),
             // 댓글리스트
             ReplyListSliver(cmuId: widget.feedId, scrollController: _scrollController,),
+            // 배너광고
+            if (!kIsWeb)
+            const SliverToBoxAdapter(
+              child: AdmobAds(adType: AdType.banner,),
+            ),
             // 같은 카테고리의 다른 글
             widget.categoryId != null ? CategoryAnotherFeedList(categoryId: widget.categoryId!, currentFeedId: widget.feedId) 
             : const SliverToBoxAdapter(child: SizedBox.shrink()),

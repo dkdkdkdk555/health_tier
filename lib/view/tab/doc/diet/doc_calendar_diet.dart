@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/dialog_utils.dart' show showDayPicker;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
+import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart' show dietCalendar, dietCalendarHeader, totalKcalAndProtien;
 import 'package:table_calendar/table_calendar.dart';
 
 class DocCalendarDiet extends ConsumerStatefulWidget {
@@ -81,6 +82,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                   },
                   child: Text(
                     '$year년 $month월',
+                    key: dietCalendarHeader,
                     style: TextStyle(
                       color: const Color(0xFF333333),
                       fontSize: 16 * heightRatio,
@@ -102,6 +104,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                 horizontal: 20 * widthRatio,
               ),
               child: TableCalendar(
+                key: dietCalendar,
                 headerVisible: false,
                 daysOfWeekVisible: false,
                 firstDay: DateTime.utc(2022, 1, 1),
@@ -155,6 +158,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                 vertical: 20 * heightRatio,
               ),
               child: Column(
+                key: totalKcalAndProtien,
                 children: [
                   makeTotal(
                     'assets/icons/kcal.svg',
