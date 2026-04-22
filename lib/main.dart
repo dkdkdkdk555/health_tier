@@ -10,6 +10,7 @@ import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:my_app/api/configure_dio.dart';
 import 'package:my_app/database/app_database.dart';
@@ -124,8 +125,8 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
   // 카카오sdk 초기화
   KakaoSdk.init(
-    nativeAppKey: 'KAKAO_NATIVE_APP_KEY_REDACTED',
-    javaScriptAppKey: 'KAKAO_JAVASCRIPT_APP_KEY_REDACTED',
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!,
+    javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT_APP_KEY']!,
   );
   // 로컬알림 초기화
   await FlutterLocalNotification.init();
@@ -133,6 +134,7 @@ Future<void> initializeDependencies(WidgetRef ref) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   // 세로 모드만 허용
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

@@ -2,11 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/api/api_routes.dart';
 import 'package:my_app/api/configure_dio.dart';
-import 'package:my_app/model/usr/auth/error_response.dart';
 import 'package:my_app/model/usr/auth/token_response.dart';
 import 'package:my_app/model/usr/auth/token_verification_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 class AuthApiService {
   final Dio dio;
    AuthApiService() : dio = DIOConfig().createNoneAuthDio();
