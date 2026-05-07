@@ -1,11 +1,5 @@
 part of '../../view/tab/doc/diet/doc_diet_main.dart';
 
-// 튜토리얼 실행 신호를 보내기 위한 프로바이더 (DateTime은 중복 클릭 시에도 반응하게 하기 위함) 
-// 프로바이더는 값이 달라야지만 반응하기때문에 DateTime이 필요
-final dietTutorialTriggerProvider = StateProvider<DateTime?>((ref) => null);
-
-late TutorialCoachMark tutorialCoachMarkDiet;
-
 final GlobalKey dietCalendar = GlobalKey();
 final GlobalKey dietCalendarHeader = GlobalKey();
 final GlobalKey totalKcalAndProtien = GlobalKey();

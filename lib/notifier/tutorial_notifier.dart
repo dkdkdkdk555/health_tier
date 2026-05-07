@@ -1,6 +1,7 @@
 // 튜토리얼 완료 여부를 관리하는 프로바이더
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart' show TutorialCoachMark;
 
 final mainTutorialStorageProvider = StateNotifierProvider<MainTutorialNotifier, bool>((ref) {
   return MainTutorialNotifier();
@@ -55,3 +56,10 @@ class DietWriteTutorialNotifier extends StateNotifier<bool> {
     state = true;
   }
 }
+
+///////////////////
+
+// router.dart(main.dart의 part)에서 접근 가능하도록 여기에 선언
+// (diet_tutorial.dart는 doc_diet_main.dart의 part → main.dart에서 직접 import하면 circular dependency)
+final dietTutorialTriggerProvider = StateProvider<DateTime?>((ref) => null);
+late TutorialCoachMark tutorialCoachMarkDiet;

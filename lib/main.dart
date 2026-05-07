@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
+import 'package:flutter/cupertino.dart' show CupertinoPage;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_installations/firebase_installations.dart';
@@ -33,6 +36,13 @@ import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tab/stc/stc_main.dart';
+import 'package:my_app/notifier/tutorial_notifier.dart' show mainTutorialStorageProvider, calendarCellTutorialUsedProvider, dietTutorialTriggerProvider, tutorialCoachMarkDiet;
+import 'package:my_app/util/up_arrow.dart' show UpArrowIndicator;
+import 'package:my_app/view/tutorial/common_functions.dart' show buildTarget, titleDescContent;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:my_app/util/dialog_utils.dart' show showInstallRcmndPopup;
+import 'package:my_app/view/tab/usr/admin/admin_manage_list.dart';
+import 'package:my_app/view/tab/usr/admin/admin_manage_page.dart';
 import 'package:my_app/view/tab/usr/block/block_manage_page.dart';
 import 'package:my_app/view/tab/usr/get_started_screen.dart';
 import 'package:my_app/view/tab/usr/management/usr_info_management.dart';
@@ -50,6 +60,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 part 'router.dart';
+part 'view/tutorial/main_tutorial.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {

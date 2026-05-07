@@ -4,7 +4,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/main.dart' show rootNavigatorKey;
-import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider;
+import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, dietTutorialTriggerProvider;
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
