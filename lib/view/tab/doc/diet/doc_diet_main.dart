@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/main.dart' show navigationBarHideProvider;
 import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, tutorialCoachMarkDiet;
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/providers/diet_navigation_provider.dart' show dietNavigateRequestProvider;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
@@ -43,6 +44,20 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    // 바디 화면에서 넘어온 날짜로 이동 요청 처리
+    ref.listen<DateTime?>(dietNavigateRequestProvider, (prev, next) {
+      if (next != null) {
+        setState(() {
+          _focusedDay = next;
+        });
+        // 요청 처리 후 리셋 (같은 날짜로 재이동 가능하도록)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(dietNavigateRequestProvider.notifier).state = null;
+        });
+      }
+    });
+
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
 

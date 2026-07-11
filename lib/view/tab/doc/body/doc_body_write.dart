@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/providers/diet_navigation_provider.dart' show dietNavigateRequestProvider;
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
@@ -130,9 +131,10 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                   padding: EdgeInsets.symmetric(horizontal: 20 * wtio),
                   child: Column(
                     children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: 
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
                           Text(
                             displayDay,
                             style: TextStyle(
@@ -142,6 +144,8 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
                               fontWeight: FontWeight.w400
                             ),
                           ),
+                          goToDietButton(),
+                        ],
                       ),
                       SizedBox(height: 8 * htio,),
                       makeBorder(),
@@ -321,6 +325,53 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
   }
 
 
+
+  // 해당 날짜의 식단 기록 화면으로 바로 이동
+  void _goToDietScreen() {
+    ref.read(dietNavigateRequestProvider.notifier).state = focusedDay;
+    Navigator.of(context).pop(); // 바텀시트 닫기
+  }
+
+  Widget goToDietButton() {
+    return GestureDetector(
+      onTap: _goToDietScreen,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12 * wtio, vertical: 6 * htio),
+        decoration: ShapeDecoration(
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1 * wtio, color: const Color(0xFF0D85E7)),
+            borderRadius: BorderRadius.circular(99),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.restaurant_menu,
+              size: 13 * htio,
+              color: const Color(0xFF0D85E7),
+            ),
+            SizedBox(width: 5 * wtio),
+            Text(
+              '식단 기록',
+              style: TextStyle(
+                color: const Color(0xFF0D85E7),
+                fontSize: 11 * htio,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(width: 3 * wtio),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 10 * htio,
+              color: const Color(0xFF0D85E7),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Container makeBorder() {
     return Container(
