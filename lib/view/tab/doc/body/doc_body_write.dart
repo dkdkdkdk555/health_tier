@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
-import 'package:my_app/providers/diet_navigation_provider.dart' show dietNavigateRequestProvider;
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
@@ -326,10 +326,12 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
 
 
-  // 해당 날짜의 식단 기록 화면으로 바로 이동
+  // 해당 날짜의 식단 기록 화면으로 바로 이동 (go_router)
   void _goToDietScreen() {
-    ref.read(dietNavigateRequestProvider.notifier).state = focusedDay;
+    final dayStr = DateFormat('yyyy-MM-dd').format(focusedDay);
+    final router = GoRouter.of(context);
     Navigator.of(context).pop(); // 바텀시트 닫기
+    router.push('/doc/diet?day=$dayStr');
   }
 
   Widget goToDietButton() {

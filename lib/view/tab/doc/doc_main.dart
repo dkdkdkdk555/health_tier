@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/main.dart' show rootNavigatorKey;
 import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, dietTutorialTriggerProvider;
-import 'package:my_app/providers/diet_navigation_provider.dart' show dietNavigateRequestProvider;
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
@@ -153,13 +152,6 @@ class _DocMainState extends ConsumerState<DocMain> {
 
   @override
   Widget build(BuildContext context) {
-    // 바디 화면에서 '식단 기록' 버튼을 누르면 식단 탭으로 전환
-    ref.listen<DateTime?>(dietNavigateRequestProvider, (prev, next) {
-      if (next != null && _selectedIndex != 1) {
-        _onTap(1);
-      }
-    });
-
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         // TODO: 모바일, 태블릿 반응형 분기처리

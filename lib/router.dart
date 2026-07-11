@@ -53,6 +53,18 @@ final router = GoRouter(
         GoRoute(
           path: '/doc',
           builder: (context, state) => const DocMain(),
+          routes: [
+            GoRoute(
+              // 특정 날짜 식단 화면 (체중기록 → '식단 기록' 버튼)
+              path: 'diet',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                final dayStr = state.uri.queryParameters['day'];
+                final day = dayStr != null ? DateTime.parse(dayStr) : DateTime.now();
+                return DocDietRoutePage(focusedDay: day);
+              },
+            ),
+          ],
         ),
         GoRoute(path: '/stc', builder: (context, state) => const StcMain()),
         GoRoute(

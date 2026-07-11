@@ -2,11 +2,11 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:my_app/main.dart' show navigationBarHideProvider;
 import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, tutorialCoachMarkDiet;
 import 'package:my_app/providers/db_providers.dart';
-import 'package:my_app/providers/diet_navigation_provider.dart' show dietNavigateRequestProvider;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
@@ -17,7 +17,10 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 part '../../../tutorial/diet_tutorial.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
-  const DocDietMain({super.key});
+  const DocDietMain({super.key, this.initialDay});
+
+  /// 진입 시 포커스할 날짜 (미지정 시 오늘)
+  final DateTime? initialDay;
 
   @override
   ConsumerState<DocDietMain> createState() => _DocDietMainState();
@@ -27,13 +30,18 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
   @override
   bool get wantKeepAlive => true;
 
-  DateTime _focusedDay = DateTime.now();
+  late DateTime _focusedDay;
 
   double _dragDistance = 0;
   double _bodyHeightSize = 414; // 기본값 = 최소값
   final double _minHeightSize = 414; // 바텀영역 최소값
   final double _maxHeightSize = 595; // 바텀영역 최댓감
 
+  @override
+  void initState() {
+    super.initState();
+    _focusedDay = widget.initialDay ?? DateTime.now();
+  }
 
   void _goFocusedDay({required DateTime selectedDay}) {
     setState(() {
@@ -44,21 +52,6 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    // 바디 화면에서 넘어온 날짜로 이동 요청 처리
-    // listen 이 아닌 watch 를 쓰는 이유: PageView 가 이 페이지를 뒤늦게 빌드하므로,
-    // 이미 세팅돼 있던 요청 값도 (구독 이후 변경뿐 아니라) 놓치지 않고 소비해야 함
-    final navigateRequest = ref.watch(dietNavigateRequestProvider);
-    if (navigateRequest != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        setState(() {
-          _focusedDay = navigateRequest;
-        });
-        // 요청 처리 후 리셋 (같은 날짜로 재이동 가능하도록)
-        ref.read(dietNavigateRequestProvider.notifier).state = null;
-      });
-    }
 
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
@@ -135,5 +128,40 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
     ref.invalidate(selectDietDayDoc(refreshDay));
     ref.invalidate(htDayDocDetail(refreshDay));
     ref.invalidate(htDayDocOfMonth(refreshMonth));
+  }
+}
+
+/// go_router 로 진입하는 특정 날짜 식단 화면.
+/// (예: 체중기록 화면의 '식단 기록' 버튼 → /doc/diet?day=yyyy-MM-dd)
+class DocDietRoutePage extends StatelessWidget {
+  const DocDietRoutePage({super.key, required this.focusedDay});
+
+  final DateTime focusedDay;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
+        surfaceTintColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF333333)),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          '식단 기록',
+          style: TextStyle(
+            color: Color(0xFF333333),
+            fontSize: 17,
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: DocDietMain(initialDay: focusedDay),
+    );
   }
 }
