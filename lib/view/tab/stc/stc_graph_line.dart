@@ -60,6 +60,14 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
               final values = list.map((e) => e.value).toList();
               final days = list.map((e) => e.day).toList();
 
+              // 날짜 간격을 반영한 x좌표 (첫 데이터 기준 경과 일수)
+              final firstDate = DateTime.parse(days.first);
+              final xValues = days
+                  .map((d) =>
+                      DateTime.parse(d).difference(firstDate).inDays.toDouble())
+                  .toList();
+              final maxX = xValues.last > 0 ? xValues.last : 1.0;
+
               const decVal = 0.4;
               final rawMin = values.reduce((a, b) => a < b ? a : b);
               final rawMax = values.reduce((a, b) => a > b ? a : b);
@@ -105,6 +113,8 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                       onPointerCancel: (_) => widget.onTapGraph(true),
                       child: LineChart(
                         LineChartData(
+                          minX: 0,
+                          maxX: maxX,
                           minY: minY,
                           maxY: maxY,
                           gridData: const FlGridData(
@@ -135,13 +145,13 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                                 checkToShowDot: (spot, barData) =>
                                     showTooltip &&
                                     focusedIndex != null &&
-                                    spot.x.toInt() == focusedIndex,
+                                    spot.x == xValues[focusedIndex!],
                               ),
                               belowBarData: BarAreaData(show: false),
                               spots: List.generate(
                                 values.length,
                                 (index) =>
-                                    FlSpot(index.toDouble(), values[index]),
+                                    FlSpot(xValues[index], values[index]),
                               ),
                             ),
                           ],
@@ -164,7 +174,7 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                                 final spot = response?.lineBarSpots?.first;
                                 if (spot != null) {
                                   setState(() {
-                                    focusedIndex = spot.x.toInt();
+                                    focusedIndex = spot.spotIndex;
                                     showTooltip = true;
                                   });
                                 }
@@ -181,8 +191,8 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
                     ),
                   ),
                   if (showTooltip && focusedIndex != null)
-                    makeDetailBallon(
-                        chartWidth, chartHeight, minY, maxY, values, days),
+                    makeDetailBallon(chartWidth, chartHeight, minY, maxY,
+                        values, days, xValues, maxX),
                 ],
               );
             },
@@ -192,8 +202,15 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
     );
   }
 
-  Positioned makeDetailBallon(double chartWidth, double chartHeight,
-      double minY, double maxY, List<double> values, List<String> days) {
+  Positioned makeDetailBallon(
+      double chartWidth,
+      double chartHeight,
+      double minY,
+      double maxY,
+      List<double> values,
+      List<String> days,
+      List<double> xValues,
+      double maxX) {
     if (focusedIndex == null ||
         focusedIndex! >= values.length ||
         focusedIndex! >= days.length) {
@@ -203,8 +220,8 @@ class _StcGraphLineState extends ConsumerState<StcGraphLine> {
     final chartPaddingLeft = 27 * wtio;
     final chartInnerWidth = chartWidth - chartPaddingLeft;
 
-    final x = (chartInnerWidth / (values.length - 1)) * focusedIndex! +
-        chartPaddingLeft;
+    final x =
+        chartInnerWidth * (xValues[focusedIndex!] / maxX) + chartPaddingLeft;
     final weightY = values[focusedIndex!];
     final relativeY = (maxY - weightY) / (maxY - minY);
     final y = relativeY * chartHeight;
