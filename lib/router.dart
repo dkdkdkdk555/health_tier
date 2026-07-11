@@ -55,14 +55,10 @@ final router = GoRouter(
           builder: (context, state) => const DocMain(),
           routes: [
             GoRoute(
-              // 특정 날짜 식단 화면 (체중기록 → '식단 기록' 버튼)
+              // 식단 화면 (체중기록 → '식단 기록' 버튼). 포커스 날짜는 dietFocusedDayProvider 공유
               path: 'diet',
               parentNavigatorKey: rootNavigatorKey,
-              builder: (context, state) {
-                final dayStr = state.uri.queryParameters['day'];
-                final day = dayStr != null ? DateTime.parse(dayStr) : DateTime.now();
-                return DocDietRoutePage(focusedDay: day);
-              },
+              builder: (context, state) => const DocDietRoutePage(),
             ),
           ],
         ),

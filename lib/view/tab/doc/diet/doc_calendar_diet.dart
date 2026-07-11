@@ -40,6 +40,18 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
   }
 
   @override
+  void didUpdateWidget(covariant DocCalendarDiet oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 외부(공용 provider)에서 포커스 날짜가 바뀌면 캘린더도 따라가도록 동기화
+    if (!isSameDay(oldWidget.ifocusedDay, widget.ifocusedDay)) {
+      setState(() {
+        _focusedDay = widget.ifocusedDay;
+        _selectedDay = widget.ifocusedDay;
+      });
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     heightRatio = ScreenRatio(context).heightRatio;

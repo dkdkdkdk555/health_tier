@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:my_app/main.dart' show navigationBarHideProvider;
 import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, tutorialCoachMarkDiet;
 import 'package:my_app/providers/db_providers.dart';
+import 'package:my_app/providers/diet_focused_day_provider.dart' show dietFocusedDayProvider;
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/diet/doc_calendar_diet.dart';
 import 'package:my_app/view/tab/doc/diet/doc_diet_detail.dart';
@@ -17,10 +18,7 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 part '../../../tutorial/diet_tutorial.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
-  const DocDietMain({super.key, this.initialDay, this.isStandalone = false});
-
-  /// 진입 시 포커스할 날짜 (미지정 시 오늘)
-  final DateTime? initialDay;
+  const DocDietMain({super.key, this.isStandalone = false});
 
   /// go_router 라우트로 단독 표시되는 인스턴스인지 여부.
   /// true 면 탭 인스턴스와의 튜토리얼 GlobalKey 중복을 피하기 위해 키를 붙이지 않음.
@@ -34,28 +32,24 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
   @override
   bool get wantKeepAlive => true;
 
-  late DateTime _focusedDay;
+  // 포커스 날짜는 공용 provider(dietFocusedDayProvider)를 단일 출처로 사용한다.
+  // 탭 인스턴스와 /doc/diet 라우트 인스턴스가 같은 값을 공유하므로 선택 날짜가 보존된다.
+  DateTime get _focusedDay => ref.read(dietFocusedDayProvider);
 
   double _dragDistance = 0;
   double _bodyHeightSize = 414; // 기본값 = 최소값
   final double _minHeightSize = 414; // 바텀영역 최소값
   final double _maxHeightSize = 595; // 바텀영역 최댓감
 
-  @override
-  void initState() {
-    super.initState();
-    _focusedDay = widget.initialDay ?? DateTime.now();
-  }
-
   void _goFocusedDay({required DateTime selectedDay}) {
-    setState(() {
-      _focusedDay = selectedDay;
-    });
+    ref.read(dietFocusedDayProvider.notifier).state = selectedDay;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final focusedDay = ref.watch(dietFocusedDayProvider);
 
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
@@ -68,7 +62,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
         Column(
           children: [
             SizedBox(height: 8 * heightRatio,),
-            DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, useTutorialKeys: !widget.isStandalone, ),
+            DocCalendarDiet(focusedDay: focusedDay, onGoToFocusedDay: _goFocusedDay, useTutorialKeys: !widget.isStandalone, ),
             SizedBox(height: 20 * heightRatio,),
             SizedBox(height: 414 * heightRatio,)
           ],
@@ -97,7 +91,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
                 _dragDistance = 0;
               });
             },
-            child: DocDietDetail(focusedDay: _focusedDay, bottomHeight: bottomHeight,),
+            child: DocDietDetail(focusedDay: focusedDay, bottomHeight: bottomHeight,),
           ),
         ),
       ],
@@ -135,12 +129,10 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
   }
 }
 
-/// go_router 로 진입하는 특정 날짜 식단 화면.
-/// (예: 체중기록 화면의 '식단 기록' 버튼 → /doc/diet?day=yyyy-MM-dd)
+/// go_router 로 진입하는 식단 화면 (예: 체중기록 화면의 '식단 기록' 버튼 → /doc/diet).
+/// 포커스 날짜는 dietFocusedDayProvider 를 공유하므로 별도 파라미터가 필요 없다.
 class DocDietRoutePage extends StatelessWidget {
-  const DocDietRoutePage({super.key, required this.focusedDay});
-
-  final DateTime focusedDay;
+  const DocDietRoutePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +157,7 @@ class DocDietRoutePage extends StatelessWidget {
           ),
         ),
       ),
-      body: DocDietMain(initialDay: focusedDay, isStandalone: true),
+      body: const DocDietMain(isStandalone: true),
     );
   }
 }
