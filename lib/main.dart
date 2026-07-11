@@ -34,7 +34,6 @@ import 'package:my_app/view/tab/cmu/feed/dtl/feed_detail.dart';
 import 'package:my_app/view/tab/cmu/feed/srch/cmu_total_srch.dart';
 import 'package:my_app/view/tab/cmu/feed/user_profile/cmu_usr_profile.dart';
 import 'package:my_app/view/tab/cmu/feed/write/write_feed.dart';
-import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart' show DocDietRoutePage;
 import 'package:my_app/view/tab/doc/doc_main.dart';
 import 'package:my_app/view/tab/simple_cache.dart' show osType;
 import 'package:my_app/view/tab/stc/stc_main.dart';

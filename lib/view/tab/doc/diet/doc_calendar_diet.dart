@@ -13,13 +13,10 @@ class DocCalendarDiet extends ConsumerStatefulWidget {
     super.key,
     required DateTime focusedDay,
     required this.onGoToFocusedDay,
-    this.useTutorialKeys = true,
   }) : ifocusedDay = focusedDay;
 
   final DateTime ifocusedDay;
   final void Function({required DateTime selectedDay}) onGoToFocusedDay;
-  // 튜토리얼용 GlobalKey 부착 여부 (라우트로 띄우는 인스턴스는 false → 중복 방지)
-  final bool useTutorialKeys;
 
   @override
   ConsumerState<DocCalendarDiet> createState() => _DocCalendarDietState();
@@ -97,7 +94,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                   },
                   child: Text(
                     '$year년 $month월',
-                    key: widget.useTutorialKeys ? dietCalendarHeader : null,
+                    key: dietCalendarHeader,
                     style: TextStyle(
                       color: const Color(0xFF333333),
                       fontSize: 16 * heightRatio,
@@ -119,7 +116,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                 horizontal: 20 * widthRatio,
               ),
               child: TableCalendar(
-                key: widget.useTutorialKeys ? dietCalendar : null,
+                key: dietCalendar,
                 headerVisible: false,
                 daysOfWeekVisible: false,
                 firstDay: DateTime.utc(2022, 1, 1),
@@ -173,7 +170,7 @@ class _DocCalendarDietState extends ConsumerState<DocCalendarDiet> {
                 vertical: 20 * heightRatio,
               ),
               child: Column(
-                key: widget.useTutorialKeys ? totalKcalAndProtien : null,
+                key: totalKcalAndProtien,
                 children: [
                   makeTotal(
                     'assets/icons/kcal.svg',

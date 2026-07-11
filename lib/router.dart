@@ -53,14 +53,6 @@ final router = GoRouter(
         GoRoute(
           path: '/doc',
           builder: (context, state) => const DocMain(),
-          routes: [
-            GoRoute(
-              // 식단 화면 (체중기록 → '식단 기록' 버튼). 포커스 날짜는 dietFocusedDayProvider 공유
-              path: 'diet',
-              parentNavigatorKey: rootNavigatorKey,
-              builder: (context, state) => const DocDietRoutePage(),
-            ),
-          ],
         ),
         GoRoute(path: '/stc', builder: (context, state) => const StcMain()),
         GoRoute(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_app/main.dart' show rootNavigatorKey;
 import 'package:my_app/notifier/tutorial_notifier.dart' show dietTutorialStorageProvider, dietTutorialTriggerProvider;
+import 'package:my_app/providers/doc_tab_provider.dart' show docTabSwitchRequestProvider;
 import 'package:my_app/util/dialog_utils.dart';
 import 'package:my_app/util/firebase_remote_config_service.dart' show RemoteConfigService;
 import 'package:my_app/view/tab/doc/diet/doc_diet_main.dart';
@@ -152,6 +153,16 @@ class _DocMainState extends ConsumerState<DocMain> {
 
   @override
   Widget build(BuildContext context) {
+    // 자식(예: 체중기록의 '식단 기록' 버튼)에서 온 탭 전환 요청 처리
+    ref.listen<int?>(docTabSwitchRequestProvider, (prev, next) {
+      if (next != null) {
+        if (_selectedIndex != next) _onTap(next);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(docTabSwitchRequestProvider.notifier).state = null;
+        });
+      }
+    });
+
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         // TODO: 모바일, 태블릿 반응형 분기처리

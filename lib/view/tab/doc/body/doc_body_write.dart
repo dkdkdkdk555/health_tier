@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_app/model/body/doc_detail_model.dart';
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/providers/diet_focused_day_provider.dart' show dietFocusedDayProvider;
+import 'package:my_app/providers/doc_tab_provider.dart' show docTabSwitchRequestProvider;
 import 'package:flutter/services.dart';
 import 'package:my_app/extension/limit_value_formatter.dart';
 import 'package:my_app/util/error_message_utils.dart' show showAppMessage;
@@ -327,13 +327,12 @@ class _DocBodyWriteState extends ConsumerState<DocBodyWrite> {
 
 
 
-  // 해당 날짜의 식단 기록 화면으로 바로 이동 (go_router)
-  // 선택 날짜를 공용 provider 에 세팅해두면 라우트/탭이 공유하므로 이후에도 보존된다.
+  // 팝업을 닫고 식단 탭으로 전환하여 해당 날짜의 식단을 보여준다.
+  // 날짜는 공용 provider(dietFocusedDayProvider)로 공유되어 탭 이동 후에도 보존된다.
   void _goToDietScreen() {
     ref.read(dietFocusedDayProvider.notifier).state = focusedDay;
-    final router = GoRouter.of(context);
+    ref.read(docTabSwitchRequestProvider.notifier).state = 1; // 식단 탭
     Navigator.of(context).pop(); // 바텀시트 닫기
-    router.push('/doc/diet');
   }
 
   Widget goToDietButton() {
