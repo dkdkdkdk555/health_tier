@@ -64,3 +64,10 @@ macos/Flutter/Flutter-Debug.xcconfig
 macos/Flutter/Flutter-Release.xcconfig
 
 /lib/firebase_options.dart
+.claude/settings.json
+ios/Flutter/Release.xcconfig
+ios/Flutter/Debug.xcconfig
+linux/flutter/generated_plugin_registrant.cc
+linux/flutter/generated_plugin_registrant.cc
+/linux/flutter
+/macos/Flutter
