@@ -1,10 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart' show AutoSizeText;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
-import 'package:my_app/main.dart' show calendarItemKey;
 import 'package:my_app/model/body/doc_main_model.dart' show DocDayInfo;
-import 'package:my_app/notifier/tutorial_notifier.dart' show calendarCellTutorialUsedProvider;
 import 'package:my_app/providers/db_providers.dart';
 import 'package:my_app/util/screen_ratio.dart' show ScreenRatio;
 import 'package:my_app/view/tab/doc/body/calendar/calendar_daysofweek.dart';
@@ -35,6 +34,7 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
   DateTime? _selectedDay;
   late double widthRatio;
   late double heightRatio;
+  
 
   @override
   void initState() {
@@ -43,21 +43,14 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
     _focusedDay = widget.ifocusedDay;
     widthRatio = widget.ratio.widthRatio;
     heightRatio = widget.ratio.heightRatio;
-
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    
-  }
 
   @override
   Widget build(BuildContext context) {
     _focusedDay = widget.ifocusedDay; // CustomCalendarHeader 에서 nextMonth, prevMonth 경우 업데이트
     final yearMonth = DateFormat('yyyy-MM').format(_focusedDay);
     final dayDocList = ref.watch(htDayDocOfMonth(yearMonth));
-
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20 * widthRatio),
@@ -151,42 +144,49 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
           orElse: () => DocDayInfo(day: '', weight: null, totalCalorie: null),
         );
 
-        final isCalendarCellTutorialUsed = ref.watch(calendarCellTutorialUsedProvider);
-
-        final bool shouldAttachKey = 
-          !isCalendarCellTutorialUsed && // 최초에만 현재월의1일에 해당 글로벌키를 할당하도록
-          DateTime.now().year == _focusedDay.year &&
-          DateTime.now().month == _focusedDay.month &&
-          date.day == 1;
-
         final bgColor = stampColor(matched.stamp);
 
         return LayoutBuilder(
-          key: shouldAttachKey ? calendarItemKey : null,
           builder: (context, constraints) {
-            return Stack(
-              children: [
-                SizedBox(
-                  height: constraints.maxHeight,
-                  child: Column(
-                    children: [
-                      SizedBox(height: topPadding),
+            return SizedBox(
+              height: constraints.maxHeight,
+              child: Column(
+                children: [
+                  SizedBox(height: topPadding),
                   SizedBox(
                     height: textBoxHeight,
-                    child: Container(
-                        margin: EdgeInsets.only(bottom:1 * heightRatio),
-                        decoration: isSelected ? const BoxDecoration(shape: BoxShape.circle, color: Colors.white) : null,
-                        child: Center(
-                        child: Text(
-                          '${date.day}',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontSize: 11.0 * heightRatio,
-                            color: isSelected ? Colors.black : Colors.black.withValues(alpha: 0.5),
-                            fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // 날짜 숫자 (선택 시 흰 원 배경)
+                        Container(
+                          margin: EdgeInsets.only(bottom:1 * heightRatio),
+                          decoration: isSelected ? const BoxDecoration(shape: BoxShape.circle, color: Colors.white) : null,
+                          child: Center(
+                          child: Text(
+                            '${date.day}',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontSize: 11.0 * heightRatio,
+                              color: isSelected ? Colors.black : Colors.black.withValues(alpha: 0.5),
+                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal
+                            ),
                           ),
                         ),
-                      ),
+                        ),
+                        // 운동한 날: 날짜 좌측 아이콘
+                        if (matched.workYn == 1)
+                          Positioned(
+                            left: 2 * widthRatio,
+                            child: _dayMarkIcon('assets/icons/work_out.svg'),
+                          ),
+                        // 음주한 날: 날짜 우측 아이콘
+                        if (matched.drunYn == 1)
+                          Positioned(
+                            right: 2 * widthRatio,
+                            child: _dayMarkIcon('assets/icons/drink.svg'),
+                          ),
+                      ],
                     ),
                   ),
                   SizedBox(
@@ -202,24 +202,8 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                       ],
                     ),
                   ),
-                    ],
-                  ),
-                ),
-                // 운동한 날: 좌측 세로 악센트 바
-                if (matched.workYn == 1)
-                  Positioned(
-                    left: 3 * widthRatio,
-                    top: 8 * heightRatio,
-                    bottom: 8 * heightRatio,
-                    child: Container(
-                      width: 3 * widthRatio,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.45),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-              ],
+                ],
+              ),
             );
           },
         ).withBackground(bgColor);
@@ -265,6 +249,21 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
     );
   }
 
+
+  // 날짜 양 옆에 표시되는 운동/음주 마커 아이콘
+  Widget _dayMarkIcon(String path) {
+    return SizedBox(
+      width: 12 * widthRatio,
+      height: 12 * heightRatio,
+      child: SvgPicture.asset(
+        path,
+        colorFilter: const ColorFilter.mode(
+          Color(0xFF333333),
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
 
   Widget _infoBox(String value, String unit) {
     return Container(
