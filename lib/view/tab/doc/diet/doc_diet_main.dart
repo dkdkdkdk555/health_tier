@@ -17,10 +17,14 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 part '../../../tutorial/diet_tutorial.dart';
 
 class DocDietMain extends ConsumerStatefulWidget {
-  const DocDietMain({super.key, this.initialDay});
+  const DocDietMain({super.key, this.initialDay, this.isStandalone = false});
 
   /// 진입 시 포커스할 날짜 (미지정 시 오늘)
   final DateTime? initialDay;
+
+  /// go_router 라우트로 단독 표시되는 인스턴스인지 여부.
+  /// true 면 탭 인스턴스와의 튜토리얼 GlobalKey 중복을 피하기 위해 키를 붙이지 않음.
+  final bool isStandalone;
 
   @override
   ConsumerState<DocDietMain> createState() => _DocDietMainState();
@@ -64,7 +68,7 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
         Column(
           children: [
             SizedBox(height: 8 * heightRatio,),
-            DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, ),
+            DocCalendarDiet(focusedDay: _focusedDay, onGoToFocusedDay: _goFocusedDay, useTutorialKeys: !widget.isStandalone, ),
             SizedBox(height: 20 * heightRatio,),
             SizedBox(height: 414 * heightRatio,)
           ],
@@ -161,7 +165,7 @@ class DocDietRoutePage extends StatelessWidget {
           ),
         ),
       ),
-      body: DocDietMain(initialDay: focusedDay),
+      body: DocDietMain(initialDay: focusedDay, isStandalone: true),
     );
   }
 }
