@@ -33,13 +33,15 @@ final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, ye
       DAY,
       MAX(WEIGHT) AS WEIGHT,
       SUM(CALORIE) AS TOTAL_CALORIE,
-      MAX(STAMP) AS STAMP
+      MAX(STAMP) AS STAMP,
+      MAX(WKOUT_YN) AS WKOUT_YN
     FROM (
       SELECT
         DAY,
         WEIGHT,
         NULL AS CALORIE,
-        STAMP
+        STAMP,
+        WKOUT_YN
       FROM HT_DAY_BODY
       WHERE DAY LIKE ?
       UNION ALL
@@ -47,7 +49,8 @@ final htDayDocOfMonth = FutureProvider.family<List<DocDayInfo>, String>((ref, ye
         DAY,
         NULL AS WEIGHT,
         CALORIE,
-        NULL AS STAMP
+        NULL AS STAMP,
+        NULL AS WKOUT_YN
       FROM HT_DAY_DIET
       WHERE DAY LIKE ?
     )

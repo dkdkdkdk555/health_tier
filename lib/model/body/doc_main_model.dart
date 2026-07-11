@@ -5,12 +5,14 @@ class DocDayInfo {
   final double? weight;
   final double? totalCalorie;
   final String? stamp;
+  final int? workYn; // 운동 여부 (1: 운동함)
 
   DocDayInfo({
     required this.day,
     this.weight,
     this.totalCalorie,
     this.stamp,
+    this.workYn,
   });
 
   factory DocDayInfo.fromRow(QueryRow row) {
@@ -19,6 +21,7 @@ class DocDayInfo {
       weight: row.readNullable<double>('WEIGHT'),
       totalCalorie: row.readNullable<double>('TOTAL_CALORIE'),
       stamp: row.readNullable<String>('STAMP'),
+      workYn: row.readNullable<int>('WKOUT_YN'),
     );
   }
 }

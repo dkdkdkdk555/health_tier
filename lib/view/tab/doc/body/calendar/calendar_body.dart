@@ -164,11 +164,13 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
         return LayoutBuilder(
           key: shouldAttachKey ? calendarItemKey : null,
           builder: (context, constraints) {
-            return SizedBox(
-              height: constraints.maxHeight,
-              child: Column(
-                children: [
-                  SizedBox(height: topPadding),
+            return Stack(
+              children: [
+                SizedBox(
+                  height: constraints.maxHeight,
+                  child: Column(
+                    children: [
+                      SizedBox(height: topPadding),
                   SizedBox(
                     height: textBoxHeight,
                     child: Container(
@@ -200,8 +202,24 @@ class _CustomCalenderBodyState extends ConsumerState<CustomCalenderBody> {
                       ],
                     ),
                   ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+                // 운동한 날: 좌측 세로 악센트 바
+                if (matched.workYn == 1)
+                  Positioned(
+                    left: 3 * widthRatio,
+                    top: 8 * heightRatio,
+                    bottom: 8 * heightRatio,
+                    child: Container(
+                      width: 3 * widthRatio,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         ).withBackground(bgColor);
