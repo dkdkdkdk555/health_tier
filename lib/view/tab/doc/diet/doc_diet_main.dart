@@ -46,17 +46,19 @@ class _DocDietMainState extends ConsumerState<DocDietMain> with AutomaticKeepAli
     super.build(context);
 
     // 바디 화면에서 넘어온 날짜로 이동 요청 처리
-    ref.listen<DateTime?>(dietNavigateRequestProvider, (prev, next) {
-      if (next != null) {
+    // listen 이 아닌 watch 를 쓰는 이유: PageView 가 이 페이지를 뒤늦게 빌드하므로,
+    // 이미 세팅돼 있던 요청 값도 (구독 이후 변경뿐 아니라) 놓치지 않고 소비해야 함
+    final navigateRequest = ref.watch(dietNavigateRequestProvider);
+    if (navigateRequest != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         setState(() {
-          _focusedDay = next;
+          _focusedDay = navigateRequest;
         });
         // 요청 처리 후 리셋 (같은 날짜로 재이동 가능하도록)
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(dietNavigateRequestProvider.notifier).state = null;
-        });
-      }
-    });
+        ref.read(dietNavigateRequestProvider.notifier).state = null;
+      });
+    }
 
     final ratio = ScreenRatio(context);
     final heightRatio = ratio.heightRatio;
