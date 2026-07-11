@@ -44,7 +44,11 @@ class ErrorInterceptor extends InterceptorsWrapper {
     if (err.response?.statusCode == 401) {
       // 401 Unauthorized
       try {
-        final errorResponse = ErrorResponse.fromJson(err.response?.data);
+        // 응답 body가 JSON(Map)이 아닐 수 있음 (프록시/서버의 HTML·텍스트 에러 페이지 등)
+        final data = err.response?.data;
+        final errorResponse = data is Map<String, dynamic>
+            ? ErrorResponse.fromJson(data)
+            : ErrorResponse(code: '', message: '', status: 401);
         // 'TOKEN_EXPIRED' 코드 처리: 리프레시 토큰으로 재발급 시도
         if (errorResponse.code == 'TOKEN_EXPIRED') {
           // 1. SharedPreferences에서 리프레시 토큰과 userId를 가져옵니다.
@@ -119,7 +123,8 @@ class ErrorInterceptor extends InterceptorsWrapper {
             }
           }
         }
-      } on Exception catch (e) {
+      } catch (e) {
+        // TypeError 등 Error 계열도 잡아야 DioException[unknown]으로 UI에 새어나가지 않음
         debugPrint('Error handling 401 response: $e');
       }
     } else if (err.response?.statusCode == 400) {
@@ -132,7 +137,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
         //   Navigator.of(context, rootNavigator: true).pop();
         // }
         showAppMessage(context,
-            message: err.response?.data['message'] ?? '잘못된 요청입니다.',
+            message: _extractMessage(err.response?.data, '잘못된 요청입니다.'),
             type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
@@ -141,16 +146,11 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 서버 예외: NoFoundFeedException
       // 코드명: NOT_FOUND
       if (context != null) {
-        showAppMessage(context,
-            message: err.response?.data['message'] ?? '해당 요청을 찾을 수 없습니다.',
-            type: AppMessageType.dialog);
-        if (err.response?.data['message'] != null) {
-          if (err.response!.data['message']
-              .toString()
-              .contains('해당 피드가 존재하지 않습니다.')) {
-            ref.invalidate(feedPaginationProvider);
-            ref.invalidate(feedParamsProvider);
-          }
+        final msg = _extractMessage(err.response?.data, '해당 요청을 찾을 수 없습니다.');
+        showAppMessage(context, message: msg, type: AppMessageType.dialog);
+        if (msg.contains('해당 피드가 존재하지 않습니다.')) {
+          ref.invalidate(feedPaginationProvider);
+          ref.invalidate(feedParamsProvider);
         }
         return _returnUiOkStatus(handler, originalRequest);
       }
@@ -160,7 +160,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 코드명: NOT_ACCEPTABLE
       if (context != null) {
         showAppMessage(context,
-            message: err.response?.data['message'] ?? '파일 업로드에 실패하였습니다.',
+            message: _extractMessage(err.response?.data, '파일 업로드에 실패하였습니다.'),
             type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
@@ -169,7 +169,7 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 코드명: CONFLICT
       if (context != null) {
         showAppMessage(context,
-            message: err.response?.data['message'] ?? '요청 실패, 다시 시도해주세요.',
+            message: _extractMessage(err.response?.data, '요청 실패, 다시 시도해주세요.'),
             type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
@@ -177,23 +177,9 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 서버 예외: MaxUploadSizeExceededException
       //// 코드명: PAYLOAD_TOO_LARGE
       if (context != null) {
-        final data = err.response?.data;
-        String msg = '파일 크기가 제한(20MB)을 초과하였습니다.';
-
-        if (data is Map && data['message'] != null) {
-          final message = data['message'];
-          if (message is String) {
-            msg = message;
-          } else if (message is List && message.isNotEmpty) {
-            msg = message.first.toString();
-          } else {
-            msg = message.toString();
-          }
-        }
-
         showAppMessage(
           context,
-          message: msg,
+          message: _extractMessage(err.response?.data, '파일 크기가 제한(20MB)을 초과하였습니다.'),
           type: AppMessageType.dialog,
         );
 
@@ -204,8 +190,8 @@ class ErrorInterceptor extends InterceptorsWrapper {
       // 코드명: UNPROCESSABLE_ENTITY
       if (context != null) {
         showAppMessage(context,
-            message: err.response?.data['message'] ??
-                'PSQLException 데이터(형식/길이/중복) 오류가 발생했습니다.\n운영환경에서는 불명확한 메세지는 보여주지 않음.',
+            message: _extractMessage(err.response?.data,
+                'PSQLException 데이터(형식/길이/중복) 오류가 발생했습니다.\n운영환경에서는 불명확한 메세지는 보여주지 않음.'),
             type: AppMessageType.dialog);
         return _returnUiOkStatus(handler, originalRequest);
       }
@@ -234,6 +220,17 @@ class ErrorInterceptor extends InterceptorsWrapper {
       showInstallRcmndPopup(context);
     }
     return handler.next(err);
+  }
+
+  // 응답 body가 Map이 아닐 수 있으므로(프록시의 HTML/텍스트 에러 페이지 등) 안전하게 메시지 추출
+  String _extractMessage(dynamic data, String fallback) {
+    if (data is Map && data['message'] != null) {
+      final message = data['message'];
+      if (message is String) return message;
+      if (message is List && message.isNotEmpty) return message.first.toString();
+      return message.toString();
+    }
+    return fallback;
   }
 
   // UI에서 의미 없는 값 반환

@@ -484,10 +484,11 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
       if(mounted) {
         _closeLoadingDialog();
         if(e.response?.statusCode == 423) {
+          final data = e.response?.data;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             showAppMessage(
-              context, message:e.response?.data['message'] ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog,
+              context, message: (data is Map ? data['message'] : null) ?? '오늘 무료 분석 횟수를 초과했습니다.', type: AppMessageType.dialog,
             );
           });
         }
