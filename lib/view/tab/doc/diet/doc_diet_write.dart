@@ -872,7 +872,6 @@ class _DocDietWriteState extends ConsumerState<DocDietWrite> {
                               );
                             }),
                           
-                            if(inputList.length < 10)
                             // 하단 추가 버튼
                             TextButton.icon(
                               onPressed: () {
